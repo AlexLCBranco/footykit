@@ -1,0 +1,26 @@
+# Tests on every push and pull request: version check (pushes only), lint, typecheck, unit tests.
+name: CI
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  pull_request: {}
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2 # check-version compares HEAD with its parent
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check-version
+        if: github.event_name == 'push'
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test

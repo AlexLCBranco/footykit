@@ -1,0 +1,8 @@
+node_modules
+dist
+test-results
+playwright-report
+.vercel
+*.log
+test-output
+data-check-output
