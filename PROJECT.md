@@ -22,7 +22,11 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   List, Slate (cards, notes, 3-way odds), Team Calendar (1 / 2 weeks / month, free windows, FIFA windows), Team List,
   season series popup, quick standings popup, copy as image (card / whole view), neutral venues and FIFA windows from
   researched config. Not yet: continent map, marquee selection copy, notes in the gauntlet backup, the Slate as a
-  gauntlet widget, the live Vercel project + Blob store (Alex imports the repo first).
+  gauntlet widget.
+- **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
+  footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
+  in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
+  the verify and freshness steps check).
 - Every view is **in flux** (one smoke test each in e2e/smoke.spec.ts, no layout assertions).
 
 ## Where things live
