@@ -30,3 +30,6 @@ jobs:
         env:
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
       - run: npx tsx scripts/check-live.ts --expect test-output/snapshot.json
+        env:
+          # the site to check (repo variable); the gauntlet address until /football is routed there
+          FOOTYKIT_SITE: ${{ vars.FOOTYKIT_SITE }}

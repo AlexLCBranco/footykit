@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 
 const arg = (n: string) => { const i = process.argv.indexOf(n); return i > 0 ? process.argv[i + 1] : undefined; };
-const site = (arg('--site') ?? process.env.FOOTYKIT_SITE ?? 'https://gauntlet-home.vercel.app/football/').replace(/\/?$/, '/');
+const site = (arg('--site') || process.env.FOOTYKIT_SITE || 'https://gauntlet-home.vercel.app/football/').replace(/\/?$/, '/');
 const live = async () => {
   const r = await fetch(`${site}data/snapshot.json?t=${Date.now()}`, { cache: 'no-store' });
   if (!r.ok) throw new Error(`snapshot: HTTP ${r.status}`);

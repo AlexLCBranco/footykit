@@ -20,3 +20,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx tsx scripts/check-live.ts
+        env:
+          # the site to check (repo variable); the gauntlet address until /football is routed there
+          FOOTYKIT_SITE: ${{ vars.FOOTYKIT_SITE }}
