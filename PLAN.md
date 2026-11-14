@@ -2,7 +2,8 @@
 
 ## Status
 - **Phase 1 (data check)**: done 2026-11-14 — ESPN covers every required check for all 54 clubs. Report:
-  `docs/phase1-report.md`; per-club table: `docs/phase1-data-check.md`. Waiting on Alex's answers (end of the report).
+  `docs/phase1-report.md`; per-club table: `docs/phase1-data-check.md`. Alex's answers recorded below.
+- **Phase 2**: ready to start (menu = packed bar).
 - Phases 2–5: not started.
 
 ## Decisions log
@@ -11,8 +12,14 @@
 - 2026-11-14: neutral venues from researched config (ESPN's `neutralSite` is never true); tie winners from aggregate /
   shootout scores; rescheduled postponed events dropped.
 - 2026-11-14: tests use recorded ESPN fixtures (ESPN refuses headless Chromium).
-- Proposed, awaiting Alex: snapshot in Vercel Blob every 3 h + same-origin live day function; 3-way odds from ESPN
-  (DraftKings) in the Slate; state championships = the four ESPN has.
+- 2026-11-14, Alex confirmed the Phase 1 questions:
+  - Snapshot lives in **Vercel Blob** (one overwritten file). Alex said yes to creating the Blob store on the Vercel
+    project and adding its token as a GitHub secret; that setup happens in Phase 2.
+  - Refresh: snapshot every 3 h + same-origin live day function (CDN 60 s while matches are live/near, 10 min otherwise,
+    1 day for past dates).
+  - State championships: show the four ESPN has (Carioca, Paulista, Mineiro, Gaúcho); the others are skipped (warning).
+  - 3-way odds from ESPN (DraftKings), decimal, in the Slate only.
+  - Premier League kickoff times: taken as given from ESPN for now; revisit if they move a lot.
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

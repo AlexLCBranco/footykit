@@ -17,7 +17,8 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - Tests never call live ESPN (it refuses headless Chromium); they use recorded fixtures.
 
 ## Current state (2026-11-14)
-- **Phase 1 (data check) done**, waiting on Alex's answers: docs/phase1-report.md. No UI yet.
+- **Phase 1 (data check) done** (docs/phase1-report.md); Alex's answers are in PLAN.md's decisions log. No UI yet.
+  Phase 2 is next.
 
 ## Where things live
 - `config/season.ts` — followed-club rules, competitions per league, ESPN season years.
