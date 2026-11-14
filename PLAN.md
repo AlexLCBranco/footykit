@@ -6,6 +6,7 @@
 - Phases 2–5: not started.
 
 ## Decisions log
+- 2026-11-14: Menu = calendarkit's **packed bar** (Alex). Copy that one in Phase 2; the rail is not ported.
 - 2026-11-14: ESPN's free API is the only source (no fallback needed; football-data.org / API-Football not tested).
 - 2026-11-14: neutral venues from researched config (ESPN's `neutralSite` is never true); tie winners from aggregate /
   shootout scores; rescheduled postponed events dropped.
