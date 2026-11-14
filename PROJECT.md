@@ -17,17 +17,37 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - Tests never call live ESPN (it refuses headless Chromium); they use recorded fixtures.
 
 ## Current state (2026-11-14)
-- **Phase 1 (data check) done** (docs/phase1-report.md); Alex's answers are in PLAN.md's decisions log. No UI yet.
-  Phase 2 is next.
+- Phase 1 (data check) done (docs/phase1-report.md).
+- **Phase 2 (calendar core) in progress** — v0.2.0: snapshot job, day function, app shell with the packed bar, Day
+  List, Slate (cards, notes, 3-way odds), Team Calendar (1 / 2 weeks / month, free windows, FIFA windows), Team List,
+  season series popup, quick standings popup, copy as image (card / whole view), neutral venues and FIFA windows from
+  researched config. Not yet: continent map, marquee selection copy, notes in the gauntlet backup, the Slate as a
+  gauntlet widget, the live Vercel project + Blob store (Alex imports the repo first).
+- Every view is **in flux** (one smoke test each in e2e/smoke.spec.ts, no layout assertions).
 
 ## Where things live
 - `config/season.ts` — followed-club rules, competitions per league, ESPN season years.
-- `src/data/espn.ts` — the ESPN fields footykit reads; `src/data/ko.ts` — tie winners and competition state.
-- `scripts/data-check.ts` — Phase 1 check (`npm run data-check`, network; writes docs/phase1-data-check.md).
+- `config/competitions.ts` — competitions shown and their codes; friendlies dropped.
+- `config/neutral.ts`, `config/fifa-windows.ts` — researched facts with sources (for Alex to confirm).
+- `src/data/espn.ts` — raw ESPN fields and ESPN → Match (`slimMatch`); only the job, `src/data/day.ts` and `ko.ts`
+  import it (tests/build.test.ts checks). `src/data/snapshot.ts` — the snapshot shape the app reads.
+- `src/data/` — model (days in the viewer's zone), form, series, windows, neutral, live (day-layer merge).
+- `src/components/` — `Footy.tsx` (the widget: bar + view), `TopBar.tsx` (packed bar), one file per view (`DayList`,
+  `Slate`, `TeamCalendar`, `TeamList`), `Bits.tsx` (shared parts), `Popups.tsx`, `Copy.tsx`, `page.ts` (page state,
+  title, address). `src/App.tsx` — URL, history, title, today. `src/slate/` — notes store and note box.
+- `api/day.ts` — Vercel function: one ESPN date's scores and odds (CDN 60 s hot / 10 min / 1 day).
+- `scripts/update-snapshot.ts` (+ `scripts/snapshot/`) — the job; `fetch-logos.ts`; `make-fixture.ts`; `check-live.ts`;
+  `data-check.ts` (Phase 1).
 
 ## Run, test
-- `npm test` (Vitest) · `npm run lint` · `npm run typecheck` · `npm run data-check`.
-- CI (`.github/workflows/ci.yml`): version check, lint, typecheck, unit tests.
+- `npm run dev` (port 5190 via .claude/launch.json; serves test-output/snapshot.json if present, else the fixture; real
+  day function) · `npm run build` · `npm run preview` (4190: fixture snapshot, empty day layer).
+- `npm test` (Vitest) · `npm run lint` · `npm run typecheck` · `npm run e2e` (Playwright smoke on fixture data; "now"
+  fixed through `window.__FK_NOW__`).
+- `npm run update-snapshot` (writes test-output/snapshot.json; `--upload` to Blob, `--raw` for fixtures) ·
+  `npm run make-fixture` · `npm run fetch-logos`.
+- CI (`.github/workflows/ci.yml`): version check, lint, typecheck, unit, build, e2e. `snapshot.yml` (every 3 h) and
+  `freshness.yml` (every 4 h) run only once the repo variable SNAPSHOT_ENABLED is "true".
 
 ## Decisions in force
 - Data source: ESPN's unofficial API (`site.api.espn.com`), no key. Club feed `soccer/all/teams/{id}/schedule`
@@ -35,6 +55,11 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - A tie's winner comes from the aggregate / shootout scores, never from ESPN's per-match `winner` flag.
 - Neutral venues come from researched config: ESPN's `neutralSite` is always false.
 - A postponed event that was rescheduled under a new id is dropped.
+- Friendlies and pre-season trophies are not shown; super cups, Copa do Nordeste and state championships are.
+- Rows read AWAY 2 @ 1 HOME (calendarkit's layout); "v" instead of "@" at a neutral venue.
+- Form (last 5) and streaks count every competition; the record is the league W-D-L.
+- Free windows: MIDWEEK Tue–Thu, WEEKEND Fri–Mon; a window without a match is tinted on the Team Calendar.
+- Copies are transparent; a Slate copy lays its cards out by the largest-cards rule (page 1920 × 911).
 
 ## Testing policy
 Automate every check that can be automated: unit, integration, and end-to-end with Playwright, using throwaway data

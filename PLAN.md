@@ -3,8 +3,8 @@
 ## Status
 - **Phase 1 (data check)**: done 2026-11-14 — ESPN covers every required check for all 54 clubs. Report:
   `docs/phase1-report.md`; per-club table: `docs/phase1-data-check.md`. Alex's answers recorded below.
-- **Phase 2**: ready to start (menu = packed bar).
-- Phases 2–5: not started.
+- **Phase 2**: in progress (v0.2.0, 2026-11-14) — PROJECT.md "Current state" lists what is built and what is left.
+- Phases 3–5: not started.
 
 ## Decisions log
 - 2026-11-14: Menu = calendarkit's **packed bar** (Alex). Copy that one in Phase 2; the rail is not ported.
@@ -20,6 +20,9 @@
   - State championships: show the four ESPN has (Carioca, Paulista, Mineiro, Gaúcho); the others are skipped (warning).
   - 3-way odds from ESPN (DraftKings), decimal, in the Slate only.
   - Premier League kickoff times: taken as given from ESPN for now; revisit if they move a lot.
+- 2026-11-14 (Phase 2): friendlies dropped, every other competition shown; the snapshot is footykit's own slim shape
+  (~100 KB gzipped); the day function is keyed by ESPN (US Eastern) date; neutral venues and FIFA windows live in
+  config with sources, for Alex to confirm.
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

@@ -1,0 +1,32 @@
+# Snapshot every 3 hours: fetch ESPN, build and check the snapshot (scripts/update-snapshot.ts exits 1 on a broken
+# one, so it never replaces a good one), upload it to Vercel Blob (footykit/snapshot.json, overwritten), then check the
+# site serves the new one. A failing step fails the run; GitHub emails the repo owner.
+# Off until the Blob store exists: the job runs only when the repo variable SNAPSHOT_ENABLED is "true" and the
+# BLOB_READ_WRITE_TOKEN secret is set.
+name: Snapshot
+
+on:
+  schedule:
+    - cron: '7 */3 * * *'
+  workflow_dispatch: {}
+
+concurrency:
+  group: snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    if: vars.SNAPSHOT_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsx scripts/update-snapshot.ts --upload
+        env:
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+      - run: npx tsx scripts/check-live.ts --expect test-output/snapshot.json

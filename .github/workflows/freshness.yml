@@ -1,0 +1,22 @@
+# Freshness alarm every 4 hours: fails (GitHub emails the repo owner) when the live snapshot is more than 7 hours old
+# or the day function doesn't answer. Off until the Blob store exists (repo variable SNAPSHOT_ENABLED).
+name: Data freshness
+
+on:
+  schedule:
+    - cron: '37 */4 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    if: vars.SNAPSHOT_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsx scripts/check-live.ts

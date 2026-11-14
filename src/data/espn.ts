@@ -1,6 +1,8 @@
 // The parts of ESPN's soccer JSON that footykit reads. ESPN's API is unofficial and undocumented, so these types list
 // only fields seen in real responses; everything is optional because ESPN leaves fields out freely.
 
+import type { Match, MatchStatus, Team } from './snapshot.ts';
+
 export interface EspnScore {
   value?: number;
   displayValue?: string;
@@ -58,4 +60,68 @@ export function aggregateOf(c: EspnCompetitor): number | undefined {
 
 export function shootoutOf(c: EspnCompetitor): number | undefined {
   return (typeof c.score === 'object' ? c.score.shootoutScore : undefined) ?? c.shootoutScore;
+}
+
+// ---------- ESPN event → footykit Match (the snapshot job and the day function) ----------
+
+const STATUS: Record<string, MatchStatus> = {
+  STATUS_POSTPONED: 'ppd', STATUS_CANCELED: 'can', STATUS_ABANDONED: 'abd', STATUS_SUSPENDED: 'susp', STATUS_FORFEIT: 'post',
+};
+
+export function statusOf(c: EspnCompetition): MatchStatus {
+  const t = c.status?.type;
+  const special = STATUS[t?.name ?? ''];
+  if (special) return special;
+  if (t?.completed || t?.state === 'post') return 'post';
+  return t?.state === 'in' ? 'in' : 'pre';
+}
+
+/** One ESPN event as a Match. `slug` is the competition (scoreboard events carry no `league`). Returns undefined for
+ * an event without two sides. */
+export function slimMatch(e: EspnEvent, slug: string, isLeague: boolean): Match | undefined {
+  const c = e.competitions[0];
+  const home = c?.competitors.find((x) => x.homeAway === 'home');
+  const away = c?.competitors.find((x) => x.homeAway === 'away');
+  if (!c || !home || !away) return undefined;
+  const st = statusOf(c);
+  const m: Match = { id: e.id, t: c.date ?? e.date, c: slug, st, h: home.team.id, a: away.team.id };
+  if (e.timeValid === false || c.timeValid === false) m.tbd = 1;
+  // League rounds are named after the season ("2026-27 English Premier League"), and so are one-off super cups
+  // ("2026 UEFA Super Cup"): only a real stage name is kept.
+  const round = e.seasonType?.name;
+  if (!isLeague && round && !/\b\d{4}\b/.test(round)) m.r = round;
+  if (c.leg?.value) m.leg = c.leg.value;
+  if (st === 'post' || st === 'in' || st === 'abd' || st === 'susp') {
+    const hs = scoreOf(home), as = scoreOf(away);
+    if (hs !== undefined && !Number.isNaN(hs)) m.hs = hs;
+    if (as !== undefined && !Number.isNaN(as)) m.as = as;
+    const ha = aggregateOf(home), aa = aggregateOf(away);
+    if (ha !== undefined && aa !== undefined) { m.ha = ha; m.aa = aa; }
+    const hp = shootoutOf(home), ap = shootoutOf(away);
+    if (hp !== undefined && ap !== undefined && (hp > 0 || ap > 0)) { m.hp = hp; m.ap = ap; }
+  }
+  if (st === 'in') {
+    const s = c.status as { displayClock?: string; type?: { shortDetail?: string; name?: string } } | undefined;
+    m.clk = s?.type?.name === 'STATUS_HALFTIME' ? 'HT' : (s?.displayClock ?? s?.type?.shortDetail);
+  }
+  if (c.venue?.fullName) m.v = c.venue.fullName;
+  if (c.venue?.address?.city) m.city = c.venue.address.city;
+  if (c.venue?.address?.country) m.ctry = c.venue.address.country;
+  return m;
+}
+
+/** Both sides of an event as Teams. */
+export function teamsOf(e: EspnEvent): Team[] {
+  return (e.competitions[0]?.competitors ?? []).map((x) => {
+    const t = x.team as EspnCompetitor['team'] & { shortDisplayName?: string };
+    return { id: t.id, abbr: t.abbreviation ?? t.id, name: t.displayName ?? t.abbreviation ?? t.id, short: t.shortDisplayName ?? t.displayName ?? t.id };
+  });
+}
+
+/** American moneyline ("+150", "-200", 400) → decimal odds, 2 decimals. */
+export function decimalOdds(american: string | number | undefined): number | undefined {
+  const n = typeof american === 'number' ? american : american === undefined || american === '' || american === 'EVEN' ? (american === 'EVEN' ? 100 : NaN) : Number(american);
+  if (!Number.isFinite(n) || n === 0) return undefined;
+  const d = n > 0 ? 1 + n / 100 : 1 + 100 / -n;
+  return Math.round(d * 100) / 100;
 }

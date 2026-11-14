@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/football/api/:path*", "destination": "/api/:path*" },
+    { "source": "/football", "destination": "/index.html" },
+    { "source": "/football/", "destination": "/index.html" },
+    { "source": "/football/:path+", "destination": "/:path+" }
+  ],
+  "headers": [
+    { "source": "/version.json", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/football/version.json", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
+  ]
+}
