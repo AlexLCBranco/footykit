@@ -5,13 +5,45 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/football/api/:path*", "destination": "/api/:path*" },
-    { "source": "/football", "destination": "/index.html" },
-    { "source": "/football/", "destination": "/index.html" },
-    { "source": "/football/:path+", "destination": "/:path+" }
+    {
+      "source": "/football/data/snapshot.json",
+      "destination": "https://4sng5dxh0699fuye.public.blob.vercel-storage.com/footykit/snapshot.json"
+    },
+    {
+      "source": "/football/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/football",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/football/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/football/:path+",
+      "destination": "/:path+"
+    }
   ],
   "headers": [
-    { "source": "/version.json", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
-    { "source": "/football/version.json", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
+    {
+      "source": "/version.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/football/version.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
   ]
 }

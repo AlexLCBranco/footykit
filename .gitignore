@@ -6,3 +6,6 @@ playwright-report
 *.log
 test-output
 data-check-output
+
+.vercel
+.env*

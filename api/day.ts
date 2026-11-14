@@ -3,8 +3,8 @@
 // same-origin request and the CDN shares it between viewers; ESPN needs no key, so nothing secret lives here.
 // A competition whose scoreboard fails is left out; if every one fails the answer is 502 and the page keeps the snapshot.
 
-import { DAY_SLUGS, dayCacheSeconds, dayFromBoards, isEspnDate } from '../src/data/day.ts';
-import { SITE, type EspnEvent } from '../src/data/espn.ts';
+import { DAY_SLUGS, dayCacheSeconds, dayFromBoards, isEspnDate } from '../src/data/day.js';
+import { SITE, type EspnEvent } from '../src/data/espn.js';
 
 async function board(slug: string, date: string): Promise<{ slug: string; events: EspnEvent[] } | undefined> {
   try {

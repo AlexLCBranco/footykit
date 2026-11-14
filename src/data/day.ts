@@ -2,8 +2,8 @@
 // over the snapshot for the day on screen, so a final score shows a minute or two after full time.
 // ESPN's `dates=YYYYMMDD` is a US Eastern day; the page asks for every Eastern date its local day touches.
 
-import { COMPETITIONS, compInfo } from '../../config/competitions.ts';
-import { decimalOdds, slimMatch, type EspnEvent } from './espn.ts';
+import { COMPETITIONS, compInfo } from '../../config/competitions.js';
+import { decimalOdds, slimMatch, type EspnEvent } from './espn.js';
 import type { Match } from './snapshot.ts';
 
 /** 3-way decimal odds and their provider. */
