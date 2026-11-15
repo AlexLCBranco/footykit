@@ -10,7 +10,7 @@
   (play-off + bracket, v0.9.0) built, waiting on Alex's look. League tables (v0.10.0) and the Brasileirão places engine
   (v0.11.0), Libertadores / Sudamericana pages (v0.12.0) and the domestic cups (v0.13.0)
   built. Alex will send changes after using the app for a while (2026-11-15).
-- Phase 5: not started.
+- **Phase 5**: plan agreed 2026-11-15 (Decisions log); step 1 (simulator view, v0.14.0) in progress.
 
 ## Decisions log
 - 2026-11-14: Menu = calendarkit's **packed bar** (Alex). Copy that one in Phase 2; the rail is not ported.
@@ -78,6 +78,16 @@
 - 2026-11-15: domestic cups in config/domesticCups.ts (Wikipedia 2026-27 / 2026 pages: two-legged rounds, finals,
   tie rules), built on Alex's "continue"; listed for him to confirm. Rounds come from ESPN as drawn; the bracket runs
   back from the final while rounds halve (16 ties at most), a bigger current round shows open above it.
+- 2026-11-15, Alex: Phase 5 (UCL what-if simulator) plan:
+  - its own view `?view=whatif` (lazy chunk), opened from a "What-if" button on the UCL page; the UCL page stays real;
+  - 3 columns on one screen: matches left to play (Pending on top) | compact table | bracket (play-offs + R16);
+  - a click cycles home 1-0 → draw 1-1 → away 0-1 → empty; a typed score only when goal difference matters;
+  - "favourites" = the better pot wins (UEFA coefficient order); same pot → home win (the snapshot has no odds);
+  - re-roll: each unlocked match home / draw / away at 1/3 each, scored 1-0 / 1-1 / 0-1 (Alex: no preference);
+  - a real result replaces a pick (the pick is dropped);
+  - scenarios in this browser, localStorage `fk:whatif:v1` (the gauntlet backup saves every key); no share link;
+  - two steps, Alex looks after each: v0.14.0 the view, click / keys, live table + bracket, Pending, team filter,
+    bulk fill, lock / clear / re-roll, undo / redo; v0.15.0 saved named scenarios, switchable in one click.
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

@@ -25,6 +25,7 @@ import './footy.css';
 
 // the Champions League page is its own chunk: the day views never download it
 const UclPage = lazy(() => import('./UclPage'));
+const WhatIfPage = lazy(() => import('./WhatIfPage'));
 const LeagueTablePage = lazy(() => import('./LeagueTablePage'));
 const CupsPage = lazy(() => import('./CupsPage'));
 
@@ -101,7 +102,8 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   let view: ReactNode;
   if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} />;
   else if (page.view === 'list' && page.team) view = <TeamList team={page.team} from={page.listFrom} to={page.month} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
-  else if (page.view === 'ucl') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><UclPage today={today} /></Suspense>;
+  else if (page.view === 'ucl') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><UclPage today={today} onWhatIf={() => onPage({ ...page, view: 'whatif' })} /></Suspense>;
+  else if (page.view === 'whatif') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WhatIfPage today={today} onBack={() => onPage({ ...page, view: 'ucl' })} /></Suspense>;
   else if (page.view === 'table') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueTablePage league={page.league ?? DEFAULT_LEAGUE} today={today} /></Suspense>;
   else if (page.view === 'cups') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><CupsPage cup={page.cup ?? DEFAULT_CUP} today={today} /></Suspense>;
   else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} />;

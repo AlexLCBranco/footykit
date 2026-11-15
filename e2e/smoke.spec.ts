@@ -201,6 +201,43 @@ test('Champions League page: 36 rows, 8 squares each, zones and paths', async ({
   expect(errors).toEqual([]);
 });
 
+test('UCL what-if: picks move the table, keys move on, bulk fill, undo, filter, kept in fk:whatif:v1', async ({ page }) => {
+  const errors = await open(page, '?view=ucl');
+  await page.getByTestId('ucl-whatif').click();
+  await expect(page).toHaveTitle('UCL what-if — footykit');
+  const matches = page.getByTestId('wi-match');
+  await expect(matches).toHaveCount(72);
+  await expect(page.getByTestId('wi-row')).toHaveCount(36);
+  await expect(page.getByTestId('wi-block')).toHaveCount(4);
+  // a click, then 2 on the same match (moves on), then X on the next
+  await matches.first().click();
+  await expect(matches.first()).toHaveAttribute('data-pick', '1-0');
+  await page.keyboard.press('2');
+  await page.keyboard.press('x');
+  await expect(matches.nth(0)).toHaveAttribute('data-pick', '0-1');
+  await expect(matches.nth(1)).toHaveAttribute('data-pick', '1-1');
+  await expect(page.getByTestId('wi-count')).toHaveText('2 of 72 picked');
+  // a typed score
+  await matches.nth(2).getByLabel('Type a score').fill('4-0');
+  await matches.nth(2).getByLabel('Type a score').press('Enter');
+  await expect(matches.nth(2)).toHaveAttribute('data-pick', '4-0');
+  // every match a home win: the table is final; undo goes back
+  await page.getByTestId('wi-fill-home').click();
+  await expect(page.getByTestId('wi-count')).toHaveText('72 of 72 picked');
+  await expect(page.getByTestId('whatif-page')).toContainText('Final table');
+  await page.keyboard.press('Control+z');
+  await expect(page.getByTestId('wi-count')).toHaveText('3 of 72 picked');
+  // one team's matches; its path in the bracket
+  await page.getByTestId('wi-team').selectOption({ label: 'Arsenal' });
+  await expect(matches).toHaveCount(4);
+  await expect(page.getByTestId('wi-path')).toContainText('other half');
+  // kept for the next visit
+  expect(Object.keys(JSON.parse((await page.evaluate(() => localStorage.getItem('fk:whatif:v1')))!).current.picks)).toHaveLength(3);
+  await page.reload();
+  await expect(page.getByTestId('wi-count')).toHaveText('3 of 72 picked');
+  expect(errors).toEqual([]);
+});
+
 test('league tables: the picker switches leagues; rows, squares, zones, Brasileirão extras', async ({ page }) => {
   const errors = await open(page, '?view=table&league=eng.1');
   await expect(page).toHaveTitle('Premier League table — footykit');

@@ -86,11 +86,11 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
           {page.view === 'cal' && <Tabs<Span> label="Span" testId="span" value={page.span} options={[[1, '1 week'], [2, '2 weeks'], ['month', 'Month']]} onChange={(s) => onPage({ ...page, span: s, week: page.span === 'month' && s !== 'month' ? mondayOf(today.slice(0, 7) === page.month ? today : `${page.month}-01`) : page.week, month: s === 'month' && page.span !== 'month' ? addDays(page.week, 3).slice(0, 7) : page.month })} />}
         </>
       ) : (
-        <Tabs<View> label="View" testId="views" value={page.view} options={[['day', 'List'], ['slate', 'Slate'], ['ucl', 'UCL'], ['table', 'Tables'], ['cups', 'Cups']]} onChange={(v) => onPage({ ...page, view: v })} />
+        <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? 'ucl' : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['ucl', 'UCL'], ['table', 'Tables'], ['cups', 'Cups']]} onChange={(v) => onPage({ ...page, view: v })} />
       )}
       {page.view === 'table' && <LeaguePicker league={page.league ?? DEFAULT_LEAGUE} onPick={(l) => onPage({ ...page, league: l })} />}
       {page.view === 'cups' && <CupPicker cup={page.cup ?? DEFAULT_CUP} onPick={(c) => onPage({ ...page, cup: c })} />}
-      {page.view !== 'ucl' && page.view !== 'table' && page.view !== 'cups' && <span className="fk-date-block">
+      {page.view !== 'ucl' && page.view !== 'whatif' && page.view !== 'table' && page.view !== 'cups' && <span className="fk-date-block">
         <button type="button" className="fk-step" aria-label="Previous" title="Previous" onClick={() => onStep(-1)}>‹</button>
         <span className="fk-date-text" data-testid="date-text">{dateText}</span>
         <button type="button" className="fk-step" aria-label="Next" title="Next" onClick={() => onStep(1)}>›</button>
