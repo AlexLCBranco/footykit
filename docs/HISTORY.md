@@ -53,3 +53,9 @@ the opponents still to play by code instead, pots and places in its tooltip. No 
 Every team-name link goes through ctx.onTeam, now `teamClickPage`: span month, month = today's (before: the span shown
 was kept, around the clicked day). The Slate part's `?view=cal&team=…&on=…` links open the same unless they name a
 span. Left as it was: in the simulators a team name filters the matches (Phase 5 behaviour), it isn't a calendar link.
+
+## 2026-11-15 — Backlog item 9: rest days in the Team List (v0.24.0)
+Ported from calendarkit (TeamListView.tsx withRest / model.ts teamRestDays, App.tsx showRest, team.css .ck-rest-row):
+every day between the first and last match with no match of the club, from all its matches (never the months shown);
+rest = the difference of match dates. The toggle lives on the bar beside the List view (footykit has no Options menu),
+state in Footy.tsx only. The Phase 2 plan's "no rest-day counts" is superseded by this item.

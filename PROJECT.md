@@ -59,7 +59,9 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   Sudamericana places live over the picked table (`braRowZones`, shared with the Tables page), the Sudamericana,
   Libertadores and Copa do Brasil finals pickable by winner (`Sim.winners`; an open final counts both ways, a played one
   drops the pick).
-- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.23.0 item 8, a team-name click (and the Slate part's
+- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.24.0 item 9, Team List rest days as calendarkit's: a quiet "Rest"
+  row per day without a match between the club's first and last match (`restDays` in model.ts), "Rest days" on the bar
+  (on at every load, unchecking lasts until a reload, not in the address); no break label. v0.23.0 item 8, a team-name click (and the Slate part's
   teamCalendarUrl) opens the Team Calendar in month span on the current month (`teamClickPage`); a span picked after
   sticks until the next click. The simulators' team names still filter (not changed; asked Alex). v0.22.0 item 7, pot badges gone from the UCL table, its squares and
   the simulator (the pot stays in the tooltips; the Left column lists the opponents' codes); a Pots tab on the UCL page

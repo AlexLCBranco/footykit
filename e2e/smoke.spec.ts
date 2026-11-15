@@ -607,3 +607,28 @@ test('team names open the month Calendar from the tables, UCL, Trailing and cups
   }
   expect(errors).toEqual([]);
 });
+
+test('Team List rest days: a Rest row for each day without a match, on by default, off until a reload', async ({ page }) => {
+  const errors = await open(page, '?view=list&team=359');
+  await expect(page).toHaveTitle(/^ARS list · Nov 2026/);
+  await expect(page.getByTestId('show-rest')).toBeChecked();
+  const matchDays = new Set(await page.getByTestId('team-row').locator('.fk-tl-date').allTextContents());
+  const rest = page.getByTestId('rest-row');
+  // Arsenal play before and after November: every November day without a match is a Rest row
+  await expect(rest).toHaveCount(30 - matchDays.size);
+  await expect(rest.first()).toContainText('Rest');
+  for (const d of await rest.locator('.fk-tl-date').allTextContents()) expect(matchDays.has(d)).toBe(false);
+  // rows in date order, matches and rest days mixed
+  const order = await page.locator('[data-testid="team-list"] .fk-tl-month').last().locator('[data-testid="rest-row"], [data-testid="team-row"]').evaluateAll((els) => els.map((e) => Number(e.querySelector('.fk-tl-date')!.textContent!.replace(/\D/g, ''))));
+  expect(order).toEqual([...order].sort((a, b) => a - b));
+  // the November break (FIFA window) is just a run of Rest rows, no label
+  await expect(page.getByTestId('team-list')).not.toContainText(/international break/i);
+  // unchecked: gone, and not in the address; a reload brings them back
+  await page.getByTestId('show-rest').uncheck();
+  await expect(rest).toHaveCount(0);
+  expect(page.url()).not.toContain('rest');
+  await page.reload();
+  await expect(page.getByTestId('show-rest')).toBeChecked();
+  await expect(rest).toHaveCount(30 - matchDays.size);
+  expect(errors).toEqual([]);
+});

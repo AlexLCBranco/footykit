@@ -24,6 +24,18 @@ export function addDays(day: string, n: number): string {
   return d.toISOString().slice(0, 10);
 }
 export const daysBetween = (a: string, b: string) => Math.round((Date.parse(`${b}T12:00:00Z`) - Date.parse(`${a}T12:00:00Z`)) / 86400000);
+
+/** A team's rest days, as calendarkit's Team List counts them: every day between its first and last match with no
+ * match of the team. Rest between two matches = the difference of their dates (back to back = 1, one empty day = 2),
+ * so a gap of n days holds n − 1 rest days. Always from all the team's matches, never a filtered list. */
+export function restDays(matchDays: Iterable<string>): string[] {
+  const days = new Set(matchDays);
+  const sorted = [...days].sort();
+  const out: string[] = [];
+  if (!sorted.length) return out;
+  for (let d = sorted[0]!; d < sorted.at(-1)!; d = addDays(d, 1)) if (!days.has(d)) out.push(d);
+  return out;
+}
 /** 0 = Sunday … 6 = Saturday */
 export const weekday = (day: string) => new Date(`${day}T12:00:00Z`).getUTCDay();
 /** The Monday that starts the week holding `day` (European weeks: club football's round runs Fri–Mon). */

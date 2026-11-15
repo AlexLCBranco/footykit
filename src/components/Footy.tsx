@@ -79,6 +79,8 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const [series, setSeries] = useState<SeriesOpen | null>(null);
   const [standings, setStandings] = useState<{ team?: string } | null>(null);
   const [showNotes, setShowNotes] = useState(false);
+  // Team List rest rows: on at every load, unchecking lasts until a reload (calendarkit's rule; not in the address)
+  const [showRest, setShowRest] = useState(true);
   const [tags, setTags] = useState<TagVariant>(savedTagVariant);
   const notes = useMemo(() => localNotesStore(), []);
   // Marquee selection (mouse): only to copy several matches as one image. A new view or day starts with none.
@@ -104,7 +106,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const closeSeries = useCallback(() => setSeries(null), []);
   let view: ReactNode;
   if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} />;
-  else if (page.view === 'list' && page.team) view = <TeamList team={page.team} from={page.listFrom} to={page.month} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
+  else if (page.view === 'list' && page.team) view = <TeamList team={page.team} from={page.listFrom} to={page.month} showRest={showRest} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
   else if (page.view === 'ucl') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><UclPage today={today} tab={page.uclTab ?? 'table'} onTab={(t) => onPage({ ...page, uclTab: t })} onWhatIf={() => onPage(uclWhatIfPage(page))} /></Suspense>;
   else if (page.view === 'whatif' && simLeague(page)) view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueWhatIfPage key={simLeague(page)} league={simLeague(page)!} today={today} onBack={() => onPage({ ...page, view: 'table' })} /></Suspense>;
   else if (page.view === 'whatif') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WhatIfPage today={today} onBack={() => onPage({ ...page, view: 'ucl' })} /></Suspense>;
@@ -127,6 +129,9 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
                 {TAG_VARIANTS.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
               </select>
             </label>
+            {page.view === 'list' && (
+              <label className="fk-check" title="A quiet row for each day without a match between the club's first and last match (until a reload)"><input type="checkbox" checked={showRest} onChange={(e) => setShowRest(e.target.checked)} data-testid="show-rest" /> Rest days</label>
+            )}
             {page.view === 'slate' && (
               <label className="fk-check" title="Note boxes under each card (PRE / LIVE / POST)"><input type="checkbox" checked={!showNotes} onChange={(e) => setShowNotes(!e.target.checked)} data-testid="hide-notes" /> Hide notes</label>
             )}
