@@ -347,6 +347,12 @@
   "precision": "venue",
   "src": "https://www.wikidata.org/wiki/Q4347293"
  },
+ "Estadio Antonio Magalhães Rossel|Bage|Brazil": {
+  "lat": -31.3358,
+  "lon": -54.0956,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q10276776"
+ },
  "Estadio Banco Pichincha|Quito|Ecuador": {
   "lat": -2.1859,
   "lon": -79.9249,

@@ -35,6 +35,13 @@ describe('venue table', () => {
     // La Paz, ~3,600 m (the city's figure: the stadium item has none)
     expect(find('Estadio Hernando Siles')!.elev).toBeGreaterThan(3500);
     expect(altitudeLevel(find('Estadio Hernando Siles')!.elev)?.name).toBe('insane altitude');
+    // Guarany's ground in Bagé, named by venue-overrides.json (make-venues' name match misses it)
+    expect(km(find('Estadio Antonio Magalhães Rossel')!, { lat: -31.33, lon: -54.1 })).toBeLessThan(5);
+  });
+  it('every followed club\'s venue in the recorded snapshot is placed', () => {
+    const followed = new Set(snap.clubs.map((c) => c.id));
+    const unplaced = snap.matches.filter((m) => (followed.has(m.h) || followed.has(m.a)) && m.v && !venueOf(m)).map((m) => `${m.v} (${m.city})`);
+    expect([...new Set(unplaced)]).toEqual([]);
   });
   it('almost every followed club\'s match has a known venue', () => {
     const followed = new Set(snap.clubs.map((c) => c.id));

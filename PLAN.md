@@ -38,6 +38,9 @@
   insane 3,500 m (config/altitude.ts, sources there; 3,500 m is footykit's own line).
 - 2026-11-14, Alex: the Brasileirão's code is BR (was BSA); friendlies and pre-season trophies stay hidden, super cups,
   Copa do Nordeste and state championships shown.
+- 2026-11-14, Alex: the Bagé venue ESPN calls "Estadio Antonio Magalhães Rossel" is Guarany FC's Estádio Antônio
+  Magalhães Rossel, Wikidata Q10276776 (config/venue-overrides.json); no stadium elevation, Bagé is 212 m. Every venue
+  in the snapshot is now on the map; Phase 2 has no open confirmations left.
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---
