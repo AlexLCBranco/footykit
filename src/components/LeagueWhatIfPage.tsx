@@ -15,7 +15,7 @@ import type { Match } from '../data/snapshot';
 import { setPick, setWinner, simMatches, toggleLock, toPlayByWindow, type Sim } from '../data/whatif';
 import { TeamLogo } from './Bits';
 import { useFooty } from './ctx';
-import { GroupNav, HELP, ord, Row, signed, Tools, useFitHeight, useGroupNav, useRowFocus, useWhatIf, type NavGroup } from './WhatIfParts';
+import { GroupNav, HELP, ResetGroup, ord, Row, signed, Tools, useFitHeight, useGroupNav, useRowFocus, useWhatIf, type NavGroup } from './WhatIfParts';
 import { Scenarios } from './WhatIfScenarios';
 import './ucl.css';
 import './whatif.css';
@@ -135,7 +135,7 @@ export default function LeagueWhatIfPage({ league, today, onBack }: { league: Le
           <div className="fk-wi-scroll">
             {nav.group && (
               <div className="fk-wi-group" data-testid="wi-window">
-                <GroupNav nav={nav} unit="window" />
+                <GroupNav nav={nav} unit="window"><ResetGroup matches={nav.group.matches} sim={sim} change={change} unit="window" /></GroupNav>
                 {nav.group.matches.map(rowOf)}
               </div>
             )}

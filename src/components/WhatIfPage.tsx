@@ -10,7 +10,7 @@ import type { Match } from '../data/snapshot';
 import { leaguePhaseMatches, potOf, uclTable, zoneOf } from '../data/ucl';
 import { blocks, meets, setPick, simMatches, toggleLock, toPlay, TOP_COMP, type Sim } from '../data/whatif';
 import { useFooty } from './ctx';
-import { GroupNav, HELP, ord, Row, signed, Tools, useFitHeight, useGroupNav, useRowFocus, useWhatIf, type NavGroup } from './WhatIfParts';
+import { GroupNav, HELP, ResetGroup, ord, Row, signed, Tools, useFitHeight, useGroupNav, useRowFocus, useWhatIf, type NavGroup } from './WhatIfParts';
 import { TeamLogo } from './Bits';
 import { Scenarios } from './WhatIfScenarios';
 import './ucl.css';
@@ -103,7 +103,7 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
           <div className="fk-wi-scroll">
             {nav.group && (
               <div className="fk-wi-group" data-testid="wi-group">
-                <GroupNav nav={nav} unit="matchday" />
+                <GroupNav nav={nav} unit="matchday"><ResetGroup matches={nav.group.matches} sim={sim} change={change} unit="matchday" /></GroupNav>
                 {nav.group.matches.map(rowOf)}
               </div>
             )}

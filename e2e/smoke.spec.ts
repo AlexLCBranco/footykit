@@ -532,3 +532,37 @@ test('the simulator table splits on a full-size window: 36 → 18 | 18, zone bar
   await expect(page.getByTestId('trailing-split')).toHaveAttribute('data-cols', '3');
   expect(errors).toEqual([]);
 });
+
+test('simulator Reset: empties only the matchday shown, keeps locked results, undoable; Clear still clears all', async ({ page }) => {
+  const errors = await open(page, '?view=whatif');
+  const matches = page.getByTestId('wi-match');
+  const reset = page.getByTestId('wi-reset');
+  await expect(reset).toHaveCount(0); // no pick yet
+  await page.getByTestId('wi-fill-home').click();
+  await expect(page.getByTestId('wi-count')).toHaveText('72 of 72 picked');
+  // lock the first match of matchday 5, then Reset matchday 5
+  await matches.first().focus();
+  await page.keyboard.press('l');
+  await expect(matches.first()).toHaveClass(/fk-wi-locked/);
+  await reset.click();
+  await expect(page.getByTestId('wi-count')).toHaveText('55 of 72 picked'); // 17 of 18 emptied, the locked one kept
+  await expect(matches.first()).toHaveAttribute('data-pick', '1-0');
+  await expect(matches.nth(1)).toHaveAttribute('data-pick', '');
+  await expect(reset).toHaveCount(0); // only the locked pick left here
+  // the other matchdays kept theirs
+  await page.getByTestId('wi-next').click();
+  await expect(matches.first()).toHaveAttribute('data-pick', '1-0');
+  await expect(reset).toBeVisible();
+  // undo brings matchday 5 back
+  await page.keyboard.press('Control+z');
+  await expect(page.getByTestId('wi-count')).toHaveText('72 of 72 picked');
+  // the toolbar's Clear still empties every matchday (locked aside)
+  await page.getByTestId('wi-clear').click();
+  await expect(page.getByTestId('wi-count')).toHaveText('1 of 72 picked');
+  // a league: Reset per window
+  await open(page, '?view=whatif&league=eng.1');
+  await matches.first().click();
+  await page.getByTestId('wi-reset').click();
+  await expect(page.getByTestId('wi-count')).toHaveText('0 of 280 picked');
+  expect(errors).toEqual([]);
+});

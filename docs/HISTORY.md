@@ -38,3 +38,8 @@ and picks the fewest columns (up to 3) that fit the window's bottom (the holder'
 with the table), within the width. The simulator grid gives its spare width to the table column (the bracket column
 was taking it) and grows with the table; the list and bracket columns keep the window height. A standings popup
 taller than the window turns position: absolute so the page scrolls to its end.
+
+## 2026-11-15 — Backlog item 6: Reset per matchday (v0.21.0)
+`ResetGroup` in WhatIfParts.tsx, beside the GroupNav header: `clear()` over the matchday's matches shown (with a team
+picked, that team's), so locks stay as with the toolbar's Clear, through the same undo history. Hidden when nothing
+there could be emptied (no pick, or only locked ones).

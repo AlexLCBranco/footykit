@@ -169,6 +169,17 @@ export function GroupNav({ nav, unit, children }: { nav: ReturnType<typeof useGr
   );
 }
 
+/** "Reset" beside a matchday's header: empties that matchday's picks (the matches shown), locked results stay, as
+ * the toolbar's Clear; one step of undo. Shown only while there is a pick it would empty. */
+export function ResetGroup({ matches, sim, change, unit }: { matches: Match[]; sim: Sim; change: (f: (s: Sim) => Sim) => void; unit: string }) {
+  const n = matches.filter((m) => sim.picks[m.id] && !sim.locked[m.id]).length;
+  if (!n) return null;
+  return (
+    <button type="button" className="fk-btn fk-wi-reset" data-testid="wi-reset" onClick={() => change((x) => clear(x, matches))}
+      title={`Empty this ${unit}'s ${n} pick${n === 1 ? '' : 's'} (locked results stay) · Ctrl+Z undoes`}>Reset</button>
+  );
+}
+
 /** Focus moves between the rows shown (keys 1 / X / 2 move on, ↑↓). */
 export function useRowFocus(shown: Match[]) {
   const rows = useRef(new Map<string, HTMLDivElement>());

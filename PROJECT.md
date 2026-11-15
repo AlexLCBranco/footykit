@@ -59,7 +59,8 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   Sudamericana places live over the picked table (`braRowZones`, shared with the Tables page), the Sudamericana,
   Libertadores and Copa do Brasil finals pickable by winner (`Sim.winners`; an open final counts both ways, a played one
   drops the pick).
-- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.20.0 item 5, no scrollbars inside tables: every table goes
+- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.21.0 item 6, "Reset" beside the matchday (window) header empties
+  that one's picks, locked results kept, one undo step; shown only while it has a pick to empty. v0.20.0 item 5, no scrollbars inside tables: every table goes
   through `SplitTable.tsx` (2–3 side-by-side tables, header repeated, rows split evenly; 1 column and the page grows when
   the width won't hold 2); the simulators' table column and the quick standings popup grow instead of scrolling (a popup
   taller than the window sits on the page). v0.19.1 item 4, simulator team codes in a fixed slot (four
