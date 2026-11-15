@@ -48,3 +48,8 @@ there could be emptied (no pick, or only locked ones).
 Removed: the pot badge after each team in the UCL table and the simulator (table and match rows), the pot corner of the
 UCL squares, and the rules' Pots section (now the Pots tab). The Left column was made only of pot badges, so it lists
 the opponents still to play by code instead, pots and places in its tooltip. No settings panel.
+
+## 2026-11-15 — Backlog item 8: team name → month Calendar (v0.23.0)
+Every team-name link goes through ctx.onTeam, now `teamClickPage`: span month, month = today's (before: the span shown
+was kept, around the clicked day). The Slate part's `?view=cal&team=…&on=…` links open the same unless they name a
+span. Left as it was: in the simulators a team name filters the matches (Phase 5 behaviour), it isn't a calendar link.

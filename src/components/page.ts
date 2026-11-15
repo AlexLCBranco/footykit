@@ -61,6 +61,12 @@ export function teamPage(p: Page, team: string, day: string, view: View = 'cal')
   return { ...p, view, team, day, week: mondayOf(day), month: monthOf(day), listFrom: monthOf(day) };
 }
 
+/** What a click on a team name opens, anywhere: its Team Calendar in month span on the current month (Alex). The 1 /
+ * 2-week spans stay on the bar; one picked there is kept by the page until the next team-name click. */
+export function teamClickPage(p: Page, team: string, day: string, today: string): Page {
+  return { ...teamPage(p, team, day, 'cal'), span: 'month', month: monthOf(today) };
+}
+
 /** The address of a page. The date is written for sharing but never read back: a fresh visit opens on today. */
 export function pageSearch(p: Page): string {
   const q = new URLSearchParams();
@@ -90,7 +96,7 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
     // a team link from another page (the Slate part's teamCalendarUrl) names the day to open around: `on=`.
     // A bookmark's `date=` is still never read.
     const on = q.get('on');
-    if (on && /^\d{4}-\d{2}-\d{2}$/.test(on)) return teamPage(p, team, on, view);
+    if (on && /^\d{4}-\d{2}-\d{2}$/.test(on)) return view === 'cal' && !span ? teamClickPage(p, team, on, today) : teamPage(p, team, on, view);
     return { ...p, view, team };
   }
   if (view === 'whatif') { const l = q.get('league'); return isLeague(l) ? { ...p, view, league: l } : { ...p, view }; }

@@ -38,8 +38,14 @@ test('days are never skipped: a day without matches says so', async ({ page }) =
 test('a team link opens its Team Calendar; ← comes back', async ({ page }) => {
   const errors = await open(page);
   await page.locator('[data-team="ARS"]').first().click();
-  await expect(page).toHaveTitle(/^ARS · Nov 16 – Nov 29/);
-  await expect(page.getByTestId('cal-match')).toHaveCount(3);
+  // month span, on the current month
+  await expect(page).toHaveTitle(/^ARS · Nov 2026/);
+  await expect(page.getByTestId('span').getByRole('tab', { name: 'Month' })).toHaveAttribute('aria-selected', 'true');
+  // a span picked now sticks…
+  await page.getByTestId('span').getByRole('tab', { name: '2 weeks' }).click();
+  await expect(page).toHaveTitle(/^ARS · Nov/);
+  await page.getByTestId('page-history').getByLabel('Back').click();
+  await expect(page).toHaveTitle(/^ARS · Nov 2026/);
   await page.getByTestId('page-history').getByLabel('Back').click();
   await expect(page).toHaveTitle('Sat, Nov 21 — footykit');
   expect(errors).toEqual([]);
@@ -589,5 +595,15 @@ test('pots: no pot badges on the UCL page or the simulator (kept in tooltips); t
   await expect(page.getByTestId('wi-match').first()).toBeVisible();
   await expect(page.locator('.fk-pot')).toHaveCount(0);
   await expect(page.getByTestId('wi-match').first().locator('.fk-wi-side').first()).toHaveAttribute('title', /pot \d/);
+  expect(errors).toEqual([]);
+});
+
+test('team names open the month Calendar from the tables, UCL, Trailing and cups pages too', async ({ page }) => {
+  const errors: string[] = [];
+  for (const search of ['?view=table&league=eng.1', '?view=ucl', '?view=trailing&comp=eng.1', '?view=cups&cup=eng.league_cup']) {
+    errors.push(...await open(page, search));
+    await page.locator('a.fk-team, button.fk-team').filter({ hasText: 'Arsenal' }).first().click();
+    await expect(page, search).toHaveTitle(/^ARS · Nov 2026/);
+  }
   expect(errors).toEqual([]);
 });

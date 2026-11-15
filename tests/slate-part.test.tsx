@@ -56,7 +56,7 @@ describe('Slate part', () => {
 
   it('teamCalendarUrl opens that team\'s calendar around the day', () => {
     const p = pageFromSearch('?view=cal&team=359&on=2026-11-21', '2026-12-30', data);
-    expect(p).toMatchObject({ view: 'cal', team: '359', week: '2026-11-16', month: '2026-11' });
+    expect(p).toMatchObject({ view: 'cal', team: '359', span: 'month', week: '2026-11-16', month: '2026-12' });
     // a bookmark's date= is still never read
     expect(pageFromSearch('?view=cal&team=359&date=2026-11-16', '2026-12-30', data).week).toBe('2026-12-28');
   });

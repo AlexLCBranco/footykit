@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { copyColumns } from '../src/components/Copy';
-import { defaultPage, leagueWhatIfPage, pageFromSearch, pagePart, pageSearch, simLeague, stepPage, teamPage, uclWhatIfPage } from '../src/components/page';
+import { defaultPage, leagueWhatIfPage, teamClickPage, pageFromSearch, pagePart, pageSearch, simLeague, stepPage, teamPage, uclWhatIfPage } from '../src/components/page';
 import { formAt } from '../src/data/form';
 import { espnDatesFor, isHot, withLive } from '../src/data/live';
 import { addDays, addMonths, buildModel, dayKey, mondayOf, resultFor } from '../src/data/model';
@@ -14,6 +14,7 @@ import { neutralVenue } from '../src/data/neutral';
 import { seasonSeries } from '../src/data/series';
 import type { Match, Snapshot } from '../src/data/snapshot';
 import { fifaWindowOn, isFreeWindowDay, windowOf } from '../src/data/windows';
+import { teamCalendarUrl } from '../src/slate';
 
 const snap = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/snapshot.json'), 'utf8')) as Snapshot;
 const SP = 'America/Sao_Paulo';
@@ -137,6 +138,15 @@ describe('page helpers', () => {
     expect(t).toMatchObject({ view: 'cal', team: ARS, span: 1, week: '2026-11-16', month: '2026-11' });
     expect(pageFromSearch(pageSearch(t), '2026-11-14', model)).toMatchObject({ view: 'cal', team: ARS, span: 1 });
     expect(pagePart(t, model)).toBe('ARS · Nov 16 – Nov 22');
+  });
+  it('a team-name click opens that team\'s calendar in month span on the current month, whatever span was shown', () => {
+    const t = teamClickPage({ ...p, view: 'cal', team: ARS, span: 1 }, ARS, '2026-10-03', '2026-11-14');
+    expect(t).toMatchObject({ view: 'cal', team: ARS, span: 'month', month: '2026-11' });
+    expect(pagePart(t, model)).toBe('ARS · Nov 2026');
+    // a span the person picks afterwards is kept by the page until the next click
+    expect(pageFromSearch(pageSearch({ ...t, span: 2 }), '2026-11-14', model)).toMatchObject({ span: 2 });
+    // the Slate part's team link (a host outside footykit) opens the same
+    expect(pageFromSearch(teamCalendarUrl(ARS, '2026-10-03', '/football/').split('?')[1]!, '2026-11-14', model)).toMatchObject({ view: 'cal', team: ARS, span: 'month', month: '2026-11' });
   });
   it('days are stepped one at a time, empty days included', () => {
     expect(stepPage(p, 1, model).day).toBe('2026-11-15');
