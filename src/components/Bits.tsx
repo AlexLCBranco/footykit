@@ -23,7 +23,7 @@ export function TeamLogo({ id, size = 20 }: { id: string; size?: number }) {
 
 /** Name and/or logo of a team, a link to its Team Calendar. `label`: abbr (default), short or full name. */
 export function TeamLink({ id, day, label = 'abbr', logo = 'before', logoSize, className = '' }: { id: string; day: string; label?: 'abbr' | 'short' | 'name' | 'none'; logo?: 'before' | 'after' | 'none'; logoSize?: number; className?: string }) {
-  const { model, onTeam } = useFooty();
+  const { model, onTeam, teamHref } = useFooty();
   const t = model.team(id);
   const followed = model.followed.has(id);
   const text = label === 'abbr' ? t.abbr : label === 'short' ? t.short : label === 'name' ? t.name : '';
@@ -36,9 +36,16 @@ export function TeamLink({ id, day, label = 'abbr', logo = 'before', logoSize, c
     </>
   );
   // Only followed clubs have a Team Calendar; another team's name is plain text with its full name on hover.
-  if (!followed) return <span className={`fk-team fk-team-plain ${className}`} title={t.name}>{content}</span>;
+  if (!followed || (!onTeam && !teamHref)) return <span className={`fk-team fk-team-plain ${className}`} title={t.name}>{content}</span>;
+  if (!onTeam && teamHref) {
+    return (
+      <a className={`fk-team fk-team-link ${className}`} href={teamHref(id, day)} target="_blank" rel="noopener noreferrer" title={`${t.name} — open its calendar`} data-team={t.abbr} draggable={false} onClick={(e) => e.stopPropagation()}>
+        {content}
+      </a>
+    );
+  }
   return (
-    <button type="button" className={`fk-team fk-team-link ${className}`} title={`${t.name} — open its calendar`} data-team={t.abbr} onClick={(e) => { e.stopPropagation(); onTeam(id, day); }}>
+    <button type="button" className={`fk-team fk-team-link ${className}`} title={`${t.name} — open its calendar`} data-team={t.abbr} onClick={(e) => { e.stopPropagation(); onTeam!(id, day); }}>
       {content}
     </button>
   );
@@ -66,14 +73,17 @@ export function FormSquares({ line, teamId }: { line: FormLine; teamId: string }
     `${t.name}: last ${line.last5.length} — ${line.last5.map((r) => RESULT_TEXT[r]).join(', ') || 'no match played'}`,
     `League record ${recordText(line.record)} (W-D-L)`,
     line.streak && `Streak ${line.streak}${line.unbeaten ? ` · unbeaten in ${line.unbeaten}` : ''}${line.winless ? ` · winless in ${line.winless}` : ''}`,
-    'Click: standings',
+    onStandings && 'Click: standings',
   ].filter(Boolean).join('\n');
+  const squares = Array.from({ length: 5 }, (_, i) => {
+    const r = line.last5[i - (5 - line.last5.length)];
+    return <span key={i} className={`fk-form-sq${r ? ` fk-form-${r}` : ''}`} />;
+  });
+  // a host without the standings popup (the Slate part): plain squares, nothing clickable that does nothing
+  if (!onStandings) return <span className="fk-form fk-form-plain" title={tip} data-testid="form">{squares}</span>;
   return (
     <button type="button" className="fk-form" title={tip} data-testid="form" onClick={(e) => { e.stopPropagation(); onStandings(teamId); }}>
-      {Array.from({ length: 5 }, (_, i) => {
-        const r = line.last5[i - (5 - line.last5.length)];
-        return <span key={i} className={`fk-form-sq${r ? ` fk-form-${r}` : ''}`} />;
-      })}
+      {squares}
     </button>
   );
 }

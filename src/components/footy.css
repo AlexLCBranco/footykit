@@ -1187,3 +1187,41 @@ button.fk-chip:hover {
   font-size: 12px;
   margin: 6px 0 0;
 }
+
+/* ---------- marquee selection (selection.ts, Selection.tsx) ---------- */
+.fk-marquee {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 30;
+  display: none;
+  border: 1px solid var(--fk-link);
+  background: rgb(124 184 255 / 0.12);
+  border-radius: 2px;
+  pointer-events: none;
+  will-change: transform, width, height;
+}
+/* logos are part of the matches a marquee can start on: no native image drag */
+.fk-select-area img {
+  -webkit-user-drag: none;
+}
+.fk-selbar {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 35;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px 6px 14px;
+  background: var(--fk-surface-2);
+  border: 1px solid var(--fk-link);
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+.fk-selbar-count {
+  font-weight: 600;
+}
+.fk-form-plain { cursor: help; }

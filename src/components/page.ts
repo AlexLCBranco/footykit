@@ -52,7 +52,13 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
   const span = q.get('span');
   if (span === '1' || span === '2') p.span = Number(span) as 1 | 2;
   else if (span === 'month') p.span = 'month';
-  if ((view === 'cal' || view === 'list') && team && model.followed.has(team)) return { ...p, view, team };
+  if ((view === 'cal' || view === 'list') && team && model.followed.has(team)) {
+    // a team link from another page (the Slate part's teamCalendarUrl) names the day to open around: `on=`.
+    // A bookmark's `date=` is still never read.
+    const on = q.get('on');
+    if (on && /^\d{4}-\d{2}-\d{2}$/.test(on)) return teamPage(p, team, on, view);
+    return { ...p, view, team };
+  }
   if (view === 'slate') return { ...p, view };
   return p;
 }

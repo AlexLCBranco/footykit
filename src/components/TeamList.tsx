@@ -30,7 +30,7 @@ export function TeamList({ team, from, to, onEarlier }: { team: string; from: st
               const r = resultFor(m, team);
               const f = formAt(model, team, m);
               return (
-                <div key={m.id} className={`fk-row fk-tl-row${r ? ` fk-res-${r}` : ''}`} data-testid="team-row">
+                <div key={m.id} className={`fk-row fk-tl-row${r ? ` fk-res-${r}` : ''}`} data-testid="team-row" data-game-id={m.id}>
                   <span className="fk-tl-date">{dayLabel(day)}</span>
                   <MatchTime m={m} />
                   <CompMark slug={m.c} round={m.r} />

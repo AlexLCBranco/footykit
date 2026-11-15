@@ -10,12 +10,15 @@ export interface FootyCtx {
   now: number;
   timeZone?: string;
   live: LiveLayer;
-  /** a team's name or logo was clicked: open its Team Calendar around `day` */
-  onTeam: (teamId: string, day: string) => void;
+  /** a team's name or logo was clicked: open its Team Calendar around `day` (the app) */
+  onTeam?: (teamId: string, day: string) => void;
+  /** …or, for a host outside the app (the gauntlet's Slate widget), the address a team link opens in a new tab.
+   *  Neither: team names are plain text. */
+  teamHref?: (teamId: string, day: string) => string;
   /** open the season series popup of two teams */
   onSeries: (a: string, b: string, anchor: HTMLElement) => void;
   /** open the quick standings popup on a team's league */
-  onStandings: (teamId: string) => void;
+  onStandings?: (teamId: string) => void;
 }
 
 export const Ctx = createContext<FootyCtx | null>(null);

@@ -32,7 +32,7 @@ function CellMatch({ m, team, day }: { m: Match; team: string; day: string }) {
   const mine = home ? m.hs : m.as, theirs = home ? m.as : m.hs;
   const tie = tieNote(m);
   return (
-    <div className={`fk-cell-match${r ? ` fk-res-${r}` : ''}${neutral ? ' fk-neutral' : ''}`} data-testid="cal-match">
+    <div className={`fk-cell-match${r ? ` fk-res-${r}` : ''}${neutral ? ' fk-neutral' : ''}`} data-testid="cal-match" data-game-id={m.id}>
       <div className="fk-cell-top">
         <CompMark slug={m.c} round={m.r} />
         <span className="fk-cell-ha" title={neutral ? `Neutral venue (${neutral.why})` : home ? 'Home' : 'Away'}>{neutral ? 'v' : home ? 'vs' : '@'}</span>

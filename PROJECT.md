@@ -21,8 +21,10 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - **Phase 2 (calendar core) in progress** — v0.2.0: snapshot job, day function, app shell with the packed bar, Day
   List, Slate (cards, notes, 3-way odds), Team Calendar (1 / 2 weeks / month, free windows, FIFA windows), Team List,
   season series popup, quick standings popup, copy as image (card / whole view), neutral venues and FIFA windows from
-  researched config. v0.3.0: the travel map beside the Day List (`src/map/TravelMap.tsx`, lazy chunk). Not yet:
-  marquee selection copy, notes in the gauntlet backup, the Slate as a gauntlet widget.
+  researched config. v0.3.0: the travel map beside the Day List (`src/map/TravelMap.tsx`, lazy chunk). v0.4.0: marquee
+  selection copy (`selection.ts`, `SelectionBar.tsx`), the Slate as a self-contained part for the gauntlet
+  (`src/slate/index.ts`, docs/slate-in-gauntlet.md). Slate notes (`fk:notes:v1`) are already in the gauntlet's
+  backup (it saves every localStorage key, on any change). **Phase 2 is built; waiting on Alex.**
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site

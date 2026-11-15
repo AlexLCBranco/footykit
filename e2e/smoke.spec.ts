@@ -111,3 +111,39 @@ test('travel map: dots for the day; hover focuses a match, click pins, Esc unpin
   await expect(page.getByTestId('map-panel')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('marquee selection: drag over two rows, copy only them; a click clears it', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  const errors = await open(page);
+  const imageSize = () => page.evaluate(async () => {
+    const [item] = await navigator.clipboard.read();
+    const bmp = await createImageBitmap(await item!.getType('image/png'));
+    return { w: bmp.width, h: bmp.height };
+  });
+  // the whole day first
+  await page.getByTestId('top-bar').getByTestId('copy').click();
+  await expect(page.getByTestId('top-bar').getByTestId('copy')).toHaveText('✓');
+  const whole = await imageSize();
+  // the list's width (≤ 980 CSS px at pixel ratio 4), not the list plus the map column
+  expect(whole.w).toBeLessThanOrEqual(980 * 4);
+
+  const rows = page.getByTestId('match-row');
+  const a = (await rows.nth(1).boundingBox())!, b = (await rows.nth(2).boundingBox())!;
+  // from the empty space left of the teams in row 2 down into row 3
+  await page.mouse.move(a.x + 120, a.y + a.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(a.x + 140, b.y + b.height / 2, { steps: 8 });
+  await page.mouse.up();
+  const bar = page.getByTestId('selection-bar');
+  await expect(bar).toContainText('2 matches selected');
+  await bar.getByTestId('copy').click();
+  await expect(bar.getByTestId('copy')).toHaveText('✓');
+  const sel = await imageSize();
+  // two rows: far shorter than the whole day, as wide as the list (the map and its column are never in a copy)
+  expect(sel.h).toBeLessThan(whole.h / 4);
+  expect(sel.w).toBe(whole.w);
+
+  await page.locator('.fk-day-head').click();
+  await expect(bar).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

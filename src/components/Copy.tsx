@@ -23,11 +23,12 @@ export function copyColumns(n: number, card: { width: number; height: number }, 
   return best;
 }
 
-/** Copies `node`. A grid of cards (`.fk-slate`, `.fk-rows`) is first laid out by copyColumns; the layout is put back
- * after. */
-export async function copyNode(node: HTMLElement): Promise<void> {
-  const cards = [...node.querySelectorAll<HTMLElement>(':scope > .fk-card, :scope > .fk-row')];
+/** Copies `node` (with `only`: just those matches, see isolate()). A Slate's cards are first laid out by
+ * copyColumns; everything is put back after. */
+export async function copyNode(node: HTMLElement, only?: ReadonlySet<string>): Promise<void> {
   const restore: (() => void)[] = [];
+  if (only) restore.push(isolate(node, only));
+  const cards = [...node.querySelectorAll<HTMLElement>(':scope > .fk-card')].filter((c) => c.style.display !== 'none');
   if (node.matches('.fk-slate') && cards.length > 1) {
     const r = cards[0]!.getBoundingClientRect();
     const cols = copyColumns(cards.length, { width: r.width, height: r.height });
@@ -38,12 +39,42 @@ export async function copyNode(node: HTMLElement): Promise<void> {
   try {
     await copyAsImage(node, { pixelRatio: COPY_PIXEL_RATIO });
   } finally {
-    restore.forEach((f) => f());
+    restore.reverse().forEach((f) => f());
   }
 }
 
+/**
+ * Hides everything in `node` but the matches in `ids`: unselected items, and the containers left empty (a Team List
+ * month, a calendar day). A calendar's grid becomes a row of the selected days' cells (no empty cells, no weekday
+ * header). Returns the undo.
+ */
+export function isolate(node: HTMLElement, ids: ReadonlySet<string>): () => void {
+  const undo: (() => void)[] = [];
+  const hide = (el: HTMLElement) => {
+    const before = el.style.display;
+    el.style.display = 'none';
+    undo.push(() => (el.style.display = before));
+  };
+  for (const el of node.querySelectorAll<HTMLElement>('[data-game-id]')) if (!ids.has(el.dataset.gameId!)) hide(el);
+  const anyShown = (el: HTMLElement) => [...el.querySelectorAll<HTMLElement>('[data-game-id]')].some((x) => ids.has(x.dataset.gameId!));
+  for (const el of node.querySelectorAll<HTMLElement>('.fk-tl-month, .fk-cal-cell')) if (!anyShown(el)) hide(el);
+  for (const el of node.querySelectorAll<HTMLElement>('.fk-cal-wd, .fk-legend, .fk-earlier, .fk-empty')) hide(el);
+  for (const grid of node.querySelectorAll<HTMLElement>('.fk-cal-grid')) {
+    const cell = grid.querySelector<HTMLElement>('.fk-cal-cell');
+    const w = cell?.getBoundingClientRect().width ?? 200;
+    const before = grid.getAttribute('style');
+    Object.assign(grid.style, { display: 'flex', flexWrap: 'wrap', width: 'max-content', maxWidth: `${Math.round(w * 4 + 12)}px` });
+    for (const c of grid.querySelectorAll<HTMLElement>('.fk-cal-cell')) c.style.width = `${w}px`;
+    undo.push(() => {
+      if (before === null) grid.removeAttribute('style'); else grid.setAttribute('style', before);
+      for (const c of grid.querySelectorAll<HTMLElement>('.fk-cal-cell')) c.style.width = '';
+    });
+  }
+  return () => undo.reverse().forEach((f) => f());
+}
+
 /** A copy button: `target` finds what to copy from the button. Shows ✓ for a moment, "!" on failure. */
-export function CopyButton({ target, label, small }: { target: (button: HTMLElement) => HTMLElement | null; label: string; small?: boolean }) {
+export function CopyButton({ target, label, small, only }: { target: (button: HTMLElement) => HTMLElement | null; label: string; small?: boolean; only?: ReadonlySet<string> }) {
   const [state, setState] = useState<'idle' | 'busy' | 'done' | 'fail'>('idle');
   return (
     <button type="button" className={`fk-icon-btn fk-copy${small ? ' fk-copy-small' : ''}`} data-capture-exclude="true" title={state === 'fail' ? 'Copy failed' : label} aria-label={label} data-testid="copy" disabled={state === 'busy'}
@@ -51,7 +82,7 @@ export function CopyButton({ target, label, small }: { target: (button: HTMLElem
         const node = target(e.currentTarget);
         if (!node) return;
         setState('busy');
-        try { await copyNode(node); setState('done'); } catch { setState('fail'); }
+        try { await copyNode(node, only); setState('done'); } catch { setState('fail'); }
         setTimeout(() => setState('idle'), 1500);
       }}>
       {state === 'done' ? '✓' : state === 'fail' ? '!' : (

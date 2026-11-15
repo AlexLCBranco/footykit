@@ -2,7 +2,7 @@
 // (`model`), its size, optional `now` / `timeZone`, the page to show, and raises page changes; it never touches the
 // URL or history (App.tsx does).
 
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { dayLabel } from '../data/model';
 import { localNotesStore } from '../slate/notes';
 import { Ctx, type FootyCtx } from './ctx';
@@ -12,6 +12,8 @@ import { DayStrip } from './DayStrip';
 import { stepPage, teamPage, type Page } from './page';
 import { SeriesPopup, StandingsPopup, type SeriesOpen } from './Popups';
 import { Slate } from './Slate';
+import { createSelectionStore, useMarqueeSelection } from './selection';
+import { SelectionBar, SelectionStyle } from './SelectionBar';
 import { TeamCalendar } from './TeamCalendar';
 import { TeamList } from './TeamList';
 import { TopBar, type History } from './TopBar';
@@ -65,6 +67,18 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const [standings, setStandings] = useState<{ team?: string } | null>(null);
   const [showNotes, setShowNotes] = useState(false);
   const notes = useMemo(() => localNotesStore(), []);
+  // Marquee selection (mouse): only to copy several matches as one image. A new view or day starts with none.
+  const [selection] = useState(createSelectionStore);
+  const marquee = useRef<HTMLDivElement>(null);
+  const onMarquee = useMarqueeSelection(selection, marquee);
+  const viewKey = `${page.view}|${page.day}|${page.team}|${page.span}|${page.week}|${page.month}`;
+  useEffect(() => selection.clear(), [viewKey, selection]);
+  // What a copy takes: the Slate's cards, the day's list (not the map column beside it: the map is never in a copy, and
+  // its space shouldn't be either), else the whole view.
+  const captureTarget = () => {
+    const root = document.querySelector<HTMLElement>('[data-testid="footy"] .fk-capture');
+    return root?.querySelector<HTMLElement>('.fk-slate, .fk-daylist') ?? root;
+  };
 
   const ctx: FootyCtx = useMemo(() => ({
     model, now, timeZone, live,
@@ -90,10 +104,13 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
             {page.view === 'slate' && (
               <label className="fk-check" title="Note boxes under each card (PRE / LIVE / POST)"><input type="checkbox" checked={!showNotes} onChange={(e) => setShowNotes(!e.target.checked)} data-testid="hide-notes" /> Hide notes</label>
             )}
-            <CopyButton target={() => document.querySelector<HTMLElement>('[data-testid="footy"] .fk-capture .fk-slate') ?? document.querySelector<HTMLElement>('[data-testid="footy"] .fk-capture')} label={`Copy ${dayView ? dayLabel(page.day) : 'this view'} as an image`} />
+            <CopyButton target={captureTarget} label={`Copy ${dayView ? dayLabel(page.day) : 'this view'} as an image`} />
           </>} />
         {dayView && <DayStrip day={page.day} today={today} onDay={(d) => onPage({ ...page, day: d })} />}
-        <div className="fk-capture" key={page.view}>{view}</div>
+        <div className="fk-capture fk-select-area" key={page.view} onPointerDown={onMarquee}>{view}</div>
+        <div ref={marquee} className="fk-marquee" aria-hidden="true" data-testid="marquee" />
+        <SelectionStyle store={selection} />
+        <SelectionBar store={selection} target={captureTarget} />
         {series && <SeriesPopup open={series} onClose={closeSeries} />}
         {standings && <StandingsPopup team={standings.team} onClose={() => setStandings(null)} />}
       </div>

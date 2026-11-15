@@ -3,7 +3,7 @@
 ## Status
 - **Phase 1 (data check)**: done 2026-11-14 — ESPN covers every required check for all 54 clubs. Report:
   `docs/phase1-report.md`; per-club table: `docs/phase1-data-check.md`. Alex's answers recorded below.
-- **Phase 2**: in progress (v0.2.0, 2026-11-14) — PROJECT.md "Current state" lists what is built and what is left.
+- **Phase 2**: built (v0.4.0, 2026-11-14), waiting on Alex — PROJECT.md "Current state" lists what is built.
 - Phases 3–5: not started.
 
 ## Decisions log

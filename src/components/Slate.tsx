@@ -3,6 +3,7 @@
 // top-right corner and the note box under the rows at full card width (5 lines, then its own scrollbar). Opens with
 // notes hidden. Odds: ESPN's DraftKings lines (decimal), free, Slate only.
 
+import { useEffect } from 'react';
 import { formAt } from '../data/form';
 import { isPlayed } from '../data/model';
 import { neutralVenue } from '../data/neutral';
@@ -38,7 +39,7 @@ export function SlateCard({ m, day, notes }: { m: Match; day: string; notes?: Sl
   const tie = tieNote(m);
   const neutral = neutralVenue(m);
   return (
-    <article className={`fk-card${neutral ? ' fk-neutral' : ''}${m.st === 'in' ? ' fk-card-live' : ''}`} data-match-id={m.id} data-testid="slate-card">
+    <article className={`fk-card${neutral ? ' fk-neutral' : ''}${m.st === 'in' ? ' fk-card-live' : ''}`} data-match-id={m.id} data-game-id={m.id} data-testid="slate-card">
       <div className="fk-card-main">
         <div className="fk-card-strip">
           <MatchTime m={m} />
@@ -70,6 +71,8 @@ export function SlateCard({ m, day, notes }: { m: Match; day: string; notes?: Sl
 
 export function Slate({ day, notes, showNotes }: { day: string; notes: SlateNotes; showNotes: boolean }) {
   const { model, live } = useFooty();
+  // while note boxes are shown, the store follows other tabs (a note typed in the gauntlet shows here at once)
+  useEffect(() => (showNotes ? notes.listen?.() : undefined), [notes, showNotes]);
   const list = dayMatches(model, day, live);
   if (!list.length) return <p className="fk-empty" data-testid="no-matches">No matches today for the followed clubs.</p>;
   return (
