@@ -63,9 +63,9 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
           {page.view === 'cal' && <Tabs<Span> label="Span" testId="span" value={page.span} options={[[1, '1 week'], [2, '2 weeks'], ['month', 'Month']]} onChange={(s) => onPage({ ...page, span: s, week: page.span === 'month' && s !== 'month' ? mondayOf(today.slice(0, 7) === page.month ? today : `${page.month}-01`) : page.week, month: s === 'month' && page.span !== 'month' ? addDays(page.week, 3).slice(0, 7) : page.month })} />}
         </>
       ) : (
-        <Tabs<View> label="View" testId="views" value={page.view} options={[['day', 'List'], ['slate', 'Slate']]} onChange={(v) => onPage({ ...page, view: v })} />
+        <Tabs<View> label="View" testId="views" value={page.view} options={[['day', 'List'], ['slate', 'Slate'], ['ucl', 'UCL']]} onChange={(v) => onPage({ ...page, view: v })} />
       )}
-      <span className="fk-date-block">
+      {page.view !== 'ucl' && <span className="fk-date-block">
         <button type="button" className="fk-step" aria-label="Previous" title="Previous" onClick={() => onStep(-1)}>‹</button>
         <span className="fk-date-text" data-testid="date-text">{dateText}</span>
         <button type="button" className="fk-step" aria-label="Next" title="Next" onClick={() => onStep(1)}>›</button>
@@ -73,7 +73,7 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
         {(page.view === 'day' || page.view === 'slate') && (
           <input type="date" className="fk-date-input" value={page.day} aria-label="Pick a date" onChange={(e) => e.target.value && onPage({ ...page, day: e.target.value })} />
         )}
-      </span>
+      </span>}
       <span className="fk-bar-end">
         {end}
         <button type="button" className="fk-icon-btn" title="Quick standings" aria-label="Quick standings" onClick={onStandings} data-testid="standings-button">

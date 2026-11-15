@@ -16,7 +16,7 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - localStorage keys start with `fk:` (same origin as calendarkit's `ck:` keys).
 - Tests never call live ESPN (it refuses headless Chromium); they use recorded fixtures.
 
-## Current state (2026-11-14)
+## Current state (2026-11-15)
 - Phase 1 (data check) done (docs/phase1-report.md).
 - **Phase 2 (calendar core) in progress** — v0.2.0: snapshot job, day function, app shell with the packed bar, Day
   List, Slate (cards, notes, 3-way odds), Team Calendar (1 / 2 weeks / month, free windows, FIFA windows), Team List,
@@ -29,6 +29,11 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   with first-leg scores, window streak, window advantage "REST", competitions alive 1C/2C/3C, Z4R, derby flag), a
   hover popup with the details, three display variants (Chips / Rail / Alerts, or Off) on the bar's "Tags" switch
   (`fk:tags:v1`, written only when picked). Relegation zone (direct places only) and the rivalry list confirmed by Alex.
+- **Phase 4 (standings & competition pages), step 1 built** — v0.7.0: the Champions League page (bar: All clubs →
+  UCL; `?view=ucl`, lazy chunk `UclPage.tsx`): the league-phase table rebuilt from results (`src/data/ucl.ts`; equals
+  ESPN's table), 8 squares per row with the opponent's pot, zones, hover a place → its path and the places it meets,
+  remaining opponents' pots, the rules with sources (`config/ucl.ts`, confirmed by Alex). Next: stakes chips (v0.8.0),
+  then play-off + bracket (v0.9.0).
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
@@ -39,7 +44,7 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - `config/season.ts` — followed-club rules, competitions per league, ESPN season years.
 - `config/competitions.ts` — competitions shown and their codes; friendlies dropped.
 - `config/neutral.ts`, `config/fifa-windows.ts`, `config/relegation.ts` (zone sizes, Z4R rule),
-  `config/rivalries.ts` (derby list; `npm run check-rivalries` checks its sources answer) — researched facts with
+  `config/ucl.ts` (UCL pots, zones, tiebreakers, knockout pairings), `config/rivalries.ts` (derby list; `npm run check-rivalries` checks its sources answer) — researched facts with
   sources (for Alex to confirm).
 - `config/venues.json` — every venue's place and elevation from Wikidata, each with its item (`npm run make-venues`:
   batched query-service lookups, keeps known venues; `config/venue-overrides.json` names the item for venues ESPN

@@ -3,8 +3,9 @@
 
 import { addDays, addMonths, dayLabel, monthLabel, monthOf, mondayOf, shortDay, type Model } from '../data/model';
 
-/** day = the day's matches (list), slate = the day as cards, cal = Team Calendar, list = Team List */
-export type View = 'day' | 'slate' | 'cal' | 'list';
+/** day = the day's matches (list), slate = the day as cards, cal = Team Calendar, list = Team List, ucl = the Champions
+ * League page */
+export type View = 'day' | 'slate' | 'cal' | 'list' | 'ucl';
 export type Span = 1 | 2 | 'month';
 
 export interface Page {
@@ -39,6 +40,7 @@ export function pageSearch(p: Page): string {
   if (p.view !== 'day') q.set('view', p.view);
   if (p.team && (p.view === 'cal' || p.view === 'list')) q.set('team', p.team);
   if (p.view === 'cal') q.set('span', String(p.span));
+  if (p.view === 'ucl') return `?${q}`;
   q.set('date', p.view === 'cal' ? (p.span === 'month' ? p.month : p.week) : p.view === 'list' ? p.month : p.day);
   return `?${q}`;
 }
@@ -59,13 +61,13 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
     if (on && /^\d{4}-\d{2}-\d{2}$/.test(on)) return teamPage(p, team, on, view);
     return { ...p, view, team };
   }
-  if (view === 'slate') return { ...p, view };
+  if (view === 'slate' || view === 'ucl') return { ...p, view };
   return p;
 }
 
 export function isPage(x: unknown): x is Page {
   const p = x as Page;
-  return !!p && typeof p === 'object' && ['day', 'slate', 'cal', 'list'].includes(p.view) && typeof p.day === 'string' && typeof p.week === 'string' && typeof p.month === 'string' && typeof p.listFrom === 'string';
+  return !!p && typeof p === 'object' && ['day', 'slate', 'cal', 'list', 'ucl'].includes(p.view) && typeof p.day === 'string' && typeof p.week === 'string' && typeof p.month === 'string' && typeof p.listFrom === 'string';
 }
 
 /** The tab title's page part, most specific first ("ARS · Nov 2026", "Slate · Sat, Nov 21"). */
@@ -77,6 +79,7 @@ export function pagePart(p: Page, model: Model): string {
   }
   if (p.view === 'list') return `${abbr} list · ${p.listFrom === p.month ? monthLabel(p.month, false) : `${monthLabel(p.listFrom, false)} – ${monthLabel(p.month, false)}`}`;
   if (p.view === 'slate') return `Slate · ${dayLabel(p.day)}`;
+  if (p.view === 'ucl') return 'Champions League';
   return dayLabel(p.day);
 }
 
@@ -84,6 +87,7 @@ export const pageTitle = (p: Page, model: Model) => `${pagePart(p, model)} — $
 
 /** One step of the bar's ‹ › in the current view. */
 export function stepPage(p: Page, dir: 1 | -1, model: Model): Page {
+  if (p.view === 'ucl') return p;
   if (p.view === 'cal') return p.span === 'month' ? { ...p, month: addMonths(p.month, dir) } : { ...p, week: addDays(p.week, 7 * dir * p.span) };
   if (p.view === 'list') return { ...p, month: addMonths(p.month, dir), listFrom: addMonths(p.month, dir) };
   // day and slate: every day, "no matches" days included (never skipped), within the season

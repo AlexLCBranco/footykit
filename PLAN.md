@@ -6,7 +6,8 @@
 - **Phase 2**: built (v0.4.0, 2026-11-14), waiting on Alex — PROJECT.md "Current state" lists what is built.
 - **Phase 3**: built (v0.5.0, 2026-11-14), waiting on Alex — tags in three variants (Chips / Rail / Alerts); to
   confirmed: relegation zone (direct places only) and the rivalry list.
-- Phases 4–5: not started.
+- **Phase 4**: plan agreed 2026-11-15 (Decisions log); step 1 (UCL page) in progress.
+- Phase 5: not started.
 
 ## Decisions log
 - 2026-11-14: Menu = calendarkit's **packed bar** (Alex). Copy that one in Phase 2; the rail is not ported.
@@ -41,6 +42,14 @@
 - 2026-11-14, Alex: the Bagé venue ESPN calls "Estadio Antonio Magalhães Rossel" is Guarany FC's Estádio Antônio
   Magalhães Rossel, Wikidata Q10276776 (config/venue-overrides.json); no stadium elevation, Bagé is 212 m. Every venue
   in the snapshot is now on the map; Phase 2 has no open confirmations left.
+- 2026-11-15, Alex confirmed the UCL 2026-27 facts in config/ucl.ts (UEFA 2026/27 regulations Art. 18-19, Wikipedia):
+  pots (checked against the drawn fixtures), zones 1-8 / 9-16 / 17-24 / 25-36 (no Europa drop), the ten tiebreakers,
+  play-off and round-of-16 pairings by position, no country protection, no away goals.
+- 2026-11-15, Alex: UCL ties are ranked by criteria 1-5 during the league phase (teams still level shown equal) and
+  1-8 once it is over; ties left after 8 (cards, club coefficient) are flagged, not guessed.
+- 2026-11-15, Alex: Phase 4 build order: (1) v0.7.0 UCL page (table, 8 squares per row with pots, zones, tiebreak
+  rules, position -> path hover, remaining opponents); (2) v0.8.0 stakes chips, points-only, from matchday 7;
+  (3) v0.9.0 play-off round + bracket with aggregates; then the league tables. Each step stops for Alex's look.
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

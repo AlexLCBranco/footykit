@@ -2,7 +2,7 @@
 // (`model`), its size, optional `now` / `timeZone`, the page to show, and raises page changes; it never touches the
 // URL or history (App.tsx does).
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { dayLabel } from '../data/model';
 import { localNotesStore } from '../slate/notes';
 import { Ctx, type FootyCtx } from './ctx';
@@ -22,6 +22,9 @@ import { useLive } from './useLive';
 import type { Model } from '../data/model';
 import { addMonths } from '../data/model';
 import './footy.css';
+
+// the Champions League page is its own chunk: the day views never download it
+const UclPage = lazy(() => import('./UclPage'));
 
 export interface FootyProps {
   model: Model;
@@ -96,6 +99,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   let view: ReactNode;
   if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} />;
   else if (page.view === 'list' && page.team) view = <TeamList team={page.team} from={page.listFrom} to={page.month} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
+  else if (page.view === 'ucl') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><UclPage today={today} /></Suspense>;
   else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} />;
   else view = <DayList key={page.day} day={page.day} width={width} />;
 

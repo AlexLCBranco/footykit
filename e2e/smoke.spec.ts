@@ -181,3 +181,21 @@ test('context tags: hovering a team\'s tags opens the detailed popup; the Slate 
   await expect(page.getByTestId('slate-card').first().getByTestId('team-tags').first()).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('Champions League page: 36 rows, 8 squares each, zones and paths', async ({ page }) => {
+  const errors = await open(page, '?view=ucl');
+  await expect(page).toHaveTitle('Champions League — footykit');
+  await expect(page.getByTestId('ucl-matchday')).toHaveText('after matchday 4 of 8');
+  const rows = page.getByTestId('ucl-row');
+  await expect(rows).toHaveCount(36);
+  await expect(rows.first()).toHaveAttribute('data-team', 'PSG');
+  await expect(rows.first().getByTestId('ucl-square')).toHaveCount(8);
+  await expect(page.getByTestId('ucl-square')).toHaveCount(288);
+  await expect(rows.nth(8).getByTestId('ucl-rank')).toHaveAttribute('title', /knockout play-off, seeded/);
+  // reached from the bar too, and back
+  await page.getByTestId('views').getByText('List').click();
+  await expect(page).toHaveTitle('Sat, Nov 21 — footykit');
+  await page.getByTestId('views').getByText('UCL').click();
+  await expect(rows).toHaveCount(36);
+  expect(errors).toEqual([]);
+});
