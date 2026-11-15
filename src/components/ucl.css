@@ -318,3 +318,59 @@
   color: var(--fk-link);
   text-decoration: underline;
 }
+
+/* ---------- league tables (LeagueTablePage.tsx): zones by meaning ---------- */
+.fk-lt {
+  --fk-lz-ucl: #37c47a;
+  --fk-lz-uclq: #8fdcae;
+  --fk-lz-uel: #e0a63c;
+  --fk-lz-uecl: #3cc0c0;
+  --fk-lz-lib: #37c47a;
+  --fk-lz-libq: #8fdcae;
+  --fk-lz-sula: #4c8dff;
+  --fk-lz-relpo: #f0a39e;
+  --fk-lz-rel: #e5534b;
+}
+.fk-lz-ucl > td:first-child, .fk-ucl-zone-key.fk-lz-ucl { border-left-color: var(--fk-lz-ucl) !important; }
+.fk-lz-uclq > td:first-child, .fk-ucl-zone-key.fk-lz-uclq { border-left-color: var(--fk-lz-uclq) !important; }
+.fk-lz-uel > td:first-child, .fk-ucl-zone-key.fk-lz-uel { border-left-color: var(--fk-lz-uel) !important; }
+.fk-lz-uecl > td:first-child, .fk-ucl-zone-key.fk-lz-uecl { border-left-color: var(--fk-lz-uecl) !important; }
+.fk-lz-lib > td:first-child, .fk-ucl-zone-key.fk-lz-lib { border-left-color: var(--fk-lz-lib) !important; }
+.fk-lz-libq > td:first-child, .fk-ucl-zone-key.fk-lz-libq { border-left-color: var(--fk-lz-libq) !important; }
+.fk-lz-sula > td:first-child, .fk-ucl-zone-key.fk-lz-sula { border-left-color: var(--fk-lz-sula) !important; }
+.fk-lz-relpo > td:first-child, .fk-ucl-zone-key.fk-lz-relpo { border-left-color: var(--fk-lz-relpo) !important; }
+.fk-lz-rel > td:first-child, .fk-ucl-zone-key.fk-lz-rel { border-left-color: var(--fk-lz-rel) !important; }
+/* a place only some outcomes give: the rank cell hatched */
+.fk-lz-maybe > td:first-child,
+.fk-ucl-zone-key.fk-lz-maybe-key {
+  background-image: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.13) 0 3px, transparent 3px 7px);
+}
+.fk-lz-maybe-key {
+  padding: 0 5px;
+}
+.fk-lt-squares {
+  display: inline-grid;
+  grid-template-columns: repeat(5, 56px) 8px repeat(3, 56px);
+  gap: 2px;
+}
+.fk-lt-extra {
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--fk-muted);
+  max-width: 900px;
+}
+.fk-lt-extra h3 {
+  font-size: 13px;
+  color: var(--fk-text);
+  margin: 0 0 4px;
+}
+.fk-lt-extra ul {
+  margin: 0 0 6px;
+  padding-left: 18px;
+}
+.fk-lt-extra b {
+  color: var(--fk-text);
+}
+.fk-lt-extra a {
+  color: var(--fk-link);
+}

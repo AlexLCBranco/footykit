@@ -200,3 +200,17 @@ test('Champions League page: 36 rows, 8 squares each, zones and paths', async ({
   await expect(rows).toHaveCount(36);
   expect(errors).toEqual([]);
 });
+
+test('league tables: the picker switches leagues; rows, squares, zones, Brasileirão extras', async ({ page }) => {
+  const errors = await open(page, '?view=table&league=eng.1');
+  await expect(page).toHaveTitle('Premier League table — footykit');
+  await expect(page.getByTestId('league-row')).toHaveCount(20);
+  await expect(page.getByTestId('league-row').first().getByTestId('league-square')).toHaveCount(8);
+  await page.getByTestId('league-picker').selectOption('bra.1');
+  await expect(page.getByTestId('league-page')).toHaveAttribute('data-league', 'bra.1');
+  await expect(page.getByTestId('league-row').first()).toHaveAttribute('data-team', 'FLA');
+  await expect(page.getByTestId('bra-extras')).toContainText('Copa do Brasil final');
+  await page.getByTestId('league-picker').selectOption('ger.1');
+  await expect(page.getByTestId('league-row')).toHaveCount(18);
+  expect(errors).toEqual([]);
+});

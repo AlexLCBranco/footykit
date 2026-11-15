@@ -7,7 +7,8 @@
 - **Phase 3**: built (v0.5.0, 2026-11-14), waiting on Alex — tags in three variants (Chips / Rail / Alerts); to
   confirmed: relegation zone (direct places only) and the rivalry list.
 - **Phase 4**: plan agreed 2026-11-15 (Decisions log); step 1 (UCL page, v0.7.0) and step 2 (stakes chips, v0.8.0) and step 3
-  (play-off + bracket, v0.9.0) built, waiting on Alex's look. Next: the league tables.
+  (play-off + bracket, v0.9.0) built, waiting on Alex's look. League tables (v0.10.0) built; next: the Brasileirão
+  pass-down engine once CBF's rules are found, then Libertadores / Sudamericana and the cups.
 - Phase 5: not started.
 
 ## Decisions log
@@ -54,6 +55,13 @@
 - 2026-11-15, Alex confirmed the UCL bracket (Art. 19, checked against the 2025-26 bracket): R16 ties A 1/2 v winners
   of IV, B 3/4 v III, C 5/6 v II, D 7/8 v I; each half has one of each; quarter-finals A v D and B v C; halves are
   drawn. The page projects from the table until the draws and shows halves only once the semi-finals show them.
+- 2026-11-15, Alex confirmed the league facts in config/leagues.ts (Wikipedia season pages, 2027-28 UCL access list):
+  places per league (EPS 5th and cup pass-downs hatched as possible; England's Conference League place unknown),
+  relegation, and each league's ties-on-points order.
+- 2026-11-15, Alex: league rows show the last 5 results + the next 3 matches as squares.
+- 2026-11-15, Alex: Brasileirão "base now, engine later": base places (1-4 Libertadores group stage, 5th preliminary,
+  6-11 Sudamericana per English Wikipedia, 17-20 down) plus a box of the finals that can open more places; the
+  automatic pass-down waits for CBF's own rules (sources disagree on the stage a passed-down place enters).
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

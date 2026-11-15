@@ -37,7 +37,10 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   tests/ucl-stakes.test.ts). v0.9.0: the knockout section (`src/data/uclBracket.ts`, `UclKnockout.tsx`): play-off
   sections, round-of-16 letters, quarter-finals, semis, final from ESPN's ties; projected from the table until the
   draws; halves only once the semi-finals show them. Tested on the recorded 2025-26 season
-  (tests/fixtures/ucl-2025-26.json, `npm run make-ucl-fixture`).
+  (tests/fixtures/ucl-2025-26.json, `npm run make-ucl-fixture`). v0.10.0: league tables (bar: Tables + league picker,
+  `?view=table&league=…`, lazy `LeagueTablePage.tsx`): rebuilt with each league's ties-on-points rules
+  (`src/data/leagueTable.ts`, `config/leagues.ts`; equals ESPN's tables), last 5 + next 3 squares, zones (possible
+  places hatched), the Brasileirão's pending finals.
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site

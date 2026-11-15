@@ -9,7 +9,7 @@ import { Ctx, type FootyCtx } from './ctx';
 import { CopyButton } from './Copy';
 import { DayList } from './DayList';
 import { DayStrip } from './DayStrip';
-import { stepPage, teamPage, type Page } from './page';
+import { DEFAULT_LEAGUE, stepPage, teamPage, type Page } from './page';
 import { SeriesPopup, StandingsPopup, type SeriesOpen } from './Popups';
 import { Slate } from './Slate';
 import { createSelectionStore, useMarqueeSelection } from './selection';
@@ -25,6 +25,7 @@ import './footy.css';
 
 // the Champions League page is its own chunk: the day views never download it
 const UclPage = lazy(() => import('./UclPage'));
+const LeagueTablePage = lazy(() => import('./LeagueTablePage'));
 
 export interface FootyProps {
   model: Model;
@@ -79,7 +80,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const [selection] = useState(createSelectionStore);
   const marquee = useRef<HTMLDivElement>(null);
   const onMarquee = useMarqueeSelection(selection, marquee);
-  const viewKey = `${page.view}|${page.day}|${page.team}|${page.span}|${page.week}|${page.month}`;
+  const viewKey = `${page.view}|${page.league}|${page.day}|${page.team}|${page.span}|${page.week}|${page.month}`;
   useEffect(() => selection.clear(), [viewKey, selection]);
   // What a copy takes: the Slate's cards, the day's list (not the map column beside it: the map is never in a copy, and
   // its space shouldn't be either), else the whole view.
@@ -100,6 +101,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} />;
   else if (page.view === 'list' && page.team) view = <TeamList team={page.team} from={page.listFrom} to={page.month} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
   else if (page.view === 'ucl') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><UclPage today={today} /></Suspense>;
+  else if (page.view === 'table') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueTablePage league={page.league ?? DEFAULT_LEAGUE} today={today} /></Suspense>;
   else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} />;
   else view = <DayList key={page.day} day={page.day} width={width} />;
 
