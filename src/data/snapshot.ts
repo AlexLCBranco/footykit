@@ -36,7 +36,14 @@ export interface Match {
   ctry?: string;
   /** live clock ("67'", "HT"), day layer only */
   clk?: string;
+  /** the goals in order (shootouts left out), kept only when they add up to the score: ESPN's scoreboards give
+   * per-goal events for some competitions and not others (docs/HISTORY.md, 2026-11-15 audit) */
+  g?: Goal[];
 }
+
+/** One goal: the minute as ESPN shows it ("45+2", "105"), the side credited ('h' / 'a'), and 1 for an own goal (the
+ * side credited is the one that benefits, not the scorer's club). */
+export type Goal = [min: string, side: 'h' | 'a', og?: 1];
 
 export interface Team {
   id: string;

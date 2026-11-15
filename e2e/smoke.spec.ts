@@ -371,3 +371,21 @@ test('domestic cups: Copa do Brasil bracket to the final, earlier rounds folded;
   await expect(page.getByTestId('cup-open')).toHaveCount(3);
   expect(errors).toEqual([]);
 });
+
+test('goals while trailing: from the bar, per competition, sorted, the missing-goals note', async ({ page }) => {
+  const errors = await open(page);
+  await page.getByTestId('views').getByRole('tab', { name: 'Trailing' }).click();
+  await expect(page).toHaveTitle('Premier League goals while trailing — footykit');
+  await expect(page.getByTestId('trailing-row')).toHaveCount(20);
+  await page.getByTestId('comp-picker').selectOption('uefa.champions');
+  await expect(page.getByTestId('trailing-page')).toHaveAttribute('data-comp', 'uefa.champions');
+  await expect(page.getByTestId('trailing-row')).toHaveCount(36);
+  const goals = (await page.getByTestId('trailing-row').locator('td:nth-child(4)').allTextContents()).map(Number);
+  expect(goals).toEqual([...goals].sort((a, b) => b - a));
+  await expect(page.getByTestId('trailing-missing')).toHaveCount(0);
+  await page.getByTestId('comp-picker').selectOption('conmebol.libertadores');
+  await expect(page.getByTestId('trailing-missing')).toContainText('one played match');
+  await page.reload();
+  await expect(page.getByTestId('trailing-page')).toHaveAttribute('data-comp', 'conmebol.libertadores');
+  expect(errors).toEqual([]);
+});

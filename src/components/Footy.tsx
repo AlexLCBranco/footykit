@@ -4,6 +4,7 @@
 
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { dayLabel } from '../data/model';
+import { DEFAULT_TRAILING } from '../data/trailing';
 import { localNotesStore } from '../slate/notes';
 import { Ctx, type FootyCtx } from './ctx';
 import { CopyButton } from './Copy';
@@ -29,6 +30,7 @@ const WhatIfPage = lazy(() => import('./WhatIfPage'));
 const LeagueTablePage = lazy(() => import('./LeagueTablePage'));
 const LeagueWhatIfPage = lazy(() => import('./LeagueWhatIfPage'));
 const CupsPage = lazy(() => import('./CupsPage'));
+const TrailingPage = lazy(() => import('./TrailingPage'));
 
 export interface FootyProps {
   model: Model;
@@ -83,7 +85,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const [selection] = useState(createSelectionStore);
   const marquee = useRef<HTMLDivElement>(null);
   const onMarquee = useMarqueeSelection(selection, marquee);
-  const viewKey = `${page.view}|${page.league}|${page.cup}|${page.day}|${page.team}|${page.span}|${page.week}|${page.month}`;
+  const viewKey = `${page.view}|${page.league}|${page.cup}|${page.comp}|${page.day}|${page.team}|${page.span}|${page.week}|${page.month}`;
   useEffect(() => selection.clear(), [viewKey, selection]);
   // What a copy takes: the Slate's cards, the day's list (not the map column beside it: the map is never in a copy, and
   // its space shouldn't be either), else the whole view.
@@ -108,6 +110,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   else if (page.view === 'whatif') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WhatIfPage today={today} onBack={() => onPage({ ...page, view: 'ucl' })} /></Suspense>;
   else if (page.view === 'table') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueTablePage league={page.league ?? DEFAULT_LEAGUE} today={today} onWhatIf={() => onPage(leagueWhatIfPage(page))} /></Suspense>;
   else if (page.view === 'cups') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><CupsPage cup={page.cup ?? DEFAULT_CUP} today={today} /></Suspense>;
+  else if (page.view === 'trailing') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><TrailingPage comp={page.comp ?? DEFAULT_TRAILING} today={today} /></Suspense>;
   else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} />;
   else view = <DayList key={page.day} day={page.day} width={width} />;
 

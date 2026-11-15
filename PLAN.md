@@ -102,6 +102,9 @@
     Tables page);
   - same controls as the UCL one (click cycle, 1 X 2, typed scores, lock, clear, re-roll, undo / redo); saved scenarios
     are per competition, all in `fk:whatif:v1` (step 1's stored shape still read, as the UCL's).
+- 2026-11-15, Alex: feature backlog (10 items, done in order). Item 1, goals while trailing: ESPN's scoreboards lack
+  goal events for Copa do Brasil, Copa del Rey, Coupe de France, state championships and super cups; Alex: "complete
+  ones only" (the Libertadores' single awarded match counted as no goals while trailing).
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

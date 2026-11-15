@@ -18,12 +18,13 @@ const postponed = (e: EspnEvent) => /POSTPONED/.test(e.competitions[0]?.status?.
 const pairsOfPostponed = new Set(raw.boards.flatMap((b) => b.events.filter(postponed).map((e) => e.competitions[0]!.competitors.map((c) => c.team.id).sort().join('-'))));
 const keep = (e: EspnEvent) => involves(e) || pairsOfPostponed.has(e.competitions[0]!.competitors.map((c) => c.team.id).sort().join('-'));
 
-/** Drop the bulky parts no code reads (links, logos, broadcasts, betting links), keep the rest as ESPN sent it. */
+/** Drop the bulky parts no code reads (links, logos, broadcasts, betting links, the players in each goal or card),
+ * keep the rest as ESPN sent it (`details` stays: the goals come from it). */
 function trim(e: EspnEvent): EspnEvent {
   const strip = (o: unknown): unknown => {
     if (Array.isArray(o)) return o.map(strip);
     if (!o || typeof o !== 'object') return o;
-    return Object.fromEntries(Object.entries(o).filter(([k]) => !['links', 'logos', 'logo', 'broadcasts', 'geoBroadcasts', 'broadcast', 'tickets', 'link', 'details', 'headlines', 'playByPlayAthletes', 'statistics', 'leaders'].includes(k)).map(([k, v]) => [k, strip(v)]));
+    return Object.fromEntries(Object.entries(o).filter(([k]) => !['links', 'logos', 'logo', 'broadcasts', 'geoBroadcasts', 'broadcast', 'tickets', 'link', 'athletesInvolved', 'headlines', 'playByPlayAthletes', 'statistics', 'leaders'].includes(k)).map(([k, v]) => [k, strip(v)]));
   };
   return strip(e) as EspnEvent;
 }

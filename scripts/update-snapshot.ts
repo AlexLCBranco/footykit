@@ -3,13 +3,14 @@
 // Usage: npx tsx scripts/update-snapshot.ts [--out file] [--raw file.json.gz] [--upload]
 //   --out  where to write the snapshot (default test-output/snapshot.json)
 //   --raw  also save the raw ESPN payloads (gzipped), the input for tests/fixtures (scripts/make-fixture.ts)
+//   --from rebuild from raw payloads saved earlier (gzipped) instead of fetching: the fixtures after a builder change
 // Exits 1 when the snapshot looks broken (a followed club with no matches, a league without a table), so a bad run
 // never replaces a good snapshot.
 
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { gzipSync } from 'node:zlib';
+import { gunzipSync, gzipSync } from 'node:zlib';
 import { DROPPED } from '../config/competitions.ts';
 import { CONTINENTAL, DOMESTIC_CUPS, FOLLOWED, LEAGUE_SEASON_YEAR, SEASON_CALENDAR_YEARS, type LeagueSlug } from '../config/season.ts';
 import { SITE, STANDINGS, type EspnEvent } from '../src/data/espn.ts';
@@ -90,7 +91,8 @@ export function problems(s: Snapshot): string[] {
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   const t0 = Date.now();
-  const raw = await fetchRaw();
+  const from = arg('--from');
+  const raw: RawInput = from ? JSON.parse(gunzipSync(readFileSync(from)).toString()) : await fetchRaw();
   const { snapshot, report } = buildSnapshot(raw);
   const bad = problems(snapshot);
   const json = JSON.stringify(snapshot);

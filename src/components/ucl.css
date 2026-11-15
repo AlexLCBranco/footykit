@@ -420,3 +420,15 @@
   justify-content: space-around;
   gap: 8px;
 }
+
+/* Goals while trailing (TrailingPage.tsx) */
+.fk-trail-table th:nth-child(n + 3),
+.fk-trail-table td:nth-child(n + 3) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.fk-trail-note {
+  max-width: 720px;
+  margin-top: 10px;
+  font-size: 12px;
+}

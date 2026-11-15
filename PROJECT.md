@@ -59,6 +59,10 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   Sudamericana places live over the picked table (`braRowZones`, shared with the Tables page), the Sudamericana,
   Libertadores and Copa do Brasil finals pickable by winner (`Sim.winners`; an open final counts both ways, a played one
   drops the pick).
+- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.18.0 item 1, goals while trailing
+  (`?view=trailing&comp=…`, "Trailing" on the bar, lazy `TrailingPage.tsx`; logic `src/data/trailing.ts`): the goals
+  each team scored while the other side was ahead, per competition, for the competitions whose goals ESPN gives in
+  full (audit in docs/HISTORY.md). The snapshot now keeps each match's goals (`Match.g`).
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
@@ -91,7 +95,8 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   day function) · `npm run build` · `npm run preview` (4190: fixture snapshot, empty day layer).
 - `npm test` (Vitest) · `npm run lint` · `npm run typecheck` · `npm run e2e` (Playwright smoke on fixture data; "now"
   fixed through `window.__FK_NOW__`).
-- `npm run update-snapshot` (writes test-output/snapshot.json; `--upload` to Blob, `--raw` for fixtures) ·
+- `npm run update-snapshot` (writes test-output/snapshot.json; `--upload` to Blob, `--raw` for fixtures, `--from raw.json.gz`
+  to rebuild from saved payloads without fetching) ·
   `npm run make-fixture` · `npm run fetch-logos`.
 - CI (`.github/workflows/ci.yml`): version check, lint, typecheck, unit, build, e2e. `snapshot.yml` (every 3 h) and
   `freshness.yml` (every 4 h) run only once the repo variable SNAPSHOT_ENABLED is "true".
@@ -116,6 +121,10 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   never "free". Z4R uses points only (a team level with the zone line is tagged; no tiebreaker invented); the zone is
   the direct relegation places only (Alex: "direct for now"; the Bundesliga's and Ligue 1's 16th, a play-off place, is
   outside it). Streak tag from 3 windows in a row.
+- Goals while trailing (Alex): any goal scored while the other side leads at that moment, levelling or not; own goals
+  for the side credited; extra time counts, shootouts don't. A match's goals are kept only when they add up to the
+  score; competitions with gaps (Copa do Brasil, Copa del Rey, Coupe de France, state championships, super cups) are
+  left out of the page (`TRAILING_COMPS`).
 - Copies are transparent; a Slate copy lays its cards out by the largest-cards rule (page 1920 × 911).
 
 ## Testing policy
