@@ -105,6 +105,8 @@
 - 2026-11-15, Alex: feature backlog (10 items, done in order). Item 1, goals while trailing: ESPN's scoreboards lack
   goal events for Copa do Brasil, Copa del Rey, Coupe de France, state championships and super cups; Alex: "complete
   ones only" (the Libertadores' single awarded match counted as no goals while trailing).
+- 2026-11-15, Alex (backlog item 10): match links go to a Google search ("Home vs Away Mon D YYYY"), not ESPN's match
+  page; supersedes Phase 2's "a match goes to the ESPN match page".
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

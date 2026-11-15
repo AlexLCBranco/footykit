@@ -43,11 +43,11 @@ function CellMatch({ m, team, day }: { m: Match; team: string; day: string }) {
       <div className="fk-cell-tags"><TeamTags m={m} side={home ? 'h' : 'a'} /></div>
       <div className="fk-cell-bottom">
         {isPlayed(m) || m.st === 'in' ? (
-          <a className="fk-cell-score" href={matchUrl(m.id)} target="_blank" rel="noopener noreferrer" title={`${model.team(m.a).name} ${m.as}-${m.hs} ${model.team(m.h).name}${tie ? ` · ${tie}` : ''} — open on ESPN`}>
+          <a className="fk-cell-score" href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer" title={`${model.team(m.a).name} ${m.as}-${m.hs} ${model.team(m.h).name}${tie ? ` · ${tie}` : ''} — search on Google`}>
             {r ?? ''} {mine}-{theirs}{m.hp !== undefined ? ' p' : ''}
           </a>
         ) : (
-          <a className="fk-cell-time" href={matchUrl(m.id)} target="_blank" rel="noopener noreferrer" title="Open the match on ESPN"><MatchTime m={m} /></a>
+          <a className="fk-cell-time" href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer" title="Search the match on Google"><MatchTime m={m} /></a>
         )}
         <FormSquares line={formAt(model, team, m)} teamId={team} />
         <SeriesChip m={m} />

@@ -33,7 +33,7 @@ function TieCard({ t, today }: { t: CupTie; today: string }) {
         {t.legs.map((m) => {
           const day = model.dayOf(m);
           const text = isPlayed(m) ? `${model.team(m.h).abbr} ${m.hs}-${m.as} ${model.team(m.a).abbr}` : `${model.team(m.a).abbr} @ ${model.team(m.h).abbr} · ${shortDay(day)}`;
-          return <a key={m.id} href={matchUrl(m.id)} target="_blank" rel="noopener noreferrer" title={`${dayLabel(day)} — open on ESPN`}>{text}</a>;
+          return <a key={m.id} href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer" title={`${dayLabel(day)} — search on Google`}>{text}</a>;
         })}
       </div>
     </div>
@@ -48,9 +48,9 @@ function Square({ m, team, today }: { m: Match; team: string; today: string }) {
   const played = isPlayed(m);
   const gf = home ? m.hs! : m.as!, ga = home ? m.as! : m.hs!;
   const res = played ? (gf > ga ? 'W' : gf < ga ? 'L' : 'D') : undefined;
-  const tip = `${played ? `${res === 'W' ? 'Won' : res === 'L' ? 'Lost' : 'Drew'} ${gf}-${ga} ` : ''}${home ? 'vs' : 'at'} ${opp.name}\n${dayLabel(day)}${m.tbd ? '' : `, ${kickoffTime(m.t, timeZone)}`}\nOpen the match on ESPN`;
+  const tip = `${played ? `${res === 'W' ? 'Won' : res === 'L' ? 'Lost' : 'Drew'} ${gf}-${ga} ` : ''}${home ? 'vs' : 'at'} ${opp.name}\n${dayLabel(day)}${m.tbd ? '' : `, ${kickoffTime(m.t, timeZone)}`}\nSearch the match on Google`;
   return (
-    <a className={`fk-usq fk-usq-${res ?? 'next'}${!played && day === today ? ' fk-usq-now' : ''}`} href={matchUrl(m.id)} target="_blank" rel="noopener noreferrer" draggable={false} title={tip} data-testid="cup-square">
+    <a className={`fk-usq fk-usq-${res ?? 'next'}${!played && day === today ? ' fk-usq-now' : ''}`} href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer" draggable={false} title={tip} data-testid="cup-square">
       <span className="fk-usq-opp"><span className="fk-usq-at">{home ? 'vs' : '@'}</span>{opp.abbr}</span>
       <span className="fk-usq-res">{played ? `${gf}-${ga}` : shortDay(day)}</span>
     </a>

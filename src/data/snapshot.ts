@@ -99,5 +99,13 @@ export interface Snapshot {
   tables: Record<string, Table[]>;
 }
 
-/** ESPN's match page: where a click on a match goes. */
-export const matchUrl = (id: string) => `https://www.espn.com/soccer/match/_/gameId/${id}`;
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** Where a click on a match goes (Alex): a Google search for "Home vs Away Mon D YYYY", full team names, e.g.
+ * "Arsenal vs Borussia Dortmund Nov 24 2026". ESPN stays the data source only. `at` gives the teams' names and the
+ * match's local day (the Model). */
+export function matchUrl(m: Match, at: { team: (id: string) => Team; dayOf: (m: Match) => string }): string {
+  const [y, mo, d] = at.dayOf(m).split('-');
+  const q = `${at.team(m.h).name} vs ${at.team(m.a).name} ${MONTHS[Number(mo) - 1]} ${Number(d)} ${y}`;
+  return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+}

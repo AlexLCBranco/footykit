@@ -632,3 +632,28 @@ test('Team List rest days: a Rest row for each day without a match, on by defaul
   await expect(rest).toHaveCount(30 - matchDays.size);
   expect(errors).toEqual([]);
 });
+
+test('match links search Google ("Home vs Away Mon D YYYY", new tab), never ESPN, on every page', async ({ page, context }) => {
+  // never actually load Google in a test
+  await context.route(/google\.com/, (r) => r.fulfill({ status: 200, body: 'ok' }));
+  const errors: string[] = [];
+  for (const search of ['', '?view=cal&team=359&span=month', '?view=list&team=359', '?view=ucl', '?view=table&league=eng.1', '?view=cups&cup=eng.league_cup']) {
+    errors.push(...await open(page, search));
+    await expect(page.locator('a[href^="https://www.google.com/search"]').first(), search).toBeAttached(); // lazy pages
+    const links = await page.locator('a[href]').evaluateAll((as) => as.map((a) => ({ href: (a as HTMLAnchorElement).href, target: (a as HTMLAnchorElement).target })));
+    expect(links.filter((l) => /espn\.com/.test(l.href)), search).toEqual([]);
+    const google = links.filter((l) => l.href.startsWith('https://www.google.com/search?q='));
+    expect(google.length, search).toBeGreaterThan(0);
+    for (const l of google) {
+      expect(l.target).toBe('_blank');
+      expect(new URL(l.href).searchParams.get('q')).toMatch(/^.+ vs .+ (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{1,2} 20\d\d$/);
+    }
+  }
+  // the "@" of a day-list row opens the search in a new tab
+  await open(page);
+  const popup = context.waitForEvent('page');
+  await page.locator('.fk-at').first().click();
+  const q = new URL((await popup).url()).searchParams.get('q');
+  expect(q).toMatch(/ vs .+ Nov 21 2026$/);
+  expect(errors).toEqual([]);
+});

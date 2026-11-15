@@ -59,3 +59,10 @@ Ported from calendarkit (TeamListView.tsx withRest / model.ts teamRestDays, App.
 every day between the first and last match with no match of the club, from all its matches (never the months shown);
 rest = the difference of match dates. The toggle lives on the bar beside the List view (footykit has no Options menu),
 state in Footy.tsx only. The Phase 2 plan's "no rest-day counts" is superseded by this item.
+
+## 2026-11-15 — Backlog item 10: match links → Google search (v0.25.0)
+`matchUrl(m, at)` in snapshot.ts takes the match and the Model (names, local day) instead of the id: Google search for
+"Home vs Away Mon D YYYY", full names, encodeURIComponent. Callers: Scoreline's "@" and ↗ (Bits), Team Calendar cells,
+series popup squares, UCL / league / cup squares, UCL and cup bracket legs. The Slate part still exports matchUrl, now
+with the new signature: the gauntlet must pass the match and the model if it calls it (it pins a commit, so nothing
+breaks until it updates). Slate notes keep using the ESPN match id as their key.

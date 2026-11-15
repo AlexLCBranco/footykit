@@ -59,7 +59,9 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   Sudamericana places live over the picked table (`braRowZones`, shared with the Tables page), the Sudamericana,
   Libertadores and Copa do Brasil finals pickable by winner (`Sim.winners`; an open final counts both ways, a played one
   drops the pick).
-- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.24.0 item 9, Team List rest days as calendarkit's: a quiet "Rest"
+- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.25.0 item 10, every match link is a Google search
+  (`matchUrl(m, model)`: "Home vs Away Mon D YYYY", full names, the local day), new tab; ESPN is the data source only.
+  All 10 items done. v0.24.0 item 9, Team List rest days as calendarkit's: a quiet "Rest"
   row per day without a match between the club's first and last match (`restDays` in model.ts), "Rest days" on the bar
   (on at every load, unchecking lasts until a reload, not in the address); no break label. v0.23.0 item 8, a team-name click (and the Slate part's
   teamCalendarUrl) opens the Team Calendar in month span on the current month (`teamClickPage`); a span picked after
@@ -123,6 +125,7 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - Neutral venues come from researched config: ESPN's `neutralSite` is always false.
 - A postponed event that was rescheduled under a new id is dropped.
 - Friendlies and pre-season trophies are not shown; super cups, Copa do Nordeste and state championships are.
+- Match links: a Google search, never ESPN (Alex, backlog item 10).
 - Rows read AWAY 2 @ 1 HOME (calendarkit's layout); "v" instead of "@" at a neutral venue.
 - Form (last 5) and streaks count every competition; the record is the league W-D-L.
 - Free windows: MIDWEEK Tue–Thu, WEEKEND Fri–Mon; a window without a match is tinted on the Team Calendar.

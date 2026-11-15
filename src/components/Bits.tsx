@@ -1,6 +1,6 @@
 // The small parts every view shares: team logo and link, competition mark, form squares, score, and the one-line
 // match ("time [comp] [form] logo AWAY 2 @ 1 HOME logo [form]"). Click rule: a team (name or logo) opens its Team
-// Calendar; the match (score, "@", time) opens ESPN's match page in a new tab. Nothing with a pointer cursor is dead.
+// Calendar; the match (score, "@", time) opens a Google search for it in a new tab. Nothing with a pointer cursor is dead.
 
 import { useState, type MouseEvent, type ReactNode } from 'react';
 import { compLogoUrl, teamLogoUrl } from '../address';
@@ -110,9 +110,9 @@ export function MatchTime({ m }: { m: Match }) {
   return <span className="fk-time">{m.tbd ? 'TBD' : kickoffTime(m.t, timeZone)}</span>;
 }
 
-const openMatch = (m: Match) => (e: MouseEvent) => {
+const openMatch = (url: string) => (e: MouseEvent) => {
   e.stopPropagation();
-  window.open(matchUrl(m.id), '_blank', 'noopener');
+  window.open(url, '_blank', 'noopener');
 };
 
 /** AWAY 2 @ 1 HOME, the scores against the "@" (none before kickoff: no empty space around the "@"). */
@@ -131,7 +131,7 @@ export function Scoreline({ m, day, label = 'abbr', form = true, logoSize = 20, 
         {fa && <FormSquares line={fa} teamId={m.a} />}
         <TeamLink id={m.a} day={day} label={label} logoSize={logoSize} />
       </span>
-      <button type="button" className="fk-at" title={`${model.team(m.a).name} at ${model.team(m.h).name}${venue ? ` — ${venue}` : ''}${neutral ? ` (neutral venue: ${neutral.why})` : ''}${tie ? `\n${tie}` : ''}\nOpen the match on ESPN`} onClick={openMatch(m)}>
+      <button type="button" className="fk-at" title={`${model.team(m.a).name} at ${model.team(m.h).name}${venue ? ` — ${venue}` : ''}${neutral ? ` (neutral venue: ${neutral.why})` : ''}${tie ? `\n${tie}` : ''}\nSearch the match on Google`} onClick={openMatch(matchUrl(m, model))}>
         {scored && <span className="fk-score">{m.as}</span>}
         <span className="fk-at-sign">{neutral ? 'v' : '@'}</span>
         {scored && <span className="fk-score">{m.hs}</span>}
@@ -167,10 +167,11 @@ export function Chip({ children, title, className = '' }: { children: ReactNode;
   return <span className={`fk-chip ${className}`} title={title}>{children}</span>;
 }
 
-/** The "↗" that opens a match on ESPN (list rows). */
+/** The "↗" that searches a match on Google (list rows). */
 export function MatchLink({ m }: { m: Match }) {
+  const { model } = useFooty();
   return (
-    <a className="fk-ext" href={matchUrl(m.id)} target="_blank" rel="noopener noreferrer" title="Open the match on ESPN" onClick={(e) => e.stopPropagation()}>
+    <a className="fk-ext" href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer" title="Search the match on Google" onClick={(e) => e.stopPropagation()}>
       ↗
     </a>
   );

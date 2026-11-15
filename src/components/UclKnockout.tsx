@@ -31,7 +31,7 @@ function TieCard({ t, pos, today }: { t: Tie; pos: (team: string) => number; tod
           const day = model.dayOf(m);
           const played = m.st === 'post' && m.hs !== undefined;
           const text = played ? `${model.team(m.h).abbr} ${m.hs}-${m.as} ${model.team(m.a).abbr}` : `${model.team(m.a).abbr} @ ${model.team(m.h).abbr} · ${shortDay(day)}`;
-          return <a key={m.id} href={matchUrl(m.id)} target="_blank" rel="noopener noreferrer" title={`${m.leg ? `Leg ${m.leg}` : 'Final'}, ${shortDay(day)} — open on ESPN`}>{text}</a>;
+          return <a key={m.id} href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer" title={`${m.leg ? `Leg ${m.leg}` : 'Final'}, ${shortDay(day)} — search on Google`}>{text}</a>;
         })}
       </div>
     </div>

@@ -27,10 +27,10 @@ function Square({ m, team, today }: { m: Match; team: string; today: string }) {
     played ? `${res === 'W' ? 'Won' : res === 'L' ? 'Lost' : 'Drew'} ${gf}-${ga} ${home ? 'vs' : 'at'} ${opp.name}` : `${home ? 'vs' : 'at'} ${opp.name}`,
     `${dayLabel(day)}${m.tbd ? '' : `, ${kickoffTime(m.t, timeZone)}`}`,
     m.st === 'ppd' ? 'Postponed' : '',
-    'Open the match on ESPN',
+    'Search the match on Google',
   ].filter(Boolean).join('\n');
   return (
-    <a className={`fk-usq fk-usq-${res ?? 'next'}${m.st === 'in' || (!played && day === today) ? ' fk-usq-now' : ''}`} href={matchUrl(m.id)} target="_blank" rel="noopener noreferrer" draggable={false} title={tip} data-testid="league-square">
+    <a className={`fk-usq fk-usq-${res ?? 'next'}${m.st === 'in' || (!played && day === today) ? ' fk-usq-now' : ''}`} href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer" draggable={false} title={tip} data-testid="league-square">
       <span className="fk-usq-opp"><span className="fk-usq-at">{home ? 'vs' : '@'}</span>{opp.abbr}</span>
       <span className="fk-usq-res">{played ? `${gf}-${ga}` : m.st === 'ppd' ? 'PPD' : shortDay(day)}</span>
     </a>

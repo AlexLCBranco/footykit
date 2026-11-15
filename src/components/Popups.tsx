@@ -35,8 +35,8 @@ export function SeriesPopup({ open, onClose }: { open: SeriesOpen; onClose: () =
           const when = shortDay(model.dayOf(m));
           const score = isPlayed(m) ? `${home ? m.hs : m.as}-${home ? m.as : m.hs}` : m.tbd ? 'TBD' : new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone }).format(Date.parse(m.t));
           return (
-            <a key={m.id} className={`fk-square${r ? ` fk-res-${r}` : ''}`} href={matchUrl(m.id)} target="_blank" rel="noopener noreferrer" data-testid="series-square"
-              title={`${when} · ${model.comp(m.c).name}${m.r ? ` · ${m.r}` : ''}${m.leg ? ` · leg ${m.leg}` : ''}\n${model.team(m.a).name} at ${model.team(m.h).name}${tie ? `\nAggregate ${ta.abbr} ${tie.agg[0]}-${tie.agg[1]} ${tb.abbr}${tie.pens ? `, pens ${tie.pens[0]}-${tie.pens[1]}` : ''}` : ''}\nOpen on ESPN`}>
+            <a key={m.id} className={`fk-square${r ? ` fk-res-${r}` : ''}`} href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer" data-testid="series-square"
+              title={`${when} · ${model.comp(m.c).name}${m.r ? ` · ${m.r}` : ''}${m.leg ? ` · leg ${m.leg}` : ''}\n${model.team(m.a).name} at ${model.team(m.h).name}${tie ? `\nAggregate ${ta.abbr} ${tie.agg[0]}-${tie.agg[1]} ${tb.abbr}${tie.pens ? `, pens ${tie.pens[0]}-${tie.pens[1]}` : ''}` : ''}\nSearch on Google`}>
               <span className="fk-square-top"><CompMark slug={m.c} round={m.r} /> {home ? 'vs' : '@'}</span>
               <span className="fk-square-score">{score}</span>
               <span className="fk-square-date">{when}</span>
@@ -45,7 +45,7 @@ export function SeriesPopup({ open, onClose }: { open: SeriesOpen; onClose: () =
           );
         })}
       </div>
-      <div className="fk-muted fk-pop-foot">From {ta.abbr}'s side. Click a square for the match on ESPN.</div>
+      <div className="fk-muted fk-pop-foot">From {ta.abbr}'s side. Click a square to search the match on Google.</div>
     </div>
   );
 }

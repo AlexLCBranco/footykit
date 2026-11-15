@@ -30,11 +30,11 @@ function Square({ s, team, today }: { s: UclSlot; team: string; today: string })
     `${opp.name}: pot ${s.pot}`,
     when + (venue ? ` · ${venue}` : ''),
     s.m.st === 'ppd' ? 'Postponed' : '',
-    'Open the match on ESPN',
+    'Search the match on Google',
   ].filter(Boolean).join('\n');
   const now = s.m.st === 'in' || (!s.played && day === today);
   return (
-    <a className={`fk-usq fk-usq-${s.res ?? 'next'}${now ? ' fk-usq-now' : ''}`} href={matchUrl(s.m.id)} target="_blank" rel="noopener noreferrer" draggable={false} title={tip} data-testid="ucl-square">
+    <a className={`fk-usq fk-usq-${s.res ?? 'next'}${now ? ' fk-usq-now' : ''}`} href={matchUrl(s.m, model)} target="_blank" rel="noopener noreferrer" draggable={false} title={tip} data-testid="ucl-square">
       <span className="fk-usq-opp"><span className="fk-usq-at">{s.home ? 'vs' : '@'}</span>{opp.abbr}</span>
       <span className="fk-usq-res">{s.played ? `${s.gf}-${s.ga}` : shortDay(day)}</span>
     </a>
