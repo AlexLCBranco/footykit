@@ -34,10 +34,9 @@ function Square({ s, team, today }: { s: UclSlot; team: string; today: string })
   ].filter(Boolean).join('\n');
   const now = s.m.st === 'in' || (!s.played && day === today);
   return (
-    <a className={`fk-usq fk-usq-${s.res ?? 'next'}${now ? ' fk-usq-now' : ''}`} href={matchUrl(s.m.id)} target="_blank" rel="noopener noreferrer" draggable={false} title={tip} data-testid="ucl-square" data-pot={s.pot}>
+    <a className={`fk-usq fk-usq-${s.res ?? 'next'}${now ? ' fk-usq-now' : ''}`} href={matchUrl(s.m.id)} target="_blank" rel="noopener noreferrer" draggable={false} title={tip} data-testid="ucl-square">
       <span className="fk-usq-opp"><span className="fk-usq-at">{s.home ? 'vs' : '@'}</span>{opp.abbr}</span>
       <span className="fk-usq-res">{s.played ? `${s.gf}-${s.ga}` : shortDay(day)}</span>
-      <span className="fk-usq-pot" aria-label={`pot ${s.pot}`}>{s.pot}</span>
     </a>
   );
 }
@@ -49,12 +48,34 @@ function Left({ row, ranks }: { row: UclRow; ranks: Map<string, number> }) {
   const tip = ['Still to play (pot, place now):', ...left.map((s) => `${s.home ? 'vs' : '@'} ${model.team(s.opp).name} — pot ${s.pot}, ${ranks.get(s.opp)}`)].join('\n');
   return (
     <span className="fk-ucl-left" title={tip}>
-      {[...left].sort((a, b) => a.pot - b.pot).map((s) => <span key={s.m.id} className={`fk-pot fk-pot-${s.pot}`}>{s.pot}</span>)}
+      {left.map((s) => <span key={s.m.id} className="fk-ucl-left-opp">{s.home ? '' : '@'}{model.team(s.opp).abbr}</span>)}
     </span>
   );
 }
 
-export default function UclPage({ today, onWhatIf }: { today: string; onWhatIf?: () => void }) {
+/** The Pots tab: the 36 teams in their draw pots, one column per pot. */
+function Pots({ today }: { today: string }) {
+  return (
+    <div className="fk-ucl-pots-tab" data-testid="ucl-pots">
+      <div className="fk-ucl-pots">
+        {UCL_POTS.map((p) => (
+          <section key={p.pot} className="fk-ucl-pot-col" data-testid="ucl-pot" data-pot={p.pot}>
+            <h3>Pot {p.pot}</h3>
+            {p.teams.map((t) => (
+              <div key={t} className="fk-ucl-pot-team" data-testid="ucl-pot-team"><TeamLink id={t} day={today} label="name" logoSize={22} /></div>
+            ))}
+          </section>
+        ))}
+      </div>
+      <p className="fk-muted">Each team plays two teams of each pot, one at home and one away.</p>
+      <p className="fk-ucl-src">Source: <a href={UCL_POTS_SOURCE} target="_blank" rel="noopener noreferrer">Wikipedia, 2026–27 league phase</a></p>
+    </div>
+  );
+}
+
+export type UclTab = 'table' | 'pots';
+
+export default function UclPage({ today, onWhatIf, tab = 'table', onTab }: { today: string; onWhatIf?: () => void; tab?: UclTab; onTab?: (t: UclTab) => void }) {
   const { model } = useFooty();
   const table = useMemo(() => uclTable(model.snap, (id) => model.team(id).name), [model]);
   const [hover, setHover] = useState<number | null>(null);
@@ -69,13 +90,19 @@ export default function UclPage({ today, onWhatIf }: { today: string; onWhatIf?:
         <h2>Champions League <span className="fk-muted">· league phase</span></h2>
         <span className="fk-muted" data-testid="ucl-matchday">{table.complete ? 'final table' : `after matchday ${table.matchday} of 8`}</span>
         {onWhatIf && !table.complete && <button type="button" className="fk-btn" onClick={onWhatIf} title="Pick the results left to play and see the table and the knockout places change" data-testid="ucl-whatif">Simulator</button>}
-        <span className="fk-ucl-key">
-          {UCL_ZONES.map((z) => <span key={z.id} className={`fk-ucl-zone-key fk-zone-${z.id}`}>{z.from}–{z.to} {z.label}</span>)}
+        <span className="fk-tabs fk-ucl-tabs" role="tablist" aria-label="Champions League page" data-testid="ucl-tabs">
+          {([['table', 'League phase'], ['pots', 'Pots']] as const).map(([t, text]) => (
+            <button key={t} type="button" role="tab" aria-selected={tab === t} className={`fk-tab${tab === t ? ' fk-tab-on' : ''}`} data-text={text} onClick={() => onTab?.(t)}>{text}</button>
+          ))}
         </span>
+        {tab === 'table' && <span className="fk-ucl-key">
+          {UCL_ZONES.map((z) => <span key={z.id} className={`fk-ucl-zone-key fk-zone-${z.id}`}>{z.from}–{z.to} {z.label}</span>)}
+        </span>}
       </div>
+      {tab === 'pots' ? <Pots today={today} /> : <>
       <SplitTable className="fk-table fk-ucl-table" onMouseLeave={() => setHover(null)} testId="ucl-split" head={<tr>
             <th>#</th><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
-            <th className="fk-tl">Last 5</th><th className="fk-tl" title="The 8 league-phase matches in date order; the small number is the opponent's pot">Matches</th><th className="fk-tl" title="Pots of the opponents still to play">Left</th>
+            <th className="fk-tl">Last 5</th><th className="fk-tl" title="The 8 league-phase matches in date order (hover one for the opponent's pot)">Matches</th><th className="fk-tl" title="The opponents still to play (hover for their pots and places)">Left</th>
             {showStakes && <th className="fk-tl" title="What is settled, and what the next match can settle (points only: a claim holds whatever else happens)">Stakes</th>}
           </tr>} rows={table.rows.map((r, i) => {
             const pos = i + 1;
@@ -87,9 +114,8 @@ export default function UclPage({ today, onWhatIf }: { today: string; onWhatIf?:
                 <td className="fk-rank" title={`${path}${r.level ? `\nShared place: ${levelText}` : ''}`} onMouseEnter={() => setHover(pos)} data-testid="ucl-rank">
                   {r.rank}{r.level && <span className="fk-ucl-eq">=</span>}
                 </td>
-                <td className="fk-tl fk-ucl-team">
+                <td className="fk-tl fk-ucl-team" title={`${model.team(r.team).name} · pot ${r.pot}`}>
                   <TeamLink id={r.team} day={today} label="short" />
-                  <span className={`fk-pot fk-pot-${r.pot}`} title={`Pot ${r.pot}`}>{r.pot}</span>
                 </td>
                 <td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td>
                 <td>{r.gd > 0 ? `+${r.gd}` : r.gd < 0 ? `−${-r.gd}` : 0}</td>
@@ -119,15 +145,8 @@ export default function UclPage({ today, onWhatIf }: { today: string; onWhatIf?:
           <p>During the league phase the table uses 1–5 and shows teams still level as sharing a place (=); after the last matchday it uses 1–8. Places decided by 9–10 are marked, not guessed.</p>
           <p className="fk-ucl-src">Source: <a href={UCL_TIEBREAKERS_SOURCE} target="_blank" rel="noopener noreferrer">UEFA regulations 2026/27, Art. 18</a></p>
         </section>
-        <section>
-          <h3>Pots</h3>
-          {UCL_POTS.map((p) => (
-            <p key={p.pot} className="fk-ucl-pot-line"><span className={`fk-pot fk-pot-${p.pot}`}>{p.pot}</span> {p.teams.map((t) => model.team(t).short).join(', ')}</p>
-          ))}
-          <p>Each team plays two teams of each pot, one at home and one away.</p>
-          <p className="fk-ucl-src">Source: <a href={UCL_POTS_SOURCE} target="_blank" rel="noopener noreferrer">Wikipedia, 2026–27 league phase</a></p>
-        </section>
       </div>
+      </>}
     </div>
   );
 }

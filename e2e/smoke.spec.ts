@@ -566,3 +566,28 @@ test('simulator Reset: empties only the matchday shown, keeps locked results, un
   await expect(page.getByTestId('wi-count')).toHaveText('0 of 280 picked');
   expect(errors).toEqual([]);
 });
+
+test('pots: no pot badges on the UCL page or the simulator (kept in tooltips); the Pots tab lists 4 × 9 teams', async ({ page }) => {
+  const errors = await open(page, '?view=ucl');
+  await expect(page.getByTestId('ucl-row')).toHaveCount(36);
+  await expect(page.locator('.fk-pot, .fk-usq-pot')).toHaveCount(0);
+  await expect(page.getByTestId('ucl-square').first()).toHaveAttribute('title', /pot \d/);
+  await expect(page.getByTestId('ucl-row').first().locator('.fk-ucl-team')).toHaveAttribute('title', /pot \d/);
+  // the Pots tab
+  await page.getByTestId('ucl-tabs').getByRole('tab', { name: 'Pots' }).click();
+  await expect(page).toHaveTitle('Champions League pots — footykit');
+  await expect(page.getByTestId('ucl-pot')).toHaveCount(4);
+  for (let i = 0; i < 4; i++) await expect(page.getByTestId('ucl-pot').nth(i).getByTestId('ucl-pot-team')).toHaveCount(9);
+  await expect(page.getByTestId('ucl-pot').first()).toContainText('Paris Saint-Germain');
+  await expect(page.getByTestId('ucl-pot').first().locator('img').first()).toBeVisible();
+  await page.reload();
+  await expect(page.getByTestId('ucl-pot')).toHaveCount(4);
+  await page.getByTestId('ucl-tabs').getByRole('tab', { name: 'League phase' }).click();
+  await expect(page.getByTestId('ucl-row')).toHaveCount(36);
+  // the simulator
+  await open(page, '?view=whatif');
+  await expect(page.getByTestId('wi-match').first()).toBeVisible();
+  await expect(page.locator('.fk-pot')).toHaveCount(0);
+  await expect(page.getByTestId('wi-match').first().locator('.fk-wi-side').first()).toHaveAttribute('title', /pot \d/);
+  expect(errors).toEqual([]);
+});

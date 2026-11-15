@@ -26,6 +26,8 @@ export interface Page {
   cup?: string;
   /** the competition shown (view `trailing`) */
   comp?: string;
+  /** the Champions League page's tab (view `ucl`); the table when unset */
+  uclTab?: 'table' | 'pots';
   span: Span;
   /** Team Calendar: first Monday shown (1 / 2 weeks) */
   week: string;
@@ -66,6 +68,7 @@ export function pageSearch(p: Page): string {
   if (p.team && (p.view === 'cal' || p.view === 'list')) q.set('team', p.team);
   if (p.view === 'cal') q.set('span', String(p.span));
   if (p.view === 'whatif' && simLeague(p)) { q.set('league', simLeague(p)!); return `?${q}`; }
+  if (p.view === 'ucl' && p.uclTab === 'pots') q.set('tab', 'pots');
   if (p.view === 'ucl' || p.view === 'whatif') return `?${q}`;
   if (p.view === 'table') { q.set('league', p.league ?? DEFAULT_LEAGUE); return `?${q}`; }
   if (p.view === 'cups') { q.set('cup', p.cup ?? DEFAULT_CUP); return `?${q}`; }
@@ -91,7 +94,8 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
     return { ...p, view, team };
   }
   if (view === 'whatif') { const l = q.get('league'); return isLeague(l) ? { ...p, view, league: l } : { ...p, view }; }
-  if (view === 'slate' || view === 'ucl') return { ...p, view };
+  if (view === 'ucl') return q.get('tab') === 'pots' ? { ...p, view, uclTab: 'pots' } : { ...p, view };
+  if (view === 'slate') return { ...p, view };
   if (view === 'cups') { const c = q.get('cup'); return { ...p, view, cup: c && CUP_SLUGS.includes(c) ? c : DEFAULT_CUP }; }
   if (view === 'trailing') { const c = q.get('comp'); return { ...p, view, comp: c && TRAILING_COMPS.includes(c) ? c : DEFAULT_TRAILING }; }
   if (view === 'table') { const l = q.get('league'); return { ...p, view, league: isLeague(l) ? l : DEFAULT_LEAGUE }; }
@@ -112,7 +116,7 @@ export function pagePart(p: Page, model: Model): string {
   }
   if (p.view === 'list') return `${abbr} list · ${p.listFrom === p.month ? monthLabel(p.month, false) : `${monthLabel(p.listFrom, false)} – ${monthLabel(p.month, false)}`}`;
   if (p.view === 'slate') return `Slate · ${dayLabel(p.day)}`;
-  if (p.view === 'ucl') return 'Champions League';
+  if (p.view === 'ucl') return p.uclTab === 'pots' ? 'Champions League pots' : 'Champions League';
   if (p.view === 'whatif') { const l = simLeague(p); return `${l ? model.comp(l).name : 'UCL'} simulator`; }
   if (p.view === 'table') return `${model.comp(p.league ?? DEFAULT_LEAGUE).name} table`;
   if (p.view === 'cups') return model.comp(p.cup ?? DEFAULT_CUP).name;

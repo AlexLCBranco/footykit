@@ -43,3 +43,8 @@ taller than the window turns position: absolute so the page scrolls to its end.
 `ResetGroup` in WhatIfParts.tsx, beside the GroupNav header: `clear()` over the matchday's matches shown (with a team
 picked, that team's), so locks stay as with the toolbar's Clear, through the same undo history. Hidden when nothing
 there could be emptied (no pick, or only locked ones).
+
+## 2026-11-15 — Backlog item 7: pots hidden, Pots tab (v0.22.0)
+Removed: the pot badge after each team in the UCL table and the simulator (table and match rows), the pot corner of the
+UCL squares, and the rules' Pots section (now the Pots tab). The Left column was made only of pot badges, so it lists
+the opponents still to play by code instead, pots and places in its tooltip. No settings panel.

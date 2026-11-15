@@ -17,8 +17,6 @@ import './ucl.css';
 import './whatif.css';
 import { SplitTable } from './SplitTable';
 
-const potBadge = (id: string) => <span className={`fk-pot fk-pot-${potOf(id)}`}>{potOf(id)}</span>;
-
 export default function WhatIfPage({ today, onBack }: { today: string; onBack: () => void }) {
   const { model } = useFooty();
   const names = useCallback((id: string) => model.team(id).name, [model]);
@@ -64,7 +62,7 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
   const levelText = table.complete ? 'level on criteria 1–8: decided by cards or club coefficient (not in the data)' : 'level on criteria 1–5 (6–8 apply once every match has a result)';
 
   const rowOf = (m: Match) => (
-    <Row key={m.id} m={m} pick={sim.picks[m.id]} locked={!!sim.locked[m.id]} badge={potBadge} teamTip={(id) => `${model.team(id).name} · pot ${potOf(id)}`}
+    <Row key={m.id} m={m} pick={sim.picks[m.id]} locked={!!sim.locked[m.id]} teamTip={(id) => `${model.team(id).name} · pot ${potOf(id)}`}
       rowRef={rowRef(m.id)}
       onSet={(s, move) => { change((x) => setPick(x, m.id, s)); if (move) focusFrom(m.id, 1); }}
       onLock={() => change((x) => toggleLock(x, m.id))}
@@ -122,10 +120,9 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
                     <td className="fk-rank">{r.rank}{r.level && <span className="fk-ucl-eq">=</span>}</td>
                     <td className={`fk-wi-move${move > 0 ? ' fk-wi-up' : move < 0 ? ' fk-wi-down' : ''}`} title={`Real table: ${ord(realPos.get(r.team)!)}`}>{move > 0 ? `▲${move}` : move < 0 ? `▼${-move}` : ''}</td>
                     <td className="fk-tl fk-ucl-team">
-                      <button type="button" className="fk-wi-teambtn" title={team === r.team ? 'Show every team\'s matches' : `Show ${model.team(r.team).short}'s matches only`} onClick={() => setTeam(team === r.team ? undefined : r.team)}>
+                      <button type="button" className="fk-wi-teambtn" title={`${model.team(r.team).name} · pot ${r.pot}\n${team === r.team ? 'Show every team\'s matches' : `Show ${model.team(r.team).short}'s matches only`}`} onClick={() => setTeam(team === r.team ? undefined : r.team)}>
                         <TeamLogo id={r.team} size={16} /> {model.team(r.team).short}
                       </button>
-                      <span className={`fk-pot fk-pot-${r.pot}`} title={`Pot ${r.pot}`}>{r.pot}</span>
                     </td>
                     <td>{r.p}</td><td>{signed(r.gd)}</td><td className="fk-pts">{r.pts}</td>
                   </tr>

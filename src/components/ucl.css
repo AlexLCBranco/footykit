@@ -432,3 +432,29 @@
   margin-top: 10px;
   font-size: 12px;
 }
+
+/* Pots tab (UclPage.tsx): the 36 teams in 4 columns, one per pot */
+.fk-ucl-tabs {
+  margin-left: 4px;
+}
+.fk-ucl-pots {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 260px));
+  gap: 12px 28px;
+  margin: 6px 0 12px;
+}
+.fk-ucl-pot-col h3 {
+  font-size: 14px;
+  margin: 0 0 6px;
+}
+.fk-ucl-pot-team {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+.fk-ucl-left-opp {
+  font-size: 11.5px;
+  color: var(--fk-muted);
+  margin-right: 5px;
+}
