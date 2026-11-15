@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-15
+- FK-12 — Club picker must clearly accept typing (v0.27.0) — The club picker is a box you type into: it filters live ignoring case and accents ("gremio" finds Grêmio), ↑/↓ move, Enter picks, Esc closes.
 - FK-11 — Competition name spelled out in match rows (v0.26.0) — Day List and Team List rows show the competition's name after its logo, in a fixed-width column (long names end in "…", the tooltip has it whole).
 - FK-10 — match links search Google instead of opening ESPN (v0.25.0) — matchUrl(m, model) builds https://www.google.com/search?q= + "Home vs Away Mon D YYYY" (full tea…
 - FK-9 — rest days in the Team List, as calendarkit's (v0.24.0) — one quiet "Rest" row per day without a match between the club's first and last match (from all its mat…

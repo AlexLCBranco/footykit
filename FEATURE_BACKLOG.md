@@ -5,17 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-12 — Club picker must clearly accept typing
-
-The club picker (`TeamPicker` in `TopBar.tsx`) is a native `<select>`. Native selects do jump on typed letters, but nothing tells the user that, so in practice it reads as scroll-only.
-
-- Replace it with a searchable combobox: a text input with placeholder like "Type a club…" and a search icon, so it's obvious you can type.
-- Typing filters the list live (case- and accent-insensitive, so "gremio" finds Grêmio, "sao paulo" finds São Paulo); keep the league group headings in the filtered list.
-- Keyboard: ↑/↓ to move, Enter to pick, Esc to close/clear. "All clubs" stays as the first option.
-- When a club is chosen, keep showing its logo + name like today.
-- Keep `data-testid="scope-picker"` (or update the e2e tests accordingly) and the same `onPick` behaviour.
-- Tests: e2e types a partial accentless name, sees the filtered list, presses Enter, lands on that club.
-
 ### FK-13 — Midweek / weekend window bands in the team List view
 
 In the team List view (`TeamList.tsx`, one line per day incl. rest days), the user can't see the fixture windows. Use `windowOf()` from `src/data/windows.ts` (midweek Tue–Thu, weekend Fri–Mon) to tint the day lines:

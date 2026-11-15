@@ -26,3 +26,31 @@ test('FK-11: a Day List row spells out its competition, in a column of one width
   await expect(page.getByTestId('team-row').first().getByTestId('comp-name')).not.toHaveText('');
   expect(errors).toEqual([]);
 });
+
+test('FK-12: the club picker takes typing, accentless, and Enter picks the club', async ({ page }) => {
+  const errors = await open(page);
+  const picker = page.getByTestId('scope-picker');
+  await expect(picker).toHaveAttribute('placeholder', /type a club/i);
+  await picker.click();
+  await picker.pressSequentially('sao paulo');
+  const list = page.getByTestId('club-list');
+  // "All clubs" stays first, the league heading stays over its club
+  await expect(list.getByRole('option')).toHaveText(['All clubs', 'São Paulo']);
+  await expect(list).toContainText('Brasileirão');
+  await picker.press('Enter');
+  await expect(page).toHaveTitle(/^SAO /);
+  await expect(picker).toHaveValue('São Paulo');
+  // ↓ ↑ and Esc: Esc closes and keeps the club
+  await picker.click();
+  await picker.pressSequentially('gremio');
+  await picker.press('Escape');
+  await expect(page.getByTestId('club-list')).toHaveCount(0);
+  await expect(picker).toHaveValue('São Paulo');
+  // arrows: from "All clubs", ↓ is the first club
+  await picker.click();
+  await picker.press('ArrowDown');
+  await picker.press('ArrowUp');
+  await picker.press('Enter');
+  await expect(page).toHaveTitle(/^Sat, Nov 21/);
+  expect(errors).toEqual([]);
+});

@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react';
 import { addDays, dayLabel, mondayOf, monthLabel, shortDay } from '../data/model';
 import { useFooty } from './ctx';
-import { TeamLogo } from './Bits';
+import { ClubPicker } from './ClubPicker';
 import { CUP_SLUGS, DEFAULT_CUP, DEFAULT_LEAGUE, LEAGUE_SLUGS, simLeague, type Page, type Span, type View } from './page';
 import type { LeagueSlug } from '../../config/season';
 import { DEFAULT_TRAILING, TRAILING_COMPS } from '../data/trailing';
@@ -21,25 +21,6 @@ function Tabs<T extends string | number>({ value, options, onChange, label, test
         </button>
       ))}
     </div>
-  );
-}
-
-function TeamPicker({ team, onPick }: { team?: string; onPick: (id: string | undefined) => void }) {
-  const { model } = useFooty();
-  const groups = new Map<string, typeof model.clubs>();
-  for (const c of model.clubs) { const k = model.comp(c.league).name; groups.set(k, [...(groups.get(k) ?? []), c]); }
-  return (
-    <label className={`fk-scope${team ? ' fk-scope-team' : ''}`} title="Show one club, or all followed clubs">
-      {team && <TeamLogo id={team} size={22} />}
-      <select value={team ?? ''} onChange={(e) => onPick(e.target.value || undefined)} aria-label="Club" data-testid="scope-picker">
-        <option value="">All clubs</option>
-        {[...groups].map(([league, clubs]) => (
-          <optgroup key={league} label={league}>
-            {[...clubs].sort((a, b) => a.name.localeCompare(b.name)).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </optgroup>
-        ))}
-      </select>
-    </label>
   );
 }
 
@@ -91,7 +72,7 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
         <button type="button" className="fk-hist-btn" disabled={!history.back} title={history.back ? `Back to ${history.back}` : 'Nothing to go back to'} aria-label="Back" onClick={history.onBack}>←</button>
         <button type="button" className="fk-hist-btn" disabled={!history.forward} title={history.forward ? `Forward to ${history.forward}` : 'Nothing to go forward to'} aria-label="Forward" onClick={history.onForward}>→</button>
       </span>
-      <TeamPicker team={team} onPick={(id) => onPage(id ? { ...page, view: page.view === 'list' ? 'list' : 'cal', team: id } : { ...page, view: 'day' })} />
+      <ClubPicker team={team} onPick={(id) => onPage(id ? { ...page, view: page.view === 'list' ? 'list' : 'cal', team: id } : { ...page, view: 'day' })} />
       {team ? (
         <>
           <Tabs<View> label="View" testId="views" value={page.view} options={[['cal', 'Calendar'], ['list', 'List']]} onChange={(v) => onPage({ ...page, view: v })} />
