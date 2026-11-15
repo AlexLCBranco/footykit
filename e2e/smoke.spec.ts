@@ -449,3 +449,27 @@ test('simulator matchdays: one at a time, opens on the next to play, ◀ ▶ and
   await expect(page.getByTestId('wi-prev')).toBeEnabled();
   expect(errors).toEqual([]);
 });
+
+test('simulator rows: a team code never runs into the badge after it, whatever its length', async ({ page }) => {
+  const errors = await open(page, '?view=whatif');
+  const overlaps = async () => page.getByTestId('wi-match').evaluateAll((rows) => rows.flatMap((r) => [...r.querySelectorAll('.fk-wi-side')].flatMap((side) => {
+    const abbr = side.querySelector<HTMLElement>('.fk-wi-abbr')!;
+    const badge = abbr.nextElementSibling as HTMLElement | null;
+    const a = abbr.getBoundingClientRect();
+    // the code's own text box: wider than its slot = drawn over what follows
+    const range = document.createRange(); range.selectNodeContents(abbr);
+    const text = range.getBoundingClientRect();
+    const bad = (badge && text.right > badge.getBoundingClientRect().left + 0.5) || text.right > a.right + 0.5;
+    return bad ? [abbr.textContent] : [];
+  })));
+  // the overlap showed in narrower windows, where the row has no room to spare
+  for (const width of [1920, 1280, 1024]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (let i = 0; i < 4; i++) {
+      expect(await overlaps(), `${width}px, matchday ${i + 5}`).toEqual([]);
+      await page.keyboard.press(i < 3 ? 'ArrowRight' : 'Home');
+    }
+    for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowLeft');
+  }
+  expect(errors).toEqual([]);
+});

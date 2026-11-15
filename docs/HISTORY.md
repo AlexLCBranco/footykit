@@ -24,3 +24,9 @@ The view id stays `whatif`, so no redirect is needed: old links and saved histor
 The long list of matches left became one group at a time: the UCL by matchday ("Matchday 5 · Nov 24, Nov 25"), a
 league by window (ESPN gives leagues no round numbers, so the window stays the unit). Pending stays above. Bulk fills
 and Clear keep acting on every match left (item 6 adds a per-matchday Reset; Clear stays clear-everything).
+
+## 2026-11-15 — Backlog item 4: pot badge over 4-letter codes (v0.19.1)
+Cause: `.fk-wi-abbr` was a 32 px flex item; a 4-letter code in the row font is 36–40 px wide, so where the row had no
+room to spare (1280 px windows and below) the text ran under the pot badge (BODO, COMO, ROMA). At 1920 px the flex
+item grew to fit, which is why it showed only sometimes. Fix: a fixed 3.7em slot that never shrinks, longer codes
+clipped with "…". Test: e2e at 1920 / 1280 / 1024 px over every matchday (failed on the old code at 1280 px).

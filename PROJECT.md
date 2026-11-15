@@ -59,7 +59,8 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   Sudamericana places live over the picked table (`braRowZones`, shared with the Tables page), the Sudamericana,
   Libertadores and Copa do Brasil finals pickable by winner (`Sim.winners`; an open final counts both ways, a played one
   drops the pick).
-- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.19.0 item 3, the simulators show one matchday (a
+- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.19.1 item 4, simulator team codes in a fixed slot (four
+  bold letters fit, longer ones end in "…"), so the badge after them never covers them at any window width. v0.19.0 item 3, the simulators show one matchday (a
   league: one window) at a time, opening on the next to play, ◀ ▶ beside its header or ← → to step (`useGroupNav` in
   `WhatIfParts.tsx`); fills, Clear and the counts still cover every match left. v0.18.1 item 2, "What-if" shown as "Simulator"
   everywhere (buttons, headings, tab titles; code names and `view=whatif` addresses unchanged, so old links still work).

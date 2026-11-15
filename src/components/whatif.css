@@ -121,8 +121,17 @@
   color: var(--fk-text);
   font-weight: 700;
 }
+/* a fixed slot for the code: four bold letters fit (BODO, COMO, ROMA), a longer code ends in "…" (its full name is in
+   the tooltip), and the badge after it never moves into the letters, whatever the window's width */
+.fk-wi-side {
+  overflow: hidden;
+}
 .fk-wi-abbr {
-  width: 32px;
+  flex: none;
+  width: 3.7em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .fk-wi-score {
   text-align: center;
