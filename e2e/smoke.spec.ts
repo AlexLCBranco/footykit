@@ -229,3 +229,14 @@ test('cups: Libertadores and Sudamericana — bracket, 8 groups, qualifying', as
   await expect(page.getByTestId('cup-tie')).toHaveCount(8 + 8 + 4 + 2 + 1 + 16);
   expect(errors).toEqual([]);
 });
+
+test('domestic cups: Copa do Brasil bracket to the final, earlier rounds folded; Coppa Italia slots', async ({ page }) => {
+  const errors = await open(page, '?view=cups&cup=bra.copa_do_brazil');
+  await expect(page.getByTestId('cups-page')).toHaveAttribute('data-cup', 'bra.copa_do_brazil');
+  // fifth round (16) to the final (1)
+  await expect(page.getByTestId('cup-knockout').getByTestId('cup-tie')).toHaveCount(16 + 8 + 4 + 2 + 1);
+  await page.getByTestId('cup-picker').selectOption('ita.coppa_italia');
+  // quarter-finals, semi-finals and the final: drawn in advance, teams not known yet
+  await expect(page.getByTestId('cup-open')).toHaveCount(3);
+  expect(errors).toEqual([]);
+});

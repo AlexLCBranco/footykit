@@ -43,7 +43,8 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   places hatched). v0.11.0: the Brasileirão's places from CBF's REC 2026 (`src/data/braPlaces.ts`: pass-down read
   literally, finals still to play worked out both ways, hatched places say which results give them). v0.12.0: the Cups tab
   (`?view=cups&cup=…`, lazy `CupsPage.tsx`): Libertadores / Sudamericana bracket ordered from the ties, group tables
-  (`src/data/cups.ts`, `config/conmebol.ts`), qualifying ties.
+  (`src/data/cups.ts`, `config/conmebol.ts`), qualifying ties. v0.13.0: the seven domestic cups on the same tab
+  (`config/domesticCups.ts`; ESPN's "TBD" teams are open slots).
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site

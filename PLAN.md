@@ -8,7 +8,8 @@
   confirmed: relegation zone (direct places only) and the rivalry list.
 - **Phase 4**: plan agreed 2026-11-15 (Decisions log); step 1 (UCL page, v0.7.0) and step 2 (stakes chips, v0.8.0) and step 3
   (play-off + bracket, v0.9.0) built, waiting on Alex's look. League tables (v0.10.0) and the Brasileirão places engine
-  (v0.11.0), Libertadores / Sudamericana pages (v0.12.0) built; next: the domestic cups.
+  (v0.11.0), Libertadores / Sudamericana pages (v0.12.0) and the domestic cups (v0.13.0)
+  built. Alex will send changes after using the app for a while (2026-11-15).
 - Phase 5: not started.
 
 ## Decisions log
@@ -74,6 +75,9 @@
   from ESPN's ties, 8 group tables with all 6 group matches as squares, qualifying ties.
 - 2026-11-15 (fix): scoreboard events often lack `seasonType`, so ~90 Libertadores / Sudamericana and 31 UCL matches had
   no stage name; the snapshot now takes it from ESPN's season slug.
+- 2026-11-15: domestic cups in config/domesticCups.ts (Wikipedia 2026-27 / 2026 pages: two-legged rounds, finals,
+  tie rules), built on Alex's "continue"; listed for him to confirm. Rounds come from ESPN as drawn; the bracket runs
+  back from the final while rounds halve (16 ties at most), a bigger current round shows open above it.
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

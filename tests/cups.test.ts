@@ -72,3 +72,36 @@ describe('bracket order from the ties', () => {
     expect(sf).toEqual(['EST-FLA', 'FLU-PAL']);
   });
 });
+
+describe('domestic cups', async () => {
+  const { DOMESTIC_CUPS } = await import('../config/domesticCups');
+  const { cupRounds } = await import('../src/data/cups');
+  const rounds = (slug: string) => {
+    const cfg = DOMESTIC_CUPS.find((c) => c.slug === slug)!;
+    return cupRounds(snap.matches.filter((m) => m.c === slug), cfg.twoLeg, (id) => snap.teams[id]?.name);
+  };
+  it('Copa do Brasil: rounds in order, single then two legs, the final one match', () => {
+    const r = rounds('bra.copa_do_brazil');
+    expect(r.map((x) => `${x.round}:${x.legs}:${x.ties.length}`)).toEqual([
+      'First Round:1:14', 'Second Round:1:44', 'Third Round:1:24', 'Fourth Round:1:12', 'Fifth Round:2:16', 'Round of 16:2:8', 'Quarterfinals:2:4', 'Semifinals:2:2', 'Final:1:1',
+    ]);
+    const sf = r.find((x) => x.round === 'Semifinals')!.ties.map((t) => `${ab(t.a)}-${ab(t.b)}:${ab(t.winner)}`).sort();
+    // Grêmio 2-0, 1-1 v Atlético-MG; Palmeiras 1-0, 1-2 v Vasco, level 2-2, then 5-4 on penalties
+    expect(sf[0]).toBe('CAM-GRE:GRE');
+    expect(sf[1]).toBe('VAS-PAL:PAL');
+  });
+  it('Coppa Italia: the semi-finals and the final are slots (ESPN\'s "TBD" teams), not ties', () => {
+    const r = rounds('ita.coppa_italia');
+    expect(r.find((x) => x.round === 'Semifinals')).toMatchObject({ legs: 2, ties: [], open: 2 });
+    expect(r.find((x) => x.round === 'Final')).toMatchObject({ legs: 1, ties: [], open: 1 });
+  });
+  it('every configured cup has matches in the snapshot', () => {
+    for (const c of DOMESTIC_CUPS) expect(rounds(c.slug).length, c.slug).toBeGreaterThan(0);
+  });
+});
+
+it('the bar\'s cup list is the configured cups', async () => {
+  const { CUP_SLUGS } = await import('../src/components/page');
+  const { DOMESTIC_CUPS } = await import('../config/domesticCups');
+  expect([...CUP_SLUGS].sort()).toEqual([...CUPS, ...DOMESTIC_CUPS].map((c) => c.slug).sort());
+});

@@ -77,3 +77,22 @@ export function bracketColumns(rounds: CupTie[][]): CupTie[][] {
   }
   return cols;
 }
+
+/** ESPN's stand-in for a team not known yet ("TBD Home" / "TBD Away"): such a match is a slot, not a tie. */
+export const isPlaceholder = (name: string | undefined) => !name || /^TBD\b/i.test(name);
+
+export interface CupRound { round: string; legs: 1 | 2; ties: CupTie[]; /** ties whose teams aren't known yet */ open: number }
+
+/** A domestic cup's rounds from ESPN's data, in the order they are played (earliest kickoff); a round is two-legged
+ * when the config says so or ESPN numbers its legs, the final is one match. */
+export function cupRounds(matches: Match[], twoLeg: string[], name: (id: string) => string | undefined): CupRound[] {
+  const by = new Map<string, Match[]>();
+  for (const m of matches) if (m.r && m.st !== 'can') by.set(m.r, [...(by.get(m.r) ?? []), m]);
+  return [...by]
+    .sort(([, a], [, b]) => a[0]!.t.localeCompare(b[0]!.t))
+    .map(([round, ms]) => {
+      const legs: 1 | 2 = round !== 'Final' && (twoLeg.includes(round) || ms.some((m) => m.leg)) ? 2 : 1;
+      const known = ms.filter((m) => !isPlaceholder(name(m.h)) && !isPlaceholder(name(m.a)));
+      return { round, legs, ties: stageTies(known, round, legs), open: Math.round((ms.length - known.length) / legs) };
+    });
+}

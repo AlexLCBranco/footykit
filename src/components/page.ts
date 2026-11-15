@@ -33,8 +33,8 @@ export const SITE_NAME = 'footykit';
 // the tables' order; a plain list so the main chunk doesn't carry the league rules (config/leagues.ts, lazy page)
 export const LEAGUE_SLUGS: LeagueSlug[] = ['eng.1', 'esp.1', 'ita.1', 'ger.1', 'fra.1', 'bra.1'];
 export const DEFAULT_LEAGUE: LeagueSlug = LEAGUE_SLUGS[0]!;
-// the cups page's competitions (config/conmebol.ts holds their rules; a plain list keeps them out of the main chunk)
-export const CUP_SLUGS = ['conmebol.libertadores', 'conmebol.sudamericana'];
+// the cups page's competitions (config/conmebol.ts and config/domesticCups.ts hold their rules; a plain list keeps them out of the main chunk)
+export const CUP_SLUGS = ['conmebol.libertadores', 'conmebol.sudamericana', 'bra.copa_do_brazil', 'eng.fa', 'eng.league_cup', 'esp.copa_del_rey', 'ita.coppa_italia', 'ger.dfb_pokal', 'fra.coupe_de_france'];
 export const DEFAULT_CUP = CUP_SLUGS[0]!;
 export const isLeague = (x: unknown): x is LeagueSlug => LEAGUE_SLUGS.includes(x as LeagueSlug);
 

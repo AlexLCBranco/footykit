@@ -4,14 +4,15 @@
 
 import { useMemo } from 'react';
 import { CUPS, type CupConfig } from '../../config/conmebol';
+import { DOMESTIC_CUPS, type DomesticCup } from '../../config/domesticCups';
 import { dayLabel, isPlayed, kickoffTime, shortDay } from '../data/model';
 import { matchUrl, type Match } from '../data/snapshot';
-import { bracketColumns, cupGroups, stageTies, type CupGroup, type CupTie } from '../data/cups';
+import { bracketColumns, cupGroups, cupRounds, stageTies, type CupGroup, type CupTie } from '../data/cups';
 import { TeamLink } from './Bits';
 import { useFooty } from './ctx';
 import './ucl.css';
 
-const ROUND_TEXT: Record<string, string> = { 'Knockout Round Playoffs': 'Play-offs', Quarterfinals: 'Quarter-finals', Semifinals: 'Semi-finals' };
+const ROUND_TEXT: Record<string, string> = { 'Knockout Round Playoffs': 'Play-offs', Quarterfinals: 'Quarter-finals', Semifinals: 'Semi-finals', 'Qualifying Round': 'Preliminary round' };
 const roundText = (r: string) => ROUND_TEXT[r] ?? r;
 const legsOf = (cfg: CupConfig, round: string) => (round === cfg.knockout[cfg.knockout.length - 1] || cfg.singleLeg.includes(round) ? 1 : 2);
 
@@ -80,7 +81,72 @@ function GroupTable({ g, cfg, today }: { g: CupGroup; cfg: CupConfig; today: str
   );
 }
 
+/** A domestic cup: the last rounds (16 ties or fewer) as a bracket, the earlier ones folded, the rules and source. */
+function DomesticCupPage({ cfg, today }: { cfg: DomesticCup; today: string }) {
+  const { model } = useFooty();
+  const rounds = useMemo(() => {
+    const rs = cupRounds(model.snap.matches.filter((m) => m.c === cfg.slug), cfg.twoLeg, (id) => model.snap.teams[id]?.name);
+    if (!rs.some((r) => r.round === 'Final')) rs.push({ round: 'Final', legs: 1, ties: [], open: 1 });
+    return rs;
+  }, [model, cfg]);
+  // the bracket: back from the final while each round has twice the next one's ties (no new entrants) and fits a
+  // column (16 ties at most); a bigger round still being played is shown open above the folded earlier rounds
+  const size = (r: (typeof rounds)[number]) => r.ties.length + r.open;
+  let from = rounds.length - 1;
+  while (from > 0 && size(rounds[from - 1]!) <= 16 && (size(rounds[from - 1]!) === 2 * size(rounds[from]!) || (rounds[from]!.round === 'Final' && !rounds[from]!.ties.length && from === rounds.length - 1))) from--;
+  const bracket = rounds.slice(from);
+  const cols = bracketColumns(bracket.map((r) => r.ties));
+  const earlier = rounds.slice(0, from);
+  const current = earlier.length && earlier[earlier.length - 1]!.ties.some((t) => !t.winner) ? earlier[earlier.length - 1] : undefined;
+  return (
+    <div className="fk-ucl fk-lt fk-cups" data-testid="cups-page" data-cup={cfg.slug}>
+      <div className="fk-ucl-head">
+        <h2>{model.comp(cfg.slug).name}</h2>
+        <span className="fk-muted">Final {shortDay(cfg.final.day)} {cfg.final.day.slice(0, 4)}{cfg.final.venue ? `, ${cfg.final.venue}` : ''}</span>
+      </div>
+      <section className="fk-ko" data-testid="cup-knockout">
+        <div className="fk-ko-grid" style={{ gridTemplateColumns: `repeat(${bracket.length}, minmax(160px, 210px))` }}>
+          {bracket.map((r, i) => (
+            <div key={r.round} className="fk-ko-col">
+              <div className="fk-ko-col-title">{roundText(r.round)}{r.legs === 2 ? <span className="fk-muted"> two legs</span> : null}</div>
+              <div className="fk-ko-col-ties">
+                {cols[i]!.map((t) => <TieCard key={`${t.a}-${t.b}`} t={t} today={today} />)}
+                {r.open > 0 && <div className="fk-ko-tie fk-ko-projected fk-muted" data-testid="cup-open">{r.open === 1 ? 'to be decided' : `${r.open} ties to be decided`}{r.round === 'Final' ? ` · ${shortDay(cfg.final.day)}` : ''}</div>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      {earlier.length > 0 && (
+        <section className="fk-ko">
+          <h3>Earlier rounds</h3>
+          {earlier.map((r) => (
+            <details key={r.round} className="fk-cup-qual" open={r === current}>
+              <summary className="fk-ko-col-title">{roundText(r.round)} <span className="fk-muted">{r.ties.length} ties{r.legs === 2 ? ', two legs' : ''}</span></summary>
+              <div className="fk-cup-qual-ties">{r.ties.map((t) => <TieCard key={`${t.a}-${t.b}`} t={t} today={today} />)}</div>
+            </details>
+          ))}
+        </section>
+      )}
+      <div className="fk-ucl-rules" data-testid="cup-rules">
+        <section>
+          <h3>Format</h3>
+          <ul>{cfg.rules.map((x) => <li key={x}>{x}</li>)}</ul>
+          <p>Rounds come from ESPN as they are drawn; the bracket orders each round's ties beside the tie they feed.</p>
+          <p className="fk-ucl-src">Source: <a href={cfg.source} target="_blank" rel="noopener noreferrer">Wikipedia, {model.comp(cfg.slug).name}</a></p>
+        </section>
+      </div>
+    </div>
+  );
+}
+
 export default function CupsPage({ cup, today }: { cup: string; today: string }) {
+  const domestic = DOMESTIC_CUPS.find((c) => c.slug === cup);
+  if (domestic) return <DomesticCupPage cfg={domestic} today={today} />;
+  return <ContinentalCupPage cup={cup} today={today} />;
+}
+
+function ContinentalCupPage({ cup, today }: { cup: string; today: string }) {
   const { model } = useFooty();
   const cfg = CUPS.find((c) => c.slug === cup) ?? CUPS[0]!;
   const { groups, qualifying, knockout } = useMemo(() => {
