@@ -67,7 +67,7 @@ export default function UclPage({ today, onWhatIf }: { today: string; onWhatIf?:
       <div className="fk-ucl-head">
         <h2>Champions League <span className="fk-muted">· league phase</span></h2>
         <span className="fk-muted" data-testid="ucl-matchday">{table.complete ? 'final table' : `after matchday ${table.matchday} of 8`}</span>
-        {onWhatIf && !table.complete && <button type="button" className="fk-btn" onClick={onWhatIf} title="Pick the results left to play and see the table and the knockout places change" data-testid="ucl-whatif">What-if</button>}
+        {onWhatIf && !table.complete && <button type="button" className="fk-btn" onClick={onWhatIf} title="Pick the results left to play and see the table and the knockout places change" data-testid="ucl-whatif">Simulator</button>}
         <span className="fk-ucl-key">
           {UCL_ZONES.map((z) => <span key={z.id} className={`fk-ucl-zone-key fk-zone-${z.id}`}>{z.from}–{z.to} {z.label}</span>)}
         </span>

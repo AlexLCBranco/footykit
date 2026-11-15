@@ -15,3 +15,7 @@ an awarded result). Copa do Brasil 74, Copa del Rey 23, Coupe de France 5 (+1 li
 championships, super cups, Copa do Nordeste and the Recopa have no scoreboard in the snapshot (ESPN's per-match summary
 has their goals). Alex: build it for the complete competitions only (the Libertadores included, its awarded match
 counted as no goals while trailing and named under the table).
+
+## 2026-11-15 — Backlog item 2: "What-if" → "Simulator" (v0.18.1)
+Visible labels only (UCL / Tables buttons, simulator headings, tab titles and the history tooltips built from them).
+The view id stays `whatif`, so no redirect is needed: old links and saved history open the simulator as before.

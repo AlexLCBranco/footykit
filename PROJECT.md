@@ -59,7 +59,9 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   Sudamericana places live over the picked table (`braRowZones`, shared with the Tables page), the Sudamericana,
   Libertadores and Copa do Brasil finals pickable by winner (`Sim.winners`; an open final counts both ways, a played one
   drops the pick).
-- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.18.0 item 1, goals while trailing
+- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.18.1 item 2, "What-if" shown as "Simulator"
+  everywhere (buttons, headings, tab titles; code names and `view=whatif` addresses unchanged, so old links still work).
+  v0.18.0 item 1, goals while trailing
   (`?view=trailing&comp=…`, "Trailing" on the bar, lazy `TrailingPage.tsx`; logic `src/data/trailing.ts`): the goals
   each team scored while the other side was ahead, per competition, for the competitions whose goals ESPN gives in
   full (audit in docs/HISTORY.md). The snapshot now keeps each match's goals (`Match.g`).

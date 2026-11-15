@@ -204,7 +204,7 @@ test('Champions League page: 36 rows, 8 squares each, zones and paths', async ({
 test('UCL what-if: picks move the table, keys move on, bulk fill, undo, filter, kept in fk:whatif:v1', async ({ page }) => {
   const errors = await open(page, '?view=ucl');
   await page.getByTestId('ucl-whatif').click();
-  await expect(page).toHaveTitle('UCL what-if — footykit');
+  await expect(page).toHaveTitle('UCL simulator — footykit');
   const matches = page.getByTestId('wi-match');
   await expect(matches).toHaveCount(72);
   await expect(page.getByTestId('wi-row')).toHaveCount(36);
@@ -290,7 +290,7 @@ test('league tables: the picker switches leagues; rows, squares, zones, Brasilei
 test('league what-if: from the Tables page, windows, picks move the table, kept apart from the UCL\'s', async ({ page }) => {
   const errors = await open(page, '?view=table&league=eng.1');
   await page.getByTestId('league-whatif').click();
-  await expect(page).toHaveTitle('Premier League what-if — footykit');
+  await expect(page).toHaveTitle('Premier League simulator — footykit');
   await expect(page.getByTestId('whatif-page')).toHaveAttribute('data-league', 'eng.1');
   const matches = page.getByTestId('wi-match');
   await expect(matches).toHaveCount(280);
@@ -319,14 +319,14 @@ test('Tables keeps its league across a trip to the UCL what-if', async ({ page }
   const errors = await open(page, '?view=table&league=bra.1');
   await page.getByTestId('views').getByText('UCL').click();
   await page.getByTestId('ucl-whatif').click();
-  await expect(page).toHaveTitle('UCL what-if — footykit');
+  await expect(page).toHaveTitle('UCL simulator — footykit');
   await page.getByRole('button', { name: '← UCL' }).click();
   await page.getByTestId('views').getByText('Tables').click();
   await expect(page.getByTestId('league-page')).toHaveAttribute('data-league', 'bra.1');
   // and the bar's ← back to the UCL what-if still opens the UCL's, not the league's
   await page.goBack();
   await page.goBack();
-  await expect(page).toHaveTitle('UCL what-if — footykit');
+  await expect(page).toHaveTitle('UCL simulator — footykit');
   expect(errors).toEqual([]);
 });
 
@@ -387,5 +387,24 @@ test('goals while trailing: from the bar, per competition, sorted, the missing-g
   await expect(page.getByTestId('trailing-missing')).toContainText('one played match');
   await page.reload();
   await expect(page.getByTestId('trailing-page')).toHaveAttribute('data-comp', 'conmebol.libertadores');
+  expect(errors).toEqual([]);
+});
+
+test('the simulator is called "Simulator" everywhere it shows; old ?view=whatif links still open it', async ({ page }) => {
+  const errors = await open(page, '?view=ucl');
+  await expect(page.getByTestId('ucl-whatif')).toHaveText('Simulator');
+  await page.getByTestId('ucl-whatif').click();
+  await expect(page.getByRole('heading', { level: 2 })).toContainText('Simulator');
+  await expect(page.locator('body')).not.toContainText(/what-if/i);
+  await page.getByTestId('views').getByRole('tab', { name: 'Tables' }).click();
+  await expect(page.getByTestId('league-whatif')).toHaveText('Simulator');
+  await page.getByTestId('league-whatif').click();
+  await expect(page.locator('body')).not.toContainText(/what-if/i);
+  await expect(page.getByLabel('Back')).toHaveAttribute('title', 'Back to Premier League table');
+  await open(page, '?view=whatif&league=bra.1');
+  await expect(page).toHaveTitle('Brasileirão simulator — footykit');
+  await expect(page.locator('[title]').filter({ hasText: /./ })).not.toHaveCount(0);
+  const titles = await page.locator('[title]').evaluateAll((els) => els.map((e) => e.getAttribute('title') ?? ''));
+  expect(titles.filter((t) => /what-if/i.test(t))).toEqual([]);
   expect(errors).toEqual([]);
 });

@@ -110,7 +110,7 @@ export default function LeagueWhatIfPage({ league, today, onBack }: { league: Le
     <div className="fk-ucl fk-wi fk-wi-league" data-testid="whatif-page" data-league={league} data-no-marquee>
       <div className="fk-wi-head">
         <button type="button" className="fk-btn" onClick={onBack} title="The real table">← Table</button>
-        <h2>What-if <span className="fk-muted">· {comp.name}</span></h2>
+        <h2>Simulator <span className="fk-muted">· {comp.name}</span></h2>
         <span className="fk-muted" data-testid="wi-count">{picked} of {all.length} picked</span>
         <select className="fk-wi-team" value={team ?? ''} onChange={(e) => setTeam(e.target.value || undefined)} aria-label="Show one team's matches" data-testid="wi-team">
           <option value="">All teams</option>

@@ -113,7 +113,7 @@ export function pagePart(p: Page, model: Model): string {
   if (p.view === 'list') return `${abbr} list · ${p.listFrom === p.month ? monthLabel(p.month, false) : `${monthLabel(p.listFrom, false)} – ${monthLabel(p.month, false)}`}`;
   if (p.view === 'slate') return `Slate · ${dayLabel(p.day)}`;
   if (p.view === 'ucl') return 'Champions League';
-  if (p.view === 'whatif') { const l = simLeague(p); return `${l ? model.comp(l).name : 'UCL'} what-if`; }
+  if (p.view === 'whatif') { const l = simLeague(p); return `${l ? model.comp(l).name : 'UCL'} simulator`; }
   if (p.view === 'table') return `${model.comp(p.league ?? DEFAULT_LEAGUE).name} table`;
   if (p.view === 'cups') return model.comp(p.cup ?? DEFAULT_CUP).name;
   if (p.view === 'trailing') return `${model.comp(p.comp ?? DEFAULT_TRAILING).name} goals while trailing`;

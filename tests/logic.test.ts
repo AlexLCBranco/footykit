@@ -150,7 +150,7 @@ describe('page helpers', () => {
     const sim = uclWhatIfPage({ ...table, view: 'ucl' });
     expect(simLeague(sim)).toBeUndefined();
     expect(pageSearch(sim)).toBe('?view=whatif');
-    expect(pagePart(sim, model)).toBe('UCL what-if');
+    expect(pagePart(sim, model)).toBe('UCL simulator');
     expect({ ...sim, view: 'table' as const }.league).toBe('bra.1');
     // the league's simulator, from the Tables page, after a trip to the UCL's
     const lsim = leagueWhatIfPage({ ...sim, view: 'table' });
