@@ -121,7 +121,7 @@ function Popup({ model, m, s, opp, at }: { model: Model; m: Match; s: SideTags; 
       {line('Relegation race', z ? (
         <>
           {z4Text(z)} · {z.pts} pts, round {z.round}{z.tagged ? ' · Z4R' : ''}
-          <span className="fk-muted"><br />Tag rule: in the zone, or within {z.round <= Z4R_RULE.earlyRounds ? `${Z4R_RULE.early} pt` : `${Z4R_RULE.late} pts`} of the line ({z.round <= Z4R_RULE.earlyRounds ? `rounds 1–${Z4R_RULE.earlyRounds}` : `round ${Z4R_RULE.earlyRounds + 1} on`}); {RELEGATION[z.league].direct + RELEGATION[z.league].playoff} places in the zone.</span>
+          <span className="fk-muted"><br />Tag rule: in the zone, or within {z.round <= Z4R_RULE.earlyRounds ? `${Z4R_RULE.early} pt` : `${Z4R_RULE.late} pts`} of the line ({z.round <= Z4R_RULE.earlyRounds ? `rounds 1–${Z4R_RULE.earlyRounds}` : `round ${Z4R_RULE.earlyRounds + 1} on`}); {RELEGATION[z.league].direct} direct relegation places in the zone.</span>
         </>
       ) : 'no league table yet')}
       {derby && line('Derby', derby.name)}

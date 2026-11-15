@@ -83,7 +83,8 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - Context tags (Phase 3) describe the match going in: standings from results before kickoff, competitions alive from
   the snapshot's fixtures (a cup counts once its tie is fixtured), windows of teams that aren't followed are "unknown",
   never "free". Z4R uses points only (a team level with the zone line is tagged; no tiebreaker invented); the zone is
-  the direct places plus a play-off place. Streak tag from 3 windows in a row.
+  the direct relegation places only (Alex: "direct for now"; the Bundesliga's and Ligue 1's 16th, a play-off place, is
+  outside it). Streak tag from 3 windows in a row.
 - Copies are transparent; a Slate copy lays its cards out by the largest-cards rule (page 1920 × 911).
 
 ## Testing policy

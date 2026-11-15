@@ -238,7 +238,7 @@ describe('Z4R', () => {
     const m = on('2026-11-21', 'S04');
     const z = z4At(model, '133', m)!;
     expect(z.league).toBe('ger.1');
-    expect(z.linePlace).toBe(16); // play-off place counts as the zone
+    expect(z.linePlace).toBe(17); // direct places only: the 16th's play-off place is outside the zone
     expect(z.tagged).toBe(true);
   });
   it('snapshot: no Z4R for a team outside the six leagues (Boca)', () => {

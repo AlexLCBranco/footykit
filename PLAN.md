@@ -5,7 +5,7 @@
   `docs/phase1-report.md`; per-club table: `docs/phase1-data-check.md`. Alex's answers recorded below.
 - **Phase 2**: built (v0.4.0, 2026-11-14), waiting on Alex — PROJECT.md "Current state" lists what is built.
 - **Phase 3**: built (v0.5.0, 2026-11-14), waiting on Alex — tags in three variants (Chips / Rail / Alerts); to
-  confirm: config/relegation.ts and the config/rivalries.ts draft.
+  confirm: the config/rivalries.ts draft (relegation zone confirmed: direct places only).
 - Phases 4–5: not started.
 
 ## Decisions log
@@ -26,9 +26,10 @@
   (~100 KB gzipped); the day function is keyed by ESPN (US Eastern) date; neutral venues and FIFA windows live in
   config with sources, for Alex to confirm.
 - 2026-11-14 (Phase 3): tags describe the match going in (standings before kickoff); Z4R on points only; relegation
-  zone = direct + play-off places (Bundesliga, Ligue 1: 16th); competitions alive only from fixtured matches; teams
+  zone = direct places; competitions alive only from fixtured matches; teams
   outside the followed clubs get "unknown" windows; streak tag from the 3rd straight window; derby list hand-made in
   config with Wikipedia sources.
+- 2026-11-14, Alex: the Z4R zone is the direct relegation places only, for now (play-off places outside it).
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

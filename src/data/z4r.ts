@@ -1,6 +1,7 @@
 // Z4R, the relegation-race tag (PLAN.md Phase 3), the same rule for every league's zone (config/relegation.ts):
 // - through round 8: tag only a team in the zone or within 1 point of the zone line;
 // - from round 9: tag a team in the zone or within 3 points of the zone line.
+// The zone is the direct relegation places only (a play-off place is outside it).
 // "Round" is the team's own league round going into the match (league matches played + 1), so a cup match counts as
 // the round to come. Standings are rebuilt from the snapshot's league results before the match's kickoff (3 / 1 / 0;
 // the recorded snapshot's rebuilt tables equal ESPN's): the tag describes the situation the match is played in.
@@ -81,7 +82,7 @@ function compute(model: Model, league: LeagueSlug, teamId: string, before: strin
   const me = table.get(teamId);
   if (!me || me.p === 0) return undefined;
   const sorted = [...table.values()].map((x) => x.pts).sort((a, b) => b - a);
-  const zone = rule.direct + rule.playoff;
+  const zone = rule.direct;
   const lineIdx = sorted.length - zone;
   const linePts = sorted[lineIdx]!, safePts = sorted[lineIdx - 1]!;
   const status: Z4Info['status'] = me.pts > linePts ? 'above' : me.pts < linePts || safePts > linePts ? 'in' : 'level';
