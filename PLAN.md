@@ -273,11 +273,4 @@ For the UCL league phase first, then groups (Libertadores/Sul-Americana), then l
 - Saved, named scenarios, switchable with one click, to compare "death side" outcomes. Bracket halves clearly highlighted.
 
 ## Later list — NOT in this build
-- Called-up players per club (national-team call-ups and which club matches they miss); needs a data source
-- Suspensions (card accumulation, red cards) and injuries/absences, if Phase 1 finds a free source
-- Death-side strength score (needs an objective strength measure)
-- Reverse solver ("what does team X need to avoid side Y")
-- Probability simulation (Monte Carlo; needs a strength model)
-- Stakes chips beyond the UCL page; what's at stake per match, what a team needs, table position over time, schedule difficulty, competition rules explainer
-- UCL history section (past editions), like calendarkit's Cup history
-- Libertadores / Sudamericana groups what-if simulator, once the 2027 groups are drawn (every 2026 group match is played)
+Moved to `IDEAS.md` (I-1 to I-8) on 2026-11-15.

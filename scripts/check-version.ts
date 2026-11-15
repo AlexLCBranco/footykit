@@ -6,7 +6,7 @@ import { execSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
 /** Files whose change doesn't need a new version: data snapshots, tests, docs, CI and tooling. */
-const NO_BUMP = [/^public\/data\//, /^tests\//, /^e2e\//, /^scripts\//, /^\.github\//, /^\.claude\//, /^PROJECT\.md$/, /^PLAN\.md$/,/^docs\//, /^CLAUDE\.md$/, /^\.gitignore$/, /^\.gitattributes$/, /^playwright\.config\.ts$/];
+const NO_BUMP = [/^(BUILT|FEATURE_BACKLOG|IDEAS)\.md$/, /^public\/data\//, /^tests\//, /^e2e\//, /^scripts\//, /^\.github\//, /^\.claude\//, /^PROJECT\.md$/, /^PLAN\.md$/,/^docs\//, /^CLAUDE\.md$/, /^\.gitignore$/, /^\.gitattributes$/, /^playwright\.config\.ts$/];
 
 export const changesNeedBump = (files: string[]) => files.some((f) => !NO_BUMP.some((re) => re.test(f)));
 
@@ -18,6 +18,7 @@ export function isBumped(before: string, after: string): boolean {
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  execSync('node scripts/check-lists.mjs', { stdio: 'inherit' }); // the owner's lists (CLAUDE.md); throws on failure
   const git = (cmd: string) => execSync(`git ${cmd}`, { encoding: 'utf8' }).trim();
   // the repository's first commit has no parent to compare with
   try { git('rev-parse --verify --quiet HEAD~1'); } catch { console.log('check-version: first commit'); process.exit(0); }
