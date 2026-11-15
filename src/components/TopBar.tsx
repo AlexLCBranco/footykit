@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 import { addDays, dayLabel, mondayOf, monthLabel, shortDay } from '../data/model';
 import { useFooty } from './ctx';
 import { TeamLogo } from './Bits';
-import { CUP_SLUGS, DEFAULT_CUP, DEFAULT_LEAGUE, LEAGUE_SLUGS, type Page, type Span, type View } from './page';
+import { CUP_SLUGS, DEFAULT_CUP, DEFAULT_LEAGUE, LEAGUE_SLUGS, simLeague, type Page, type Span, type View } from './page';
 import type { LeagueSlug } from '../../config/season';
 
 export interface History { back?: string; forward?: string; onBack: () => void; onForward: () => void }
@@ -86,9 +86,9 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
           {page.view === 'cal' && <Tabs<Span> label="Span" testId="span" value={page.span} options={[[1, '1 week'], [2, '2 weeks'], ['month', 'Month']]} onChange={(s) => onPage({ ...page, span: s, week: page.span === 'month' && s !== 'month' ? mondayOf(today.slice(0, 7) === page.month ? today : `${page.month}-01`) : page.week, month: s === 'month' && page.span !== 'month' ? addDays(page.week, 3).slice(0, 7) : page.month })} />}
         </>
       ) : (
-        <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (page.league ? 'table' : 'ucl') : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['ucl', 'UCL'], ['table', 'Tables'], ['cups', 'Cups']]} onChange={(v) => onPage({ ...page, view: v })} />
+        <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (simLeague(page) ? 'table' : 'ucl') : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['ucl', 'UCL'], ['table', 'Tables'], ['cups', 'Cups']]} onChange={(v) => onPage({ ...page, view: v })} />
       )}
-      {(page.view === 'table' || (page.view === 'whatif' && page.league)) && <LeaguePicker league={page.league ?? DEFAULT_LEAGUE} onPick={(l) => onPage({ ...page, league: l })} />}
+      {(page.view === 'table' || (page.view === 'whatif' && simLeague(page))) && <LeaguePicker league={page.league ?? DEFAULT_LEAGUE} onPick={(l) => onPage({ ...page, league: l })} />}
       {page.view === 'cups' && <CupPicker cup={page.cup ?? DEFAULT_CUP} onPick={(c) => onPage({ ...page, cup: c })} />}
       {page.view !== 'ucl' && page.view !== 'whatif' && page.view !== 'table' && page.view !== 'cups' && <span className="fk-date-block">
         <button type="button" className="fk-step" aria-label="Previous" title="Previous" onClick={() => onStep(-1)}>‹</button>

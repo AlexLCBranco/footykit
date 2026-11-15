@@ -315,6 +315,21 @@ test('league what-if: from the Tables page, windows, picks move the table, kept 
   expect(errors).toEqual([]);
 });
 
+test('Tables keeps its league across a trip to the UCL what-if', async ({ page }) => {
+  const errors = await open(page, '?view=table&league=bra.1');
+  await page.getByTestId('views').getByText('UCL').click();
+  await page.getByTestId('ucl-whatif').click();
+  await expect(page).toHaveTitle('UCL what-if — footykit');
+  await page.getByRole('button', { name: '← UCL' }).click();
+  await page.getByTestId('views').getByText('Tables').click();
+  await expect(page.getByTestId('league-page')).toHaveAttribute('data-league', 'bra.1');
+  // and the bar's ← back to the UCL what-if still opens the UCL's, not the league's
+  await page.goBack();
+  await page.goBack();
+  await expect(page).toHaveTitle('UCL what-if — footykit');
+  expect(errors).toEqual([]);
+});
+
 test('Brasileirão what-if: picking a final settles a hatched place; kept with the league', async ({ page }) => {
   const errors = await open(page, '?view=whatif&league=bra.1');
   await expect(page.getByTestId('wi-final')).toHaveCount(3);

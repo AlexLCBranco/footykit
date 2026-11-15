@@ -16,8 +16,11 @@ export interface Page {
   day: string;
   /** team views */
   team?: string;
-  /** the league table shown (view `table`); with view `whatif`, the league simulated (none = the UCL) */
+  /** the league table shown (view `table`) and the league simulated (view `whatif`, unless `uclSim`) */
   league?: LeagueSlug;
+  /** view `whatif` shows the UCL's simulator. Its own flag, so opening it keeps `league` for the Tables page; a page
+   * with no `league` is the UCL's too (an address without one, or history from before the flag). */
+  uclSim?: boolean;
   /** the cup shown (view `cups`) */
   cup?: string;
   span: Span;
@@ -39,6 +42,11 @@ export const CUP_SLUGS = ['conmebol.libertadores', 'conmebol.sudamericana', 'bra
 export const DEFAULT_CUP = CUP_SLUGS[0]!;
 export const isLeague = (x: unknown): x is LeagueSlug => LEAGUE_SLUGS.includes(x as LeagueSlug);
 
+/** The league a `whatif` page simulates, or undefined for the UCL's simulator. */
+export const simLeague = (p: Page): LeagueSlug | undefined => (p.uclSim ? undefined : p.league);
+export const uclWhatIfPage = (p: Page): Page => ({ ...p, view: 'whatif', uclSim: true });
+export const leagueWhatIfPage = (p: Page): Page => ({ ...p, view: 'whatif', uclSim: false, league: p.league ?? DEFAULT_LEAGUE });
+
 export function defaultPage(today: string): Page {
   return { view: 'day', day: today, span: 2, week: mondayOf(today), month: monthOf(today), listFrom: monthOf(today) };
 }
@@ -54,7 +62,7 @@ export function pageSearch(p: Page): string {
   if (p.view !== 'day') q.set('view', p.view);
   if (p.team && (p.view === 'cal' || p.view === 'list')) q.set('team', p.team);
   if (p.view === 'cal') q.set('span', String(p.span));
-  if (p.view === 'whatif' && p.league) { q.set('league', p.league); return `?${q}`; }
+  if (p.view === 'whatif' && simLeague(p)) { q.set('league', simLeague(p)!); return `?${q}`; }
   if (p.view === 'ucl' || p.view === 'whatif') return `?${q}`;
   if (p.view === 'table') { q.set('league', p.league ?? DEFAULT_LEAGUE); return `?${q}`; }
   if (p.view === 'cups') { q.set('cup', p.cup ?? DEFAULT_CUP); return `?${q}`; }
@@ -100,7 +108,7 @@ export function pagePart(p: Page, model: Model): string {
   if (p.view === 'list') return `${abbr} list · ${p.listFrom === p.month ? monthLabel(p.month, false) : `${monthLabel(p.listFrom, false)} – ${monthLabel(p.month, false)}`}`;
   if (p.view === 'slate') return `Slate · ${dayLabel(p.day)}`;
   if (p.view === 'ucl') return 'Champions League';
-  if (p.view === 'whatif') return `${p.league ? model.comp(p.league).name : 'UCL'} what-if`;
+  if (p.view === 'whatif') { const l = simLeague(p); return `${l ? model.comp(l).name : 'UCL'} what-if`; }
   if (p.view === 'table') return `${model.comp(p.league ?? DEFAULT_LEAGUE).name} table`;
   if (p.view === 'cups') return model.comp(p.cup ?? DEFAULT_CUP).name;
   return dayLabel(p.day);

@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { copyColumns } from '../src/components/Copy';
-import { defaultPage, pageFromSearch, pagePart, pageSearch, stepPage, teamPage } from '../src/components/page';
+import { defaultPage, leagueWhatIfPage, pageFromSearch, pagePart, pageSearch, simLeague, stepPage, teamPage, uclWhatIfPage } from '../src/components/page';
 import { formAt } from '../src/data/form';
 import { espnDatesFor, isHot, withLive } from '../src/data/live';
 import { addDays, addMonths, buildModel, dayKey, mondayOf, resultFor } from '../src/data/model';
@@ -144,6 +144,22 @@ describe('page helpers', () => {
   });
   it('an unknown team in the address falls back to the day view', () => {
     expect(pageFromSearch('?view=cal&team=999999', '2026-11-14', model).view).toBe('day');
+  });
+  it('the UCL what-if keeps the league the Tables page shows', () => {
+    const table = { ...p, view: 'table' as const, league: 'bra.1' as const };
+    const sim = uclWhatIfPage({ ...table, view: 'ucl' });
+    expect(simLeague(sim)).toBeUndefined();
+    expect(pageSearch(sim)).toBe('?view=whatif');
+    expect(pagePart(sim, model)).toBe('UCL what-if');
+    expect({ ...sim, view: 'table' as const }.league).toBe('bra.1');
+    // the league's simulator, from the Tables page, after a trip to the UCL's
+    const lsim = leagueWhatIfPage({ ...sim, view: 'table' });
+    expect(simLeague(lsim)).toBe('bra.1');
+    expect(pageSearch(lsim)).toBe('?view=whatif&league=bra.1');
+    // an address, or history from before the flag, without a league is the UCL's
+    expect(simLeague(pageFromSearch('?view=whatif', '2026-11-14', model))).toBeUndefined();
+    expect(simLeague({ ...p, view: 'whatif' })).toBeUndefined();
+    expect(simLeague(pageFromSearch('?view=whatif&league=ger.1', '2026-11-14', model))).toBe('ger.1');
   });
 });
 
