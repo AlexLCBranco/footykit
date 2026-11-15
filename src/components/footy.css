@@ -19,6 +19,8 @@
   --fk-neutral: #c79bff;
   --fk-fifa: #e0a63c;
   --fk-free: rgb(124 184 255 / 0.12);
+  /* list rows' competition cell (logo + name): fixed, so the team columns line up row to row */
+  --fk-comp-col: 168px;
   font-family: 'Inter fk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: var(--fk-text);
   font-size: 14px;
@@ -350,6 +352,22 @@
   flex: none;
   cursor: help;
 }
+/* logo + name (CompMark showName): the name ends in "…" when it doesn't fit; the tooltip has it whole */
+.fk-comp-named {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  cursor: help;
+}
+.fk-comp-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--fk-muted);
+}
 .fk-comp img {
   display: block;
 }
@@ -517,7 +535,7 @@ button.fk-chip:hover {
 }
 .fk-row {
   display: grid;
-  grid-template-columns: 64px 22px minmax(0, 1fr) auto;
+  grid-template-columns: 64px var(--fk-comp-col) minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
   padding: 6px 10px;
@@ -546,7 +564,7 @@ button.fk-chip:hover {
   margin: 16px 0 6px;
 }
 .fk-tl-row {
-  grid-template-columns: 104px 64px 22px minmax(0, 1fr) auto;
+  grid-template-columns: 104px 64px var(--fk-comp-col) minmax(0, 1fr) auto;
   margin-bottom: 4px;
 }
 .fk-tl-date {

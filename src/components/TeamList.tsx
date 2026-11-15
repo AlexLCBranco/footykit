@@ -62,7 +62,7 @@ export function TeamList({ team, from, to, onEarlier, showRest = false }: { team
                 <div key={m.id} className={`fk-row fk-tl-row${r ? ` fk-res-${r}` : ''}`} data-testid="team-row" data-game-id={m.id}>
                   <span className="fk-tl-date">{dayLabel(day)}</span>
                   <MatchTime m={m} />
-                  <CompMark slug={m.c} round={m.r} />
+                  <CompMark slug={m.c} round={m.r} showName />
                   <Scoreline m={m} day={day} label="short" form={false} />
                   <span className="fk-row-end">
                     {r && <span className={`fk-res fk-res-${r}`}>{r}</span>}

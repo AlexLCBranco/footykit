@@ -28,7 +28,7 @@ export function MatchRow({ m, day, flagFifa, pinned, onHover, onPin }: { m: Matc
     <div className={`fk-row${isPlayed(m) ? ' fk-row-played' : ''}${pinned ? ' fk-row-pinned' : ''}`} data-testid="match-row" data-game-id={m.id} data-comp={model.comp(m.c).code} data-pinned={pinned || undefined}
       onMouseEnter={onHover && (() => onHover(m.id))} onMouseLeave={onHover && (() => onHover(undefined))} onClick={onPin && (() => onPin(m.id))}>
       <MatchTime m={m} />
-      <CompMark slug={m.c} round={m.r} />
+      <CompMark slug={m.c} round={m.r} showName />
       <Scoreline m={m} day={day} />
       <span className="fk-row-end">
         {fifa && <span className="fk-chip fk-fifa-chip" title={`${fifa.label}: clubs may be missing internationals`}>FIFA</span>}

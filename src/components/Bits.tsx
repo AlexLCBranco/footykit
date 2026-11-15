@@ -52,14 +52,24 @@ export function TeamLink({ id, day, label = 'abbr', logo = 'before', logoSize, c
   );
 }
 
-/** The competition's small logo; its code and full name on hover. A code badge when there is no logo file. */
-export function CompMark({ slug, round }: { slug: string; round?: string }) {
+/** The competition's small logo; its code and full name on hover. A code badge when there is no logo file.
+ * `showName`: the name spelled out after the logo, in a fixed-width cell (list rows, so the team columns line up;
+ * a long name ends in "…", the tooltip keeps it whole). */
+export function CompMark({ slug, round, showName = false }: { slug: string; round?: string; showName?: boolean }) {
   const { model } = useFooty();
   const c = model.comp(slug);
   const [failed, setFailed] = useState(false);
-  return (
-    <span className={`fk-comp fk-comp-${c.kind}`} title={`${c.code} · ${c.name}${round ? ` · ${round}` : ''}`} data-comp={c.code}>
+  const title = `${c.code} · ${c.name}${round ? ` · ${round}` : ''}`;
+  const mark = (
+    <span className={`fk-comp fk-comp-${c.kind}`} title={showName ? undefined : title} data-comp={showName ? undefined : c.code}>
       {failed ? <span className="fk-comp-code">{c.code}</span> : <img src={compLogoUrl(slug)} alt={c.code} width={16} height={16} loading="lazy" decoding="async" onError={() => setFailed(true)} />}
+    </span>
+  );
+  if (!showName) return mark;
+  return (
+    <span className="fk-comp-named" title={title} data-comp={c.code}>
+      {mark}
+      <span className="fk-comp-name" data-testid="comp-name">{c.name}</span>
     </span>
   );
 }

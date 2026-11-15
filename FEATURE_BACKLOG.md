@@ -5,16 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-11 — Competition name spelled out in match rows
-
-Today the competition cell in the Day List rows (`DayList.tsx` → `CompMark` in `Bits.tsx`) is only the logo; the name is hidden in the tooltip. The user can't tell competitions apart at a glance.
-
-- Show the competition `name` from `config/competitions.ts` as text right after the logo (e.g. logo + "Brasileirão").
-- Fixed-width column so the team columns stay aligned across rows. Names go up to 28 chars ("Conference League qualifying"): truncate with an ellipsis if they don't fit; the full name + round stay in the tooltip.
-- Logo fallback (code text when the image fails) still works; the name shows in both cases.
-- Scope: Day List rows (the view in the user's screenshot). Also Team List rows if they have room. Slate and team calendar stay logo-only (too tight); add an optional prop on `CompMark` (e.g. `showName`) rather than changing every caller.
-- Tests: e2e checks a Day List row shows the competition name text.
-
 ### FK-12 — Club picker must clearly accept typing
 
 The club picker (`TeamPicker` in `TopBar.tsx`) is a native `<select>`. Native selects do jump on typed letters, but nothing tells the user that, so in practice it reads as scroll-only.
@@ -103,4 +93,3 @@ Port calendarkit's runs (`src/data/runs.ts`, styles in `src/components/styles/ru
 - A run = RUN_MIN_GAMES or more of the club's matches in a row all away (road trip) or all at home (homestand), counted over the whole season across all competitions, never just the shown range. A neutral-venue match breaks a run, and so does a gap of RUN_BREAK_DAYS or more between matches.
 - Label on each match of a run, same look as calendarkit: red-outlined "Road trip · 2/4", homestand in its own colour "Homestand · 1/3".
 - Start with calendarkit's values (RUN_MIN_GAMES = 3, RUN_BREAK_DAYS = 6) as named constants in one place so the owner can tune them.
-
