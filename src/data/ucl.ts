@@ -50,21 +50,24 @@ export interface UclTable {
   matchday: number;
 }
 
-const POT = new Map<string, Pot>(UCL_POTS.flatMap((p) => p.teams.map((t) => [t, p.pot] as const)));
-export const potOf = (team: string): Pot | undefined => POT.get(team);
+/** A season's league phase: its teams with their pots, and its dates. */
+export interface Phase { pots: Map<string, Pot>; from: string; to: string }
+/** This season's (config/ucl.ts). Another season (the tests' recorded 2025-26) passes its own. */
+export const PHASE: Phase = { pots: new Map(UCL_POTS.flatMap((p) => p.teams.map((t) => [t, p.pot] as const))), from: UCL_LEAGUE_PHASE.from, to: UCL_LEAGUE_PHASE.to };
+export const potOf = (team: string): Pot | undefined => PHASE.pots.get(team);
 
 /** The league phase's matches: both teams in the pots, inside the phase's dates. */
-export function leaguePhaseMatches(snap: Snapshot): Match[] {
-  const to = `${UCL_LEAGUE_PHASE.to}T23:59Z`;
-  return snap.matches.filter((m) => m.c === UCL && POT.has(m.h) && POT.has(m.a) && m.t >= UCL_LEAGUE_PHASE.from && m.t <= to);
+export function leaguePhaseMatches(snap: Pick<Snapshot, 'matches'>, phase: Phase = PHASE): Match[] {
+  const to = `${phase.to}T23:59Z`;
+  return snap.matches.filter((m) => m.c === UCL && phase.pots.has(m.h) && phase.pots.has(m.a) && m.t >= phase.from && m.t <= to);
 }
 
 const res = (gf: number, ga: number): Result => (gf > ga ? 'W' : gf < ga ? 'L' : 'D');
 
-export function uclTable(snap: Snapshot, names: (id: string) => string = (id) => snap.teams[id]?.name ?? id): UclTable {
-  const matches = leaguePhaseMatches(snap);
+export function uclTable(snap: Pick<Snapshot, 'matches' | 'teams'>, names: (id: string) => string = (id) => snap.teams[id]?.name ?? id, phase: Phase = PHASE): UclTable {
+  const matches = leaguePhaseMatches(snap, phase);
   const rows = new Map<string, UclRow>();
-  for (const [team, pot] of POT) {
+  for (const [team, pot] of phase.pots) {
     rows.set(team, { team, pot, rank: 0, level: false, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0, awayGf: 0, awayW: 0, oppPts: 0, oppGd: 0, oppGf: 0, slots: [], last5: [] });
   }
   for (const m of matches) {
@@ -72,7 +75,7 @@ export function uclTable(snap: Snapshot, names: (id: string) => string = (id) =>
       const row = rows.get(home ? m.h : m.a)!;
       const opp = home ? m.a : m.h;
       const played = isPlayed(m);
-      const slot: UclSlot = { m, opp, home, pot: POT.get(opp)!, played };
+      const slot: UclSlot = { m, opp, home, pot: phase.pots.get(opp)!, played };
       if (played) {
         const gf = home ? m.hs! : m.as!, ga = home ? m.as! : m.hs!;
         const r = res(gf, ga);

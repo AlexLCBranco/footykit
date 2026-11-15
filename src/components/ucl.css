@@ -221,3 +221,100 @@
   background: rgb(229 83 75 / 0.22);
   color: #ffc9c5;
 }
+
+/* ---------- knockout section ---------- */
+.fk-ko {
+  margin-top: 18px;
+}
+.fk-ko h3 {
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+.fk-ko-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(170px, 220px));
+  gap: 14px;
+  align-items: start;
+}
+.fk-ko-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fk-ko-col-title {
+  font-weight: 700;
+  font-size: 13px;
+}
+.fk-ko-col-title .fk-muted {
+  font-weight: 400;
+  font-size: 11.5px;
+  margin-left: 4px;
+}
+.fk-ko-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fk-ko-group-title {
+  font-size: 11.5px;
+  color: var(--fk-muted);
+}
+.fk-ko-tie {
+  background: var(--fk-surface);
+  border: 1px solid var(--fk-border);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 12.5px;
+}
+.fk-ko-projected {
+  border-style: dashed;
+  background: transparent;
+}
+.fk-ko-slot-title {
+  color: var(--fk-muted);
+  font-size: 11.5px;
+}
+.fk-ko-holders {
+  font-weight: 600;
+}
+.fk-ko-side {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 22px;
+}
+.fk-ko-side .fk-team {
+  flex: 1;
+  min-width: 0;
+}
+.fk-ko-pos {
+  width: 16px;
+  font-size: 10.5px;
+  color: var(--fk-muted);
+  text-align: right;
+}
+.fk-ko-agg {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.fk-ko-win .fk-team-name {
+  font-weight: 800;
+}
+.fk-ko-lose {
+  opacity: 0.55;
+}
+.fk-ko-legs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  margin-top: 2px;
+  font-size: 11px;
+}
+.fk-ko-legs a {
+  color: var(--fk-muted);
+  text-decoration: none;
+}
+.fk-ko-legs a:hover {
+  color: var(--fk-link);
+  text-decoration: underline;
+}

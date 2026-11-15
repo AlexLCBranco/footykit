@@ -6,8 +6,8 @@
 - **Phase 2**: built (v0.4.0, 2026-11-14), waiting on Alex — PROJECT.md "Current state" lists what is built.
 - **Phase 3**: built (v0.5.0, 2026-11-14), waiting on Alex — tags in three variants (Chips / Rail / Alerts); to
   confirmed: relegation zone (direct places only) and the rivalry list.
-- **Phase 4**: plan agreed 2026-11-15 (Decisions log); step 1 (UCL page, v0.7.0) and step 2 (stakes chips, v0.8.0) built,
-  waiting on Alex's look.
+- **Phase 4**: plan agreed 2026-11-15 (Decisions log); step 1 (UCL page, v0.7.0) and step 2 (stakes chips, v0.8.0) and step 3
+  (play-off + bracket, v0.9.0) built, waiting on Alex's look. Next: the league tables.
 - Phase 5: not started.
 
 ## Decisions log
@@ -51,6 +51,9 @@
 - 2026-11-15, Alex: Phase 4 build order: (1) v0.7.0 UCL page (table, 8 squares per row with pots, zones, tiebreak
   rules, position -> path hover, remaining opponents); (2) v0.8.0 stakes chips, points-only, from matchday 7;
   (3) v0.9.0 play-off round + bracket with aggregates; then the league tables. Each step stops for Alex's look.
+- 2026-11-15, Alex confirmed the UCL bracket (Art. 19, checked against the 2025-26 bracket): R16 ties A 1/2 v winners
+  of IV, B 3/4 v III, C 5/6 v II, D 7/8 v I; each half has one of each; quarter-finals A v D and B v C; halves are
+  drawn. The page projects from the table until the draws and shows halves only once the semi-finals show them.
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

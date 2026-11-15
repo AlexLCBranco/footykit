@@ -192,6 +192,7 @@ test('Champions League page: 36 rows, 8 squares each, zones and paths', async ({
   await expect(rows.first().getByTestId('ucl-square')).toHaveCount(8);
   await expect(page.getByTestId('ucl-square')).toHaveCount(288);
   await expect(rows.nth(8).getByTestId('ucl-rank')).toHaveAttribute('title', /knockout play-off, seeded/);
+  await expect(page.getByTestId('ucl-knockout')).toContainText('if the league phase ended now');
   // reached from the bar too, and back
   await page.getByTestId('views').getByText('List').click();
   await expect(page).toHaveTitle('Sat, Nov 21 — footykit');

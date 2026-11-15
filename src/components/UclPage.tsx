@@ -10,6 +10,7 @@ import { positionPath, remaining, uclTable, zoneOf, type UclRow, type UclSlot } 
 import { stakeChips } from '../data/uclStakes';
 import { TeamLink } from './Bits';
 import { useFooty } from './ctx';
+import { UclKnockout } from './UclKnockout';
 import './ucl.css';
 
 const RESULT = { W: 'Won', D: 'Drew', L: 'Lost' } as const;
@@ -105,6 +106,7 @@ export default function UclPage({ today }: { today: string }) {
           })}
         </tbody>
       </table>
+      <UclKnockout table={table} today={today} />
       <div className="fk-ucl-rules" data-testid="ucl-rules">
         <section>
           <h3>Where each place leads</h3>

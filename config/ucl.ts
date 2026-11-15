@@ -64,3 +64,11 @@ export const UCL_KNOCKOUT_SOURCE = [
 ];
 /** Two legs on aggregate; level → 30 min extra time (no away goals) → penalties. Final: one match at a neutral venue. */
 export const UCL_TIE_RULE_SOURCE = 'https://en.wikipedia.org/wiki/2025%E2%80%9326_UEFA_Champions_League_knockout_phase';
+
+/** Knockout calendar (draws and the final), for the page's empty slots. */
+export const UCL_KO_DATES = {
+  playoffDraw: '2027-01-29',
+  r16Draw: '2027-02-26',
+  final: { day: '2027-06-05', venue: 'Metropolitano Stadium, Madrid' },
+  source: 'https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League_knockout_phase',
+};
