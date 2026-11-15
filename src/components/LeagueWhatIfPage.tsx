@@ -15,7 +15,7 @@ import type { Match } from '../data/snapshot';
 import { setPick, setWinner, simMatches, toggleLock, toPlayByWindow, type Sim } from '../data/whatif';
 import { TeamLogo } from './Bits';
 import { useFooty } from './ctx';
-import { HELP, ord, Row, signed, Tools, useFitHeight, useRowFocus, useWhatIf } from './WhatIfParts';
+import { GroupNav, HELP, ord, Row, signed, Tools, useFitHeight, useGroupNav, useRowFocus, useWhatIf, type NavGroup } from './WhatIfParts';
 import { Scenarios } from './WhatIfScenarios';
 import './ucl.css';
 import './whatif.css';
@@ -81,7 +81,14 @@ export default function LeagueWhatIfPage({ league, today, onBack }: { league: Le
   const all = [...left.pending, ...left.windows.flatMap((g) => g.matches)];
   const picked = all.filter((m) => sim.picks[m.id]).length;
 
-  const { focusFrom, rowRef } = useRowFocus(shown);
+  const windowTitle = (g: (typeof windows)[number]) => {
+    const days = [...new Set(g.matches.map((m) => model.dayOf(m)))].sort();
+    return `${g.kind === 'wkd' ? 'Weekend' : 'Midweek'} · ${days.length > 1 ? `${shortDay(days[0]!)} – ${shortDay(days.at(-1)!)}` : shortDay(days[0]!)}`;
+  };
+  const groups: NavGroup[] = windows.map((g) => ({ key: g.start, matches: g.matches, title: <>{windowTitle(g)} <span className="fk-muted">· {g.matches.length}</span></> }));
+  const nav = useGroupNav(groups);
+  const onScreen = [...pending, ...(nav.group?.matches ?? [])];
+  const { focusFrom, rowRef } = useRowFocus(onScreen);
   const { root, height } = useFitHeight();
   const placeOf = useCallback((s: Sim, t: string) => rank(simMatches(matches, s)).rows.findIndex((r) => r.team === t) + 1, [rank, matches]);
   const short = useCallback((id: string) => model.team(id).short.trim(), [model]);
@@ -101,10 +108,6 @@ export default function LeagueWhatIfPage({ league, today, onBack }: { league: Le
       onMove={(d) => focusFrom(m.id, d)} onHover={setHoverMatch} />
   );
   const teams = [...real.rows].sort((x, y) => names(x.team).localeCompare(names(y.team)));
-  const windowTitle = (g: (typeof windows)[number]) => {
-    const days = [...new Set(g.matches.map((m) => model.dayOf(m)))].sort();
-    return `${g.kind === 'wkd' ? 'Weekend' : 'Midweek'} · ${days.length > 1 ? `${shortDay(days[0]!)} – ${shortDay(days.at(-1)!)}` : shortDay(days[0]!)}`;
-  };
 
   return (
     <div className="fk-ucl fk-wi fk-wi-league" data-testid="whatif-page" data-league={league} data-no-marquee>
@@ -129,12 +132,12 @@ export default function LeagueWhatIfPage({ league, today, onBack }: { league: Le
             {pending.length ? pending.map(rowOf) : <div className="fk-muted fk-wi-none">none</div>}
           </div>
           <div className="fk-wi-scroll">
-            {windows.map((g) => (
-              <div key={g.start} className="fk-wi-group" data-testid="wi-window">
-                <div className="fk-wi-group-title">{windowTitle(g)} <span className="fk-muted">· {g.matches.length}</span></div>
-                {g.matches.map(rowOf)}
+            {nav.group && (
+              <div className="fk-wi-group" data-testid="wi-window">
+                <GroupNav nav={nav} unit="window" />
+                {nav.group.matches.map(rowOf)}
               </div>
-            ))}
+            )}
             {!shown.length && <div className="fk-muted fk-wi-none">Nothing left to play.</div>}
           </div>
         </section>

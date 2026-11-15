@@ -10,7 +10,7 @@ import type { Match } from '../data/snapshot';
 import { leaguePhaseMatches, potOf, uclTable, zoneOf } from '../data/ucl';
 import { blocks, meets, setPick, simMatches, toggleLock, toPlay, TOP_COMP, type Sim } from '../data/whatif';
 import { useFooty } from './ctx';
-import { HELP, ord, Row, signed, Tools, useFitHeight, useRowFocus, useWhatIf } from './WhatIfParts';
+import { GroupNav, HELP, ord, Row, signed, Tools, useFitHeight, useGroupNav, useRowFocus, useWhatIf, type NavGroup } from './WhatIfParts';
 import { TeamLogo } from './Bits';
 import { Scenarios } from './WhatIfScenarios';
 import './ucl.css';
@@ -39,8 +39,14 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
   const shown = [...pending, ...matchdays.flatMap((g) => g.matches)];
   const all = [...left.pending, ...left.matchdays.flatMap((g) => g.matches)];
   const picked = all.filter((m) => sim.picks[m.id]).length;
+  const groups: NavGroup[] = matchdays.map((g) => ({
+    key: String(g.n).padStart(2, '0'), matches: g.matches,
+    title: <>Matchday {g.n} <span className="fk-muted">· {[...new Set(g.matches.map((m) => shortDay(model.dayOf(m))))].join(', ')}</span></>,
+  }));
+  const nav = useGroupNav(groups);
+  const onScreen = [...pending, ...(nav.group?.matches ?? [])];
 
-  const { focusFrom, rowRef } = useRowFocus(shown);
+  const { focusFrom, rowRef } = useRowFocus(onScreen);
   const { root, height } = useFitHeight();
 
   const focus = team ?? hoverMatch?.h;
@@ -94,12 +100,12 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
             {pending.length ? pending.map(rowOf) : <div className="fk-muted fk-wi-none">none</div>}
           </div>
           <div className="fk-wi-scroll">
-            {matchdays.map((g) => (
-              <div key={g.n} className="fk-wi-group">
-                <div className="fk-wi-group-title">Matchday {g.n} <span className="fk-muted">· {[...new Set(g.matches.map((m) => shortDay(model.dayOf(m))))].join(', ')}</span></div>
-                {g.matches.map(rowOf)}
+            {nav.group && (
+              <div className="fk-wi-group" data-testid="wi-group">
+                <GroupNav nav={nav} unit="matchday" />
+                {nav.group.matches.map(rowOf)}
               </div>
-            ))}
+            )}
             {!shown.length && <div className="fk-muted fk-wi-none">Nothing left to play.</div>}
           </div>
         </section>

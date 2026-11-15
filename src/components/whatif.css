@@ -413,3 +413,29 @@
   border-color: var(--fk-win);
   font-weight: 600;
 }
+/* one matchday (or window) at a time, ◀ ▶ beside its header */
+.fk-wi-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fk-wi-arrow {
+  border: 1px solid var(--fk-border);
+  background: transparent;
+  color: inherit;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+.fk-wi-arrow:hover:not(:disabled) {
+  background: var(--fk-hover, rgb(255 255 255 / 0.06));
+}
+.fk-wi-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.fk-wi-nav-of {
+  margin-left: 4px;
+}

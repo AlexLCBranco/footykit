@@ -19,3 +19,8 @@ counted as no goals while trailing and named under the table).
 ## 2026-11-15 — Backlog item 2: "What-if" → "Simulator" (v0.18.1)
 Visible labels only (UCL / Tables buttons, simulator headings, tab titles and the history tooltips built from them).
 The view id stays `whatif`, so no redirect is needed: old links and saved history open the simulator as before.
+
+## 2026-11-15 — Backlog item 3: matchday arrows in the simulators (v0.19.0)
+The long list of matches left became one group at a time: the UCL by matchday ("Matchday 5 · Nov 24, Nov 25"), a
+league by window (ESPN gives leagues no round numbers, so the window stays the unit). Pending stays above. Bulk fills
+and Clear keep acting on every match left (item 6 adds a per-matchday Reset; Clear stays clear-everything).

@@ -206,7 +206,9 @@ test('UCL what-if: picks move the table, keys move on, bulk fill, undo, filter, 
   await page.getByTestId('ucl-whatif').click();
   await expect(page).toHaveTitle('UCL simulator — footykit');
   const matches = page.getByTestId('wi-match');
-  await expect(matches).toHaveCount(72);
+  // one matchday on screen at a time; the counts and fills cover every match left
+  await expect(page.getByTestId('wi-nav-title')).toContainText('Matchday');
+  await expect(page.getByTestId('wi-count')).toHaveText('0 of 72 picked');
   await expect(page.getByTestId('wi-row')).toHaveCount(36);
   await expect(page.getByTestId('wi-block')).toHaveCount(4);
   // a click, then 2 on the same match (moves on), then X on the next
@@ -229,7 +231,8 @@ test('UCL what-if: picks move the table, keys move on, bulk fill, undo, filter, 
   await expect(page.getByTestId('wi-count')).toHaveText('3 of 72 picked');
   // one team's matches; its path in the bracket
   await page.getByTestId('wi-team').selectOption({ label: 'Arsenal' });
-  await expect(matches).toHaveCount(4);
+  await expect(matches).toHaveCount(1);
+  await expect(page.getByTestId('wi-nav')).toContainText('1 of 4');
   await expect(page.getByTestId('wi-path')).toContainText('other half');
   // kept for the next visit
   expect(Object.keys(JSON.parse((await page.evaluate(() => localStorage.getItem('fk:whatif:v1')))!).current.picks)).toHaveLength(3);
@@ -293,7 +296,7 @@ test('league what-if: from the Tables page, windows, picks move the table, kept 
   await expect(page).toHaveTitle('Premier League simulator — footykit');
   await expect(page.getByTestId('whatif-page')).toHaveAttribute('data-league', 'eng.1');
   const matches = page.getByTestId('wi-match');
-  await expect(matches).toHaveCount(280);
+  await expect(page.getByTestId('wi-count')).toHaveText('0 of 280 picked');
   await expect(page.getByTestId('wi-row')).toHaveCount(20);
   await expect(page.getByTestId('wi-window').first()).toContainText('Weekend');
   await matches.first().click();
@@ -303,7 +306,8 @@ test('league what-if: from the Tables page, windows, picks move the table, kept 
   await expect(page.getByTestId('wi-count')).toHaveText('280 of 280 picked');
   await expect(page.getByTestId('whatif-page')).toContainText('Final table');
   await page.getByTestId('wi-team').selectOption({ label: 'Arsenal' });
-  await expect(matches).toHaveCount(28);
+  await expect(matches).toHaveCount(1);
+  await expect(page.getByTestId('wi-nav')).toContainText(/of 2\d$/);
   // kept under the league, the UCL's top level left empty
   const kept = JSON.parse((await page.evaluate(() => localStorage.getItem('fk:whatif:v1')))!);
   expect(Object.keys(kept.current.picks)).toHaveLength(0);
@@ -311,7 +315,7 @@ test('league what-if: from the Tables page, windows, picks move the table, kept 
   // the picker switches the simulated league
   await page.getByTestId('league-picker').selectOption('bra.1');
   await expect(page.getByTestId('whatif-page')).toHaveAttribute('data-league', 'bra.1');
-  await expect(matches).toHaveCount(41);
+  await expect(page.getByTestId('wi-count')).toHaveText('0 of 41 picked');
   expect(errors).toEqual([]);
 });
 
@@ -406,5 +410,42 @@ test('the simulator is called "Simulator" everywhere it shows; old ?view=whatif 
   await expect(page.locator('[title]').filter({ hasText: /./ })).not.toHaveCount(0);
   const titles = await page.locator('[title]').evaluateAll((els) => els.map((e) => e.getAttribute('title') ?? ''));
   expect(titles.filter((t) => /what-if/i.test(t))).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test('simulator matchdays: one at a time, opens on the next to play, ◀ ▶ and ← → step, ↑↓ stay on the rows', async ({ page }) => {
+  const errors = await open(page, '?view=whatif');
+  const title = page.getByTestId('wi-nav-title');
+  const matches = page.getByTestId('wi-match');
+  // the fixture's next UCL matchday on Nov 21 is the 5th (Nov 24-25), matchdays 5-8 left
+  await expect(title).toContainText('Matchday 5');
+  await expect(title).toContainText('Nov 24, Nov 25');
+  await expect(page.getByTestId('wi-nav')).toContainText('1 of 4');
+  await expect(page.getByTestId('wi-prev')).toBeDisabled();
+  await expect(matches).toHaveCount(18);
+  await page.getByTestId('wi-next').click();
+  await expect(title).toContainText('Matchday 6');
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowRight');
+  await expect(title).toContainText('Matchday 8');
+  await expect(page.getByTestId('wi-next')).toBeDisabled();
+  await page.keyboard.press('ArrowRight');
+  await expect(title).toContainText('Matchday 8');
+  await page.keyboard.press('ArrowLeft');
+  await expect(title).toContainText('Matchday 7');
+  // ↓ moves between rows, not matchdays; typing a score ignores ← →
+  await matches.first().focus();
+  await page.keyboard.press('ArrowDown');
+  await expect(matches.nth(1)).toBeFocused();
+  await expect(title).toContainText('Matchday 7');
+  await matches.first().getByLabel('Type a score').fill('2-1');
+  await matches.first().getByLabel('Type a score').press('ArrowLeft');
+  await expect(title).toContainText('Matchday 7');
+  // a league: windows
+  await open(page, '?view=whatif&league=eng.1');
+  await expect(page.getByTestId('wi-prev')).toBeDisabled();
+  await expect(title).toContainText('Weekend');
+  await page.getByTestId('wi-next').click();
+  await expect(page.getByTestId('wi-prev')).toBeEnabled();
   expect(errors).toEqual([]);
 });

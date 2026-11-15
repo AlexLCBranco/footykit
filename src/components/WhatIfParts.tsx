@@ -129,6 +129,46 @@ export function Row({ m, pick, locked, badge, teamTip, onSet, onLock, onMove, on
   );
 }
 
+/** A group of matches left to play: a UCL matchday or a league's window. `key` sorts in play order. */
+export interface NavGroup { key: string; title: ReactNode; matches: Match[] }
+
+/** One group on screen at a time, the next to play first. ◀ ▶ (or ← → anywhere but a text box or a list) step; the
+ * rows keep ↑ ↓. When the groups change (a team picked), the one shown stays, or the next one left after it. */
+export function useGroupNav(groups: NavGroup[]) {
+  const [key, setKey] = useState<string>();
+  let at = groups.length ? 0 : -1;
+  if (key !== undefined && groups.length) { const i = groups.findIndex((g) => g.key >= key); at = i < 0 ? groups.length - 1 : i; }
+  const step = useRef<(d: 1 | -1) => void>(() => {});
+  useEffect(() => { step.current = (d) => { const g = groups[at + d]; if (g) setKey(g.key); }; });
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); step.current(-1); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); step.current(1); }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+  const go = (d: 1 | -1) => { const g = groups[at + d]; if (g) setKey(g.key); };
+  return { group: at >= 0 ? groups[at] : undefined, at, count: groups.length, step: go };
+}
+
+/** The group's header with its arrows. `unit` names a step in the tooltips ("matchday", "window"). */
+export function GroupNav({ nav, unit, children }: { nav: ReturnType<typeof useGroupNav>; unit: string; children?: ReactNode }) {
+  if (!nav.group) return null;
+  return (
+    <div className="fk-wi-group-title fk-wi-nav" data-testid="wi-nav">
+      <button type="button" className="fk-wi-arrow" disabled={nav.at === 0} aria-label={`Previous ${unit}`} title={`Previous ${unit} (←)`} onClick={() => nav.step(-1)} data-testid="wi-prev">◀</button>
+      <span className="fk-wi-nav-title" data-testid="wi-nav-title">{nav.group.title}</span>
+      <button type="button" className="fk-wi-arrow" disabled={nav.at === nav.count - 1} aria-label={`Next ${unit}`} title={`Next ${unit} (→)`} onClick={() => nav.step(1)} data-testid="wi-next">▶</button>
+      <span className="fk-muted fk-wi-nav-of">{nav.at + 1} of {nav.count}</span>
+      {children}
+    </div>
+  );
+}
+
 /** Focus moves between the rows shown (keys 1 / X / 2 move on, ↑↓). */
 export function useRowFocus(shown: Match[]) {
   const rows = useRef(new Map<string, HTMLDivElement>());
@@ -141,17 +181,17 @@ export function useRowFocus(shown: Match[]) {
   return { focusFrom, rowRef };
 }
 
-/** The bulk fills, clear, undo / redo, over the matches shown. `favTip` says what "favourites" means here. */
+/** The bulk fills, clear, undo / redo, over every match left (every matchday, not only the one on screen). `favTip` says what "favourites" means here. */
 export function Tools({ shown, team, favTip, rank, hist, change, setHist }: {
   shown: Match[]; team?: string; favTip: string; rank: Rank;
   hist: History; change: (f: (s: Sim) => Sim) => void; setHist: (f: (h: History) => History) => void;
 }) {
   const { model } = useFooty();
   const fills: [Fill, string, string][] = [
-    ['home', 'Home wins', 'Every unlocked match shown: home win 1-0'],
-    ['fav', 'Favourites', `Every unlocked match shown: ${favTip}`],
-    ['draw', 'Draws', 'Every unlocked match shown: 1-1'],
-    ['random', 'Re-roll', 'Every unlocked match shown: home / draw / away at random (1/3 each), 1-0 / 1-1 / 0-1'],
+    ['home', 'Home wins', 'Every unlocked match left, every matchday: home win 1-0'],
+    ['fav', 'Favourites', `Every unlocked match left, every matchday: ${favTip}`],
+    ['draw', 'Draws', 'Every unlocked match left, every matchday: 1-1'],
+    ['random', 'Re-roll', 'Every unlocked match left, every matchday: home / draw / away at random (1/3 each), 1-0 / 1-1 / 0-1'],
   ];
   const only = team ? ` (${model.team(team).short}'s matches only)` : '';
   return (
@@ -160,11 +200,11 @@ export function Tools({ shown, team, favTip, rank, hist, change, setHist }: {
         <button key={k} type="button" className="fk-btn" title={`${tip}${only}`} data-testid={`wi-fill-${k}`}
           onClick={() => change((x) => fill(x, shown, k, rank))}>{text}</button>
       ))}
-      <button type="button" className="fk-btn" title={`Clear every unlocked match shown${only}`} data-testid="wi-clear" onClick={() => change((x) => clear(x, shown))}>Clear</button>
+      <button type="button" className="fk-btn" title={`Clear every unlocked match left, every matchday${only}`} data-testid="wi-clear" onClick={() => change((x) => clear(x, shown))}>Clear</button>
       <button type="button" className="fk-btn" disabled={!hist.past.length} title="Undo (Ctrl+Z)" data-testid="wi-undo" onClick={() => setHist(undo)}>↶</button>
       <button type="button" className="fk-btn" disabled={!hist.future.length} title="Redo (Ctrl+Y)" data-testid="wi-redo" onClick={() => setHist(redo)}>↷</button>
     </span>
   );
 }
 
-export const HELP = 'click a match: 1-0 → 1-1 → 0-1 → empty · keys 1 X 2 (then next) · 0 clear · L lock · ↑↓';
+export const HELP = 'click a match: 1-0 → 1-1 → 0-1 → empty · keys 1 X 2 (then next) · 0 clear · L lock · ↑↓ · ← → matchday';
