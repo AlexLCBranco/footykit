@@ -5,8 +5,8 @@ import type { LeagueSlug } from '../../config/season';
 import { addDays, addMonths, dayLabel, monthLabel, monthOf, mondayOf, shortDay, type Model } from '../data/model';
 
 /** day = the day's matches (list), slate = the day as cards, cal = Team Calendar, list = Team List, ucl = the Champions
- * League page, table = a league table */
-export type View = 'day' | 'slate' | 'cal' | 'list' | 'ucl' | 'table';
+ * League page, table = a league table, cups = the Libertadores / Sudamericana pages */
+export type View = 'day' | 'slate' | 'cal' | 'list' | 'ucl' | 'table' | 'cups';
 export type Span = 1 | 2 | 'month';
 
 export interface Page {
@@ -17,6 +17,8 @@ export interface Page {
   team?: string;
   /** the league table shown (view `table`) */
   league?: LeagueSlug;
+  /** the cup shown (view `cups`) */
+  cup?: string;
   span: Span;
   /** Team Calendar: first Monday shown (1 / 2 weeks) */
   week: string;
@@ -31,6 +33,9 @@ export const SITE_NAME = 'footykit';
 // the tables' order; a plain list so the main chunk doesn't carry the league rules (config/leagues.ts, lazy page)
 export const LEAGUE_SLUGS: LeagueSlug[] = ['eng.1', 'esp.1', 'ita.1', 'ger.1', 'fra.1', 'bra.1'];
 export const DEFAULT_LEAGUE: LeagueSlug = LEAGUE_SLUGS[0]!;
+// the cups page's competitions (config/conmebol.ts holds their rules; a plain list keeps them out of the main chunk)
+export const CUP_SLUGS = ['conmebol.libertadores', 'conmebol.sudamericana'];
+export const DEFAULT_CUP = CUP_SLUGS[0]!;
 export const isLeague = (x: unknown): x is LeagueSlug => LEAGUE_SLUGS.includes(x as LeagueSlug);
 
 export function defaultPage(today: string): Page {
@@ -50,6 +55,7 @@ export function pageSearch(p: Page): string {
   if (p.view === 'cal') q.set('span', String(p.span));
   if (p.view === 'ucl') return `?${q}`;
   if (p.view === 'table') { q.set('league', p.league ?? DEFAULT_LEAGUE); return `?${q}`; }
+  if (p.view === 'cups') { q.set('cup', p.cup ?? DEFAULT_CUP); return `?${q}`; }
   q.set('date', p.view === 'cal' ? (p.span === 'month' ? p.month : p.week) : p.view === 'list' ? p.month : p.day);
   return `?${q}`;
 }
@@ -71,13 +77,14 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
     return { ...p, view, team };
   }
   if (view === 'slate' || view === 'ucl') return { ...p, view };
+  if (view === 'cups') { const c = q.get('cup'); return { ...p, view, cup: c && CUP_SLUGS.includes(c) ? c : DEFAULT_CUP }; }
   if (view === 'table') { const l = q.get('league'); return { ...p, view, league: isLeague(l) ? l : DEFAULT_LEAGUE }; }
   return p;
 }
 
 export function isPage(x: unknown): x is Page {
   const p = x as Page;
-  return !!p && typeof p === 'object' && ['day', 'slate', 'cal', 'list', 'ucl', 'table'].includes(p.view) && typeof p.day === 'string' && typeof p.week === 'string' && typeof p.month === 'string' && typeof p.listFrom === 'string';
+  return !!p && typeof p === 'object' && ['day', 'slate', 'cal', 'list', 'ucl', 'table', 'cups'].includes(p.view) && typeof p.day === 'string' && typeof p.week === 'string' && typeof p.month === 'string' && typeof p.listFrom === 'string';
 }
 
 /** The tab title's page part, most specific first ("ARS · Nov 2026", "Slate · Sat, Nov 21"). */
@@ -91,6 +98,7 @@ export function pagePart(p: Page, model: Model): string {
   if (p.view === 'slate') return `Slate · ${dayLabel(p.day)}`;
   if (p.view === 'ucl') return 'Champions League';
   if (p.view === 'table') return `${model.comp(p.league ?? DEFAULT_LEAGUE).name} table`;
+  if (p.view === 'cups') return model.comp(p.cup ?? DEFAULT_CUP).name;
   return dayLabel(p.day);
 }
 
@@ -98,7 +106,7 @@ export const pageTitle = (p: Page, model: Model) => `${pagePart(p, model)} — $
 
 /** One step of the bar's ‹ › in the current view. */
 export function stepPage(p: Page, dir: 1 | -1, model: Model): Page {
-  if (p.view === 'ucl' || p.view === 'table') return p;
+  if (p.view === 'ucl' || p.view === 'table' || p.view === 'cups') return p;
   if (p.view === 'cal') return p.span === 'month' ? { ...p, month: addMonths(p.month, dir) } : { ...p, week: addDays(p.week, 7 * dir * p.span) };
   if (p.view === 'list') return { ...p, month: addMonths(p.month, dir), listFrom: addMonths(p.month, dir) };
   // day and slate: every day, "no matches" days included (never skipped), within the season

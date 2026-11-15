@@ -3,7 +3,7 @@
 // matches against each other (a mini-table of the group still level at that step). Teams still level after every
 // criterion the data allows share a place, listed by name. The members are the teams in ESPN's table.
 
-import { LEAGUES, type Criterion } from '../../config/leagues.ts';
+import { LEAGUES, type Criterion, type LeagueRules } from '../../config/leagues.ts';
 import type { LeagueSlug } from '../../config/season.ts';
 import { isPlayed } from './model.ts';
 import type { Match, Snapshot } from './snapshot.ts';
@@ -65,10 +65,17 @@ const value = (c: Criterion, t: Tally, h?: Tally): number | undefined => {
 };
 
 export function leagueTable(snap: Pick<Snapshot, 'matches' | 'tables' | 'teams'>, league: LeagueSlug): LeagueTable {
-  const rules = LEAGUES[league];
   const members = (snap.tables[league]?.[0]?.rows ?? []).map((r) => r.team);
   const inLeague = new Set(members);
   const all = snap.matches.filter((m) => m.c === league && inLeague.has(m.h) && inLeague.has(m.a));
+  return { league, ...rankTable(members, all, LEAGUES[league], (t) => snap.teams[t]?.name ?? t) };
+}
+
+/** The ranking rules a table needs (a league's, or a CONMEBOL group's). */
+export type RankRules = Pick<LeagueRules, 'tiebreak' | 'h2hWhenPlayed' | 'h2hTwoOnly' | 'endOnly'>;
+
+/** A table of `members` from `all` their matches against each other (league or group), ranked by `rules`. */
+export function rankTable(members: string[], all: Match[], rules: RankRules, name: (t: string) => string): { rows: LeagueRow[]; complete: boolean } {
   const played = all.filter(isPlayed);
   const tally = new Map(members.map((t) => [t, empty()]));
   for (const m of played) {
@@ -77,7 +84,6 @@ export function leagueTable(snap: Pick<Snapshot, 'matches' | 'tables' | 'teams'>
   }
   const complete = all.length > 0 && all.every((m) => isPlayed(m) || m.st === 'can');
   const criteria = [...rules.tiebreak, ...(complete ? rules.endOnly ?? [] : [])];
-  const name = (t: string) => snap.teams[t]?.name ?? t;
 
   /** Orders a group level on points, criterion by criterion; returns groups still level (in order). */
   function split(group: string[], from: number): string[][] {
@@ -117,5 +123,5 @@ export function leagueTable(snap: Pick<Snapshot, 'matches' | 'tables' | 'teams'>
       });
     }
   }
-  return { league, rows, complete };
+  return { rows, complete };
 }

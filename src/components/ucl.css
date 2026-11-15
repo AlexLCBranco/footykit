@@ -374,3 +374,49 @@
 .fk-lt-extra a {
   color: var(--fk-link);
 }
+
+/* ---------- cups (CupsPage.tsx) ---------- */
+.fk-cups .fk-ko-grid {
+  margin-bottom: 6px;
+}
+.fk-cup-groups-wrap h3 {
+  font-size: 15px;
+  margin: 18px 0 6px;
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.fk-cup-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(640px, 1fr));
+  gap: 4px 24px;
+}
+.fk-cup-group {
+  width: auto;
+  margin-bottom: 4px;
+}
+.fk-cup-squares {
+  display: inline-grid;
+  grid-template-columns: repeat(6, 56px);
+  gap: 2px;
+}
+.fk-cup-qual {
+  margin-bottom: 10px;
+}
+.fk-cup-qual-ties {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 210px));
+  gap: 6px;
+  margin-top: 4px;
+}
+/* a bracket: later rounds spread to sit between the ties that feed them */
+.fk-cups .fk-ko-grid {
+  align-items: stretch;
+}
+.fk-cups .fk-ko-col-ties {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 8px;
+}

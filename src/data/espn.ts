@@ -39,7 +39,8 @@ export interface EspnEvent {
   date: string;
   shortName?: string;
   timeValid?: boolean;
-  season?: { year?: number };
+  /** `slug` names the stage ("group-stage", "round-of-16") on every event, unlike `seasonType` */
+  season?: { year?: number; slug?: string };
   seasonType?: { name?: string };
   league?: { slug?: string; name?: string; abbreviation?: string };
   competitions: EspnCompetition[];
@@ -76,6 +77,10 @@ export function statusOf(c: EspnCompetition): MatchStatus {
   return t?.state === 'in' ? 'in' : 'pre';
 }
 
+/** "round-of-16" → "Round of 16", as ESPN's `seasonType` names it. */
+export const stageName = (slug: string | undefined) =>
+  slug?.split('-').map((w, i) => (i > 0 && ['of', 'the', 'and'].includes(w) ? w : w.charAt(0).toUpperCase() + w.slice(1))).join(' ') || undefined;
+
 /** One ESPN event as a Match. `slug` is the competition (scoreboard events carry no `league`). Returns undefined for
  * an event without two sides. */
 export function slimMatch(e: EspnEvent, slug: string, isLeague: boolean): Match | undefined {
@@ -88,7 +93,8 @@ export function slimMatch(e: EspnEvent, slug: string, isLeague: boolean): Match 
   if (e.timeValid === false || c.timeValid === false) m.tbd = 1;
   // League rounds are named after the season ("2026-27 English Premier League"), and so are one-off super cups
   // ("2026 UEFA Super Cup"): only a real stage name is kept.
-  const round = e.seasonType?.name;
+  // scoreboard events often lack `seasonType` (the club feeds carry it); the season slug always names the stage
+  const round = e.seasonType?.name ?? stageName(e.season?.slug);
   if (!isLeague && round && !/\b\d{4}\b/.test(round)) m.r = round;
   if (c.leg?.value) m.leg = c.leg.value;
   if (st === 'post' || st === 'in' || st === 'abd' || st === 'susp') {

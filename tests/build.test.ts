@@ -7,7 +7,7 @@ import { gunzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { buildSnapshot, type RawInput } from '../scripts/snapshot/build.ts';
 import { problems } from '../scripts/update-snapshot.ts';
-import { decimalOdds } from '../src/data/espn.ts';
+import { decimalOdds, slimMatch, stageName, type EspnEvent } from '../src/data/espn.ts';
 
 const raw = JSON.parse(gunzipSync(readFileSync(join(import.meta.dirname, 'fixtures/raw-subset.json.gz'))).toString()) as RawInput;
 const { snapshot: s, report } = buildSnapshot(raw);
@@ -93,5 +93,21 @@ describe('app code reads the snapshot, never raw ESPN', () => {
     const allowed = /[\\/]src[\\/]data[\\/](espn|ko|day)\.ts$/;
     const hits = files.filter((f) => !allowed.test(f) && /from '[./]*(data\/)?espn(\.ts)?'/.test(readFileSync(f, 'utf8')));
     expect(hits.map((f) => f.slice(root.length + 1))).toEqual([]);
+  });
+});
+
+describe('stage names', () => {
+  // a Libertadores group match from a scoreboard: no seasonType, only the season slug (ESPN, 2026)
+  const ev = { id: '1', date: '2026-04-08T00:30Z', season: { year: 2026, slug: 'group-stage' }, competitions: [{ date: '2026-04-08T00:30Z', status: { type: { state: 'pre' } }, competitors: [{ homeAway: 'home', team: { id: '1' } }, { homeAway: 'away', team: { id: '2' } }] }] } as unknown as EspnEvent;
+  it('a scoreboard event without seasonType still gets its stage from the season slug', () => {
+    expect(slimMatch(ev, 'conmebol.libertadores', false)?.r).toBe('Group Stage');
+    expect(slimMatch({ ...ev, season: { year: 2026, slug: 'round-of-16' } }, 'conmebol.libertadores', false)?.r).toBe('Round of 16');
+  });
+  it('seasonType wins when present; league rounds stay unnamed', () => {
+    expect(slimMatch({ ...ev, seasonType: { name: 'Quarterfinals' } }, 'conmebol.libertadores', false)?.r).toBe('Quarterfinals');
+    expect(slimMatch({ ...ev, season: { year: 2026, slug: '2026-brazilian-serie-a' } }, 'bra.1', true)?.r).toBeUndefined();
+  });
+  it('stageName', () => {
+    expect(['knockout-round-playoffs', 'league-phase', 'first-stage', undefined].map(stageName)).toEqual(['Knockout Round Playoffs', 'League Phase', 'First Stage', undefined]);
   });
 });

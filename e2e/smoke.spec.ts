@@ -216,3 +216,16 @@ test('league tables: the picker switches leagues; rows, squares, zones, Brasilei
   await expect(page.getByTestId('league-row')).toHaveCount(18);
   expect(errors).toEqual([]);
 });
+
+test('cups: Libertadores and Sudamericana — bracket, 8 groups, qualifying', async ({ page }) => {
+  const errors = await open(page, '?view=cups&cup=conmebol.libertadores');
+  await expect(page).toHaveTitle(/^.*Libertadores — footykit$/);
+  await expect(page.getByTestId('cup-group')).toHaveCount(8);
+  await expect(page.getByTestId('cup-group').first().getByTestId('cup-square')).toHaveCount(4 * 6);
+  // round of 16 to the final, then 3 + 8 + 4 qualifying ties
+  await expect(page.getByTestId('cup-tie')).toHaveCount(8 + 4 + 2 + 1 + 3 + 8 + 4);
+  await page.getByTestId('cup-picker').selectOption('conmebol.sudamericana');
+  await expect(page.getByTestId('cups-page')).toHaveAttribute('data-cup', 'conmebol.sudamericana');
+  await expect(page.getByTestId('cup-tie')).toHaveCount(8 + 8 + 4 + 2 + 1 + 16);
+  expect(errors).toEqual([]);
+});
