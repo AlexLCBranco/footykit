@@ -18,6 +18,9 @@ export interface Sim {
   picks: Record<string, Score>;
   /** match ids the bulk fills, clear and re-roll leave alone */
   locked: Record<string, true>;
+  /** a final's picked winner, by the final's key (the Brasileirão's: 'cup' | 'lib' | 'sula'): a final is picked by its
+   * winner, not a score, since a shootout can decide it. Absent when none is picked. */
+  winners?: Record<string, string>;
 }
 export const EMPTY: Sim = { picks: {}, locked: {} };
 
@@ -55,12 +58,28 @@ export function simMatches(matches: Match[], sim: Sim): Match[] {
   });
 }
 
-/** The scenario without picks for matches that are no longer open (a real result came in) or aren't in `matches`. */
-export function prune(sim: Sim, matches: Match[]): Sim {
+/** A final as the simulator sees it: its two teams and, once played, its real winner. */
+export interface FinalState { finalists: [string, string]; winner?: string }
+
+/** The scenario without picks for matches that are no longer open (a real result came in) or aren't in `matches`, and
+ * without picked winners of finals that are decided, not in `finals`, or for a team that isn't a finalist. */
+export function prune(sim: Sim, matches: Match[], finals: Record<string, FinalState | undefined> = {}): Sim {
   const ok = new Set(matches.filter(open).map((m) => m.id));
   const picks = Object.fromEntries(Object.entries(sim.picks).filter(([id]) => ok.has(id)));
   const locked = Object.fromEntries(Object.keys(sim.locked).filter((id) => id in picks).map((id) => [id, true as const]));
-  return Object.keys(picks).length === Object.keys(sim.picks).length && Object.keys(locked).length === Object.keys(sim.locked).length ? sim : { picks, locked };
+  const winners = Object.fromEntries(Object.entries(sim.winners ?? {}).filter(([k, t]) => { const f = finals[k]; return !!f && !f.winner && f.finalists.includes(t); }));
+  const same = Object.keys(picks).length === Object.keys(sim.picks).length && Object.keys(locked).length === Object.keys(sim.locked).length
+    && Object.keys(winners).length === Object.keys(sim.winners ?? {}).length;
+  return same ? sim : { picks, locked, ...(Object.keys(winners).length ? { winners } : {}) };
+}
+
+/** Pick (or with `undefined` clear) a final's winner. */
+export function setWinner(sim: Sim, final: string, team: string | undefined): Sim {
+  const winners = { ...sim.winners };
+  if (team) winners[final] = team;
+  else delete winners[final];
+  const { winners: _, ...rest } = sim;
+  return Object.keys(winners).length ? { ...rest, winners } : rest;
 }
 
 /** Set (or with `undefined` clear) one match's pick. Clearing a match also unlocks it: a lock holds a pick. */
@@ -69,7 +88,7 @@ export function setPick(sim: Sim, id: string, s: Score | undefined): Sim {
   const locked = { ...sim.locked };
   if (s) picks[id] = s;
   else { delete picks[id]; delete locked[id]; }
-  return { picks, locked };
+  return { ...sim, picks, locked };
 }
 
 /** Lock or unlock a picked match (an empty match has nothing to lock). */
@@ -78,7 +97,7 @@ export function toggleLock(sim: Sim, id: string): Sim {
   const locked = { ...sim.locked };
   if (locked[id]) delete locked[id];
   else locked[id] = true;
-  return { picks: sim.picks, locked };
+  return { ...sim, locked };
 }
 
 export type Fill = 'home' | 'draw' | 'fav' | 'random';
@@ -102,14 +121,14 @@ export function fill(sim: Sim, ms: Match[], kind: Fill, rank: Rank, rnd: () => n
     else if (kind === 'fav') picks[m.id] = favourite(m, rank);
     else { const r = rnd(); picks[m.id] = r < 1 / 3 ? HOME : r < 2 / 3 ? DRAW : AWAY; }
   }
-  return { picks, locked: sim.locked };
+  return { ...sim, picks };
 }
 
 /** Clear the unlocked picks of `ms`. */
 export function clear(sim: Sim, ms: Match[]): Sim {
   const picks = { ...sim.picks };
   for (const m of ms) if (!sim.locked[m.id]) delete picks[m.id];
-  return { picks, locked: sim.locked };
+  return { ...sim, picks };
 }
 
 /** Whether a pick is one of the click cycle's (1-0 / 1-1 / 0-1) rather than a typed score. */
@@ -264,7 +283,11 @@ export function rename(store: Store, from: string, to: string): Store {
 }
 
 const sameSim = (a: Sim, b: Sim) => JSON.stringify(sortKeys(a)) === JSON.stringify(sortKeys(b));
-const sortKeys = (s: Sim) => ({ picks: Object.fromEntries(Object.entries(s.picks).sort(([x], [y]) => x.localeCompare(y)).map(([k, v]) => [k, { h: v.h, a: v.a }])), locked: Object.keys(s.locked).sort() });
+const sortKeys = (s: Sim) => ({
+  picks: Object.fromEntries(Object.entries(s.picks).sort(([x], [y]) => x.localeCompare(y)).map(([k, v]) => [k, { h: v.h, a: v.a }])),
+  locked: Object.keys(s.locked).sort(),
+  winners: Object.entries(s.winners ?? {}).sort(([x], [y]) => x.localeCompare(y)),
+});
 /** The picks on screen differ from the active saved scenario (shown as "edited"). */
 export function edited(store: Store): boolean {
   const s = store.active ? savedSim(store, store.active) : undefined;
@@ -272,10 +295,10 @@ export function edited(store: Store): boolean {
 }
 
 /** Every scenario without picks for matches that got a real result (a real result replaces a pick). */
-export const pruneStore = (store: Store, matches: Match[]): Store => {
-  const current = prune(store.current, matches);
+export const pruneStore = (store: Store, matches: Match[], finals: Record<string, FinalState | undefined> = {}): Store => {
+  const current = prune(store.current, matches, finals);
   let changed = current !== store.current;
-  const saved = store.saved.map((s) => { const sim = prune(s.sim, matches); if (sim !== s.sim) changed = true; return sim === s.sim ? s : { ...s, sim }; });
+  const saved = store.saved.map((s) => { const sim = prune(s.sim, matches, finals); if (sim !== s.sim) changed = true; return sim === s.sim ? s : { ...s, sim }; });
   return changed ? { ...store, current, saved } : store;
 };
 
@@ -298,7 +321,8 @@ function readOne(x: unknown): Sim | undefined {
   if (!s || typeof s !== 'object' || !s.picks || typeof s.picks !== 'object') return undefined;
   const picks = Object.fromEntries(Object.entries(s.picks).filter(([, v]) => isScore(v)).map(([k, v]) => [k, { h: v.h, a: v.a }]));
   const locked = Object.fromEntries(Object.entries(s.locked ?? {}).filter(([id, v]) => v === true && id in picks)) as Record<string, true>;
-  return { picks, locked };
+  const winners = Object.fromEntries(Object.entries(s.winners && typeof s.winners === 'object' ? s.winners : {}).filter(([, t]) => typeof t === 'string' && t));
+  return { picks, locked, ...(Object.keys(winners).length ? { winners } : {}) };
 }
 
 function readStoreOne(v: StoredOne | null | undefined): Store | undefined {
@@ -314,7 +338,7 @@ function readStoreOne(v: StoredOne | null | undefined): Store | undefined {
   return { current, saved, ...(active ? { active } : {}) };
 }
 
-const isEmpty = (s: Store) => !Object.keys(s.current.picks).length && !s.saved.length;
+const isEmpty = (s: Store) => !Object.keys(s.current.picks).length && !Object.keys(s.current.winners ?? {}).length && !s.saved.length;
 
 /** Every competition's store as kept (those with picks or saved scenarios). Bad entries are dropped. */
 export function readBook(text: string | null): Book {

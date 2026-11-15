@@ -8,7 +8,7 @@ import { shortDay } from '../data/model';
 import type { Match } from '../data/snapshot';
 import {
   AWAY, clear, cycle, DRAW, fill, history, HOME, isQuick, parseScore, pruneStore, push, readStore, redo, scoreText, undo,
-  WHATIF_KEY, writeStore, type Fill, type History, type Rank, type Score, type Sim, type Store,
+  WHATIF_KEY, writeStore, type FinalState, type Fill, type History, type Rank, type Score, type Sim, type Store,
 } from '../data/whatif';
 import { TeamLogo } from './Bits';
 import { useFooty } from './ctx';
@@ -30,8 +30,8 @@ export type Meta = Omit<Store, 'current'>;
 
 /** One competition's picks (with undo / redo) and saved scenarios, kept on every change but never on the first render
  * (an untouched visit leaves no key). The other competitions' stores are re-read before writing, so they stay. */
-export function useWhatIf(comp: string, matches: Match[]) {
-  const [start] = useState(() => pruneStore(readStore(load(), comp), matches));
+export function useWhatIf(comp: string, matches: Match[], finals?: Record<string, FinalState | undefined>) {
+  const [start] = useState(() => pruneStore(readStore(load(), comp), matches, finals));
   const [hist, setHist] = useState<History>(() => history(start.current));
   const [meta, setMeta] = useState<Meta>(() => ({ saved: start.saved, active: start.active }));
   const sim = hist.now;

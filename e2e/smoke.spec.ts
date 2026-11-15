@@ -315,6 +315,24 @@ test('league what-if: from the Tables page, windows, picks move the table, kept 
   expect(errors).toEqual([]);
 });
 
+test('Brasileirão what-if: picking a final settles a hatched place; kept with the league', async ({ page }) => {
+  const errors = await open(page, '?view=whatif&league=bra.1');
+  await expect(page.getByTestId('wi-final')).toHaveCount(3);
+  const seventh = page.getByTestId('wi-row').nth(6);
+  await expect(seventh).toHaveAttribute('data-team', 'CAM');
+  await expect(seventh).toHaveClass(/fk-lz-maybe/);
+  // Atlético-MG win the Sudamericana: group stage, settled
+  await page.locator('[data-final="sula"]').getByTestId('wi-final-team').filter({ hasText: 'CAM' }).click();
+  await expect(seventh).not.toHaveClass(/fk-lz-maybe/);
+  await expect(seventh).toHaveClass(/fk-lz-lib/);
+  const kept = JSON.parse((await page.evaluate(() => localStorage.getItem('fk:whatif:v1')))!);
+  expect(Object.keys(kept.comps['bra.1'].current.winners)).toEqual(['sula']);
+  // undo leaves it open again
+  await page.keyboard.press('Control+z');
+  await expect(seventh).toHaveClass(/fk-lz-maybe/);
+  expect(errors).toEqual([]);
+});
+
 test('cups: Libertadores and Sudamericana — bracket, 8 groups, qualifying', async ({ page }) => {
   const errors = await open(page, '?view=cups&cup=conmebol.libertadores');
   await expect(page).toHaveTitle(/^.*Libertadores — footykit$/);

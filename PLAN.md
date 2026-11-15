@@ -11,8 +11,8 @@
   (v0.11.0), Libertadores / Sudamericana pages (v0.12.0) and the domestic cups (v0.13.0)
   built. Alex will send changes after using the app for a while (2026-11-15).
 - **Phase 5**: plan agreed 2026-11-15 (Decisions log); step 1 (simulator view, v0.14.0) and step 2 (saved scenarios, v0.15.0) built, waiting on Alex's look.
-  Leagues (Decisions log "after the UCL"): step 3 (all six leagues, v0.16.0) built, waiting on Alex's look; next v0.17.0
-  the Brasileirão places with the finals pickable. The CONMEBOL groups simulator waits for the 2027 groups.
+  Leagues (Decisions log "after the UCL"): step 3 (all six leagues, v0.16.0) and step 4 (Brasileirão places with the
+  finals pickable, v0.17.0) built, waiting on Alex's look. The CONMEBOL groups simulator waits for the 2027 groups.
 
 ## Decisions log
 - 2026-11-14: Menu = calendarkit's **packed bar** (Alex). Copy that one in Phase 2; the rail is not ported.

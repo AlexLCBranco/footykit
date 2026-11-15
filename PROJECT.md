@@ -55,7 +55,10 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   (`?view=whatif&league=…`, "What-if" on the Tables page, lazy `LeagueWhatIfPage.tsx`; shared parts
   `WhatIfParts.tsx`): the matches left by window (Weekend / Midweek), favourites = higher in today's real table, the
   full table with zones (rankTable over the picks); each competition's picks and scenarios kept apart in
-  `fk:whatif:v1` (the UCL's at the top level, the others under `comps`).
+  `fk:whatif:v1` (the UCL's at the top level, the others under `comps`). v0.17.0: the Brasileirão's Libertadores /
+  Sudamericana places live over the picked table (`braRowZones`, shared with the Tables page), the Sudamericana,
+  Libertadores and Copa do Brasil finals pickable by winner (`Sim.winners`; an open final counts both ways, a played one
+  drops the pick).
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site

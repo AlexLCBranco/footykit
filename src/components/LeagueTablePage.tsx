@@ -4,9 +4,9 @@
 // still open Libertadores places. Its own chunk, like the UCL page.
 
 import { useMemo } from 'react';
-import { BRA_CONTINENTAL, BRA_CUP, LEAGUES, type LeagueZone, type ZoneKind } from '../../config/leagues';
+import { BRA_CONTINENTAL, BRA_CUP, LEAGUES, type LeagueZone } from '../../config/leagues';
 import type { LeagueSlug } from '../../config/season';
-import { finalOf, rowPlaces, scenarios, type Fate } from '../data/braPlaces';
+import { braRowZones, finalOf, type Finals, type RowZone } from '../data/braPlaces';
 import { leagueTable } from '../data/leagueTable';
 import { dayLabel, isPlayed, kickoffTime, shortDay } from '../data/model';
 import { matchUrl, type Match } from '../data/snapshot';
@@ -36,8 +36,6 @@ function Square({ m, team, today }: { m: Match; team: string; today: string }) {
   );
 }
 
-type Finals = Parameters<typeof scenarios>[2];
-
 /** The finals that still decide Brasileirão places (REC Art. 6), as the snapshot has them. */
 function BraFinals({ finals }: { finals: Finals }) {
   const { model } = useFooty();
@@ -57,8 +55,6 @@ function BraFinals({ finals }: { finals: Finals }) {
 }
 
 const zoneAt = (zones: LeagueZone[], pos: number) => zones.find((z) => pos >= z.from && pos <= z.to);
-const FATE_KIND: Record<Fate, ZoneKind | undefined> = { group: 'lib', prelim: 'libq', sula: 'sula', none: undefined };
-interface RowZone { kind: ZoneKind; open: boolean; tip: string }
 
 export default function LeagueTablePage({ league, today, onWhatIf }: { league: LeagueSlug; today: string; onWhatIf?: () => void }) {
   const { model } = useFooty();
@@ -72,16 +68,12 @@ export default function LeagueTablePage({ league, today, onWhatIf }: { league: L
   const bra = useMemo(() => {
     if (league !== 'bra.1') return undefined;
     const order = table.rows.map((r) => r.team);
-    const rel = new Set(order.filter((_, i) => zoneAt(rules.zones, i + 1)?.kind === 'rel'));
     const finals: Finals = { cup: finalOf(model.snap.matches, BRA_CUP), lib: finalOf(model.snap.matches, BRA_CONTINENTAL.lib), sula: finalOf(model.snap.matches, BRA_CONTINENTAL.sula) };
-    return { finals, rows: rowPlaces(scenarios(order, rel, finals), order, (id) => model.team(id).short.trim()) };
+    return { finals, zones: braRowZones(order, rules.zones, finals, (id) => model.team(id).short.trim()) };
   }, [league, table, rules, model]);
-  const zones: (RowZone | undefined)[] = table.rows.map((r, i) => {
+  const zones: (RowZone | undefined)[] = bra?.zones ?? table.rows.map((_, i) => {
     const cfg = zoneAt(rules.zones, i + 1);
-    const place = bra?.rows.get(r.team);
-    if (!place || cfg?.kind === 'rel') return cfg && { kind: cfg.kind, open: !!cfg.maybe, tip: `${cfg.label}${cfg.maybe ? `\nOnly ${cfg.maybe}` : ''}` };
-    const kind = FATE_KIND[place.fate];
-    return kind && { kind, open: place.open, tip: place.text };
+    return cfg && { kind: cfg.kind, open: !!cfg.maybe, tip: `${cfg.label}${cfg.maybe ? `\nOnly ${cfg.maybe}` : ''}` };
   });
   return (
     <div className="fk-ucl fk-lt" data-testid="league-page" data-league={league}>

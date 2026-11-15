@@ -377,3 +377,39 @@
 .fk-wi-league .fk-wi-cols {
   grid-template-columns: minmax(330px, 400px) minmax(420px, max-content);
 }
+
+/* the Brasileirão's finals: pick a winner */
+.fk-wi-finals {
+  margin-bottom: 10px;
+}
+.fk-wi-final {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  font-size: 12.5px;
+}
+.fk-wi-final-name {
+  min-width: 104px;
+}
+.fk-wi-final-team {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 70px;
+  padding: 2px 8px;
+  border: 1px solid var(--fk-border);
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.fk-wi-final-team:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+.fk-wi-final-team.fk-wi-won {
+  border-color: var(--fk-win);
+  font-weight: 600;
+}

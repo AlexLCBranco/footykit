@@ -11,6 +11,7 @@
 // When several places are freed at once, group-stage places are handed out before preliminary ones (the REC doesn't
 // order them; this gives the better place to the better-placed club). Finals still to play are worked out both ways.
 
+import type { LeagueZone, ZoneKind } from '../../config/leagues.ts';
 import { isPlayed } from './model.ts';
 import type { Match } from './snapshot.ts';
 
@@ -95,7 +96,7 @@ export function finalOf(matches: Match[], comp: string): { finalists: [string, s
 export interface Scenario { cup?: string; lib?: string; sula?: string; alloc: Allocation }
 
 /** Every outcome of the finals still to play (a decided final has one), each allocated with the table as it stands. */
-export function scenarios(order: string[], relegated: Set<string>, finals: { cup?: ReturnType<typeof finalOf>; lib?: ReturnType<typeof finalOf>; sula?: ReturnType<typeof finalOf> }): Scenario[] {
+export function scenarios(order: string[], relegated: Set<string>, finals: Partial<Record<'cup' | 'lib' | 'sula', ReturnType<typeof finalOf>>>): Scenario[] {
   const ways = (f: ReturnType<typeof finalOf>) => (!f ? [undefined] : f.winner ? [f.winner] : [...f.finalists]);
   const out: Scenario[] = [];
   for (const cup of ways(finals.cup)) {
@@ -163,4 +164,39 @@ export function rowPlaces(all: Scenario[], teams: string[], name: (id: string) =
     out.set(t, { fate: fates[0]!, open: true, text: `As things stand:\n${lines.join('\n')}` });
   }
   return out;
+}
+
+// ---- finals picked, and each row's zone ----
+
+export type FinalKey = 'cup' | 'lib' | 'sula';
+export type Final = ReturnType<typeof finalOf>;
+export type Finals = Partial<Record<FinalKey, Final>>;
+
+/** The finals with a picked winner where the real one is still to play (a real winner stands; a pick that isn't a
+ * finalist is ignored). */
+export function pickFinals(finals: Finals, winners: Partial<Record<FinalKey, string>>): Finals {
+  const out: Finals = { ...finals };
+  for (const k of ['cup', 'lib', 'sula'] as const) {
+    const f = finals[k], w = winners[k];
+    if (f && !f.winner && w && f.finalists.includes(w)) out[k] = { ...f, winner: w };
+  }
+  return out;
+}
+
+const FATE_KIND: Record<Fate, ZoneKind | undefined> = { group: 'lib', prelim: 'libq', sula: 'sula', none: undefined };
+export interface RowZone { kind: ZoneKind; open: boolean; tip: string }
+
+/** Each row's zone, best first: by position from the config, except the continental places, which come from CBF's
+ * rules and the finals (relegation stays by position, and the relegated clubs are the ones in its zone). */
+export function braRowZones(order: string[], zones: LeagueZone[], finals: Finals, name: (id: string) => string): (RowZone | undefined)[] {
+  const zoneAt = (pos: number) => zones.find((z) => pos >= z.from && pos <= z.to);
+  const rel = new Set(order.filter((_, i) => zoneAt(i + 1)?.kind === 'rel'));
+  const places = rowPlaces(scenarios(order, rel, finals), order, name);
+  return order.map((team, i) => {
+    const cfg = zoneAt(i + 1);
+    const place = places.get(team);
+    if (!place || cfg?.kind === 'rel') return cfg && { kind: cfg.kind, open: !!cfg.maybe, tip: `${cfg.label}${cfg.maybe ? `\nOnly ${cfg.maybe}` : ''}` };
+    const kind = FATE_KIND[place.fate];
+    return kind && { kind, open: place.open, tip: place.text };
+  });
 }
