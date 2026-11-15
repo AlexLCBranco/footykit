@@ -307,7 +307,7 @@ test('league what-if: from the Tables page, windows, picks move the table, kept 
   await expect(page.getByTestId('whatif-page')).toContainText('Final table');
   await page.getByTestId('wi-team').selectOption({ label: 'Arsenal' });
   await expect(matches).toHaveCount(1);
-  await expect(page.getByTestId('wi-nav')).toContainText(/of 2\d$/);
+  await expect(page.getByTestId('wi-nav')).toContainText(/\d+ of 2\d/);
   // kept under the league, the UCL's top level left empty
   const kept = JSON.parse((await page.evaluate(() => localStorage.getItem('fk:whatif:v1')))!);
   expect(Object.keys(kept.current.picks)).toHaveLength(0);
