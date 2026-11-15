@@ -21,8 +21,8 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - **Phase 2 (calendar core) in progress** — v0.2.0: snapshot job, day function, app shell with the packed bar, Day
   List, Slate (cards, notes, 3-way odds), Team Calendar (1 / 2 weeks / month, free windows, FIFA windows), Team List,
   season series popup, quick standings popup, copy as image (card / whole view), neutral venues and FIFA windows from
-  researched config. Not yet: continent map, marquee selection copy, notes in the gauntlet backup, the Slate as a
-  gauntlet widget.
+  researched config. v0.3.0: the travel map beside the Day List (`src/map/TravelMap.tsx`, lazy chunk). Not yet:
+  marquee selection copy, notes in the gauntlet backup, the Slate as a gauntlet widget.
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
@@ -33,6 +33,9 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - `config/season.ts` — followed-club rules, competitions per league, ESPN season years.
 - `config/competitions.ts` — competitions shown and their codes; friendlies dropped.
 - `config/neutral.ts`, `config/fifa-windows.ts` — researched facts with sources (for Alex to confirm).
+- `config/venues.json` — every venue's place and elevation from Wikidata, each with its item (`npm run make-venues`:
+  batched query-service lookups, keeps known venues; `config/venue-overrides.json` names the item for venues ESPN
+  spells differently). Basemaps: `src/map/basemaps.ts` from `npm run make-basemaps` (Natural Earth via world-atlas).
 - `src/data/espn.ts` — raw ESPN fields and ESPN → Match (`slimMatch`); only the job, `src/data/day.ts` and `ko.ts`
   import it (tests/build.test.ts checks). `src/data/snapshot.ts` — the snapshot shape the app reads.
 - `src/data/` — model (days in the viewer's zone), form, series, windows, neutral, live (day-layer merge).
@@ -63,6 +66,10 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - Rows read AWAY 2 @ 1 HOME (calendarkit's layout); "v" instead of "@" at a neutral venue.
 - Form (last 5) and streaks count every competition; the record is the league W-D-L.
 - Free windows: MIDWEEK Tue–Thu, WEEKEND Fri–Mon; a window without a match is tinted on the Team Calendar.
+- Travel map (calendarkit's travel view): Europe / South America by the venue; nothing focused = a dot per match with
+  non-overlapping labels; hover or pin a row = both teams' last → this (solid) → next (dashed), straight-line km, the
+  view fitted, a panel per team (no time-zone change: within a continent it says little). Venues at 2,000 m or more
+  are marked (`ALTITUDE_MARK_M`, for Alex to confirm). Shown when the window leaves ≥ 420 px beside the list.
 - Copies are transparent; a Slate copy lays its cards out by the largest-cards rule (page 1920 × 911).
 
 ## Testing policy

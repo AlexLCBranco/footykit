@@ -78,7 +78,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} />;
   else if (page.view === 'list' && page.team) view = <TeamList team={page.team} from={page.listFrom} to={page.month} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
   else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} />;
-  else view = <DayList day={page.day} />;
+  else view = <DayList key={page.day} day={page.day} width={width} />;
 
   return (
     <Ctx.Provider value={ctx}>

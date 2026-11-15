@@ -1,0 +1,16 @@
+{
+ "_why": "ESPN venues whose name (or city) ESPN spells differently from Wikidata, so scripts/make-venues.ts can't match them by name: the Wikidata item of each, looked up by its own label on 2026-11-14. The script takes the place from that item.",
+ "Renato Dall'Ara|Bologna|Italy": "Q757182",
+ "Osteestadion|Rostock|Germany": "Q700314",
+ "El Sardineros|Santander|Spain": "Q5400177",
+ "Stade du Moustoir - Yves Allainmat|Lorient|France": "Q39189",
+ "Estádio Antônio Accioly|Goiãnia|Brazil": "Q4347293",
+ "Reale Arena|San Sebastian|Spain": "Q917845",
+ "Stade Louis II|Monaco|France": "Q318851",
+ "Národny Futbalovy Stadión|Bratislava|Slovakia": "Q1584020",
+ "Atanasio Girardot|Medellin|Colombia": "Q6156079",
+ "The MKM Stadium|Hull|England": "Q630160",
+ "Volksparkstadion|Hamburg Norderstedt|Germany": "Q150933",
+ "Municipal Stadium-Poznan|Poznan|Poland": "Q188699",
+ "Stadion Miejski Bialystok|Bialystok|Poland": "Q2470765"
+}

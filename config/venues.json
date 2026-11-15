@@ -1,0 +1,1581 @@
+{
+ "Alberto José Armando (La Bombonera)|Buenos Aires|Argentina": {
+  "lat": -34.6356,
+  "lon": -58.3646,
+  "elev": 25,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q499855"
+ },
+ "Alfredao|Sao Paulo|Brazil": {
+  "lat": -22.3241,
+  "lon": -49.0976,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q10276739"
+ },
+ "Alfredo Jaconi|Caxias do Sul|Brazil": {
+  "lat": -29.162,
+  "lon": -51.176,
+  "elev": 817,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q3311998"
+ },
+ "Allianz Arena|München|Germany": {
+  "lat": 48.2188,
+  "lon": 11.6248,
+  "elev": 519,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q127429"
+ },
+ "Allianz Parque|Sao Paulo|Brazil": {
+  "lat": -23.5276,
+  "lon": -46.6784,
+  "elev": 760,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q4788902"
+ },
+ "Allianz Riviera|Nice|France": {
+  "lat": 43.7051,
+  "lon": 7.1926,
+  "elev": 0,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q127372"
+ },
+ "Allianz Stadium|Torino|Italy": {
+  "lat": 45.1096,
+  "lon": 7.6412,
+  "elev": 239,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q62149"
+ },
+ "American Express Stadium|Falmer|England": {
+  "lat": 50.8618,
+  "lon": -0.0833,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q619409"
+ },
+ "Anfield|Liverpool|England": {
+  "lat": 53.4308,
+  "lon": -2.9608,
+  "elev": 70,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q45671"
+ },
+ "Arasen Stadion|Lillestrøm|Norway": {
+  "lat": 59.9628,
+  "lon": 11.0635,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q271212"
+ },
+ "Arena Barueri|Barueri|Brazil": {
+  "lat": -23.5131,
+  "lon": -46.8994,
+  "elev": 719,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q2860815"
+ },
+ "Arena BRB Mané Garrincha|Brasília|Brazil": {
+  "lat": -15.7835,
+  "lon": -47.8992,
+  "elev": 1171,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q14552165"
+ },
+ "Arena Capivari|Capivari|Brazil": {
+  "lat": -22.9935,
+  "lon": -47.5144,
+  "elev": 636,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q10277181"
+ },
+ "Arena Castelão|Fortaleza|Brazil": {
+  "lat": -3.8073,
+  "lon": -38.5225,
+  "elev": 21,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q958185"
+ },
+ "Arena Condá|Chapecó|Brazil": {
+  "lat": -27.1041,
+  "lon": -52.607,
+  "elev": 559,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q14928349"
+ },
+ "Arena Credinor|Montes Claros|Brazil": {
+  "lat": -16.7322,
+  "lon": -43.8636,
+  "elev": 678,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q651906"
+ },
+ "Arena da Baixada|Curitiba|Brazil": {
+  "lat": -25.4483,
+  "lon": -49.2769,
+  "elev": 935,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q606803"
+ },
+ "Arena das Dunas|Natal|Brazil": {
+  "lat": -5.8268,
+  "lon": -35.2124,
+  "elev": 30,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1343986"
+ },
+ "Arena DB - DanBred (Zama Maciel)|Patos de Minas|Brazil": {
+  "lat": -18.5869,
+  "lon": -46.5147,
+  "elev": 815,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q984571"
+ },
+ "Arena do Grêmio|Porto Alegre|Brazil": {
+  "lat": -29.9734,
+  "lon": -51.1944,
+  "elev": 10,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q655753"
+ },
+ "Arena Fonte Nova|Salvador|Brazil": {
+  "lat": -12.9788,
+  "lon": -38.5043,
+  "elev": 8,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q6499360"
+ },
+ "Arena MRV|Belo Horizonte|Brazil": {
+  "lat": -19.9306,
+  "lon": -44.0161,
+  "elev": 760,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q97177489"
+ },
+ "Arena Pantanal|Cuiabá|Brazil": {
+  "lat": -15.604,
+  "lon": -56.1216,
+  "elev": 165,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q641448"
+ },
+ "Arena Vera Cruz|Betim|Brazil": {
+  "lat": -19.9678,
+  "lon": -44.1978,
+  "elev": 817,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q737644"
+ },
+ "Aspmyra Stadion|Bodø/Glimt|Norway": {
+  "lat": 67.2775,
+  "lon": 14.3842,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q376674"
+ },
+ "Atanasio Girardot|Medellin|Colombia": {
+  "lat": 6.2568,
+  "lon": -75.5902,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q6156079"
+ },
+ "Athens Olympic Stadium|Athens|Greece": {
+  "lat": 38.0361,
+  "lon": 23.7875,
+  "elev": 74,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q189663"
+ },
+ "Baku Olympic Stadium|Baku|Azerbaijan": {
+  "lat": 40.4298,
+  "lon": 49.9198,
+  "elev": -28,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q2612138"
+ },
+ "Balaidos|Vigo|Spain": {
+  "lat": 42.2119,
+  "lon": -8.7403,
+  "elev": 28,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1326578"
+ },
+ "Banco del Austro Alejandro Serrano Aguil|Cuenca|Ecuador": {
+  "lat": -2.9072,
+  "lon": -79.0055,
+  "elev": 2550,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q2780259"
+ },
+ "BayArena|Leverkusen|Germany": {
+  "lat": 51.0383,
+  "lon": 7.0022,
+  "elev": 52,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q156630"
+ },
+ "bet365 Stadium|Stoke-on-Trent|England": {
+  "lat": 52.9883,
+  "lon": -2.1756,
+  "elev": 213,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q500922"
+ },
+ "BORUSSIA-PARK|Mönchengladbach|Germany": {
+  "lat": 51.1746,
+  "lon": 6.3855,
+  "elev": 70,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q154074"
+ },
+ "Ciudad de Lanús|Buenos Aires|Argentina": {
+  "lat": -34.7177,
+  "lon": -58.3838,
+  "elev": 25,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q533015"
+ },
+ "Ciudad de Vicente López|Buenos Aires|Argentina": {
+  "lat": -34.5402,
+  "lon": -58.4816,
+  "elev": 25,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1159010"
+ },
+ "Couto Pereira|Curitiba|Brazil": {
+  "lat": -25.4211,
+  "lon": -49.2595,
+  "elev": 935,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1327235"
+ },
+ "Coventry Building Society Arena|Coventry|England": {
+  "lat": 52.4481,
+  "lon": -1.4956,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q842077"
+ },
+ "Craven Cottage|London|England": {
+  "lat": 51.475,
+  "lon": -0.2217,
+  "elev": 4,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q318043"
+ },
+ "De Kuip|Rotterdam|Netherlands": {
+  "lat": 51.8939,
+  "lon": 4.5233,
+  "elev": 10,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q330298"
+ },
+ "Decathlon Arena - Stade Pierre-Mauroy|Lille|France": {
+  "lat": 50.612,
+  "lon": 3.1306,
+  "elev": 30,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1410402"
+ },
+ "Deepdale|Preston|England": {
+  "lat": 53.7722,
+  "lon": -2.6881,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1141958"
+ },
+ "Defensores del Chaco|Asunción|Paraguay": {
+  "lat": -25.2921,
+  "lon": -57.6574,
+  "elev": 43,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q367297"
+ },
+ "Deutsche Bank Park|Frankfurt|Germany": {
+  "lat": 50.0686,
+  "lon": 8.6453,
+  "elev": 112,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q157273"
+ },
+ "El Sadar|Pamplona|Spain": {
+  "lat": 42.7967,
+  "lon": -1.6369,
+  "elev": 450,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q735783"
+ },
+ "El Sardineros|Santander|Spain": {
+  "lat": 43.4769,
+  "lon": -3.7896,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q5400177"
+ },
+ "Elland Road|Leeds|England": {
+  "lat": 53.7778,
+  "lon": -1.5722,
+  "elev": 51,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q619505"
+ },
+ "Emirates Stadium|London|England": {
+  "lat": 51.555,
+  "lon": -0.1083,
+  "elev": 4,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q163995"
+ },
+ "Ennio Tardini|Parma|Italy": {
+  "lat": 44.7949,
+  "lon": 10.3384,
+  "elev": 69,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q610546"
+ },
+ "Estadi Ciutat de València|Manises|Spain": {
+  "lat": 39.4947,
+  "lon": -0.3642,
+  "elev": 52,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1122715"
+ },
+ "Estadio Alejandro Villanueva|Lima|Peru": {
+  "lat": -12.0685,
+  "lon": -77.0229,
+  "elev": 154,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1369054"
+ },
+ "Estádio Antônio Accioly|Goiãnia|Brazil": {
+  "lat": -16.6702,
+  "lon": -49.2843,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q4347293"
+ },
+ "Estadio Banco Pichincha|Quito|Ecuador": {
+  "lat": -2.1859,
+  "lon": -79.9249,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1369436"
+ },
+ "Estadio Beira-Rio|Porto Alegre|Brazil": {
+  "lat": -30.0656,
+  "lon": -51.2361,
+  "elev": 10,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1050224"
+ },
+ "Estadio Bellavista|Ambato|Ecuador": {
+  "lat": -1.2448,
+  "lon": -78.6231,
+  "elev": 2637,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q4755061"
+ },
+ "Estádio Benito Agnelo Castellano|Rio Claro|Brazil": {
+  "lat": -22.4182,
+  "lon": -47.5565,
+  "elev": 613,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q10276821"
+ },
+ "Estadio Benito Villamarín|Sevilla|Spain": {
+  "lat": 37.3564,
+  "lon": -5.9816,
+  "elev": 18,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q126844"
+ },
+ "Estádio Brinco de Ouro da Princesa|Sao Paulo|Brazil": {
+  "lat": -22.9097,
+  "lon": -47.0436,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q2670268"
+ },
+ "Estadio Campeón del Siglo|Montevideo|Uruguay": {
+  "lat": -34.7968,
+  "lon": -56.0671,
+  "elev": 43,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q16564746"
+ },
+ "Estádio Castor Cifuentes|Nova Lima|Brazil": {
+  "lat": -19.9875,
+  "lon": -43.8447,
+  "elev": 744,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q5402000"
+ },
+ "Estadio Centenario|Montevideo|Uruguay": {
+  "lat": -34.8944,
+  "lon": -56.1528,
+  "elev": 43,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q498245"
+ },
+ "Estádio Cícero Pompeu de Toledo|Sao Paulo|Brazil": {
+  "lat": -23.6001,
+  "lon": -46.7202,
+  "elev": 760,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q821761"
+ },
+ "Estadio Coliseum|Getafe|Spain": {
+  "lat": 40.3256,
+  "lon": -3.7147,
+  "elev": 622,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q929109"
+ },
+ "Estádio da Ressacada|Florianópolis|Brazil": {
+  "lat": -27.6664,
+  "lon": -48.5317,
+  "elev": 3,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1370775"
+ },
+ "Estadio de la Cerámica|Villarreal|Spain": {
+  "lat": 39.9442,
+  "lon": -0.1036,
+  "elev": 42,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q741157"
+ },
+ "Estadio de Vallecas|Madrid|Spain": {
+  "lat": 40.3919,
+  "lon": -3.659,
+  "elev": 663,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q983806"
+ },
+ "Estádio do Café|Londrina|Brazil": {
+  "lat": -23.2822,
+  "lon": -51.165,
+  "elev": 610,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q143064"
+ },
+ "Estádio do Canindé|Sao Paulo|Brazil": {
+  "lat": -23.5205,
+  "lon": -46.6187,
+  "elev": 760,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1343230"
+ },
+ "Estádio do Dragão|Porto|Portugal": {
+  "lat": 41.1618,
+  "lon": -8.5839,
+  "elev": 104,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q271454"
+ },
+ "Estadio do Maracana|Rio de Janeiro|Brazil": {
+  "lat": -22.9122,
+  "lon": -43.2303,
+  "elev": 31,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q155174"
+ },
+ "Estadio dos Eucaliptos|Porto Alegre|Brazil": {
+  "lat": -30.0617,
+  "lon": -51.2272,
+  "elev": 10,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q2556856"
+ },
+ "Estádio Dr. Jorge Ismael de Biasi|Novo Horizonte|Brazil": {
+  "lat": -21.4669,
+  "lon": -49.2321,
+  "elev": 447,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q10277026"
+ },
+ "Estádio Dr. Magalhaes Pessoa|Leiria|Portugal": {
+  "lat": 39.7486,
+  "lon": -8.8131,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1056864"
+ },
+ "Estadio El Teniente|Rancagua|Chile": {
+  "lat": -34.1778,
+  "lon": -70.7375,
+  "elev": 572,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q991407"
+ },
+ "Estádio Elcyr Resende de Mendonca|Saquarema|Brazil": {
+  "lat": -22.8954,
+  "lon": -42.4761,
+  "elev": 2,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q18476094"
+ },
+ "Estadio Estadual Lourival Baptista|Aracaju, Sergipe|Brazil": {
+  "lat": -10.9267,
+  "lon": -37.0492,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q4405503"
+ },
+ "Estadio Evandro Almeida (Baenao)|Belém|Brazil": {
+  "lat": -1.445,
+  "lon": -48.4658,
+  "elev": 10,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q4841281"
+ },
+ "Estádio Francisco Stédile (Centenário)|Caxias do Sul|Brazil": {
+  "lat": -29.165,
+  "lon": -51.1967,
+  "elev": 817,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q5402002"
+ },
+ "Estadio Hernando Siles|La Paz|Bolivia": {
+  "lat": -16.4994,
+  "lon": -68.1228,
+  "elev": 3600,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1369261"
+ },
+ "Estadio Inca Garcilaso de la Vega|Cusco|Peru": {
+  "lat": -13.525,
+  "lon": -71.966,
+  "elev": 3399,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q129115"
+ },
+ "Estádio Italo Mário Limongi|Indaiatuba|Brazil": {
+  "lat": -23.1578,
+  "lon": -47.3469,
+  "elev": 624,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q10277559"
+ },
+ "Estadio Jorge Luis Hirschi|La Plata|Argentina": {
+  "lat": -34.912,
+  "lon": -57.9389,
+  "elev": 23,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q678824"
+ },
+ "Estádio José Alvalade|Lisbon|Portugal": {
+  "lat": 38.7612,
+  "lon": -9.1608,
+  "elev": 100,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q287359"
+ },
+ "Estadio La Cartuja|Sevilla|Spain": {
+  "lat": 37.4172,
+  "lon": -6.0046,
+  "elev": 18,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q368737"
+ },
+ "Estádio Lourival Gomes de Almeida|Rio de Janeiro|Brazil": {
+  "lat": -22.0333,
+  "lon": -42.7,
+  "elev": 1109,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q41428"
+ },
+ "Estádio Luso Brasileiro|Ilha do Governador|Brazil": {
+  "lat": -22.8016,
+  "lon": -43.2078,
+  "elev": 25,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q3495715"
+ },
+ "Estadio Manoel Barradas|Salvador|Brazil": {
+  "lat": -12.9179,
+  "lon": -38.4281,
+  "elev": 8,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q176157"
+ },
+ "Estadio Martínez Valero|Elche|Spain": {
+  "lat": 38.2669,
+  "lon": -0.6633,
+  "elev": 102,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q953600"
+ },
+ "Estadio Más Monumental|Buenos Aires|Argentina": {
+  "lat": -34.5453,
+  "lon": -58.4497,
+  "elev": 25,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q276354"
+ },
+ "Estadio Mineirão|Belo Horizonte|Brazil": {
+  "lat": -19.8658,
+  "lon": -43.9708,
+  "elev": 760,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q910370"
+ },
+ "Estadio Misael Delgado|Valencia|Venezuela": {
+  "lat": 10.1667,
+  "lon": -68,
+  "elev": 520,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q54880"
+ },
+ "Estádio Moça Bonita|Rio de Janeiro|Brazil": {
+  "lat": -22.8725,
+  "lon": -43.4566,
+  "elev": 31,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q5402090"
+ },
+ "Estádio Municipal Cicero de Souza Marques|Bragança Paulista|Brazil": {
+  "lat": -22.9189,
+  "lon": -46.5425,
+  "elev": 817,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q897232"
+ },
+ "Estadio Municipal de La Cisterna|Santiago|Chile": {
+  "lat": -33.5208,
+  "lon": -70.6728,
+  "elev": 579,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q685284"
+ },
+ "Estadio Municipal de La Florida|Santiago|Chile": {
+  "lat": -33.5408,
+  "lon": -70.5783,
+  "elev": 579,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q683245"
+ },
+ "Estádio Municipal Irmão Gino Maria Rossi|Pouso Alegre|Brazil": {
+  "lat": -22.2514,
+  "lon": -45.9217,
+  "elev": 832,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q9255402"
+ },
+ "Estadio Municipal José Maria de Campos Maia|Mirassol|Brazil": {
+  "lat": -20.8224,
+  "lon": -49.5064,
+  "elev": 587,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q10277233"
+ },
+ "Estadio Nacional de Lima|Lima|Peru": {
+  "lat": -12.0671,
+  "lon": -77.0337,
+  "elev": 154,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1369495"
+ },
+ "Estadio Nemesio Camacho El Campín|Bogota|Colombia": {
+  "lat": 4.6459,
+  "lon": -74.0775,
+  "elev": 2582,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q179027"
+ },
+ "Estadio Olímpico Atahualpa|Quito|Ecuador": {
+  "lat": -0.1775,
+  "lon": -78.4766,
+  "elev": 2780,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q2020768"
+ },
+ "Estádio Olímpico Colosso da Lagoa|Rio Grande do Sul|Brazil": {
+  "lat": -27.651,
+  "lon": -52.265,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q5402140"
+ },
+ "Estadio Olímpico de la UCV|Caracas|Venezuela": {
+  "lat": 10.4913,
+  "lon": -66.8855,
+  "elev": 920,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1369553"
+ },
+ "Estádio Parque do Sabiá|Uberlandia|Brazil": {
+  "lat": -18.9139,
+  "lon": -48.2325,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1370705"
+ },
+ "Estadio Pedro Bidegain|Buenos Aires|Argentina": {
+  "lat": -34.6521,
+  "lon": -58.4401,
+  "elev": 25,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1192472"
+ },
+ "Estádio Primeiro de Maio|São Bernardo do Campo |Brazil": {
+  "lat": -23.6999,
+  "lon": -46.5564,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q10277414"
+ },
+ "Estádio Raimundo Sampaio (Independência)|Belo Horizonte|Brazil": {
+  "lat": -19.9083,
+  "lon": -43.9178,
+  "elev": 760,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q909851"
+ },
+ "Estadio Ramón Tahuichi|Santa Cruz|Bolivia": {
+  "lat": -17.3333,
+  "lon": -61.5,
+  "elev": 253,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q235106"
+ },
+ "Estádio Raulino de Oliveira|Volta Redonda|Brazil": {
+  "lat": -22.5083,
+  "lon": -44.0969,
+  "elev": 390,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1370657"
+ },
+ "Estádio Rei Pelé|Maceio, Alagoas|Brazil": {
+  "lat": -9.6706,
+  "lon": -35.7592,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q5402169"
+ },
+ "Estadio Río Parapití|Pedro Juan Caballero|Paraguay": {
+  "lat": -22.5392,
+  "lon": -55.7456,
+  "elev": 607,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q642688"
+ },
+ "Estadio San Carlos de Apoquindo|Santiago|Chile": {
+  "lat": -33.3959,
+  "lon": -70.5007,
+  "elev": 575,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1369627"
+ },
+ "Estádio Santa Cruz|Ribeirão Preto|Brazil": {
+  "lat": -21.2025,
+  "lon": -47.7892,
+  "elev": 546,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q5402167"
+ },
+ "Estádio São Januário|Rio de Janeiro|Brazil": {
+  "lat": -22.8909,
+  "lon": -43.2283,
+  "elev": 31,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q721419"
+ },
+ "Estádio Serra Dourada|Goiãnia|Brazil": {
+  "lat": -16.6989,
+  "lon": -49.2339,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q924172"
+ },
+ "Estadio Tigo La Huerta|Asunción|Paraguay": {
+  "lat": -25.28,
+  "lon": -57.6344,
+  "elev": 43,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q2933"
+ },
+ "Estadio ueno La Nueva Olla|Asunción|Paraguay": {
+  "lat": -25.3,
+  "lon": -57.6375,
+  "elev": 43,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1369223"
+ },
+ "Estadio Víctor Agustín Ugarte|Potosí|Bolivia": {
+  "lat": -19.5786,
+  "lon": -65.7611,
+  "elev": 4070,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q2408913"
+ },
+ "Estádio Vila Belmiro (Urbano Caldeira)|Santos|Brazil": {
+  "lat": -23.9511,
+  "lon": -46.3389,
+  "elev": 2,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q741755"
+ },
+ "Etihad Stadium|Manchester|England": {
+  "lat": 53.4831,
+  "lon": -2.2003,
+  "elev": 38,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q48159"
+ },
+ "Europa-Park Stadion|Freiburg im Breisgau|Germany": {
+  "lat": 48.0215,
+  "lon": 7.83,
+  "elev": 278,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q64586775"
+ },
+ "Florencio Solá|Buenos Aires|Argentina": {
+  "lat": -34.7508,
+  "lon": -58.3875,
+  "elev": 25,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q599468"
+ },
+ "Fortuna Arena|Prague|Czechia": {
+  "lat": 50.0675,
+  "lon": 14.4715,
+  "elev": 235,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q64858"
+ },
+ "Francisco Novelletto Neto (Passo d'Areia)|Porto Alegre|Brazil": {
+  "lat": -30.0328,
+  "lon": -51.23,
+  "elev": 10,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q40269"
+ },
+ "Generali Arena|Prague|Czechia": {
+  "lat": 50.0997,
+  "lon": 14.4161,
+  "elev": 235,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q60103"
+ },
+ "Germano Krüger|Ponta Grossa|Brazil": {
+  "lat": -25.1162,
+  "lon": -50.1566,
+  "elev": 975,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q9255258"
+ },
+ "Gigante de Arroyito|Rosario|Argentina": {
+  "lat": -32.914,
+  "lon": -60.6746,
+  "elev": 50,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q713597"
+ },
+ "Giuseppe Sinigaglia|Como|Italy": {
+  "lat": 45.8139,
+  "lon": 9.0722,
+  "elev": 201,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q115372"
+ },
+ "Groupama Stadium|Lyon|France": {
+  "lat": 45.7652,
+  "lon": 4.9821,
+  "elev": 160,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q8507"
+ },
+ "Gtech Community Stadium|Brentford|England": {
+  "lat": 51.4908,
+  "lon": -0.2887,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q4961609"
+ },
+ "Highbury Stadium|Fleetwood|England": {
+  "lat": 53.9165,
+  "lon": -3.0247,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q619024"
+ },
+ "Hill Dickinson Stadium|Liverpool|England": {
+  "lat": 53.425,
+  "lon": -3.0028,
+  "elev": 70,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q29347805"
+ },
+ "Home Deluxe Arena|Paderborn|Germany": {
+  "lat": 51.7314,
+  "lon": 8.7108,
+  "elev": 221,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q567402"
+ },
+ "Home Park|Plymouth|England": {
+  "lat": 50.3881,
+  "lon": -4.1508,
+  "elev": 0,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q619350"
+ },
+ "Jan Breydel Stadium|Brugge|Belgium": {
+  "lat": 51.1933,
+  "lon": 3.1813,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1070150"
+ },
+ "Joao Havelange Stadium|Rio de Janeiro|Brazil": {
+  "lat": -22.8932,
+  "lon": -43.2923,
+  "elev": 31,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q17489"
+ },
+ "La Rosaleda|Malaga|Spain": {
+  "lat": 36.7341,
+  "lon": -4.4264,
+  "elev": 18,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q695879"
+ },
+ "London Stadium|London|England": {
+  "lat": 51.5386,
+  "lon": -0.0164,
+  "elev": 4,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q172190"
+ },
+ "Lotto Park|Brussels|Belgium": {
+  "lat": 50.8342,
+  "lon": 4.2983,
+  "elev": 70,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q262326"
+ },
+ "Madejski Stadium|Reading|England": {
+  "lat": 51.4222,
+  "lon": -0.9828,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q31656"
+ },
+ "Malvinas Argentinas (Mendoza)|Mendoza|Argentina": {
+  "lat": -32.8896,
+  "lon": -68.88,
+  "elev": 875,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1072265"
+ },
+ "Mangueirão|Belém|Brazil": {
+  "lat": -1.3811,
+  "lon": -48.444,
+  "elev": 10,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1370732"
+ },
+ "Mapei Stadium|Reggio Emilia|Italy": {
+  "lat": 44.7147,
+  "lon": 10.6497,
+  "elev": 68,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1887221"
+ },
+ "Mendizorrotza|Vitoria-Gasteiz|Spain": {
+  "lat": 42.8371,
+  "lon": -2.688,
+  "elev": 525,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1369390"
+ },
+ "Mestalla Stadium|Manises|Spain": {
+  "lat": 39.4747,
+  "lon": -0.3583,
+  "elev": 52,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q202762"
+ },
+ "Metropolitano Roberto Meléndez|Barranquilla|Colombia": {
+  "lat": 10.9269,
+  "lon": -74.8007,
+  "elev": 18,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1369387"
+ },
+ "MEWA ARENA|Mainz|Germany": {
+  "lat": 49.9842,
+  "lon": 8.2242,
+  "elev": 94,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q392494"
+ },
+ "MHPArena|Stuttgart|Germany": {
+  "lat": 48.7922,
+  "lon": 9.2319,
+  "elev": 245,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q152349"
+ },
+ "Moisés Lucarelli|Ponte Preta|Brazil": {
+  "lat": -27.6539,
+  "lon": -52.4878,
+  "elev": 557,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q1803155"
+ },
+ "Moselstadion|Trier|Germany": {
+  "lat": 49.7681,
+  "lon": 6.6478,
+  "elev": 141,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q883806"
+ },
+ "Municipal de Santo Domingo|Madrid|Spain": {
+  "lat": 40.3389,
+  "lon": -3.8406,
+  "elev": 663,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1369483"
+ },
+ "Municipal Stadium-Poznan|Poznan|Poland": {
+  "lat": 52.3972,
+  "lon": 16.8581,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q188699"
+ },
+ "Národny Futbalovy Stadión|Bratislava|Slovakia": {
+  "lat": 48.1636,
+  "lon": 17.1369,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1584020"
+ },
+ "Neo Química Arena|Sao Paulo|Brazil": {
+  "lat": -23.5456,
+  "lon": -46.474,
+  "elev": 760,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1362236"
+ },
+ "New Balance Arena|Bergamo|Italy": {
+  "lat": 45.7089,
+  "lon": 9.6808,
+  "elev": 249,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q780526"
+ },
+ "Old Trafford|Manchester|England": {
+  "lat": 53.4631,
+  "lon": -2.2914,
+  "elev": 38,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q83457"
+ },
+ "Olimpico|Roma|Italy": {
+  "lat": 41.9339,
+  "lon": 12.4547,
+  "elev": 21,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q159884"
+ },
+ "OPAP Arena|Athens|Greece": {
+  "lat": 38.0371,
+  "lon": 23.7415,
+  "elev": 74,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q15284032"
+ },
+ "Orlando Scarpelli|Florianópolis|Brazil": {
+  "lat": -27.5856,
+  "lon": -48.5867,
+  "elev": 3,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1370730"
+ },
+ "Osteestadion|Rostock|Germany": {
+  "lat": 54.085,
+  "lon": 12.0952,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q700314"
+ },
+ "Parc des Princes|Paris|France": {
+  "lat": 48.8415,
+  "lon": 2.2531,
+  "elev": 48,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q193431"
+ },
+ "Philips Stadion|Eindhoven|Netherlands": {
+  "lat": 51.4417,
+  "lon": 5.4674,
+  "elev": 17,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q500972"
+ },
+ "Poliesportiu Municipal Na Capellera|Manacor|Spain": {
+  "lat": 39.57,
+  "lon": 3.2089,
+  "elev": 80,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q49567"
+ },
+ "Portman Road|Ipswich|England": {
+  "lat": 52.055,
+  "lon": 1.1453,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q619558"
+ },
+ "Presidente Perón (Cilindro de Avellaneda)|Buenos Aires|Argentina": {
+  "lat": -34.6675,
+  "lon": -58.3686,
+  "elev": 25,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1196031"
+ },
+ "PreZero Arena|Sinsheim|Germany": {
+  "lat": 49.239,
+  "lon": 8.8883,
+  "elev": 154,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q129870"
+ },
+ "Principality Stadium|Cardiff|Wales": {
+  "lat": 51.4781,
+  "lon": -3.1825,
+  "elev": 41,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q204496"
+ },
+ "Raiffeisen Arena (Linz)|Linz|Austria": {
+  "lat": 48.2937,
+  "lon": 14.2766,
+  "elev": 270,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q116693275"
+ },
+ "Ramón Sánchez Pizjuán Stadium|Sevilla|Spain": {
+  "lat": 37.3839,
+  "lon": -5.9705,
+  "elev": 18,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q275429"
+ },
+ "RAMS Park|Istanbul|Türkiye": {
+  "lat": 41.1034,
+  "lon": 28.991,
+  "elev": 120,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q81492"
+ },
+ "RCDE Stadium|Barcelona|Spain": {
+  "lat": 41.3479,
+  "lon": 2.0757,
+  "elev": 9,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q473223"
+ },
+ "Reale Arena|San Sebastian|Spain": {
+  "lat": 43.3014,
+  "lon": -1.9736,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q917845"
+ },
+ "Red Bull Arena Salzburg|Salzburg|Austria": {
+  "lat": 47.8162,
+  "lon": 12.9982,
+  "elev": 424,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q206135"
+ },
+ "Red Bull Arena|Leipzig|Germany": {
+  "lat": 51.3458,
+  "lon": 12.3481,
+  "elev": 110,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q210466"
+ },
+ "Renato Dall'Ara|Bologna|Italy": {
+  "lat": 44.4922,
+  "lon": 11.3098,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q757182"
+ },
+ "RheinEnergieStadion|Cologne|Germany": {
+  "lat": 50.9336,
+  "lon": 6.875,
+  "elev": 59,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q151893"
+ },
+ "Riazor|La Coruña|Spain": {
+  "lat": 43.3692,
+  "lon": -8.4158,
+  "elev": 21,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q11697448"
+ },
+ "Riyadh Air Metropolitano|Madrid|Spain": {
+  "lat": 40.4475,
+  "lon": -3.7161,
+  "elev": 663,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1857355"
+ },
+ "Roazhon Park|Rennes|France": {
+  "lat": 48.1074,
+  "lon": -1.7128,
+  "elev": 46,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1121760"
+ },
+ "Rodrigo Paz Delgado|Quito|Ecuador": {
+  "lat": -0.1077,
+  "lon": -78.4891,
+  "elev": 2839,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1369320"
+ },
+ "Romssa Arena|Tromsø|Norway": {
+  "lat": 69.6489,
+  "lon": 18.935,
+  "elev": 6,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1611857"
+ },
+ "San Mamés|Bilbao|Spain": {
+  "lat": 43.2642,
+  "lon": -2.9494,
+  "elev": 19,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q244592"
+ },
+ "San Siro|Milano|Italy": {
+  "lat": 45.4781,
+  "lon": 9.1239,
+  "elev": 138,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q133566"
+ },
+ "Santiago Bernabéu|Madrid|Spain": {
+  "lat": 40.4531,
+  "lon": -3.6883,
+  "elev": 663,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q164027"
+ },
+ "Selhurst Park|London|England": {
+  "lat": 51.3983,
+  "lon": -0.0856,
+  "elev": 4,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1066373"
+ },
+ "Signal Iduna Park|Aue|Germany": {
+  "lat": 51.4925,
+  "lon": 7.4517,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q150928"
+ },
+ "Spotify Camp Nou|Barcelona|Spain": {
+  "lat": 41.3808,
+  "lon": 2.1228,
+  "elev": 9,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q159848"
+ },
+ "St. Andrew's Stadium|Birmingham|England": {
+  "lat": 52.4757,
+  "lon": -1.8682,
+  "elev": 140,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q819179"
+ },
+ "St. James' Park|Newcastle-upon-Tyne|England": {
+  "lat": 54.9756,
+  "lon": -1.6217,
+  "elev": 30,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q191774"
+ },
+ "Stade Bollaert-Delelis|Lens|France": {
+  "lat": 50.4329,
+  "lon": 2.8149,
+  "elev": 27,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q854122"
+ },
+ "Stade de l'Abbé-Deschamps|Auxerre|France": {
+  "lat": 47.7867,
+  "lon": 3.5887,
+  "elev": 93,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1347183"
+ },
+ "Stade de l'Aube|Paris|France": {
+  "lat": 48.3062,
+  "lon": 4.0982,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q2001732"
+ },
+ "Stade de la Meinau|Strasbourg|France": {
+  "lat": 48.5594,
+  "lon": 7.7574,
+  "elev": 132,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q374883"
+ },
+ "Stade du Moustoir - Yves Allainmat|Lorient|France": {
+  "lat": 47.7487,
+  "lon": -3.3693,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q39189"
+ },
+ "Stade Francis-Le Blé|Brest|France": {
+  "lat": 48.4029,
+  "lon": -4.4615,
+  "elev": 0,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1432517"
+ },
+ "Stade Jean Bouin|Paris|France": {
+  "lat": 48.8432,
+  "lon": 2.2529,
+  "elev": 48,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q670499"
+ },
+ "Stade Louis II|Monaco|France": {
+  "lat": 43.7278,
+  "lon": 7.4156,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q318851"
+ },
+ "Stade Marie-Marvingt|Le Mans|France": {
+  "lat": 48.0042,
+  "lon": 0.1969,
+  "elev": 38,
+  "precision": "city",
+  "src": "https://www.wikidata.org/wiki/Q1476"
+ },
+ "Stade Océane|Le Havre|France": {
+  "lat": 49.4988,
+  "lon": 0.1697,
+  "elev": 0,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q219462"
+ },
+ "Stade Raymond Kopa|Angers|France": {
+  "lat": 47.4591,
+  "lon": -0.5316,
+  "elev": 12,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q387213"
+ },
+ "Stade Vélodrome|Marseille|France": {
+  "lat": 43.2692,
+  "lon": 5.3949,
+  "elev": 0,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q202150"
+ },
+ "Stadio Artemio Franchi|Firenze|Italy": {
+  "lat": 43.7808,
+  "lon": 11.2823,
+  "elev": 50,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q270474"
+ },
+ "Stadio Benito Stirpe|Frosinone|Italy": {
+  "lat": 41.6343,
+  "lon": 13.3219,
+  "elev": 291,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q29655396"
+ },
+ "Stadio Diego Armando Maradona|Napoli|Italy": {
+  "lat": 40.828,
+  "lon": 14.193,
+  "elev": 17,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q82709"
+ },
+ "Stadio Friuli|Udine|Italy": {
+  "lat": 46.0816,
+  "lon": 13.2001,
+  "elev": 113,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q640031"
+ },
+ "Stadio Luigi Ferraris|Genova|Italy": {
+  "lat": 44.4164,
+  "lon": 8.9524,
+  "elev": 20,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q271568"
+ },
+ "Stadio Olimpico Grande Torino|Torino|Italy": {
+  "lat": 45.0417,
+  "lon": 7.65,
+  "elev": 239,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q214629"
+ },
+ "Stadio Pier Luigi Penzo|Venezia|Italy": {
+  "lat": 45.4278,
+  "lon": 12.3637,
+  "elev": 2,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q588926"
+ },
+ "Stadion An der Alten Försterei|Berlin|Germany": {
+  "lat": 52.4572,
+  "lon": 13.5681,
+  "elev": 34,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q749172"
+ },
+ "Stadion an der Bremer Brücke'||Germany": {
+  "lat": 52.2808,
+  "lon": 8.0711,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q265199"
+ },
+ "Stadion an der Hafenstraße|Essen|Germany": {
+  "lat": 51.4858,
+  "lon": 6.9778,
+  "elev": 116,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q571520"
+ },
+ "Stadion Miejski Bialystok|Bialystok|Poland": {
+  "lat": 53.1056,
+  "lon": 23.1489,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q2470765"
+ },
+ "Stadion Strelnice|Jablonec|Czechia": {
+  "lat": 50.715,
+  "lon": 15.1622,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1061636"
+ },
+ "Stadium Municipal de Toulouse|Toulouse|France": {
+  "lat": 43.5833,
+  "lon": 1.4341,
+  "elev": 115,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q738044"
+ },
+ "Stadium of Light|Sunderland|England": {
+  "lat": 54.9144,
+  "lon": -1.3882,
+  "elev": 60,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q31969"
+ },
+ "Stamford Bridge|London|England": {
+  "lat": 51.4817,
+  "lon": -0.1911,
+  "elev": 4,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q171458"
+ },
+ "Şükrü Saracoğlu Stadium|Istanbul|Türkiye": {
+  "lat": 40.9875,
+  "lon": 29.0367,
+  "elev": 120,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q222865"
+ },
+ "The City Ground|Nottingham|England": {
+  "lat": 52.94,
+  "lon": -1.1328,
+  "elev": 61,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q593446"
+ },
+ "The Den|London|England": {
+  "lat": 51.4858,
+  "lon": -0.0508,
+  "elev": 4,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q908481"
+ },
+ "The MKM Stadium|Hull|England": {
+  "lat": 53.7461,
+  "lon": -0.3678,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q630160"
+ },
+ "Tottenham Hotspur Stadium|London|England": {
+  "lat": 51.6044,
+  "lon": -0.0664,
+  "elev": 4,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q55074091"
+ },
+ "U-Power Stadium|Monza|Italy": {
+  "lat": 45.5828,
+  "lon": 9.3081,
+  "elev": 162,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1851616"
+ },
+ "Unipol Domus|Cagliari|Italy": {
+  "lat": 39.1997,
+  "lon": 9.1374,
+  "elev": 23,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q30880646"
+ },
+ "URSAPHARM-Arena an der Kaiserlinde|Spiesen-Elversberg|Germany": {
+  "lat": 49.3186,
+  "lon": 7.1217,
+  "elev": 325,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q474858"
+ },
+ "Veltins Arena|Gelsenkirchen|Germany": {
+  "lat": 51.5545,
+  "lon": 7.0676,
+  "elev": 48,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q150961"
+ },
+ "Via Del Mare|Lecce|Italy": {
+  "lat": 40.3653,
+  "lon": 18.2089,
+  "elev": 49,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q684727"
+ },
+ "Viking Stadion|Stavanger|Norway": {
+  "lat": 58.9146,
+  "lon": 5.7304,
+  "elev": 1,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q1417248"
+ },
+ "Villa Park|Birmingham|England": {
+  "lat": 52.5092,
+  "lon": -1.8847,
+  "elev": 140,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q175339"
+ },
+ "Vitality Stadium|Bournemouth|England": {
+  "lat": 50.7353,
+  "lon": -1.8383,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q619094"
+ },
+ "Vodafone Park|Istanbul|Türkiye": {
+  "lat": 41.0392,
+  "lon": 28.9942,
+  "elev": 120,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q14914703"
+ },
+ "Volksparkstadion|Hamburg Norderstedt|Germany": {
+  "lat": 53.5869,
+  "lon": 9.8986,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q150933"
+ },
+ "Weserstadion|Bremen|Germany": {
+  "lat": 53.0664,
+  "lon": 8.8375,
+  "elev": 6,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q154475"
+ },
+ "WWK Arena|Augsburg|Germany": {
+  "lat": 48.3233,
+  "lon": 10.8859,
+  "elev": 482,
+  "precision": "venue",
+  "src": "https://www.wikidata.org/wiki/Q167418"
+ }
+}

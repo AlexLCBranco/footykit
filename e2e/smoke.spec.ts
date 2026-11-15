@@ -92,3 +92,22 @@ test('a reload keeps the page; the version is shown', async ({ page }) => {
   const v = (await import('../package.json', { with: { type: 'json' } })).default.version;
   await expect(page.getByTestId('site-version')).toHaveText(`v${v}`);
 });
+
+test('travel map: dots for the day; hover focuses a match, click pins, Esc unpins; never in a copy', async ({ page }) => {
+  const errors = await open(page);
+  const map = page.getByTestId('travel-map');
+  await expect(map).toHaveAttribute('data-capture-exclude', 'true');
+  await expect(map.getByTestId('map-dot')).toHaveCount(20);
+  const row = page.getByTestId('match-row').filter({ hasText: 'ARS' });
+  await row.hover();
+  await expect(page.getByTestId('map-panel')).toContainText('Arsenal');
+  await expect(page.getByTestId('map-panel')).toContainText('Newcastle');
+  await row.locator('.fk-time').click();
+  await expect(row).toHaveAttribute('data-pinned', 'true');
+  await page.mouse.move(5, 5);
+  await expect(page.getByTestId('map-panel')).toContainText('Arsenal');
+  await page.keyboard.press('Escape');
+  await expect(row).not.toHaveAttribute('data-pinned', 'true');
+  await expect(page.getByTestId('map-panel')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

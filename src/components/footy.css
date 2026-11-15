@@ -1065,3 +1065,125 @@ button.fk-chip:hover {
   text-decoration: none !important;
   color: var(--fk-text) !important;
 }
+
+/* ---------- day list + travel map ---------- */
+.fk-day-grid {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+.fk-daylist {
+  flex: 0 1 980px;
+  min-width: 0;
+}
+.fk-row {
+  cursor: default;
+}
+.fk-row-pinned {
+  border-color: var(--fk-link);
+  box-shadow: inset 3px 0 0 var(--fk-link);
+}
+.fk-map {
+  position: sticky;
+  top: 8px;
+  flex: none;
+  min-height: 300px;
+}
+.fk-map-svg {
+  display: block;
+  border: 1px solid var(--fk-border);
+  border-radius: 10px;
+  background: #0b1420;
+  margin-bottom: 8px;
+}
+.fk-map-land path {
+  fill: #2a3444;
+  stroke: #465469;
+}
+.fk-map-dot {
+  cursor: pointer;
+}
+.fk-map-dot circle {
+  fill: var(--fk-accent);
+  stroke: #0b1420;
+}
+.fk-map-dot:hover circle {
+  fill: var(--fk-link);
+}
+.fk-map-dot text,
+.fk-map-svg text {
+  fill: var(--fk-text);
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: #0b1420;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.fk-map-leg line {
+  stroke: currentColor;
+  stroke-linecap: round;
+}
+.fk-map-next line {
+  opacity: 0.7;
+}
+.fk-map-leg circle {
+  fill: currentColor;
+}
+.fk-map-leg text {
+  fill: currentColor;
+  font-weight: 800;
+}
+.fk-map-here {
+  fill: #ffffff;
+  stroke: #0b1420;
+}
+.fk-map-city {
+  font-weight: 700;
+}
+.fk-map-stayed {
+  fill: currentColor;
+}
+.fk-map-alt path {
+  fill: var(--fk-fifa);
+}
+.fk-map-alt text {
+  fill: var(--fk-fifa) !important;
+}
+.fk-map-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 150px;
+}
+.fk-map-team {
+  border-left: 3px solid currentColor;
+  padding-left: 8px;
+}
+.fk-map-tname {
+  margin-bottom: 2px;
+}
+.fk-map-pl {
+  display: flex;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--fk-text);
+  line-height: 1.5;
+}
+.fk-map-pk {
+  width: 32px;
+  flex: none;
+  color: var(--fk-muted);
+}
+.fk-map-pkm {
+  margin-left: auto;
+  white-space: nowrap;
+  color: inherit;
+  font-weight: 600;
+}
+.fk-map-team .fk-map-pkm {
+  color: currentColor;
+}
+.fk-map-legend {
+  font-size: 12px;
+  margin: 6px 0 0;
+}
