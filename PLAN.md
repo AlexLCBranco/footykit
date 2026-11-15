@@ -36,6 +36,8 @@
   matches inside a window stay shown, flagged FIFA (South American clubs keep playing).
 - 2026-11-14, Alex: altitude by levels instead of one 2,000 m mark — moderate 1,500 m, high 2,500 m, very high 3,000 m,
   insane 3,500 m (config/altitude.ts, sources there; 3,500 m is footykit's own line).
+- 2026-11-14, Alex: the Brasileirão's code is BR (was BSA); friendlies and pre-season trophies stay hidden, super cups,
+  Copa do Nordeste and state championships shown.
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

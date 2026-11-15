@@ -12,7 +12,7 @@ export const COMPETITIONS: Record<string, CompInfo> = {
   'ita.1': { code: 'SA', name: 'Serie A', kind: 'league' },
   'ger.1': { code: 'BL', name: 'Bundesliga', kind: 'league' },
   'fra.1': { code: 'L1', name: 'Ligue 1', kind: 'league' },
-  'bra.1': { code: 'BSA', name: 'Brasileirão', kind: 'league' },
+  'bra.1': { code: 'BR', name: 'Brasileirão', kind: 'league' },
   'eng.fa': { code: 'FAC', name: 'FA Cup', kind: 'cup' },
   'eng.league_cup': { code: 'EFL', name: 'EFL Cup', kind: 'cup' },
   'esp.copa_del_rey': { code: 'CDR', name: 'Copa del Rey', kind: 'cup' },

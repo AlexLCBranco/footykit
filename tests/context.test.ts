@@ -312,3 +312,11 @@ describe('rivalries (config draft)', () => {
     expect(model.byDay.get('2026-11-22')!.map((m) => matchTags(model, m).derby?.name).filter(Boolean)).toEqual(['North West derby']);
   });
 });
+
+describe('competition codes', () => {
+  it('the Brasileirão is BR (Alex, 2026-11-14), in config and in the recorded snapshot', async () => {
+    const { compInfo } = await import('../config/competitions');
+    expect(compInfo('bra.1').code).toBe('BR');
+    expect(model.comp('bra.1').code).toBe('BR');
+  });
+});
