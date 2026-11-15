@@ -64,11 +64,16 @@ const value = (c: Criterion, t: Tally, h?: Tally): number | undefined => {
   }
 };
 
-export function leagueTable(snap: Pick<Snapshot, 'matches' | 'tables' | 'teams'>, league: LeagueSlug): LeagueTable {
+/** A league's members (the teams in ESPN's table) and its matches between them. */
+export function leagueMatches(snap: Pick<Snapshot, 'matches' | 'tables'>, league: LeagueSlug): { members: string[]; matches: Match[] } {
   const members = (snap.tables[league]?.[0]?.rows ?? []).map((r) => r.team);
   const inLeague = new Set(members);
-  const all = snap.matches.filter((m) => m.c === league && inLeague.has(m.h) && inLeague.has(m.a));
-  return { league, ...rankTable(members, all, LEAGUES[league], (t) => snap.teams[t]?.name ?? t) };
+  return { members, matches: snap.matches.filter((m) => m.c === league && inLeague.has(m.h) && inLeague.has(m.a)) };
+}
+
+export function leagueTable(snap: Pick<Snapshot, 'matches' | 'tables' | 'teams'>, league: LeagueSlug): LeagueTable {
+  const { members, matches } = leagueMatches(snap, league);
+  return { league, ...rankTable(members, matches, LEAGUES[league], (t) => snap.teams[t]?.name ?? t) };
 }
 
 /** The ranking rules a table needs (a league's, or a CONMEBOL group's). */

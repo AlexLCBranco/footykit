@@ -3,12 +3,9 @@
 // several scenarios reads at a glance. The logic is src/data/whatif.ts (saveAs, rename, remove, edited).
 
 import { useEffect, useMemo, useState } from 'react';
-import type { Match } from '../data/snapshot';
-import { uclTable } from '../data/ucl';
-import { edited, remove, rename, saveAs, simMatches, type Sim, type Store } from '../data/whatif';
+import { edited, remove, rename, saveAs, type Sim, type Store } from '../data/whatif';
 import { useFooty } from './ctx';
-
-const ord = (n: number) => `${n}${n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th'}`;
+import { ord } from './WhatIfParts';
 
 function NameBox({ initial, placeholder, onDone }: { initial: string; placeholder: string; onDone: (name?: string) => void }) {
   return (
@@ -22,8 +19,10 @@ function NameBox({ initial, placeholder, onDone }: { initial: string; placeholde
   );
 }
 
-export function Scenarios({ store, team, lp, onStore, onLoad }: {
-  store: Store; team?: string; lp: Match[];
+export function Scenarios({ store, team, placeOf, onStore, onLoad }: {
+  store: Store; team?: string;
+  /** the team's place in the table a scenario's picks give */
+  placeOf: (sim: Sim, team: string) => number;
   onStore: (s: Store) => void; onLoad: (name: string, sim: Sim) => void;
 }) {
   const { model } = useFooty();
@@ -34,11 +33,8 @@ export function Scenarios({ store, team, lp, onStore, onLoad }: {
   // where the picked team finishes in each scenario (one table per scenario, only while a team is picked)
   const places = useMemo(() => {
     if (!team) return undefined;
-    return new Map(store.saved.map((s) => {
-      const t = uclTable({ matches: simMatches(lp, s.sim), teams: model.snap.teams }, (id) => model.team(id).name);
-      return [s.name, t.rows.findIndex((r) => r.team === team) + 1];
-    }));
-  }, [team, store.saved, lp, model]);
+    return new Map(store.saved.map((s) => [s.name, placeOf(s.sim, team)]));
+  }, [team, store.saved, placeOf]);
 
   // Alt+1–9: the nth scenario
   useEffect(() => {

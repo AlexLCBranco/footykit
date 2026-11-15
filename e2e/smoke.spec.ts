@@ -287,6 +287,34 @@ test('league tables: the picker switches leagues; rows, squares, zones, Brasilei
   expect(errors).toEqual([]);
 });
 
+test('league what-if: from the Tables page, windows, picks move the table, kept apart from the UCL\'s', async ({ page }) => {
+  const errors = await open(page, '?view=table&league=eng.1');
+  await page.getByTestId('league-whatif').click();
+  await expect(page).toHaveTitle('Premier League what-if — footykit');
+  await expect(page.getByTestId('whatif-page')).toHaveAttribute('data-league', 'eng.1');
+  const matches = page.getByTestId('wi-match');
+  await expect(matches).toHaveCount(280);
+  await expect(page.getByTestId('wi-row')).toHaveCount(20);
+  await expect(page.getByTestId('wi-window').first()).toContainText('Weekend');
+  await matches.first().click();
+  await page.keyboard.press('2');
+  await expect(matches.first()).toHaveAttribute('data-pick', '0-1');
+  await page.getByTestId('wi-fill-fav').click();
+  await expect(page.getByTestId('wi-count')).toHaveText('280 of 280 picked');
+  await expect(page.getByTestId('whatif-page')).toContainText('Final table');
+  await page.getByTestId('wi-team').selectOption({ label: 'Arsenal' });
+  await expect(matches).toHaveCount(28);
+  // kept under the league, the UCL's top level left empty
+  const kept = JSON.parse((await page.evaluate(() => localStorage.getItem('fk:whatif:v1')))!);
+  expect(Object.keys(kept.current.picks)).toHaveLength(0);
+  expect(Object.keys(kept.comps['eng.1'].current.picks)).toHaveLength(280);
+  // the picker switches the simulated league
+  await page.getByTestId('league-picker').selectOption('bra.1');
+  await expect(page.getByTestId('whatif-page')).toHaveAttribute('data-league', 'bra.1');
+  await expect(matches).toHaveCount(41);
+  expect(errors).toEqual([]);
+});
+
 test('cups: Libertadores and Sudamericana — bracket, 8 groups, qualifying', async ({ page }) => {
   const errors = await open(page, '?view=cups&cup=conmebol.libertadores');
   await expect(page).toHaveTitle(/^.*Libertadores — footykit$/);

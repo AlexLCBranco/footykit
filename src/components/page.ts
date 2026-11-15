@@ -5,7 +5,8 @@ import type { LeagueSlug } from '../../config/season';
 import { addDays, addMonths, dayLabel, monthLabel, monthOf, mondayOf, shortDay, type Model } from '../data/model';
 
 /** day = the day's matches (list), slate = the day as cards, cal = Team Calendar, list = Team List, ucl = the Champions
- * League page, whatif = its what-if simulator, table = a league table, cups = the cups pages */
+ * League page, whatif = a what-if simulator (the UCL's, or with `league` a league's), table = a league table, cups = the
+ * cups pages */
 export type View = 'day' | 'slate' | 'cal' | 'list' | 'ucl' | 'whatif' | 'table' | 'cups';
 export type Span = 1 | 2 | 'month';
 
@@ -15,7 +16,7 @@ export interface Page {
   day: string;
   /** team views */
   team?: string;
-  /** the league table shown (view `table`) */
+  /** the league table shown (view `table`); with view `whatif`, the league simulated (none = the UCL) */
   league?: LeagueSlug;
   /** the cup shown (view `cups`) */
   cup?: string;
@@ -53,6 +54,7 @@ export function pageSearch(p: Page): string {
   if (p.view !== 'day') q.set('view', p.view);
   if (p.team && (p.view === 'cal' || p.view === 'list')) q.set('team', p.team);
   if (p.view === 'cal') q.set('span', String(p.span));
+  if (p.view === 'whatif' && p.league) { q.set('league', p.league); return `?${q}`; }
   if (p.view === 'ucl' || p.view === 'whatif') return `?${q}`;
   if (p.view === 'table') { q.set('league', p.league ?? DEFAULT_LEAGUE); return `?${q}`; }
   if (p.view === 'cups') { q.set('cup', p.cup ?? DEFAULT_CUP); return `?${q}`; }
@@ -76,7 +78,8 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
     if (on && /^\d{4}-\d{2}-\d{2}$/.test(on)) return teamPage(p, team, on, view);
     return { ...p, view, team };
   }
-  if (view === 'slate' || view === 'ucl' || view === 'whatif') return { ...p, view };
+  if (view === 'whatif') { const l = q.get('league'); return isLeague(l) ? { ...p, view, league: l } : { ...p, view }; }
+  if (view === 'slate' || view === 'ucl') return { ...p, view };
   if (view === 'cups') { const c = q.get('cup'); return { ...p, view, cup: c && CUP_SLUGS.includes(c) ? c : DEFAULT_CUP }; }
   if (view === 'table') { const l = q.get('league'); return { ...p, view, league: isLeague(l) ? l : DEFAULT_LEAGUE }; }
   return p;
@@ -97,7 +100,7 @@ export function pagePart(p: Page, model: Model): string {
   if (p.view === 'list') return `${abbr} list · ${p.listFrom === p.month ? monthLabel(p.month, false) : `${monthLabel(p.listFrom, false)} – ${monthLabel(p.month, false)}`}`;
   if (p.view === 'slate') return `Slate · ${dayLabel(p.day)}`;
   if (p.view === 'ucl') return 'Champions League';
-  if (p.view === 'whatif') return 'UCL what-if';
+  if (p.view === 'whatif') return `${p.league ? model.comp(p.league).name : 'UCL'} what-if`;
   if (p.view === 'table') return `${model.comp(p.league ?? DEFAULT_LEAGUE).name} table`;
   if (p.view === 'cups') return model.comp(p.cup ?? DEFAULT_CUP).name;
   return dayLabel(p.day);

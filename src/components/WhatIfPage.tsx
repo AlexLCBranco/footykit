@@ -3,113 +3,29 @@
 // one screen. Speed is the point: a click cycles a result, 1 / X / 2 set it and move on, bulk fills, locks, undo.
 // The logic is src/data/whatif.ts; the table is the UCL page's own engine (uclTable). Its own chunk.
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { UCL_PLAYOFF_PAIRS, UCL_ZONES } from '../../config/ucl';
 import { shortDay } from '../data/model';
 import type { Match } from '../data/snapshot';
 import { leaguePhaseMatches, potOf, uclTable, zoneOf } from '../data/ucl';
-import {
-  AWAY, blocks, clear, cycle, DRAW, fill, history, HOME, isQuick, meets, parseScore, pruneStore, push, readStore, redo, scoreText,
-  setPick, simMatches, toggleLock, toPlay, undo, WHATIF_KEY, writeStore, type Fill, type Store, type Score, type Sim,
-} from '../data/whatif';
-import { TeamLogo } from './Bits';
+import { blocks, meets, setPick, simMatches, toggleLock, toPlay, TOP_COMP, type Sim } from '../data/whatif';
 import { useFooty } from './ctx';
+import { HELP, ord, Row, signed, Tools, useFitHeight, useRowFocus, useWhatIf } from './WhatIfParts';
+import { TeamLogo } from './Bits';
 import { Scenarios } from './WhatIfScenarios';
 import './ucl.css';
 import './whatif.css';
 
-function load(): string | null {
-  try { return localStorage.getItem(WHATIF_KEY); } catch { return null; }
-}
-function save(text: string | null) {
-  try {
-    if (text) localStorage.setItem(WHATIF_KEY, text);
-    else localStorage.removeItem(WHATIF_KEY);
-  } catch { /* private mode: the scenario lasts for this page only */ }
-}
-
-const ord = (n: number) => `${n}${n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th'}`;
-const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0');
-const FILLS: [Fill, string, string][] = [
-  ['home', 'Home wins', 'Every unlocked match shown: home win 1-0'],
-  ['fav', 'Favourites', 'Every unlocked match shown: the better pot wins 1-0 (UEFA coefficient order); same pot → home win'],
-  ['draw', 'Draws', 'Every unlocked match shown: 1-1'],
-  ['random', 'Re-roll', 'Every unlocked match shown: home / draw / away at random (1/3 each), 1-0 / 1-1 / 0-1'],
-];
-
-function Row({ m, pick, locked, onSet, onLock, onMove, onHover, rowRef }: {
-  m: Match; pick?: Score; locked: boolean;
-  onSet: (s: Score | undefined, move: boolean) => void; onLock: () => void; onMove: (dir: 1 | -1) => void;
-  onHover: (m?: Match) => void; rowRef: (el: HTMLDivElement | null) => void;
-}) {
-  const { model } = useFooty();
-  const h = model.team(m.h), a = model.team(m.a);
-  const win = pick ? (pick.h > pick.a ? 'h' : pick.h < pick.a ? 'a' : 'd') : undefined;
-  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.target !== e.currentTarget || e.ctrlKey || e.metaKey || e.altKey) return;
-    const k = e.key.toLowerCase();
-    const set = (s: Score | undefined, move = true) => { e.preventDefault(); onSet(s, move); };
-    if (k === '1') set(HOME);
-    else if (k === 'x') set(DRAW);
-    else if (k === '2') set(AWAY);
-    else if (k === '0' || k === 'delete' || k === 'backspace') set(undefined, false);
-    else if (k === ' ' || k === 'enter') set(cycle(pick), false);
-    else if (k === 'l') { e.preventDefault(); onLock(); }
-    else if (k === 'arrowdown' || k === 'j') { e.preventDefault(); onMove(1); }
-    else if (k === 'arrowup' || k === 'k') { e.preventDefault(); onMove(-1); }
-  };
-  const typed = (el: HTMLInputElement, move: boolean) => {
-    const s = parseScore(el.value);
-    if (s) onSet(s, move);
-    el.value = '';
-  };
-  const side = (t: typeof h, id: string, w: boolean) => (
-    <span className={`fk-wi-side${w ? ' fk-wi-won' : ''}`} title={`${t.name} · pot ${potOf(id)}`}>
-      <TeamLogo id={id} size={16} /><span className="fk-wi-abbr">{t.abbr}</span><span className={`fk-pot fk-pot-${potOf(id)}`}>{potOf(id)}</span>
-    </span>
-  );
-  return (
-    <div ref={rowRef} role="button" tabIndex={0} className={`fk-wi-row${pick ? ' fk-wi-picked' : ''}${locked ? ' fk-wi-locked' : ''}${m.st === 'ppd' ? ' fk-wi-ppd' : ''}`}
-      data-testid="wi-match" data-id={m.id} data-pick={pick ? scoreText(pick) : ''}
-      title={`${h.name} v ${a.name}, ${shortDay(model.dayOf(m))}${m.st === 'ppd' ? ' (postponed)' : ''}\nClick: 1-0 → 1-1 → 0-1 → empty · keys 1 X 2, 0 clears, L locks`}
-      onClick={() => onSet(cycle(pick), false)} onKeyDown={onKey} onMouseEnter={() => onHover(m)} onMouseLeave={() => onHover(undefined)}>
-      <button type="button" className="fk-wi-lock" aria-label={locked ? 'Unlock' : 'Lock'} aria-pressed={locked} disabled={!pick} tabIndex={-1}
-        title={pick ? (locked ? 'Locked: bulk fills, clear and re-roll leave it (L)' : 'Lock this result (L)') : 'Pick a result to lock it'}
-        onClick={(e) => { e.stopPropagation(); onLock(); }}>{locked ? '🔒' : '·'}</button>
-      {side(h, m.h, win === 'h')}
-      <span className={`fk-wi-score fk-wi-${win ?? 'none'}${pick && !isQuick(pick) ? ' fk-wi-typed' : ''}`}>{pick ? scoreText(pick) : 'v'}</span>
-      {side(a, m.a, win === 'a')}
-      <input className="fk-wi-type" placeholder="2-1" aria-label="Type a score" size={3} maxLength={5}
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => {
-          e.stopPropagation();
-          if (e.key === 'Enter') { e.preventDefault(); typed(e.currentTarget, true); }
-          if (e.key === 'Escape') { e.currentTarget.value = ''; (e.currentTarget.parentElement as HTMLElement).focus(); }
-        }}
-        onBlur={(e) => typed(e.currentTarget, false)} />
-      <span className="fk-wi-day">{shortDay(model.dayOf(m))}</span>
-    </div>
-  );
-}
+const potBadge = (id: string) => <span className={`fk-pot fk-pot-${potOf(id)}`}>{potOf(id)}</span>;
 
 export default function WhatIfPage({ today, onBack }: { today: string; onBack: () => void }) {
   const { model } = useFooty();
   const names = useCallback((id: string) => model.team(id).name, [model]);
   const lp = useMemo(() => leaguePhaseMatches(model.snap), [model]);
   const real = useMemo(() => uclTable(model.snap, names), [model, names]);
-  const [start] = useState(() => pruneStore(readStore(load()), lp));
-  const [hist, setHist] = useState(() => history(start.current));
-  const [saved, setSaved] = useState<Omit<Store, 'current'>>(() => ({ saved: start.saved, active: start.active }));
-  const sim = hist.now;
-  const change = useCallback((f: (s: Sim) => Sim) => setHist((h) => push(h, f(h.now))), []);
+  const { sim, hist, setHist, change, setMeta, store, onLoad } = useWhatIf(TOP_COMP, lp);
   const [team, setTeam] = useState<string>();
   const [hoverMatch, setHoverMatch] = useState<Match>();
-
-  // stored on every change, never on the first render (an untouched visit leaves no key)
-  const loaded = useRef({ sim, saved });
-  useEffect(() => {
-    if (sim !== loaded.current.sim || saved !== loaded.current.saved) save(writeStore({ current: sim, ...saved }));
-  }, [sim, saved]);
 
   const table = useMemo(() => uclTable({ matches: simMatches(lp, sim), teams: model.snap.teams }, names), [lp, sim, model, names]);
   const realPos = useMemo(() => new Map(real.rows.map((r, i) => [r.team, i + 1])), [real]);
@@ -124,34 +40,8 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
   const all = [...left.pending, ...left.matchdays.flatMap((g) => g.matches)];
   const picked = all.filter((m) => sim.picks[m.id]).length;
 
-  const rows = useRef(new Map<string, HTMLDivElement>());
-  const focusFrom = (id: string, dir: 1 | -1) => {
-    const i = shown.findIndex((m) => m.id === id);
-    const next = shown[i + dir];
-    if (next) rows.current.get(next.id)?.focus();
-  };
-
-  // undo / redo anywhere on the page (not while typing a score)
-  useEffect(() => {
-    const onKey = (e: globalThis.KeyboardEvent) => {
-      if (!(e.ctrlKey || e.metaKey) || (e.target instanceof HTMLInputElement)) return;
-      const k = e.key.toLowerCase();
-      if (k === 'z' && !e.shiftKey) { e.preventDefault(); setHist(undo); }
-      else if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); setHist(redo); }
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, []);
-
-  // the three columns fill the window under the bar and scroll on their own
-  const root = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number>();
-  useLayoutEffect(() => {
-    const fit = () => { const top = root.current?.getBoundingClientRect().top ?? 0; setHeight(Math.max(420, window.innerHeight - top - 8)); };
-    fit();
-    window.addEventListener('resize', fit);
-    return () => window.removeEventListener('resize', fit);
-  }, []);
+  const { focusFrom, rowRef } = useRowFocus(shown);
+  const { root, height } = useFitHeight();
 
   const focus = team ?? hoverMatch?.h;
   const focusPos = focus ? pos.get(focus) : undefined;
@@ -167,8 +57,8 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
   const levelText = table.complete ? 'level on criteria 1–8: decided by cards or club coefficient (not in the data)' : 'level on criteria 1–5 (6–8 apply once every match has a result)';
 
   const rowOf = (m: Match) => (
-    <Row key={m.id} m={m} pick={sim.picks[m.id]} locked={!!sim.locked[m.id]}
-      rowRef={(el) => { if (el) rows.current.set(m.id, el); else rows.current.delete(m.id); }}
+    <Row key={m.id} m={m} pick={sim.picks[m.id]} locked={!!sim.locked[m.id]} badge={potBadge} teamTip={(id) => `${model.team(id).name} · pot ${potOf(id)}`}
+      rowRef={rowRef(m.id)}
       onSet={(s, move) => { change((x) => setPick(x, m.id, s)); if (move) focusFrom(m.id, 1); }}
       onLock={() => change((x) => toggleLock(x, m.id))}
       onMove={(d) => focusFrom(m.id, d)} onHover={setHoverMatch} />
@@ -178,6 +68,7 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
       <span className="fk-wi-chip-pos">{p}</span>{model.team(at(p)).abbr}
     </span>
   );
+  const placeOf = useCallback((s: Sim, t: string) => uclTable({ matches: simMatches(lp, s), teams: model.snap.teams }, names).rows.findIndex((r) => r.team === t) + 1, [lp, model, names]);
   const teams = [...real.rows].sort((x, y) => names(x.team).localeCompare(names(y.team)));
 
   return (
@@ -190,20 +81,12 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
           <option value="">All teams</option>
           {teams.map((r) => <option key={r.team} value={r.team}>{model.team(r.team).name}</option>)}
         </select>
-        <span className="fk-wi-tools">
-          {FILLS.map(([k, text, tip]) => (
-            <button key={k} type="button" className="fk-btn" title={`${tip}${team ? ` (${model.team(team).short}'s matches only)` : ''}`} data-testid={`wi-fill-${k}`}
-              onClick={() => change((x) => fill(x, shown, k, potOf))}>{text}</button>
-          ))}
-          <button type="button" className="fk-btn" title={`Clear every unlocked match shown${team ? ` (${model.team(team).short}'s only)` : ''}`} data-testid="wi-clear" onClick={() => change((x) => clear(x, shown))}>Clear</button>
-          <button type="button" className="fk-btn" disabled={!hist.past.length} title="Undo (Ctrl+Z)" data-testid="wi-undo" onClick={() => setHist(undo)}>↶</button>
-          <button type="button" className="fk-btn" disabled={!hist.future.length} title="Redo (Ctrl+Y)" data-testid="wi-redo" onClick={() => setHist(redo)}>↷</button>
-        </span>
-        <span className="fk-muted fk-wi-help">click a match: 1-0 → 1-1 → 0-1 → empty · keys 1 X 2 (then next) · 0 clear · L lock · ↑↓</span>
+        <Tools shown={shown} team={team} rank={potOf} hist={hist} change={change} setHist={setHist}
+          favTip="the better pot wins 1-0 (UEFA coefficient order); same pot → home win" />
+        <span className="fk-muted fk-wi-help">{HELP}</span>
       </div>
-      <Scenarios store={{ current: sim, ...saved }} team={team} lp={lp}
-        onStore={(s) => setSaved({ saved: s.saved, active: s.active })}
-        onLoad={(name, s) => { change(() => s); setSaved((x) => ({ ...x, active: name })); }} />
+      <Scenarios store={store} team={team} placeOf={placeOf}
+        onStore={(s) => setMeta({ saved: s.saved, active: s.active })} onLoad={onLoad} />
       <div className="fk-wi-cols" ref={root} style={{ height }}>
         <section className="fk-wi-col fk-wi-list" aria-label="Matches left to play">
           <div className="fk-wi-pending" data-testid="wi-pending">

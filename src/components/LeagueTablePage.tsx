@@ -60,7 +60,7 @@ const zoneAt = (zones: LeagueZone[], pos: number) => zones.find((z) => pos >= z.
 const FATE_KIND: Record<Fate, ZoneKind | undefined> = { group: 'lib', prelim: 'libq', sula: 'sula', none: undefined };
 interface RowZone { kind: ZoneKind; open: boolean; tip: string }
 
-export default function LeagueTablePage({ league, today }: { league: LeagueSlug; today: string }) {
+export default function LeagueTablePage({ league, today, onWhatIf }: { league: LeagueSlug; today: string; onWhatIf?: () => void }) {
   const { model } = useFooty();
   const rules = LEAGUES[league];
   const table = useMemo(() => leagueTable(model.snap, league), [model, league]);
@@ -88,6 +88,7 @@ export default function LeagueTablePage({ league, today }: { league: LeagueSlug;
       <div className="fk-ucl-head">
         <h2>{comp.name}</h2>
         <span className="fk-muted">{table.complete ? 'final table' : `after ${played} rounds`}</span>
+        {onWhatIf && !table.complete && <button type="button" className="fk-btn" onClick={onWhatIf} title="Pick the results left to play and see the table change" data-testid="league-whatif">What-if</button>}
         <span className="fk-ucl-key">
           {legend.map((z) => <span key={z.kind} className={`fk-ucl-zone-key fk-lz-${z.kind}`}>{z.label}</span>)}
           {rules.zones.some((z) => z.maybe) && <span className="fk-ucl-zone-key fk-lz-maybe-key">hatched: only with some outcomes</span>}

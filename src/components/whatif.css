@@ -372,3 +372,8 @@
   border-radius: 14px;
   font: inherit;
 }
+
+/* a league's simulator: the matches left | the full table (no bracket) */
+.fk-wi-league .fk-wi-cols {
+  grid-template-columns: minmax(330px, 400px) minmax(420px, max-content);
+}

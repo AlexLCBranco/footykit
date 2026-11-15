@@ -11,6 +11,8 @@
   (v0.11.0), Libertadores / Sudamericana pages (v0.12.0) and the domestic cups (v0.13.0)
   built. Alex will send changes after using the app for a while (2026-11-15).
 - **Phase 5**: plan agreed 2026-11-15 (Decisions log); step 1 (simulator view, v0.14.0) and step 2 (saved scenarios, v0.15.0) built, waiting on Alex's look.
+  Leagues (Decisions log "after the UCL"): step 3 (all six leagues, v0.16.0) built, waiting on Alex's look; next v0.17.0
+  the Brasileirão places with the finals pickable. The CONMEBOL groups simulator waits for the 2027 groups.
 
 ## Decisions log
 - 2026-11-14: Menu = calendarkit's **packed bar** (Alex). Copy that one in Phase 2; the rail is not ported.
@@ -88,6 +90,18 @@
   - scenarios in this browser, localStorage `fk:whatif:v1` (the gauntlet backup saves every key); no share link;
   - two steps, Alex looks after each: v0.14.0 the view, click / keys, live table + bracket, Pending, team filter,
     bulk fill, lock / clear / re-roll, undo / redo; v0.15.0 saved named scenarios, switchable in one click.
+- 2026-11-15, Alex: Phase 5 after the UCL (league simulator):
+  - the Libertadores / Sudamericana groups simulator waits: every 2026 group match is played (0 of 192 left); it moves
+    to the Later list until the 2027 groups;
+  - two steps, Alex looks after each: v0.16.0 the simulator for all six leagues (What-if button on the Tables page,
+    `?view=whatif&league=…`, its own lazy chunk), zones live; v0.17.0 the Brasileirão's Libertadores / Sudamericana
+    places live (braPlaces), with the Sudamericana, Libertadores and Copa do Brasil finals pickable;
+  - "Favourites" = the team placed higher in today's real table wins 1-0;
+  - the matches left grouped by window (Weekend Fri–Mon / Midweek Tue–Thu, with dates), Pending on top, team filter;
+  - two columns: the matches left | the full table (P W D L goals GD Pts, ▲▼ against the real table, zones as on the
+    Tables page);
+  - same controls as the UCL one (click cycle, 1 X 2, typed scores, lock, clear, re-roll, undo / redo); saved scenarios
+    are per competition, all in `fk:whatif:v1` (step 1's stored shape still read, as the UCL's).
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---
@@ -259,3 +273,4 @@ For the UCL league phase first, then groups (Libertadores/Sul-Americana), then l
 - Probability simulation (Monte Carlo; needs a strength model)
 - Stakes chips beyond the UCL page; what's at stake per match, what a team needs, table position over time, schedule difficulty, competition rules explainer
 - UCL history section (past editions), like calendarkit's Cup history
+- Libertadores / Sudamericana groups what-if simulator, once the 2027 groups are drawn (every 2026 group match is played)

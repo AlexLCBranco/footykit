@@ -1,14 +1,16 @@
-// The what-if simulator's logic (PLAN.md Phase 5, Decisions log 2026-11-15): picked results for the league-phase
-// matches still to play, laid over the real ones so the table (uclTable) and the bracket are rebuilt from them.
-// Pure functions only; the view (WhatIfPage.tsx) holds the state.
+// The what-if simulator's logic (PLAN.md Phase 5, Decisions log 2026-11-15): picked results for the matches still to
+// play, laid over the real ones so the table (the UCL's uclTable, a league's rankTable) is rebuilt from them. Picks
+// are keyed by match id; each competition keeps its own picks and saved scenarios. Pure functions only; the views
+// (WhatIfPage.tsx, LeagueWhatIfPage.tsx) hold the state.
 //  - a click cycles home 1-0 → draw 1-1 → away 0-1 → empty; a typed score is any score;
 //  - a real result replaces a pick (a pick only ever fills a match without one);
-//  - bulk fills and re-roll leave locked matches alone; "favourites" = the better pot (UEFA's coefficient order),
-//    same pot → home win: the snapshot has no odds and footykit has no strength model.
+//  - bulk fills and re-roll leave locked matches alone; "favourites" = the better rank: the UCL's pot (UEFA's
+//    coefficient order), a league's place in today's real table; equal → home win. The snapshot has no odds and
+//    footykit has no strength model.
 
 import { isPlayed } from './model.ts';
 import type { Match } from './snapshot.ts';
-import type { Pot } from './ucl.ts';
+import { windowEnd, windowOf, type WindowKind } from './windows.ts';
 
 export interface Score { h: number; a: number }
 export interface Sim {
@@ -81,20 +83,23 @@ export function toggleLock(sim: Sim, id: string): Sim {
 
 export type Fill = 'home' | 'draw' | 'fav' | 'random';
 
-/** The favourite's win: the better (lower) pot; the same pot → the home team. */
-export function favourite(m: Match, pot: (team: string) => Pot | undefined): Score {
-  const ph = pot(m.h) ?? 5, pa = pot(m.a) ?? 5;
-  return pa < ph ? AWAY : HOME;
+/** A team's rank for "favourites", lower = stronger (a pot, a table place); unknown ranks last. */
+export type Rank = (team: string) => number | undefined;
+
+/** The favourite's win: the better (lower) rank; the same rank → the home team. */
+export function favourite(m: Match, rank: Rank): Score {
+  const rh = rank(m.h) ?? Infinity, ra = rank(m.a) ?? Infinity;
+  return ra < rh ? AWAY : HOME;
 }
 
 /** Fill every unlocked match of `ms` (re-roll = 'random': home / draw / away at 1/3 each, from `rnd` in [0, 1)). */
-export function fill(sim: Sim, ms: Match[], kind: Fill, pot: (team: string) => Pot | undefined, rnd: () => number = Math.random): Sim {
+export function fill(sim: Sim, ms: Match[], kind: Fill, rank: Rank, rnd: () => number = Math.random): Sim {
   const picks = { ...sim.picks };
   for (const m of ms) {
     if (sim.locked[m.id] || !open(m)) continue;
     if (kind === 'home') picks[m.id] = HOME;
     else if (kind === 'draw') picks[m.id] = DRAW;
-    else if (kind === 'fav') picks[m.id] = favourite(m, pot);
+    else if (kind === 'fav') picks[m.id] = favourite(m, rank);
     else { const r = rnd(); picks[m.id] = r < 1 / 3 ? HOME : r < 2 / 3 ? DRAW : AWAY; }
   }
   return { picks, locked: sim.locked };
@@ -134,12 +139,18 @@ export function matchdayOf(matches: Match[]): Map<string, number> {
   return out;
 }
 
-/** What is left to play on `today` (the viewer's day; `dayOf` gives a match's day in the same zone). */
-export function toPlay(matches: Match[], today: string, dayOf: (m: Match) => string): ToPlay {
-  const md = matchdayOf(matches);
+/** The open matches in kickoff order, split into pending (postponed, or of a day before `today` and still without a
+ * result; live ones aren't) and the rest. `dayOf` gives a match's day in the viewer's zone. */
+export function leftToPlay(matches: Match[], today: string, dayOf: (m: Match) => string): { pending: Match[]; rest: Match[] } {
   const left = matches.filter(open).sort((x, y) => x.t.localeCompare(y.t));
   const pending = left.filter((m) => m.st === 'ppd' || (m.st !== 'in' && dayOf(m) < today));
-  const rest = left.filter((m) => !pending.includes(m));
+  return { pending, rest: left.filter((m) => !pending.includes(m)) };
+}
+
+/** What is left to play on `today`, by league-phase matchday (the UCL). */
+export function toPlay(matches: Match[], today: string, dayOf: (m: Match) => string): ToPlay {
+  const md = matchdayOf(matches);
+  const { pending, rest } = leftToPlay(matches, today, dayOf);
   const matchdays: ToPlay['matchdays'] = [];
   for (const m of rest) {
     const n = md.get(m.id)!;
@@ -148,6 +159,22 @@ export function toPlay(matches: Match[], today: string, dayOf: (m: Match) => str
     else matchdays.push({ n, matches: [m] });
   }
   return { pending, matchdays };
+}
+
+export interface WindowGroup { kind: WindowKind; start: string; end: string; matches: Match[] }
+
+/** What is left to play on `today`, by window (a league: ESPN gives no round numbers): Weekend Fri–Mon, Midweek
+ * Tue–Thu, as on the calendars (src/data/windows.ts). */
+export function toPlayByWindow(matches: Match[], today: string, dayOf: (m: Match) => string): { pending: Match[]; windows: WindowGroup[] } {
+  const { pending, rest } = leftToPlay(matches, today, dayOf);
+  const windows: WindowGroup[] = [];
+  for (const m of rest) {
+    const w = windowOf(dayOf(m));
+    const g = windows.at(-1);
+    if (g && g.start === w.start) g.matches.push(m);
+    else windows.push({ kind: w.kind, start: w.start, end: windowEnd(w.start), matches: [m] });
+  }
+  return { pending, windows };
 }
 
 // ---- the bracket the table leads to ----
@@ -256,7 +283,13 @@ export const pruneStore = (store: Store, matches: Match[]): Store => {
 
 /** localStorage key (the gauntlet's backup saves every key, so scenarios are backed up with the rest). */
 export const WHATIF_KEY = 'fk:whatif:v1';
-interface Stored { v: 1; current: Sim; saved?: Saved[]; active?: string }
+/** The competition whose store sits at the top level of the key: the UCL's, which came first, so a key written
+ * before the other competitions existed still reads as the UCL's, and an older page still reads the UCL's. */
+export const TOP_COMP = 'uefa.champions';
+interface StoredOne { current: Sim; saved?: Saved[]; active?: string }
+interface Stored extends StoredOne { v: 1; comps?: Record<string, StoredOne> }
+/** Every competition's store, by competition slug. */
+export type Book = Record<string, Store>;
 
 const isScore = (x: unknown): x is Score => !!x && typeof x === 'object' && Number.isInteger((x as Score).h) && Number.isInteger((x as Score).a) && (x as Score).h >= 0 && (x as Score).a >= 0;
 
@@ -268,28 +301,54 @@ function readOne(x: unknown): Sim | undefined {
   return { picks, locked };
 }
 
-/** What is stored, or EMPTY_STORE when there is nothing or it doesn't read as the simulator's. Bad entries are dropped. */
-export function readStore(text: string | null): Store {
+function readStoreOne(v: StoredOne | null | undefined): Store | undefined {
+  const current = v && typeof v === 'object' ? readOne(v.current) : undefined;
+  if (!current) return undefined;
+  const saved: Saved[] = [];
+  for (const s of Array.isArray(v!.saved) ? v!.saved : []) {
+    const name = typeof s?.name === 'string' ? cleanName(s.name) : undefined;
+    const sim = readOne(s?.sim);
+    if (name && sim && !saved.some((x) => x.name.toLowerCase() === name.toLowerCase())) saved.push({ name, sim });
+  }
+  const active = saved.some((s) => s.name === v!.active) ? v!.active : undefined;
+  return { current, saved, ...(active ? { active } : {}) };
+}
+
+const isEmpty = (s: Store) => !Object.keys(s.current.picks).length && !s.saved.length;
+
+/** Every competition's store as kept (those with picks or saved scenarios). Bad entries are dropped. */
+export function readBook(text: string | null): Book {
   try {
     const v = JSON.parse(text ?? 'null') as Stored | null;
-    const current = v && v.v === 1 ? readOne(v.current) : undefined;
-    if (!current) return EMPTY_STORE;
-    const saved: Saved[] = [];
-    for (const s of Array.isArray(v!.saved) ? v!.saved : []) {
-      const name = typeof s?.name === 'string' ? cleanName(s.name) : undefined;
-      const sim = readOne(s?.sim);
-      if (name && sim && !saved.some((x) => x.name.toLowerCase() === name.toLowerCase())) saved.push({ name, sim });
+    if (!v || typeof v !== 'object' || v.v !== 1) return {};
+    const book: Book = {};
+    const top = readStoreOne(v);
+    if (top && !isEmpty(top)) book[TOP_COMP] = top;
+    if (v.comps && typeof v.comps === 'object') {
+      for (const [comp, one] of Object.entries(v.comps)) {
+        const s = comp === TOP_COMP ? undefined : readStoreOne(one);
+        if (s && !isEmpty(s)) book[comp] = s;
+      }
     }
-    const active = saved.some((s) => s.name === v!.active) ? v!.active : undefined;
-    return { current, saved, ...(active ? { active } : {}) };
+    return book;
   } catch {
-    return EMPTY_STORE;
+    return {};
   }
 }
 
-/** What to store: nothing (null) when there are no picks and no saved scenarios, so an untouched visit leaves no key. */
-export function writeStore(store: Store): string | null {
-  if (!Object.keys(store.current.picks).length && !store.saved.length) return null;
-  const v: Stored = { v: 1, current: store.current, ...(store.saved.length ? { saved: store.saved } : {}), ...(store.active ? { active: store.active } : {}) };
+const storedOne = (s: Store): StoredOne => ({ current: s.current, ...(s.saved.length ? { saved: s.saved } : {}), ...(s.active ? { active: s.active } : {}) });
+
+/** What to store: nothing (null) when no competition has picks or saved scenarios, so an untouched visit leaves no key. */
+export function writeBook(book: Book): string | null {
+  const comps = Object.entries(book).filter(([comp, s]) => comp !== TOP_COMP && !isEmpty(s));
+  const top = book[TOP_COMP] && !isEmpty(book[TOP_COMP]) ? book[TOP_COMP] : undefined;
+  if (!top && !comps.length) return null;
+  const v: Stored = { v: 1, ...storedOne(top ?? EMPTY_STORE), ...(comps.length ? { comps: Object.fromEntries(comps.map(([c, s]) => [c, storedOne(s)])) } : {}) };
   return JSON.stringify(v);
 }
+
+/** One competition's store (EMPTY_STORE when it has none). */
+export const readStore = (text: string | null, comp = TOP_COMP): Store => readBook(text)[comp] ?? EMPTY_STORE;
+
+/** The kept text with one competition's store replaced; the other competitions' stay as they are in `text`. */
+export const writeStore = (store: Store, comp = TOP_COMP, text: string | null = null): string | null => writeBook({ ...readBook(text), [comp]: store });
