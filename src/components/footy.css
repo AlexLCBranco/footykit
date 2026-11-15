@@ -557,7 +557,7 @@ button.fk-chip:hover {
 
 /* ---------- team list ---------- */
 .fk-teamlist {
-  max-width: 1100px;
+  max-width: 1280px;
 }
 .fk-tl-month h3 {
   font-size: 15px;
@@ -1525,4 +1525,43 @@ button.fk-chip:hover {
   padding: 6px;
   color: var(--fk-muted);
   font-size: 13px;
+}
+
+/* FK-13: Team List fixture windows. Each window (midweek Tue–Thu, weekend Fri–Mon) is one band behind its day lines,
+   by date: a soft tint and a thin left bar, a different colour for each kind so they alternate. Match rows keep their
+   card look on top. */
+.fk-root {
+  --fk-band-mid: rgb(150 130 255 / 0.07);
+  --fk-band-mid-bar: #8f80e8;
+  --fk-band-wkd: rgb(55 196 122 / 0.06);
+  --fk-band-wkd-bar: #2f9e64;
+}
+.fk-band {
+  position: relative;
+  padding: 3px 4px 0 8px;
+  margin-bottom: 3px;
+  border-radius: 8px;
+  background: var(--fk-band);
+}
+.fk-band::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--fk-band-bar);
+}
+.fk-band-mid {
+  --fk-band: var(--fk-band-mid);
+  --fk-band-bar: var(--fk-band-mid-bar);
+}
+.fk-band-wkd {
+  --fk-band: var(--fk-band-wkd);
+  --fk-band-bar: var(--fk-band-wkd-bar);
+}
+.fk-band > .fk-rest-row:last-child,
+.fk-band > .fk-tl-row:last-child {
+  margin-bottom: 3px;
 }

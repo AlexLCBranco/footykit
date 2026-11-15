@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-15
+- FK-13 — Midweek / weekend window bands in the team List view (v0.28.0) — In a club's List view each midweek (Tue–Thu) and weekend (Fri–Mon) window is one tinted band with a thin left bar, violet for midweek and green for weekend, so the windows alternate visibly.
 - FK-12 — Club picker must clearly accept typing (v0.27.0) — The club picker is a box you type into: it filters live ignoring case and accents ("gremio" finds Grêmio), ↑/↓ move, Enter picks, Esc closes.
 - FK-11 — Competition name spelled out in match rows (v0.26.0) — Day List and Team List rows show the competition's name after its logo, in a fixed-width column (long names end in "…", the tooltip has it whole).
 - FK-10 — match links search Google instead of opening ESPN (v0.25.0) — matchUrl(m, model) builds https://www.google.com/search?q= + "Home vs Away Mon D YYYY" (full tea…

@@ -5,15 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-13 — Midweek / weekend window bands in the team List view
-
-In the team List view (`TeamList.tsx`, one line per day incl. rest days), the user can't see the fixture windows. Use `windowOf()` from `src/data/windows.ts` (midweek Tue–Thu, weekend Fri–Mon) to tint the day lines:
-
-- Each window is one continuous band: a soft background tint over all its day lines (rest lines and match rows), with a different tint for midweek and weekend so they alternate visibly. Subtle: text, result colours and tags must stay readable. A thin left-edge colour bar per band is fine if a full tint is too loud.
-- Match rows inside a band keep their card look; the tint sits behind/around them so the band reads as unbroken.
-- Bands are by date, not by match, so a window with no match still shows (see FK-14).
-- Both tints must work in the dark theme (current) and stay readable in any captures/exports.
-
 ### FK-14 — Calendar's free-window marking + legend in the team List view
 
 The team Calendar (`TeamCalendar.tsx`) already tints free windows (`isFreeWindowDay`) and marks FIFA windows (`fifaWindowOn`), with a legend under it. The List view has none of that. Bring the same thing to the List view:

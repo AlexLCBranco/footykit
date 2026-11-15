@@ -54,3 +54,26 @@ test('FK-12: the club picker takes typing, accentless, and Enter picks the club'
   await expect(page).toHaveTitle(/^Sat, Nov 21/);
   expect(errors).toEqual([]);
 });
+
+test('FK-13: the team List shows each midweek / weekend window as one band, alternating', async ({ page }) => {
+  const errors = await open(page, '?view=list&team=6273');
+  const bands = page.getByTestId('window-band');
+  await expect(bands.first()).toBeVisible();
+  const info = await bands.evaluateAll((els) => els.map((b) => ({
+    kind: b.getAttribute('data-window'),
+    bg: getComputedStyle(b).backgroundColor,
+    days: [...b.querySelectorAll('.fk-tl-date')].map((d) => d.textContent!.slice(0, 3)),
+  })));
+  // with rest days on, every day of the month is a line, so the bands alternate kind and tint
+  for (let i = 1; i < info.length; i++) {
+    expect(info[i]!.kind).not.toBe(info[i - 1]!.kind);
+    expect(info[i]!.bg).not.toBe(info[i - 1]!.bg);
+  }
+  for (const b of info) {
+    expect(b.days.length).toBeGreaterThan(0);
+    for (const d of b.days) expect(b.kind === 'mid' ? ['Tue', 'Wed', 'Thu'] : ['Fri', 'Sat', 'Sun', 'Mon']).toContain(d);
+  }
+  // match rows sit inside the bands
+  expect(await page.locator('[data-testid="window-band"] [data-testid="team-row"]').count()).toBe(await page.getByTestId('team-row').count());
+  expect(errors).toEqual([]);
+});

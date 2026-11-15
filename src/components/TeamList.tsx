@@ -7,9 +7,23 @@ import { useMemo } from 'react';
 import { addMonths, daysBetween, dayLabel, monthLabel, monthOf, restDays, resultFor } from '../data/model';
 import { formAt, recordText } from '../data/form';
 import { withLive } from '../data/live';
+import { windowOf } from '../data/windows';
 import type { Match } from '../data/snapshot';
 import { CompMark, MatchLink, MatchTime, Scoreline, SeriesChip } from './Bits';
 import { useFooty } from './ctx';
+
+/** Day lines grouped by fixture window (midweek Tue–Thu, weekend Fri–Mon), in order: one band per window, by date
+ * (a window's rest lines are in its band too). */
+export function bandsOf<T>(items: T[], dayOf: (x: T) => string): { kind: 'mid' | 'wkd'; start: string; items: T[] }[] {
+  const out: { kind: 'mid' | 'wkd'; start: string; items: T[] }[] = [];
+  for (const x of items) {
+    const w = windowOf(dayOf(x));
+    const last = out[out.length - 1];
+    if (last && last.start === w.start) last.items.push(x);
+    else out.push({ kind: w.kind, start: w.start, items: [x] });
+  }
+  return out;
+}
 
 export function TeamList({ team, from, to, onEarlier, showRest = false }: { team: string; from: string; to: string; onEarlier: () => void; showRest?: boolean }) {
   const { model, live } = useFooty();
@@ -44,7 +58,9 @@ export function TeamList({ team, from, to, onEarlier, showRest = false }: { team
           <div key={mo} className="fk-tl-month">
             <h3>{monthLabel(mo)}</h3>
             {items.length === 0 && <p className="fk-empty">No matches.</p>}
-            {items.map((m) => {
+            {bandsOf(items, (x) => (typeof x === 'string' ? x : model.dayOf(x))).map((band) => (
+              <div key={band.start} className={`fk-band fk-band-${band.kind}`} data-testid="window-band" data-window={band.kind} data-start={band.start}>
+            {band.items.map((m) => {
               if (typeof m === 'string') {
                 const gap = gapOf(m);
                 return (
@@ -74,6 +90,8 @@ export function TeamList({ team, from, to, onEarlier, showRest = false }: { team
                 </div>
               );
             })}
+              </div>
+            ))}
           </div>
         );
       })}
