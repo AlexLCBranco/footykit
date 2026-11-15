@@ -6,7 +6,8 @@
 - **Phase 2**: built (v0.4.0, 2026-11-14), waiting on Alex — PROJECT.md "Current state" lists what is built.
 - **Phase 3**: built (v0.5.0, 2026-11-14), waiting on Alex — tags in three variants (Chips / Rail / Alerts); to
   confirmed: relegation zone (direct places only) and the rivalry list.
-- **Phase 4**: plan agreed 2026-11-15 (Decisions log); step 1 (UCL page) in progress.
+- **Phase 4**: plan agreed 2026-11-15 (Decisions log); step 1 (UCL page, v0.7.0) and step 2 (stakes chips, v0.8.0) built,
+  waiting on Alex's look.
 - Phase 5: not started.
 
 ## Decisions log

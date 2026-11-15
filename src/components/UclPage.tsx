@@ -7,11 +7,14 @@ import { UCL_KNOCKOUT_SOURCE, UCL_POTS, UCL_POTS_SOURCE, UCL_TIEBREAKERS, UCL_RE
 import { dayLabel, kickoffTime, shortDay } from '../data/model';
 import { matchUrl } from '../data/snapshot';
 import { positionPath, remaining, uclTable, zoneOf, type UclRow, type UclSlot } from '../data/ucl';
+import { stakeChips } from '../data/uclStakes';
 import { TeamLink } from './Bits';
 import { useFooty } from './ctx';
 import './ucl.css';
 
 const RESULT = { W: 'Won', D: 'Drew', L: 'Lost' } as const;
+/** Stakes chips from the eve of matchday 7 (Alex, 2026-11-15): earlier the sure bounds rarely settle anything. */
+const STAKES_FROM_MATCHDAY = 6;
 
 function Square({ s, team, today }: { s: UclSlot; team: string; today: string }) {
   const { model, timeZone } = useFooty();
@@ -55,6 +58,8 @@ export default function UclPage({ today }: { today: string }) {
   const [hover, setHover] = useState<number | null>(null);
   const related = hover ? new Set(positionPath(hover).related) : undefined;
   const ranks = new Map(table.rows.map((r) => [r.team, r.rank]));
+  const showStakes = !table.complete && table.matchday >= STAKES_FROM_MATCHDAY;
+  const stakes = useMemo(() => new Map(showStakes ? table.rows.map((r) => { const next = remaining(r)[0]; return [r.team, stakeChips(table, r.team, next ? model.team(next.opp).name : undefined)]; }) : []), [table, showStakes, model]);
   const levelText = table.complete ? 'level on criteria 1–8: decided by cards or club coefficient (not in the data)' : 'level on criteria 1–5 (the rest apply once the league phase is over)';
   return (
     <div className="fk-ucl" data-testid="ucl-page">
@@ -70,6 +75,7 @@ export default function UclPage({ today }: { today: string }) {
           <tr>
             <th>#</th><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
             <th className="fk-tl">Last 5</th><th className="fk-tl" title="The 8 league-phase matches in date order; the small number is the opponent's pot">Matches</th><th className="fk-tl" title="Pots of the opponents still to play">Left</th>
+            {showStakes && <th className="fk-tl" title="What is settled, and what the next match can settle (points only: a claim holds whatever else happens)">Stakes</th>}
           </tr>
         </thead>
         <tbody>
@@ -93,6 +99,7 @@ export default function UclPage({ today }: { today: string }) {
                 <td className="fk-tl"><span className="fk-form fk-form-plain" title="Last 5 league-phase results">{Array.from({ length: 5 }, (_, k) => { const x = r.last5[k - (5 - r.last5.length)]; return <span key={k} className={`fk-form-sq${x ? ` fk-form-${x}` : ''}`} />; })}</span></td>
                 <td className="fk-tl"><span className="fk-ucl-squares">{r.slots.map((s) => <Square key={s.m.id} s={s} team={r.team} today={today} />)}</span></td>
                 <td className="fk-tl"><Left row={r} ranks={ranks} /></td>
+                {showStakes && <td className="fk-tl fk-ucl-stakes">{stakes.get(r.team)!.map((c) => <span key={c.text} className={`fk-stake fk-stake-${c.kind}`} title={c.tip} data-testid="ucl-stake">{c.text}</span>)}</td>}
               </tr>
             );
           })}

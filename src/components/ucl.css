@@ -191,3 +191,33 @@
 .fk-ucl-pot-line .fk-pot {
   margin-right: 4px;
 }
+
+/* stakes chips: settled (in / out) are quiet, what the next match settles (need / risk) stands out */
+.fk-ucl-stakes {
+  white-space: nowrap;
+}
+.fk-stake {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 1px 6px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: help;
+}
+.fk-stake-in {
+  color: var(--fk-win);
+  box-shadow: inset 0 0 0 1px rgb(55 196 122 / 0.5);
+}
+.fk-stake-out {
+  color: var(--fk-muted);
+  box-shadow: inset 0 0 0 1px var(--fk-border);
+}
+.fk-stake-need {
+  background: rgb(55 196 122 / 0.22);
+  color: #bff0d3;
+}
+.fk-stake-risk {
+  background: rgb(229 83 75 / 0.22);
+  color: #ffc9c5;
+}

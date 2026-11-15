@@ -32,8 +32,9 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - **Phase 4 (standings & competition pages), step 1 built** — v0.7.0: the Champions League page (bar: All clubs →
   UCL; `?view=ucl`, lazy chunk `UclPage.tsx`): the league-phase table rebuilt from results (`src/data/ucl.ts`; equals
   ESPN's table), 8 squares per row with the opponent's pot, zones, hover a place → its path and the places it meets,
-  remaining opponents' pots, the rules with sources (`config/ucl.ts`, confirmed by Alex). Next: stakes chips (v0.8.0),
-  then play-off + bracket (v0.9.0).
+  remaining opponents' pots, the rules with sources (`config/ucl.ts`, confirmed by Alex). v0.8.0: stakes chips from the
+  eve of matchday 7 (`src/data/uclStakes.ts`: sure points bounds, every claim checked against random completions in
+  tests/ucl-stakes.test.ts). Next: play-off + bracket (v0.9.0).
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
