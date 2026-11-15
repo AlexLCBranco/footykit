@@ -10,6 +10,7 @@ import { matchUrl, type Match } from '../data/snapshot';
 import { withLive } from '../data/live';
 import { CompMark, FormSquares, MatchTime, SeriesChip, TeamLink, tieNote } from './Bits';
 import { useFooty } from './ctx';
+import { DerbyTag, TeamTags } from './Tags';
 import type { Span } from './page';
 
 export function calendarDays(span: Span, week: string, month: string): { days: string[]; month?: string } {
@@ -37,7 +38,9 @@ function CellMatch({ m, team, day }: { m: Match; team: string; day: string }) {
         <CompMark slug={m.c} round={m.r} />
         <span className="fk-cell-ha" title={neutral ? `Neutral venue (${neutral.why})` : home ? 'Home' : 'Away'}>{neutral ? 'v' : home ? 'vs' : '@'}</span>
         <TeamLink id={opp} day={day} />
+        <DerbyTag m={m} />
       </div>
+      <div className="fk-cell-tags"><TeamTags m={m} side={home ? 'h' : 'a'} /></div>
       <div className="fk-cell-bottom">
         {isPlayed(m) || m.st === 'in' ? (
           <a className="fk-cell-score" href={matchUrl(m.id)} target="_blank" rel="noopener noreferrer" title={`${model.team(m.a).name} ${m.as}-${m.hs} ${model.team(m.h).name}${tie ? ` · ${tie}` : ''} — open on ESPN`}>

@@ -16,6 +16,7 @@ import { createSelectionStore, useMarqueeSelection } from './selection';
 import { SelectionBar, SelectionStyle } from './SelectionBar';
 import { TeamCalendar } from './TeamCalendar';
 import { TeamList } from './TeamList';
+import { saveTagVariant, savedTagVariant, TAG_VARIANTS, type TagVariant } from './Tags';
 import { TopBar, type History } from './TopBar';
 import { useLive } from './useLive';
 import type { Model } from '../data/model';
@@ -54,6 +55,9 @@ function Info({ model, timeZone }: { model: Model; timeZone?: string }) {
           <span><span className="fk-chip">2/3</span> meeting k of n this season — click for the season series.</span>
           <span><span className="fk-chip fk-fifa-chip">FIFA</span> inside a FIFA window (Brasileirão matches flagged).</span>
           <span>Odds: DraftKings via ESPN, decimal, Slate only.</span>
+          <span className="fk-pop-head">Tags (hover them for details)</span>
+          <span><span className="fk-tag fk-tag-cup">◂UCL</span> <span className="fk-tag fk-tag-free">free▸</span> previous / next window (midweek Tue–Thu, weekend Fri–Mon): free, league or cup / continental; a second leg shows the first-leg score.</span>
+          <span><span className="fk-tag fk-tag-streak">5th</span> straight window with a match · <span className="fk-tag fk-tag-rest">REST</span> had the previous window free while the opponent played · <span className="fk-tag fk-tag-alive">3C</span> competitions still alive · <span className="fk-tag fk-tag-z4">Z4R</span> relegation race · <span className="fk-chip fk-derby">DERBY</span> rivalry.</span>
         </div>
       )}
     </span>
@@ -66,6 +70,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const [series, setSeries] = useState<SeriesOpen | null>(null);
   const [standings, setStandings] = useState<{ team?: string } | null>(null);
   const [showNotes, setShowNotes] = useState(false);
+  const [tags, setTags] = useState<TagVariant>(savedTagVariant);
   const notes = useMemo(() => localNotesStore(), []);
   // Marquee selection (mouse): only to copy several matches as one image. A new view or day starts with none.
   const [selection] = useState(createSelectionStore);
@@ -81,11 +86,11 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   };
 
   const ctx: FootyCtx = useMemo(() => ({
-    model, now, timeZone, live,
+    model, now, timeZone, live, tags,
     onTeam: (id, day) => onPage(teamPage(page, id, day, 'cal')),
     onSeries: (a, b, el) => { const r = el.getBoundingClientRect(); setSeries({ a, b, x: r.left, y: r.bottom }); },
     onStandings: (team) => setStandings({ team }),
-  }), [model, now, timeZone, live, page, onPage]);
+  }), [model, now, timeZone, live, tags, page, onPage]);
 
   const closeSeries = useCallback(() => setSeries(null), []);
   let view: ReactNode;
@@ -101,6 +106,12 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
           onStandings={() => setStandings(standings ? null : { team: page.team })}
           info={<Info model={model} timeZone={timeZone} />}
           end={<>
+            <label className="fk-check fk-tag-pick" title="Context tags next to each team (Phase 3 variants, to compare): hover a team's tags for the details">
+              Tags
+              <select value={tags} onChange={(e) => { const v = e.target.value as TagVariant; setTags(v); saveTagVariant(v); }} data-testid="tag-variant" aria-label="Tag display">
+                {TAG_VARIANTS.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
+              </select>
+            </label>
             {page.view === 'slate' && (
               <label className="fk-check" title="Note boxes under each card (PRE / LIVE / POST)"><input type="checkbox" checked={!showNotes} onChange={(e) => setShowNotes(!e.target.checked)} data-testid="hide-notes" /> Hide notes</label>
             )}

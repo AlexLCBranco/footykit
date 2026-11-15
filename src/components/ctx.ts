@@ -4,6 +4,7 @@
 import { createContext, useContext } from 'react';
 import type { LiveLayer } from '../data/live';
 import type { Model } from '../data/model';
+import type { TagVariant } from './Tags';
 
 export interface FootyCtx {
   model: Model;
@@ -19,6 +20,8 @@ export interface FootyCtx {
   onSeries: (a: string, b: string, anchor: HTMLElement) => void;
   /** open the quick standings popup on a team's league */
   onStandings?: (teamId: string) => void;
+  /** how the context tags are drawn; none (a host like the gauntlet's Slate part) = no tags */
+  tags?: TagVariant;
 }
 
 export const Ctx = createContext<FootyCtx | null>(null);

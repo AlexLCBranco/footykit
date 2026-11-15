@@ -10,6 +10,7 @@ import { neutralVenue } from '../data/neutral';
 import { seasonSeries } from '../data/series';
 import { matchUrl, type Match } from '../data/snapshot';
 import { useFooty } from './ctx';
+import { DerbyTag, TeamTags } from './Tags';
 
 /** A team's logo on a light disc (dark logos stay readable on the dark theme); a plain disc when there is no file. */
 export function TeamLogo({ id, size = 20 }: { id: string; size?: number }) {
@@ -115,7 +116,7 @@ const openMatch = (m: Match) => (e: MouseEvent) => {
 };
 
 /** AWAY 2 @ 1 HOME, the scores against the "@" (none before kickoff: no empty space around the "@"). */
-export function Scoreline({ m, day, label = 'abbr', form = true, logoSize = 20 }: { m: Match; day: string; label?: 'abbr' | 'short'; form?: boolean; logoSize?: number }) {
+export function Scoreline({ m, day, label = 'abbr', form = true, logoSize = 20, tags = true }: { m: Match; day: string; label?: 'abbr' | 'short'; form?: boolean; logoSize?: number; tags?: boolean }) {
   const { model } = useFooty();
   const scored = m.hs !== undefined && m.as !== undefined && (isPlayed(m) || m.st === 'in' || m.st === 'abd' || m.st === 'susp');
   const neutral = neutralVenue(m);
@@ -126,6 +127,7 @@ export function Scoreline({ m, day, label = 'abbr', form = true, logoSize = 20 }
   return (
     <span className={`fk-line${neutral ? ' fk-neutral' : ''}${m.st === 'in' ? ' fk-line-live' : ''}`} data-match={m.id}>
       <span className="fk-side fk-away">
+        {tags && <TeamTags m={m} side="a" align="end" />}
         {fa && <FormSquares line={fa} teamId={m.a} />}
         <TeamLink id={m.a} day={day} label={label} logoSize={logoSize} />
       </span>
@@ -137,8 +139,10 @@ export function Scoreline({ m, day, label = 'abbr', form = true, logoSize = 20 }
       <span className="fk-side fk-home">
         <TeamLink id={m.h} day={day} label={label} logo="after" logoSize={logoSize} />
         {fh && <FormSquares line={fh} teamId={m.h} />}
+        {tags && <TeamTags m={m} side="h" />}
       </span>
       {tie && <span className="fk-tie" title={tie}>{tie}</span>}
+      {tags && <DerbyTag m={m} />}
       {neutral && <span className="fk-neutral-tag" title={`Neutral venue: ${venue || 'venue unknown'} (${neutral.why})`}>N</span>}
     </span>
   );

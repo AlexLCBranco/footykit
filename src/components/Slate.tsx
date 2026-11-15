@@ -11,6 +11,7 @@ import type { Match } from '../data/snapshot';
 import { NoteBox } from '../slate/NoteBox';
 import type { SlateNotes } from '../slate/notes';
 import { CompMark, FormSquares, MatchLink, MatchTime, SeriesChip, TeamLink, tieNote } from './Bits';
+import { DerbyTag, TeamTags } from './Tags';
 import { useFooty } from './ctx';
 import { dayMatches } from './DayList';
 import { CopyButton } from './Copy';
@@ -25,7 +26,10 @@ function SideRow({ m, side, day, odds }: { m: Match; side: 'a' | 'h'; day: strin
   return (
     <div className={`fk-card-row${win ? ' fk-win' : ''}`}>
       <span className="fk-card-at">{side === 'h' ? (neutralVenue(m) ? 'v' : '@') : ''}</span>
-      <TeamLink id={id} day={day} label="short" logoSize={26} className="fk-card-team" />
+      <span className="fk-card-teamcell">
+        <TeamLink id={id} day={day} label="short" logoSize={26} className="fk-card-team" />
+        <TeamTags m={m} side={side} />
+      </span>
       {model.followed.has(id) ? <FormSquares line={formAt(model, id, m)} teamId={id} /> : <span className="fk-form-gap" />}
       <span className="fk-card-score">{shown ? score : ''}</span>
       <span className="fk-card-odds" title={odds ? `${model.team(id).name} to win (decimal)` : undefined}>{odds?.toFixed(2) ?? ''}</span>
@@ -47,6 +51,7 @@ export function SlateCard({ m, day, notes }: { m: Match; day: string; notes?: Sl
             <CompMark slug={m.c} round={m.r} />
             <MatchLink m={m} />
             <SeriesChip m={m} />
+            <DerbyTag m={m} />
             {neutral && <span className="fk-neutral-tag" title={`Neutral venue (${neutral.why})`}>N</span>}
           </span>
           {o && <span className="fk-card-draw" title={`Draw (decimal${o.p ? `, ${o.p}` : ''})`}>X {o.d.toFixed(2)}</span>}

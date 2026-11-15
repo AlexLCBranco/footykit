@@ -3,13 +3,11 @@
 // is decided from the aggregate and shootout scores, with ESPN's own note as the last resort.
 
 import { aggregateOf, scoreOf, shootoutOf, type EspnEvent } from './espn.ts';
+import { isPhaseRound } from './rounds.ts';
+
+export { isPhaseRound };
 
 export type TieResult = 'won' | 'lost' | 'unknown';
-
-/** Group stage, league phase and other round-robin rounds: no tie is decided in one of these matches. */
-export function isPhaseRound(roundName: string | undefined): boolean {
-  return /group|league|phase|stage$/i.test(roundName ?? '') && !/knockout|play-?off/i.test(roundName ?? '');
-}
 
 export const isCompleted = (e: EspnEvent) => e.competitions[0]?.status?.type?.completed === true;
 const legOf = (e: EspnEvent) => e.competitions[0]?.leg?.value;

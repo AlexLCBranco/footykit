@@ -25,6 +25,10 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   selection copy (`selection.ts`, `SelectionBar.tsx`), the Slate as a self-contained part for the gauntlet
   (`src/slate/index.ts`, docs/slate-in-gauntlet.md). Slate notes (`fk:notes:v1`) are already in the gauntlet's
   backup (it saves every localStorage key, on any change). **Phase 2 is built; waiting on Alex.**
+- **Phase 3 (windows & context tags) built** — v0.5.0: tags next to each team in every match (previous / next window
+  with first-leg scores, window streak, window advantage "REST", competitions alive 1C/2C/3C, Z4R, derby flag), a
+  hover popup with the details, three display variants (Chips / Rail / Alerts, or Off) on the bar's "Tags" switch
+  (`fk:tags:v1`, written only when picked). Relegation places and the rivalry list are drafts for Alex to confirm.
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
@@ -34,13 +38,17 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 ## Where things live
 - `config/season.ts` — followed-club rules, competitions per league, ESPN season years.
 - `config/competitions.ts` — competitions shown and their codes; friendlies dropped.
-- `config/neutral.ts`, `config/fifa-windows.ts` — researched facts with sources (for Alex to confirm).
+- `config/neutral.ts`, `config/fifa-windows.ts`, `config/relegation.ts` (zone sizes, Z4R rule),
+  `config/rivalries.ts` (derby list; `npm run check-rivalries` checks its sources answer) — researched facts with
+  sources (for Alex to confirm).
 - `config/venues.json` — every venue's place and elevation from Wikidata, each with its item (`npm run make-venues`:
   batched query-service lookups, keeps known venues; `config/venue-overrides.json` names the item for venues ESPN
   spells differently). Basemaps: `src/map/basemaps.ts` from `npm run make-basemaps` (Natural Earth via world-atlas).
 - `src/data/espn.ts` — raw ESPN fields and ESPN → Match (`slimMatch`); only the job, `src/data/day.ts` and `ko.ts`
   import it (tests/build.test.ts checks). `src/data/snapshot.ts` — the snapshot shape the app reads.
-- `src/data/` — model (days in the viewer's zone), form, series, windows, neutral, live (day-layer merge).
+- `src/data/` — model (days in the viewer's zone), form, series, windows, neutral, live (day-layer merge); Phase 3
+  tags: `tags.ts` (one match's tags), `windows.ts` (windows around a match, streak, advantage), `alive.ts`,
+  `z4r.ts`, `rivalry.ts`; drawn by `src/components/Tags.tsx`.
 - `src/components/` — `Footy.tsx` (the widget: bar + view), `TopBar.tsx` (packed bar), one file per view (`DayList`,
   `Slate`, `TeamCalendar`, `TeamList`), `Bits.tsx` (shared parts), `Popups.tsx`, `Copy.tsx`, `page.ts` (page state,
   title, address). `src/App.tsx` — URL, history, title, today. `src/slate/` — notes store and note box.
@@ -72,6 +80,10 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   non-overlapping labels; hover or pin a row = both teams' last → this (solid) → next (dashed), straight-line km, the
   view fitted, a panel per team (no time-zone change: within a continent it says little). Venues at 2,000 m or more
   are marked (`ALTITUDE_MARK_M`, for Alex to confirm). Shown when the window leaves ≥ 420 px beside the list.
+- Context tags (Phase 3) describe the match going in: standings from results before kickoff, competitions alive from
+  the snapshot's fixtures (a cup counts once its tie is fixtured), windows of teams that aren't followed are "unknown",
+  never "free". Z4R uses points only (a team level with the zone line is tagged; no tiebreaker invented); the zone is
+  the direct places plus a play-off place. Streak tag from 3 windows in a row.
 - Copies are transparent; a Slate copy lays its cards out by the largest-cards rule (page 1920 × 911).
 
 ## Testing policy

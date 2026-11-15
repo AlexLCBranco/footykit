@@ -147,3 +147,37 @@ test('marquee selection: drag over two rows, copy only them; a click clears it',
   await expect(bar).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+// Phase 3 context tags: one smoke test per display variant (in flux), and the hover popup.
+for (const variant of ['chips', 'rail', 'alerts'] as const) {
+  test(`context tags, ${variant} variant: drawn next to the teams, kept after a reload`, async ({ page }) => {
+    const errors = await open(page);
+    await page.getByTestId('tag-variant').selectOption(variant);
+    const tags = page.locator(`[data-testid="team-tags"][data-variant="${variant}"]`);
+    await expect(tags.first()).toBeVisible();
+    // Sat Nov 21: the Seville derby is flagged; Sunderland (in the drop zone) carries Z4R in chips and alerts
+    await expect(page.getByTestId('derby')).toHaveCount(1);
+    if (variant !== 'rail') await expect(page.getByTestId('match-row').filter({ hasText: 'SUN' }).locator('[data-tag="z4"]')).toHaveCount(1);
+    await page.reload();
+    await expect(page.locator(`[data-testid="team-tags"][data-variant="${variant}"]`).first()).toBeVisible();
+    await page.getByTestId('tag-variant').selectOption('off');
+    await expect(page.getByTestId('team-tags')).toHaveCount(0);
+    await page.evaluate(() => localStorage.removeItem('fk:tags:v1'));
+    expect(errors).toEqual([]);
+  });
+}
+
+test('context tags: hovering a team\'s tags opens the detailed popup; the Slate shows tags too', async ({ page }) => {
+  const errors = await open(page);
+  const row = page.getByTestId('match-row').filter({ hasText: 'SUN' });
+  await row.getByTestId('team-tags').first().hover();
+  const pop = page.getByTestId('tag-popup');
+  await expect(pop).toContainText('Previous window');
+  await expect(pop).toContainText('Competitions alive');
+  await expect(pop).toContainText('Relegation race');
+  await page.mouse.move(5, 5);
+  await expect(pop).toHaveCount(0);
+  await page.getByTestId('views').getByText('Slate').click();
+  await expect(page.getByTestId('slate-card').first().getByTestId('team-tags').first()).toBeVisible();
+  expect(errors).toEqual([]);
+});
