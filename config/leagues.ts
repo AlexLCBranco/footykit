@@ -1,7 +1,7 @@
 // League tables (PLAN.md Phase 4): places and ties on points for the six leagues, 2026-27 (Brasileirão 2026).
-// Researched 2026-11-15; confirmed by Alex the same day for the European leagues. The Brasileirão's base places are
-// shown as the sources agree on them; the places that pass down the table (cup finalists and continental champions
-// already qualified) wait for CBF's own rules (Alex: "base now, engine later") and are listed as possible extras.
+// Researched 2026-11-15; confirmed by Alex the same day. The Brasileirão follows CBF's own rules (REC 2026, Art. 6–8,
+// 15); its Libertadores places, which pass down the table when a club qualifies twice, are worked out by
+// src/data/braPlaces.ts (Alex: the literal reading of Art. 6, a passed place keeps its stage).
 // UEFA places for 2027-28: associations 1–4 (England, Italy, Spain, Germany) 4 league-phase places, association 5
 // (France) 3 + its 4th in the third qualifying round; two European Performance Spots (one more UCL place for the two
 // associations with the best 2026-27 season) — https://en.wikipedia.org/wiki/2027%E2%80%9328_UEFA_Champions_League
@@ -120,30 +120,26 @@ export const LEAGUES: Record<LeagueSlug, LeagueRules> = {
     zones: [
       { from: 1, to: 4, kind: 'lib', label: 'Libertadores group stage' },
       { from: 5, to: 5, kind: 'libq', label: 'Libertadores preliminary stage' },
-      { from: 6, to: 11, kind: 'sula', label: 'Sudamericana (“the next six”)', maybe: 'a passed-down Libertadores place can take the top of these' },
+      { from: 6, to: 11, kind: 'sula', label: 'Sudamericana' },
       { from: 17, to: 20, kind: 'rel', label: 'Relegation' },
     ],
-    tiebreak: ['wins', 'gd', 'gf', 'h2hPts'],
+    tiebreak: ['wins', 'gd', 'gf', 'h2hPts', 'h2hGd'],
     h2hTwoOnly: true,
     h2hWhenPlayed: false,
-    tiebreakText: ['Points', 'Wins', 'Goal difference', 'Goals scored', 'Head-to-head (two teams only)', 'Fewest red cards', 'Fewest yellow cards', 'Drawing of lots'],
+    tiebreakText: ['Points', 'Wins', 'Goal difference', 'Goals scored', 'Head-to-head: points over both meetings, then their goal difference (two teams only)', 'Fewest red cards', 'Fewest yellow cards', 'Drawing of lots'],
     notes: [
-      'The Copa do Brasil champions get a Libertadores group-stage place, the runners-up a preliminary-stage place.',
-      'A place whose holder already qualified (or is relegated) passes to the best-placed Série A team not yet qualified; a Brazilian Libertadores or Sudamericana champion already qualified opens one more (up to 9 in all). Which stage a passed-down place enters: sources disagree, CBF\'s rules not found yet.',
-      'The Sudamericana count ("the next six") is from English Wikipedia only.',
+      'Copa do Brasil champions: Libertadores group stage; runners-up: preliminary stage (Art. 6 §1).',
+      'A club qualified twice keeps the CONMEBOL place (Libertadores / Sudamericana champions) or the better national one; the freed place passes, with its stage, to the best-placed club not yet qualified (Art. 6 §2–4). If the cup champions qualified elsewhere, the runners-up move up to the group stage and their preliminary place passes down (§5).',
+      'Sudamericana: the 6 best-placed clubs not in the Libertadores (Art. 7).',
+      'A relegated Copa do Brasil finalist passes its place down (Wikipedia, pt; not in the REC).',
+      'Places shown as things stand: the table now, the finals as played; hatched where a final still to play changes them.',
     ],
-    source: 'https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol_de_2026_-_S%C3%A9rie_A',
+    source: 'https://stcbfsiteprdimgbrs.blob.core.windows.net/img-site/cdn/REC_Brasileiro_SA_rie_A_2026_v15_12_2025_final_02692c1077.pdf',
   },
 };
 
-/** The Brasileirão's pending finals that can open more Libertadores places (as of 2026-11-15; the page reads the
- * results from the snapshot). Sources: the Série A page above and bahia.ba's explainer. */
-export const BRA_EXTRA_SOURCES = [
-  'https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol_de_2026_-_S%C3%A9rie_A',
-  'https://bahia.ba/esporte/brasileirao-pode-abrir-ate-nove-vagas-para-a-libertadores-de-2027/',
-];
-export const BRA_EXTRA_FINALS = [
-  { comp: 'bra.copa_do_brazil', what: 'Copa do Brasil final: a finalist already qualified through the Série A passes its place down' },
-  { comp: 'conmebol.libertadores', what: 'Libertadores final: a Brazilian champion already qualified opens one more place' },
-  { comp: 'conmebol.sudamericana', what: 'Sudamericana final: a Brazilian champion already qualified opens one more place' },
-];
+/** The finals that decide Brasileirão places besides the table (REC Art. 6); their results come from the snapshot. */
+export const BRA_CUP = 'bra.copa_do_brazil';
+export const BRA_CONTINENTAL = { lib: 'conmebol.libertadores', sula: 'conmebol.sudamericana' } as const;
+/** a relegated Copa do Brasil finalist's place passes down: pt.wikipedia's note, not in the REC */
+export const BRA_RELEGATED_CUP_SOURCE = 'https://pt.wikipedia.org/wiki/Campeonato_Brasileiro_de_Futebol_de_2026_-_S%C3%A9rie_A';

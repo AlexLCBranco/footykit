@@ -210,6 +210,8 @@ test('league tables: the picker switches leagues; rows, squares, zones, Brasilei
   await expect(page.getByTestId('league-page')).toHaveAttribute('data-league', 'bra.1');
   await expect(page.getByTestId('league-row').first()).toHaveAttribute('data-team', 'FLA');
   await expect(page.getByTestId('bra-extras')).toContainText('Copa do Brasil final');
+  // 7th (Atlético-MG): a place that depends on the finals, hatched
+  await expect(page.getByTestId('league-row').nth(6)).toHaveClass(/fk-lz-maybe/);
   await page.getByTestId('league-picker').selectOption('ger.1');
   await expect(page.getByTestId('league-row')).toHaveCount(18);
   expect(errors).toEqual([]);

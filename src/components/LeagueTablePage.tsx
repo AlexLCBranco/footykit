@@ -3,10 +3,10 @@
 // only some outcomes give the place), the rules and sources under it. The Brasileirão also lists the finals that can
 // still open Libertadores places. Its own chunk, like the UCL page.
 
-import { useMemo, type ReactNode } from 'react';
-import { BRA_EXTRA_FINALS, BRA_EXTRA_SOURCES, LEAGUES, type LeagueZone } from '../../config/leagues';
+import { useMemo } from 'react';
+import { BRA_CONTINENTAL, BRA_CUP, LEAGUES, type LeagueZone, type ZoneKind } from '../../config/leagues';
 import type { LeagueSlug } from '../../config/season';
-import { tieWinner } from '../data/alive';
+import { finalOf, rowPlaces, scenarios, type Fate } from '../data/braPlaces';
 import { leagueTable } from '../data/leagueTable';
 import { dayLabel, isPlayed, kickoffTime, shortDay } from '../data/model';
 import { matchUrl, type Match } from '../data/snapshot';
@@ -36,28 +36,29 @@ function Square({ m, team, today }: { m: Match; team: string; today: string }) {
   );
 }
 
-/** The Brasileirão's pending finals and what each can open (results read from the snapshot). */
-function BraExtras() {
+type Finals = Parameters<typeof scenarios>[2];
+
+/** The finals that still decide Brasileirão places (REC Art. 6), as the snapshot has them. */
+function BraFinals({ finals }: { finals: Finals }) {
   const { model } = useFooty();
+  const nm = (id: string) => model.team(id).short.trim();
+  const rows: [string, Finals['cup']][] = [['Copa do Brasil', finals.cup], ['Libertadores', finals.lib], ['Sudamericana', finals.sula]];
   return (
     <section className="fk-lt-extra" data-testid="bra-extras">
-      <h3>Possible extra Libertadores places</h3>
+      <h3>Finals that decide places</h3>
       <ul>
-        {BRA_EXTRA_FINALS.map((f) => {
-          const legs = model.snap.matches.filter((m) => m.c === f.comp && /^final$/i.test((m.r ?? '').trim()));
-          const last = legs[legs.length - 1];
-          const winner = last && tieWinner(last);
-          const nm = (id: string) => model.team(id).short.trim();
-          const who = last ? `${nm(last.h)} v ${nm(last.a)}, ${shortDay(model.dayOf(last))}${winner ? ` — won by ${nm(winner)}` : ''}` : 'final not in the data';
-          return <li key={f.comp}><b>{f.what.split(':')[0]}</b> ({who}):{f.what.split(':').slice(1).join(':')}.</li>;
-        })}
+        {rows.map(([n, f]) => (
+          <li key={n}><b>{n} final</b>: {f ? `${nm(f.finalists[0])} v ${nm(f.finalists[1])}, ${f.legs.map((m) => shortDay(model.dayOf(m))).join(' / ')}${f.winner ? ` — won by ${nm(f.winner)}` : ''}` : 'not in the data (its places are left out)'}</li>
+        ))}
       </ul>
-      <p className="fk-ucl-src">Sources: {BRA_EXTRA_SOURCES.map((s, i) => <a key={s} href={s} target="_blank" rel="noopener noreferrer">{i ? 'bahia.ba' : 'Wikipedia (pt)'}</a>).reduce<ReactNode[]>((a, x, i) => (i ? [...a, ' · ', x] : [x]), [])}</p>
+      <p>Hover a hatched place to see which results give it. Places are worked out as things stand: the table now and the finals played; a final still to play is worked out both ways.</p>
     </section>
   );
 }
 
 const zoneAt = (zones: LeagueZone[], pos: number) => zones.find((z) => pos >= z.from && pos <= z.to);
+const FATE_KIND: Record<Fate, ZoneKind | undefined> = { group: 'lib', prelim: 'libq', sula: 'sula', none: undefined };
+interface RowZone { kind: ZoneKind; open: boolean; tip: string }
 
 export default function LeagueTablePage({ league, today }: { league: LeagueSlug; today: string }) {
   const { model } = useFooty();
@@ -66,6 +67,22 @@ export default function LeagueTablePage({ league, today }: { league: LeagueSlug;
   const comp = model.comp(league);
   const played = Math.max(0, ...table.rows.map((r) => r.p));
   const legend = rules.zones.filter((z, i, a) => a.findIndex((x) => x.kind === z.kind) === i);
+  // each row's zone: by position from config, except the Brasileirão's continental places, which come from CBF's rules
+  // and the finals (src/data/braPlaces.ts); relegation stays by position
+  const bra = useMemo(() => {
+    if (league !== 'bra.1') return undefined;
+    const order = table.rows.map((r) => r.team);
+    const rel = new Set(order.filter((_, i) => zoneAt(rules.zones, i + 1)?.kind === 'rel'));
+    const finals: Finals = { cup: finalOf(model.snap.matches, BRA_CUP), lib: finalOf(model.snap.matches, BRA_CONTINENTAL.lib), sula: finalOf(model.snap.matches, BRA_CONTINENTAL.sula) };
+    return { finals, rows: rowPlaces(scenarios(order, rel, finals), order, (id) => model.team(id).short.trim()) };
+  }, [league, table, rules, model]);
+  const zones: (RowZone | undefined)[] = table.rows.map((r, i) => {
+    const cfg = zoneAt(rules.zones, i + 1);
+    const place = bra?.rows.get(r.team);
+    if (!place || cfg?.kind === 'rel') return cfg && { kind: cfg.kind, open: !!cfg.maybe, tip: `${cfg.label}${cfg.maybe ? `\nOnly ${cfg.maybe}` : ''}` };
+    const kind = FATE_KIND[place.fate];
+    return kind && { kind, open: place.open, tip: place.text };
+  });
   return (
     <div className="fk-ucl fk-lt" data-testid="league-page" data-league={league}>
       <div className="fk-ucl-head">
@@ -85,12 +102,11 @@ export default function LeagueTablePage({ league, today }: { league: LeagueSlug;
         </thead>
         <tbody>
           {table.rows.map((r, i) => {
-            const pos = i + 1;
-            const z = zoneAt(rules.zones, pos);
-            const end = z && z.to === pos;
-            const tip = [z ? `${z.label}${z.maybe ? `\nOnly ${z.maybe}` : ''}` : '', r.level ? 'Level with another team on every rule the data allows (shared place)' : ''].filter(Boolean).join('\n');
+            const z = zones[i];
+            const end = !!z && zones[i + 1]?.kind !== z.kind;
+            const tip = [z?.tip ?? '', r.level ? 'Level with another team on every rule the data allows (shared place)' : ''].filter(Boolean).join('\n');
             return (
-              <tr key={r.team} className={`${z ? `fk-lz-${z.kind}` : ''}${z?.maybe ? ' fk-lz-maybe' : ''}${end ? ' fk-zone-end' : ''}`} data-testid="league-row" data-team={model.team(r.team).abbr}>
+              <tr key={r.team} className={`${z ? `fk-lz-${z.kind}` : ''}${z?.open ? ' fk-lz-maybe' : ''}${end ? ' fk-zone-end' : ''}`} data-testid="league-row" data-team={model.team(r.team).abbr}>
                 <td className="fk-rank" title={tip || undefined}>{r.rank}{r.level && <span className="fk-ucl-eq">=</span>}</td>
                 <td className="fk-tl fk-ucl-team"><TeamLink id={r.team} day={today} label="short" /></td>
                 <td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td>
@@ -109,7 +125,7 @@ export default function LeagueTablePage({ league, today }: { league: LeagueSlug;
           })}
         </tbody>
       </table>
-      {league === 'bra.1' && <BraExtras />}
+      {bra && <BraFinals finals={bra.finals} />}
       <div className="fk-ucl-rules" data-testid="league-rules">
         <section>
           <h3>Places</h3>

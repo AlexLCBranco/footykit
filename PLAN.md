@@ -7,8 +7,8 @@
 - **Phase 3**: built (v0.5.0, 2026-11-14), waiting on Alex — tags in three variants (Chips / Rail / Alerts); to
   confirmed: relegation zone (direct places only) and the rivalry list.
 - **Phase 4**: plan agreed 2026-11-15 (Decisions log); step 1 (UCL page, v0.7.0) and step 2 (stakes chips, v0.8.0) and step 3
-  (play-off + bracket, v0.9.0) built, waiting on Alex's look. League tables (v0.10.0) built; next: the Brasileirão
-  pass-down engine once CBF's rules are found, then Libertadores / Sudamericana and the cups.
+  (play-off + bracket, v0.9.0) built, waiting on Alex's look. League tables (v0.10.0) and the Brasileirão places engine
+  (v0.11.0) built; next: Libertadores / Sudamericana and the cups.
 - Phase 5: not started.
 
 ## Decisions log
@@ -62,6 +62,12 @@
 - 2026-11-15, Alex: Brasileirão "base now, engine later": base places (1-4 Libertadores group stage, 5th preliminary,
   6-11 Sudamericana per English Wikipedia, 17-20 down) plus a box of the finals that can open more places; the
   automatic pass-down waits for CBF's own rules (sources disagree on the stage a passed-down place enters).
+- 2026-11-15: CBF's own rules found (REC Brasileiro Série A 2026, v15-12-2025, on CBF's site): Art. 6 places and
+  pass-down, Art. 7 Sudamericana = the 6 best-placed clubs not in the Libertadores, Art. 8 four down, Art. 15
+  tiebreakers (head-to-head = points then goal difference over both meetings, two teams only).
+- 2026-11-15, Alex: the literal reading of Art. 6 — a freed place keeps its stage and goes to the best-placed club not
+  yet qualified (not "everyone shifts up"). Built as src/data/braPlaces.ts: the finals still to play are worked out
+  both ways; places that depend on them are hatched with the results that give them.
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

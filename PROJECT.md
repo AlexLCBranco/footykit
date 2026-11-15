@@ -40,7 +40,8 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   (tests/fixtures/ucl-2025-26.json, `npm run make-ucl-fixture`). v0.10.0: league tables (bar: Tables + league picker,
   `?view=table&league=…`, lazy `LeagueTablePage.tsx`): rebuilt with each league's ties-on-points rules
   (`src/data/leagueTable.ts`, `config/leagues.ts`; equals ESPN's tables), last 5 + next 3 squares, zones (possible
-  places hatched), the Brasileirão's pending finals.
+  places hatched). v0.11.0: the Brasileirão's places from CBF's REC 2026 (`src/data/braPlaces.ts`: pass-down read
+  literally, finals still to play worked out both ways, hatched places say which results give them).
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
