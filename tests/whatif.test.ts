@@ -10,7 +10,8 @@ import type { Match, Snapshot } from '../src/data/snapshot';
 import { leaguePhaseMatches, positionPath, potOf, uclTable } from '../src/data/ucl';
 import {
   AWAY, blocks, clear, cycle, DRAW, EMPTY, favourite, fill, history, HOME, matchdayOf, meets, open, parseScore, prune,
-  push, readSim, redo, setPick, simMatches, toggleLock, toPlay, undo, writeSim, type Sim,
+  push, redo, setPick, simMatches, toggleLock, toPlay, undo, type Sim,
+  cleanName, edited, EMPTY_STORE, pruneStore, readStore, remove, rename, saveAs, savedSim, writeStore, type Store,
 } from '../src/data/whatif';
 
 const snap = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/snapshot.json'), 'utf8')) as Snapshot;
@@ -215,15 +216,79 @@ describe('undo / redo', () => {
   });
 });
 
-describe('storage', () => {
-  it('round-trips; an empty scenario stores nothing', () => {
-    const s = toggleLock(setPick(setPick(EMPTY, 'a', { h: 2, a: 1 }), 'b', DRAW), 'a');
-    expect(readSim(writeSim(s))).toEqual(s);
-    expect(writeSim(EMPTY)).toBeNull();
+describe('saved scenarios', () => {
+  const a = setPick(EMPTY, 'x', HOME), b = setPick(EMPTY, 'y', AWAY);
+  it('save as: added in order, made active; the same name (any case) replaces it in place', () => {
+    let s: Store = { ...EMPTY_STORE, current: a };
+    s = saveAs(s, '  PSG   slips ');
+    s = saveAs({ ...s, current: b }, 'Arsenal top');
+    expect(s.saved.map((x) => x.name)).toEqual(['PSG slips', 'Arsenal top']);
+    expect(s.active).toBe('Arsenal top');
+    s = saveAs({ ...s, current: setPick(EMPTY, 'z', DRAW) }, 'psg SLIPS');
+    expect(s.saved.map((x) => x.name)).toEqual(['psg SLIPS', 'Arsenal top']);
+    expect(savedSim(s, 'psg SLIPS')).toEqual(setPick(EMPTY, 'z', DRAW));
+    expect(saveAs(s, '   ')).toBe(s);
   });
-  it('anything else reads as empty; bad picks and locks without picks are dropped', () => {
-    for (const t of [null, '', 'x', '{}', '{"v":2,"current":{"picks":{}}}', '[]']) expect(readSim(t)).toEqual(EMPTY);
-    const t = JSON.stringify({ v: 1, current: { picks: { a: { h: 1, a: 0 }, b: { h: -1, a: 0 }, c: 'x' }, locked: { a: true, b: true, d: true } } });
-    expect(readSim(t)).toEqual({ picks: { a: { h: 1, a: 0 } }, locked: { a: true } });
+  it('names: trimmed, spaces collapsed, at most 40 characters', () => {
+    expect(cleanName('  a  b ')).toBe('a b');
+    expect(cleanName('')).toBeUndefined();
+    expect(cleanName('x'.repeat(60))).toHaveLength(40);
+  });
+  it('edited: the picks on screen differ from the active scenario (key order and object identity don\'t matter)', () => {
+    const both = setPick(setPick(EMPTY, 'p', HOME), 'q', DRAW);
+    const s = saveAs({ ...EMPTY_STORE, current: both }, 'S');
+    expect(edited(s)).toBe(false);
+    expect(edited({ ...s, current: setPick(setPick(EMPTY, 'q', { h: 1, a: 1 }), 'p', { h: 1, a: 0 }) })).toBe(false);
+    expect(edited({ ...s, current: setPick(both, 'q', AWAY) })).toBe(true);
+    expect(edited({ ...s, current: toggleLock(both, 'p') })).toBe(true);
+    expect(edited({ ...s, active: undefined, current: EMPTY })).toBe(false);
+  });
+  it('delete keeps the picks on screen; deleting the active one clears active', () => {
+    const s = saveAs(saveAs({ ...EMPTY_STORE, current: a }, 'A'), 'B');
+    expect(remove(s, 'B')).toEqual({ current: a, saved: [{ name: 'A', sim: a }], active: undefined });
+    expect(remove(s, 'A').active).toBe('B');
+  });
+  it('rename: follows the active one; a taken or empty name changes nothing', () => {
+    const s = saveAs(saveAs({ ...EMPTY_STORE, current: a }, 'A'), 'B');
+    expect(rename(s, 'B', 'Death side').saved.map((x) => x.name)).toEqual(['A', 'Death side']);
+    expect(rename(s, 'B', 'Death side').active).toBe('Death side');
+    expect(rename(s, 'B', 'a')).toBe(s);
+    expect(rename(s, 'B', ' ')).toBe(s);
+    expect(rename(s, 'B', 'b').saved[1]!.name).toBe('b');
+  });
+  it('a real result replaces picks in every scenario, saved ones too', () => {
+    const p = setPick(setPick(EMPTY, played[0]!.id, HOME), left[0]!.id, DRAW);
+    const s = saveAs({ ...EMPTY_STORE, current: p }, 'S');
+    const out = pruneStore(s, lp);
+    expect(out.current.picks).toEqual({ [left[0]!.id]: DRAW });
+    expect(out.saved[0]!.sim.picks).toEqual({ [left[0]!.id]: DRAW });
+    expect(pruneStore(out, lp)).toBe(out);
+  });
+});
+
+describe('storage', () => {
+  it('round-trips the picks, the saved scenarios and the active one', () => {
+    const cur = toggleLock(setPick(setPick(EMPTY, 'a', { h: 2, a: 1 }), 'b', DRAW), 'a');
+    const s = saveAs(saveAs({ ...EMPTY_STORE, current: cur }, 'One'), 'Two');
+    expect(readStore(writeStore(s))).toEqual(s);
+    expect(readStore(writeStore({ ...EMPTY_STORE, current: cur }))).toEqual({ current: cur, saved: [] });
+  });
+  it('stores nothing with no picks and no saved scenarios; saved scenarios alone are kept', () => {
+    expect(writeStore(EMPTY_STORE)).toBeNull();
+    const s = saveAs({ ...EMPTY_STORE, current: setPick(EMPTY, 'a', HOME) }, 'S');
+    expect(readStore(writeStore({ ...s, current: EMPTY }))).toEqual({ ...s, current: EMPTY });
+  });
+  it('reads step 1\'s stored shape (picks only)', () => {
+    expect(readStore('{"v":1,"current":{"picks":{"a":{"h":1,"a":0}},"locked":{"a":true}}}')).toEqual({ current: { picks: { a: HOME }, locked: { a: true } }, saved: [] });
+  });
+  it('anything else reads as empty; bad picks, locks without picks, bad or repeated scenarios and an unknown active are dropped', () => {
+    for (const t of [null, '', 'x', '{}', '{"v":2,"current":{"picks":{}}}', '[]']) expect(readStore(t)).toEqual(EMPTY_STORE);
+    const t = JSON.stringify({
+      v: 1,
+      current: { picks: { a: { h: 1, a: 0 }, b: { h: -1, a: 0 }, c: 'x' }, locked: { a: true, b: true, d: true } },
+      saved: [{ name: 'S', sim: { picks: { a: { h: 0, a: 1 } }, locked: {} } }, { name: 's', sim: { picks: {}, locked: {} } }, { name: '', sim: { picks: {} } }, { name: 'N' }, null],
+      active: 'gone',
+    });
+    expect(readStore(t)).toEqual({ current: { picks: { a: HOME }, locked: { a: true } }, saved: [{ name: 'S', sim: { picks: { a: AWAY }, locked: {} } }] });
   });
 });

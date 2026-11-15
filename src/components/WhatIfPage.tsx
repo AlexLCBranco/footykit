@@ -9,11 +9,12 @@ import { shortDay } from '../data/model';
 import type { Match } from '../data/snapshot';
 import { leaguePhaseMatches, potOf, uclTable, zoneOf } from '../data/ucl';
 import {
-  AWAY, blocks, clear, cycle, DRAW, fill, history, HOME, isQuick, meets, parseScore, prune, push, readSim, redo, scoreText,
-  setPick, simMatches, toggleLock, toPlay, undo, WHATIF_KEY, writeSim, type Fill, type Score, type Sim,
+  AWAY, blocks, clear, cycle, DRAW, fill, history, HOME, isQuick, meets, parseScore, pruneStore, push, readStore, redo, scoreText,
+  setPick, simMatches, toggleLock, toPlay, undo, WHATIF_KEY, writeStore, type Fill, type Store, type Score, type Sim,
 } from '../data/whatif';
 import { TeamLogo } from './Bits';
 import { useFooty } from './ctx';
+import { Scenarios } from './WhatIfScenarios';
 import './ucl.css';
 import './whatif.css';
 
@@ -96,15 +97,19 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
   const names = useCallback((id: string) => model.team(id).name, [model]);
   const lp = useMemo(() => leaguePhaseMatches(model.snap), [model]);
   const real = useMemo(() => uclTable(model.snap, names), [model, names]);
-  const [hist, setHist] = useState(() => history(prune(readSim(load()), lp)));
+  const [start] = useState(() => pruneStore(readStore(load()), lp));
+  const [hist, setHist] = useState(() => history(start.current));
+  const [saved, setSaved] = useState<Omit<Store, 'current'>>(() => ({ saved: start.saved, active: start.active }));
   const sim = hist.now;
   const change = useCallback((f: (s: Sim) => Sim) => setHist((h) => push(h, f(h.now))), []);
   const [team, setTeam] = useState<string>();
   const [hoverMatch, setHoverMatch] = useState<Match>();
 
   // stored on every change, never on the first render (an untouched visit leaves no key)
-  const loaded = useRef(sim);
-  useEffect(() => { if (sim !== loaded.current) save(writeSim(sim)); }, [sim]);
+  const loaded = useRef({ sim, saved });
+  useEffect(() => {
+    if (sim !== loaded.current.sim || saved !== loaded.current.saved) save(writeStore({ current: sim, ...saved }));
+  }, [sim, saved]);
 
   const table = useMemo(() => uclTable({ matches: simMatches(lp, sim), teams: model.snap.teams }, names), [lp, sim, model, names]);
   const realPos = useMemo(() => new Map(real.rows.map((r, i) => [r.team, i + 1])), [real]);
@@ -196,6 +201,9 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
         </span>
         <span className="fk-muted fk-wi-help">click a match: 1-0 → 1-1 → 0-1 → empty · keys 1 X 2 (then next) · 0 clear · L lock · ↑↓</span>
       </div>
+      <Scenarios store={{ current: sim, ...saved }} team={team} lp={lp}
+        onStore={(s) => setSaved({ saved: s.saved, active: s.active })}
+        onLoad={(name, s) => { change(() => s); setSaved((x) => ({ ...x, active: name })); }} />
       <div className="fk-wi-cols" ref={root} style={{ height }}>
         <section className="fk-wi-col fk-wi-list" aria-label="Matches left to play">
           <div className="fk-wi-pending" data-testid="wi-pending">

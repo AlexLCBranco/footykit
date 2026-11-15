@@ -238,6 +238,39 @@ test('UCL what-if: picks move the table, keys move on, bulk fill, undo, filter, 
   expect(errors).toEqual([]);
 });
 
+test('UCL what-if scenarios: save, switch in one click, a team\'s place in each, kept, delete', async ({ page }) => {
+  const errors = await open(page, '?view=whatif');
+  const matches = page.getByTestId('wi-match');
+  const scenarios = page.getByTestId('wi-scenario');
+  await page.getByTestId('wi-fill-home').click();
+  await page.getByTestId('wi-scenario-saveas').click();
+  await page.getByTestId('wi-scenario-name').fill('Home wins');
+  await page.getByTestId('wi-scenario-name').press('Enter');
+  await page.getByTestId('wi-fill-draw').click();
+  await expect(scenarios.first()).toContainText('•'); // changed since saved
+  await page.getByTestId('wi-scenario-saveas').click();
+  await page.getByTestId('wi-scenario-name').fill('Draws');
+  await page.getByTestId('wi-scenario-name').press('Enter');
+  await expect(scenarios).toHaveText(['Home wins', 'Draws']);
+  await expect(matches.first()).toHaveAttribute('data-pick', '1-1');
+  await scenarios.first().click();
+  await expect(matches.first()).toHaveAttribute('data-pick', '1-0');
+  await expect(scenarios.first()).toHaveAttribute('aria-pressed', 'true');
+  // with a team picked, its place in each scenario
+  await page.getByTestId('wi-team').selectOption({ label: 'Arsenal' });
+  await expect(page.getByTestId('wi-scenario-place')).toHaveCount(2);
+  await expect(page.getByTestId('wi-scenario-place').first()).toContainText('ARS');
+  await page.reload();
+  await expect(scenarios).toHaveText(['Home wins', 'Draws']);
+  await expect(matches.first()).toHaveAttribute('data-pick', '1-0');
+  // delete asks a second click; the picks on screen stay
+  await page.getByTestId('wi-scenario-delete').click();
+  await page.getByTestId('wi-scenario-delete').click();
+  await expect(scenarios).toHaveText(['Draws']);
+  await expect(matches.first()).toHaveAttribute('data-pick', '1-0');
+  expect(errors).toEqual([]);
+});
+
 test('league tables: the picker switches leagues; rows, squares, zones, Brasileirão extras', async ({ page }) => {
   const errors = await open(page, '?view=table&league=eng.1');
   await expect(page).toHaveTitle('Premier League table — footykit');

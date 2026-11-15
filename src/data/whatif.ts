@@ -195,28 +195,101 @@ export function push(h: History, next: Sim): History {
 export const undo = (h: History): History => (h.past.length ? { past: h.past.slice(0, -1), now: h.past.at(-1)!, future: [h.now, ...h.future] } : h);
 export const redo = (h: History): History => (h.future.length ? { past: [...h.past, h.now], now: h.future[0]!, future: h.future.slice(1) } : h);
 
+// ---- saved scenarios ----
+
+/** A named scenario: a set of picks to come back to and compare ("what if PSG drop points"). */
+export interface Saved { name: string; sim: Sim }
+/** What the simulator keeps: the picks on screen, the saved scenarios (in the order saved), the one last loaded or saved. */
+export interface Store { current: Sim; saved: Saved[]; active?: string }
+export const EMPTY_STORE: Store = { current: EMPTY, saved: [] };
+
+const NAME_MAX = 40;
+/** A scenario name as kept: trimmed, inner spaces collapsed, at most 40 characters; empty → undefined. */
+export function cleanName(name: string): string | undefined {
+  const n = name.trim().replace(/\s+/g, ' ').slice(0, NAME_MAX).trim();
+  return n || undefined;
+}
+
+/** Save the picks on screen under `name`; a scenario of that name (any case) is replaced in place. */
+export function saveAs(store: Store, name: string): Store {
+  const n = cleanName(name);
+  if (!n) return store;
+  const i = store.saved.findIndex((s) => s.name.toLowerCase() === n.toLowerCase());
+  const saved = [...store.saved];
+  if (i >= 0) saved[i] = { name: n, sim: store.current };
+  else saved.push({ name: n, sim: store.current });
+  return { ...store, saved, active: n };
+}
+
+/** The scenario's picks, to put on screen (unknown name → undefined). */
+export const savedSim = (store: Store, name: string): Sim | undefined => store.saved.find((s) => s.name === name)?.sim;
+
+/** Delete a saved scenario (the picks on screen stay). */
+export function remove(store: Store, name: string): Store {
+  return { ...store, saved: store.saved.filter((s) => s.name !== name), active: store.active === name ? undefined : store.active };
+}
+
+/** Rename a saved scenario; a name already taken by another one (any case) or empty leaves things as they are. */
+export function rename(store: Store, from: string, to: string): Store {
+  const n = cleanName(to);
+  if (!n || store.saved.some((s) => s.name !== from && s.name.toLowerCase() === n.toLowerCase())) return store;
+  return { ...store, saved: store.saved.map((s) => (s.name === from ? { ...s, name: n } : s)), active: store.active === from ? n : store.active };
+}
+
+const sameSim = (a: Sim, b: Sim) => JSON.stringify(sortKeys(a)) === JSON.stringify(sortKeys(b));
+const sortKeys = (s: Sim) => ({ picks: Object.fromEntries(Object.entries(s.picks).sort(([x], [y]) => x.localeCompare(y)).map(([k, v]) => [k, { h: v.h, a: v.a }])), locked: Object.keys(s.locked).sort() });
+/** The picks on screen differ from the active saved scenario (shown as "edited"). */
+export function edited(store: Store): boolean {
+  const s = store.active ? savedSim(store, store.active) : undefined;
+  return !!s && !sameSim(s, store.current);
+}
+
+/** Every scenario without picks for matches that got a real result (a real result replaces a pick). */
+export const pruneStore = (store: Store, matches: Match[]): Store => {
+  const current = prune(store.current, matches);
+  let changed = current !== store.current;
+  const saved = store.saved.map((s) => { const sim = prune(s.sim, matches); if (sim !== s.sim) changed = true; return sim === s.sim ? s : { ...s, sim }; });
+  return changed ? { ...store, current, saved } : store;
+};
+
 // ---- storage ----
 
 /** localStorage key (the gauntlet's backup saves every key, so scenarios are backed up with the rest). */
 export const WHATIF_KEY = 'fk:whatif:v1';
-interface Stored { v: 1; current: Sim }
+interface Stored { v: 1; current: Sim; saved?: Saved[]; active?: string }
 
 const isScore = (x: unknown): x is Score => !!x && typeof x === 'object' && Number.isInteger((x as Score).h) && Number.isInteger((x as Score).a) && (x as Score).h >= 0 && (x as Score).a >= 0;
 
-/** The stored scenario, or EMPTY when there is none or it doesn't read as one. */
-export function readSim(text: string | null): Sim {
+function readOne(x: unknown): Sim | undefined {
+  const s = x as Sim | null;
+  if (!s || typeof s !== 'object' || !s.picks || typeof s.picks !== 'object') return undefined;
+  const picks = Object.fromEntries(Object.entries(s.picks).filter(([, v]) => isScore(v)).map(([k, v]) => [k, { h: v.h, a: v.a }]));
+  const locked = Object.fromEntries(Object.entries(s.locked ?? {}).filter(([id, v]) => v === true && id in picks)) as Record<string, true>;
+  return { picks, locked };
+}
+
+/** What is stored, or EMPTY_STORE when there is nothing or it doesn't read as the simulator's. Bad entries are dropped. */
+export function readStore(text: string | null): Store {
   try {
     const v = JSON.parse(text ?? 'null') as Stored | null;
-    if (!v || v.v !== 1 || !v.current || typeof v.current.picks !== 'object' || !v.current.picks) return EMPTY;
-    const picks = Object.fromEntries(Object.entries(v.current.picks).filter(([, s]) => isScore(s)));
-    const locked = Object.fromEntries(Object.entries(v.current.locked ?? {}).filter(([id, x]) => x === true && id in picks)) as Record<string, true>;
-    return { picks, locked };
+    const current = v && v.v === 1 ? readOne(v.current) : undefined;
+    if (!current) return EMPTY_STORE;
+    const saved: Saved[] = [];
+    for (const s of Array.isArray(v!.saved) ? v!.saved : []) {
+      const name = typeof s?.name === 'string' ? cleanName(s.name) : undefined;
+      const sim = readOne(s?.sim);
+      if (name && sim && !saved.some((x) => x.name.toLowerCase() === name.toLowerCase())) saved.push({ name, sim });
+    }
+    const active = saved.some((s) => s.name === v!.active) ? v!.active : undefined;
+    return { current, saved, ...(active ? { active } : {}) };
   } catch {
-    return EMPTY;
+    return EMPTY_STORE;
   }
 }
 
-/** What to store: nothing (null) for an empty scenario, so a visit that picks nothing leaves no key behind. */
-export function writeSim(sim: Sim): string | null {
-  return Object.keys(sim.picks).length ? JSON.stringify({ v: 1, current: sim } satisfies Stored) : null;
+/** What to store: nothing (null) when there are no picks and no saved scenarios, so an untouched visit leaves no key. */
+export function writeStore(store: Store): string | null {
+  if (!Object.keys(store.current.picks).length && !store.saved.length) return null;
+  const v: Stored = { v: 1, current: store.current, ...(store.saved.length ? { saved: store.saved } : {}), ...(store.active ? { active: store.active } : {}) };
+  return JSON.stringify(v);
 }

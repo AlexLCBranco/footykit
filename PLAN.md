@@ -10,7 +10,7 @@
   (play-off + bracket, v0.9.0) built, waiting on Alex's look. League tables (v0.10.0) and the Brasileirão places engine
   (v0.11.0), Libertadores / Sudamericana pages (v0.12.0) and the domestic cups (v0.13.0)
   built. Alex will send changes after using the app for a while (2026-11-15).
-- **Phase 5**: plan agreed 2026-11-15 (Decisions log); step 1 (simulator view, v0.14.0) in progress.
+- **Phase 5**: plan agreed 2026-11-15 (Decisions log); step 1 (simulator view, v0.14.0) and step 2 (saved scenarios, v0.15.0) built, waiting on Alex's look.
 
 ## Decisions log
 - 2026-11-14: Menu = calendarkit's **packed bar** (Alex). Copy that one in Phase 2; the rail is not ported.

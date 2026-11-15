@@ -45,11 +45,13 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   (`?view=cups&cup=…`, lazy `CupsPage.tsx`): Libertadores / Sudamericana bracket ordered from the ties, group tables
   (`src/data/cups.ts`, `config/conmebol.ts`), qualifying ties. v0.13.0: the seven domestic cups on the same tab
   (`config/domesticCups.ts`; ESPN's "TBD" teams are open slots).
-- **Phase 5 (what-if simulator), step 1 built** — v0.14.0: the UCL simulator (`?view=whatif`, "What-if" on the UCL page,
+- **Phase 5 (what-if simulator), steps 1–2 built** — v0.14.0: the UCL simulator (`?view=whatif`, "What-if" on the UCL page,
   lazy `WhatIfPage.tsx`; logic `src/data/whatif.ts`): the matches left (Pending first, by matchday), a click cycles
   1-0 / 1-1 / 0-1 / empty, keys 1 X 2 then next, typed scores, bulk fill (home / favourites by pot / draws), re-roll,
   lock, clear, undo / redo, one-team filter; the table (uclTable over the picks, ▲▼ against the real one) and the
-  knockout places with pair-mates in opposite halves. Picks in `fk:whatif:v1`; a real result replaces a pick.
+  knockout places with pair-mates in opposite halves. Picks in `fk:whatif:v1`; a real result replaces a pick. v0.15.0: saved named scenarios
+  (`WhatIfScenarios.tsx`): one click or Alt+1–9 switches, "•" = changed since saved, Save / Save as / rename / delete
+  (second click), a picked team's place in each scenario; kept in the same key.
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
