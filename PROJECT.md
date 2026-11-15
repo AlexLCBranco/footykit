@@ -28,7 +28,7 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - **Phase 3 (windows & context tags) built** — v0.5.0: tags next to each team in every match (previous / next window
   with first-leg scores, window streak, window advantage "REST", competitions alive 1C/2C/3C, Z4R, derby flag), a
   hover popup with the details, three display variants (Chips / Rail / Alerts, or Off) on the bar's "Tags" switch
-  (`fk:tags:v1`, written only when picked). Relegation places and the rivalry list are drafts for Alex to confirm.
+  (`fk:tags:v1`, written only when picked). Relegation zone (direct places only) and the rivalry list confirmed by Alex.
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
@@ -79,7 +79,8 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - Travel map (calendarkit's travel view): Europe / South America by the venue; nothing focused = a dot per match with
   non-overlapping labels; hover or pin a row = both teams' last → this (solid) → next (dashed), straight-line km, the
   view fitted, a panel per team (no time-zone change: within a continent it says little). Venues at 2,000 m or more
-  are marked (`ALTITUDE_MARK_M`, for Alex to confirm). Shown when the window leaves ≥ 420 px beside the list.
+  are marked by level (`config/altitude.ts`: moderate 1,500 m, high 2,500 m, very high 3,000 m, insane 3,500 m;
+  confirmed by Alex), on the map and in the panel. Shown when the window leaves ≥ 420 px beside the list.
 - Context tags (Phase 3) describe the match going in: standings from results before kickoff, competitions alive from
   the snapshot's fixtures (a cup counts once its tie is fixtured), windows of teams that aren't followed are "unknown",
   never "free". Z4R uses points only (a team level with the zone line is tagged; no tiebreaker invented); the zone is

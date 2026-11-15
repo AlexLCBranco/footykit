@@ -3,7 +3,7 @@
 // the city, else the home team, else nothing — labels never overlap). A focused match (hovered or pinned row or dot):
 // for both teams, previous match → this (solid) → next (dashed), straight-line km on each line, the view fitted to
 // those places; a panel under the map per team (last / this / next with date, time, city, km, days between).
-// Venues at ALTITUDE_MARK_M or higher are marked. Never part of a copied image. Loaded lazily with its basemaps.
+// Venues from the first altitude level up (config/altitude.ts) are marked, the mark growing with the level. Never part of a copied image. Loaded lazily with its basemaps.
 
 import { geoAzimuthalEqualArea } from 'd3-geo';
 import type { ReactNode } from 'react';
@@ -12,7 +12,8 @@ import { useFooty } from '../components/ctx';
 import { kickoffTime, shortDay, weekdayShort, type Model } from '../data/model';
 import type { Match } from '../data/snapshot';
 import { matchTravel, venueOf, type Leg, type TeamTravel } from '../data/travel';
-import { ALTITUDE_MARK_M, type Venue } from '../data/venues';
+import { ALTITUDE_LEVELS } from '../../config/altitude';
+import { altitudeLevel, altitudeText, type Venue } from '../data/venues';
 import { BASEMAPS, type Basemap } from './basemaps';
 import { around, placeLabels, textWidth, type LabelAsk } from './labels';
 
@@ -69,12 +70,13 @@ function MapSvg({ c, width: room, children, view, onEmpty }: { c: Continent; wid
 }
 
 function Altitude({ v, at, u }: { v: Venue; at: { x: number; y: number }; u: number }) {
-  if ((v.elev ?? 0) < ALTITUDE_MARK_M) return null;
-  const s = 7 * u;
+  const level = altitudeLevel(v.elev);
+  if (!level) return null;
+  const s = (5 + 1.5 * level.rank) * u;
   return (
-    <g className="fk-map-alt">
+    <g className={`fk-map-alt fk-alt-${level.rank}`} data-testid="map-altitude" data-level={level.name}>
       <path d={`M${at.x} ${at.y - 2.2 * s}l${s} ${1.6 * s}h${-2 * s}z`} />
-      <text x={at.x + 1.3 * s} y={at.y - 1.2 * s} style={{ fontSize: 11 * u }}>{v.elev!.toLocaleString('en-US')} m</text>
+      <text x={at.x + 1.3 * s} y={at.y - 1.2 * s} style={{ fontSize: 11 * u }}>{altitudeText(v.elev!)}</text>
     </g>
   );
 }
@@ -173,7 +175,7 @@ function PanelLine({ label, m, team, leg }: { label: string; m?: Match; team: st
   return (
     <div className="fk-map-pl">
       <span className="fk-map-pk">{label}</span>
-      <span>{home ? 'vs' : '@'} <TeamLink id={home ? m.a : m.h} day={day} logo="none" /> · {model.comp(m.c).code} · {weekdayShort(day)} {shortDay(day)} {m.tbd ? 'TBD' : kickoffTime(m.t, timeZone)} · {m.city ?? m.v ?? 'venue unknown'}</span>
+      <span>{home ? 'vs' : '@'} <TeamLink id={home ? m.a : m.h} day={day} logo="none" /> · {model.comp(m.c).code} · {weekdayShort(day)} {shortDay(day)} {m.tbd ? 'TBD' : kickoffTime(m.t, timeZone)} · {m.city ?? m.v ?? 'venue unknown'}{(() => { const e = venueOf(m)?.elev; return altitudeLevel(e) ? <span className={`fk-alt-note fk-alt-${altitudeLevel(e)!.rank}`}> ▲ {altitudeText(e!)}</span> : null; })()}</span>
       {leg && <span className="fk-map-pkm">{leg.stayed ? 'same ground' : leg.km !== undefined ? fmtKm(leg.km) : '? km'} · {leg.days} day{leg.days === 1 ? '' : 's'}</span>}
     </div>
   );
@@ -217,7 +219,7 @@ export default function TravelMap({ list, focus, pinned, onFocus, onPin, width }
         <p className="fk-muted">{list.length ? 'No venue of today\'s matches is on the map.' : 'No matches today.'}</p>
       )}
       <p className="fk-map-legend fk-muted">
-        {focusedPlaced ? <>Solid: from the last match · dashed: to the next · straight-line km · ▲ {ALTITUDE_MARK_M.toLocaleString('en-US')} m or higher{pinned ? ' · pinned (Esc or click the map to unpin)' : ''}</> : <>Hover a match to see both teams' trips; click to pin. ▲ {ALTITUDE_MARK_M.toLocaleString('en-US')} m or higher.</>}
+        {focusedPlaced ? <>Solid: from the last match · dashed: to the next · straight-line km · ▲ altitude from {ALTITUDE_LEVELS[0]!.from.toLocaleString('en-US')} m (moderate → insane){pinned ? ' · pinned (Esc or click the map to unpin)' : ''}</> : <>Hover a match to see both teams' trips; click to pin. ▲ altitude from {ALTITUDE_LEVELS[0]!.from.toLocaleString('en-US')} m (moderate → insane).</>}
         {unplaced > 0 && ` ${unplaced} match${unplaced > 1 ? 'es' : ''} without a known venue.`}
       </p>
     </aside>

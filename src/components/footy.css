@@ -1143,11 +1143,21 @@ button.fk-chip:hover {
 .fk-map-stayed {
   fill: currentColor;
 }
+/* altitude levels: yellow (moderate) → orange → red → magenta (insane) */
+.fk-alt-1 { --fk-alt: #e0c23c; }
+.fk-alt-2 { --fk-alt: #f09a3c; }
+.fk-alt-3 { --fk-alt: #f0563c; }
+.fk-alt-4 { --fk-alt: #ff4fd8; }
 .fk-map-alt path {
-  fill: var(--fk-fifa);
+  fill: var(--fk-alt);
 }
 .fk-map-alt text {
-  fill: var(--fk-fifa) !important;
+  fill: var(--fk-alt) !important;
+  font-weight: 700;
+}
+.fk-alt-note {
+  color: var(--fk-alt);
+  font-weight: 600;
 }
 .fk-map-panel {
   display: flex;

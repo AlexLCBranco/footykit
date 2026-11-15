@@ -7,7 +7,7 @@ import VENUES from '../config/venues.json';
 import { buildModel } from '../src/data/model';
 import type { Snapshot } from '../src/data/snapshot';
 import { matchTravel, teamTravel, venueOf } from '../src/data/travel';
-import { km, type Venue } from '../src/data/venues';
+import { altitudeLevel, altitudeText, km, type Venue } from '../src/data/venues';
 
 const snap = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/snapshot.json'), 'utf8')) as Snapshot;
 const model = buildModel(snap, 'America/Sao_Paulo');
@@ -34,6 +34,7 @@ describe('venue table', () => {
     expect(km(find('Signal Iduna Park')!, { lat: 51.51, lon: 7.47 })).toBeLessThan(5);
     // La Paz, ~3,600 m (the city's figure: the stadium item has none)
     expect(find('Estadio Hernando Siles')!.elev).toBeGreaterThan(3500);
+    expect(altitudeLevel(find('Estadio Hernando Siles')!.elev)?.name).toBe('insane altitude');
   });
   it('almost every followed club\'s match has a known venue', () => {
     const followed = new Set(snap.clubs.map((c) => c.id));
@@ -73,5 +74,19 @@ describe('travel', () => {
     const vsOther = model.byTeam.get(ARS)!.find((m) => !model.followed.has(m.h === ARS ? m.a : m.h))!;
     const other = vsOther.h === ARS ? vsOther.a : vsOther.h;
     expect(teamTravel(model, vsOther, other)).toEqual({ team: other, followed: false });
+  });
+});
+
+describe('altitude levels (config/altitude.ts)', () => {
+  it('a level from each line up; none below 1,500 m or without an elevation', () => {
+    expect(altitudeLevel(undefined)).toBeUndefined();
+    expect(altitudeLevel(650)).toBeUndefined(); // Madrid
+    expect(altitudeLevel(1499)).toBeUndefined();
+    expect([1500, 2499, 2500, 2999, 3000, 3499, 3500, 4090].map((e) => altitudeLevel(e)?.name)).toEqual([
+      'moderate altitude', 'moderate altitude', 'high altitude', 'high altitude', 'very high altitude', 'very high altitude', 'insane altitude', 'insane altitude',
+    ]);
+    expect(altitudeLevel(3500)?.rank).toBe(4);
+    expect(altitudeText(3637)).toBe('3,637 m · insane altitude');
+    expect(altitudeText(800)).toBe('800 m');
   });
 });

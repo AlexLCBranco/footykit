@@ -1,6 +1,7 @@
 // FIFA international match windows (men) touching this season: 2026 (the Brasileirão's calendar year) and 2026-27
-// (Europe). Researched 2026-11-14, each with its source. **For Alex to confirm** (secondary sources; FIFA's own
-// calendar PDF was not checked). In Europe club football stops in these windows; the Brasileirão usually keeps
+// (Europe). Researched 2026-11-14, each with its source (secondary sources; FIFA's own
+// calendar PDF was not checked). The 2026 windows are confirmed by Alex (2026-11-14); the 2027 ones stay provisional:
+// re-check them against FIFA's calendar before March 2027. In Europe club football stops in these windows; the Brasileirão usually keeps
 // playing, so its matches inside a window are flagged.
 
 export interface FifaWindow { from: string; to: string; label: string; source: string; provisional?: true }

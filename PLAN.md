@@ -5,7 +5,7 @@
   `docs/phase1-report.md`; per-club table: `docs/phase1-data-check.md`. Alex's answers recorded below.
 - **Phase 2**: built (v0.4.0, 2026-11-14), waiting on Alex — PROJECT.md "Current state" lists what is built.
 - **Phase 3**: built (v0.5.0, 2026-11-14), waiting on Alex — tags in three variants (Chips / Rail / Alerts); to
-  confirm: the config/rivalries.ts draft (relegation zone confirmed: direct places only).
+  confirmed: relegation zone (direct places only) and the rivalry list.
 - Phases 4–5: not started.
 
 ## Decisions log
@@ -30,6 +30,12 @@
   outside the followed clubs get "unknown" windows; streak tag from the 3rd straight window; derby list hand-made in
   config with Wikipedia sources.
 - 2026-11-14, Alex: the Z4R zone is the direct relegation places only, for now (play-off places outside it).
+- 2026-11-14, Alex: the rivalry list (config/rivalries.ts, 41 pairs) confirmed as drafted.
+- 2026-11-14, Alex: the neutral-venue rules (config/neutral.ts) confirmed.
+- 2026-11-14, Alex: the 2026 FIFA windows confirmed; 2027 stays provisional (re-check before March 2027). Brasileirão
+  matches inside a window stay shown, flagged FIFA (South American clubs keep playing).
+- 2026-11-14, Alex: altitude by levels instead of one 2,000 m mark — moderate 1,500 m, high 2,500 m, very high 3,000 m,
+  insane 3,500 m (config/altitude.ts, sources there; 3,500 m is footykit's own line).
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

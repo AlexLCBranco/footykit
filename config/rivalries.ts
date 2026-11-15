@@ -1,5 +1,5 @@
-// Derbies and rivalries, for the derby flag (Phase 3). Hand-maintained: a DRAFT researched 2026-11-14 for every
-// league footykit covers, **for Alex to correct** (add, drop, rename). Only pairs with at least one followed club are
+// Derbies and rivalries, for the derby flag (Phase 3). Hand-maintained: researched 2026-11-14 for every league
+// footykit covers, confirmed by Alex the same day; add, drop or rename pairs here. Only pairs with at least one followed club are
 // listed (others never show). Each entry: ESPN team ids, the rivalry's usual name and a page that documents it
 // (`npm run check-rivalries` checks every source page answers). The flag shows in any competition, cups included.
 

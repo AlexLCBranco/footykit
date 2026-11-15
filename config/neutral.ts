@@ -1,6 +1,6 @@
 // Neutral venues. ESPN's `neutralSite` is false on every match (Phase 1), so which matches are neutral comes from
 // here: a rule per competition and round, for this season's editions, each with its source. Researched 2026-11-14;
-// **for Alex to confirm**. A match is neutral when a rule's competition matches and its round matches `rounds` (a
+// confirmed by Alex the same day. A match is neutral when a rule's competition matches and its round matches `rounds` (a
 // regex on ESPN's round name; omitted = every match of that competition this season).
 // Not neutral this season (checked): DFL-Supercup 2026 (played at Dortmund's ground), Trophée des Champions 2026
 // (at Lens' ground), Recopa (two legs, home and away). Not found: the 2026-27 Supercoppa Italiana's venue — no rule
