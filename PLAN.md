@@ -107,6 +107,8 @@
   ones only" (the Libertadores' single awarded match counted as no goals while trailing).
 - 2026-11-15, Alex (backlog item 10): match links go to a Google search ("Home vs Away Mon D YYYY"), not ESPN's match
   page; supersedes Phase 2's "a match goes to the ESPN match page".
+- 2026-11-15, Alex (backlog item 8): in the simulators a team name keeps filtering the matches; it does not open the
+  Calendar like team names elsewhere.
 - Not available free (stays on the Later list): injuries, suspensions, call-ups (ESPN fields empty / absent).
 
 ---

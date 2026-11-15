@@ -65,7 +65,7 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   row per day without a match between the club's first and last match (`restDays` in model.ts), "Rest days" on the bar
   (on at every load, unchecking lasts until a reload, not in the address); no break label. v0.23.0 item 8, a team-name click (and the Slate part's
   teamCalendarUrl) opens the Team Calendar in month span on the current month (`teamClickPage`); a span picked after
-  sticks until the next click. The simulators' team names still filter (not changed; asked Alex). v0.22.0 item 7, pot badges gone from the UCL table, its squares and
+  sticks until the next click. In the simulators a team name still filters the matches (Alex: keep the filter). v0.22.0 item 7, pot badges gone from the UCL table, its squares and
   the simulator (the pot stays in the tooltips; the Left column lists the opponents' codes); a Pots tab on the UCL page
   (`?view=ucl&tab=pots`): 4 columns of 9 from `UCL_POTS`. v0.21.0 item 6, "Reset" beside the matchday (window) header empties
   that one's picks, locked results kept, one undo step; shown only while it has a pick to empty. v0.20.0 item 5, no scrollbars inside tables: every table goes
