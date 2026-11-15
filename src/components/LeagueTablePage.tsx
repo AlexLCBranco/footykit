@@ -13,6 +13,7 @@ import { matchUrl, type Match } from '../data/snapshot';
 import { TeamLink } from './Bits';
 import { useFooty } from './ctx';
 import './ucl.css';
+import { SplitTable } from './SplitTable';
 
 function Square({ m, team, today }: { m: Match; team: string; today: string }) {
   const { model, timeZone } = useFooty();
@@ -86,15 +87,10 @@ export default function LeagueTablePage({ league, today, onWhatIf }: { league: L
           {rules.zones.some((z) => z.maybe) && <span className="fk-ucl-zone-key fk-lz-maybe-key">hatched: only with some outcomes</span>}
         </span>
       </div>
-      <table className="fk-table fk-ucl-table">
-        <thead>
-          <tr>
+      <SplitTable className="fk-table fk-ucl-table" testId="league-split" head={<tr>
             <th>#</th><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
             <th className="fk-tl" title="The last 5 league results and the next 3 league matches">Last 5 · next 3</th>
-          </tr>
-        </thead>
-        <tbody>
-          {table.rows.map((r, i) => {
+          </tr>} rows={table.rows.map((r, i) => {
             const z = zones[i];
             const end = !!z && zones[i + 1]?.kind !== z.kind;
             const tip = [z?.tip ?? '', r.level ? 'Level with another team on every rule the data allows (shared place)' : ''].filter(Boolean).join('\n');
@@ -115,9 +111,7 @@ export default function LeagueTablePage({ league, today, onWhatIf }: { league: L
                 </td>
               </tr>
             );
-          })}
-        </tbody>
-      </table>
+          })} />
       {bra && <BraFinals finals={bra.finals} />}
       <div className="fk-ucl-rules" data-testid="league-rules">
         <section>

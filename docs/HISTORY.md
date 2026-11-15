@@ -30,3 +30,11 @@ Cause: `.fk-wi-abbr` was a 32 px flex item; a 4-letter code in the row font is 3
 room to spare (1280 px windows and below) the text ran under the pot badge (BODO, COMO, ROMA). At 1920 px the flex
 item grew to fit, which is why it showed only sometimes. Fix: a fixed 3.7em slot that never shrinks, longer codes
 clipped with "…". Test: e2e at 1920 / 1280 / 1024 px over every matchday (failed on the old code at 1280 px).
+
+## 2026-11-15 — Backlog item 5: no scrollbars inside tables (v0.20.0)
+Tables that scrolled inside a box: the simulators' table column (fixed height, overflow auto) and the quick standings
+popup body. Every table now renders through `SplitTable`: it measures the row and header height and the table width,
+and picks the fewest columns (up to 3) that fit the window's bottom (the holder's own height can't be used: it grows
+with the table), within the width. The simulator grid gives its spare width to the table column (the bracket column
+was taking it) and grows with the table; the list and bracket columns keep the window height. A standings popup
+taller than the window turns position: absolute so the page scrolls to its end.

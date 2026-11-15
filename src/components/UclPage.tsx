@@ -12,6 +12,7 @@ import { TeamLink } from './Bits';
 import { useFooty } from './ctx';
 import { UclKnockout } from './UclKnockout';
 import './ucl.css';
+import { SplitTable } from './SplitTable';
 
 const RESULT = { W: 'Won', D: 'Drew', L: 'Lost' } as const;
 /** Stakes chips from the eve of matchday 7 (Alex, 2026-11-15): earlier the sure bounds rarely settle anything. */
@@ -72,16 +73,11 @@ export default function UclPage({ today, onWhatIf }: { today: string; onWhatIf?:
           {UCL_ZONES.map((z) => <span key={z.id} className={`fk-ucl-zone-key fk-zone-${z.id}`}>{z.from}–{z.to} {z.label}</span>)}
         </span>
       </div>
-      <table className="fk-table fk-ucl-table" onMouseLeave={() => setHover(null)}>
-        <thead>
-          <tr>
+      <SplitTable className="fk-table fk-ucl-table" onMouseLeave={() => setHover(null)} testId="ucl-split" head={<tr>
             <th>#</th><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
             <th className="fk-tl">Last 5</th><th className="fk-tl" title="The 8 league-phase matches in date order; the small number is the opponent's pot">Matches</th><th className="fk-tl" title="Pots of the opponents still to play">Left</th>
             {showStakes && <th className="fk-tl" title="What is settled, and what the next match can settle (points only: a claim holds whatever else happens)">Stakes</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {table.rows.map((r, i) => {
+          </tr>} rows={table.rows.map((r, i) => {
             const pos = i + 1;
             const zone = zoneOf(pos);
             const path = positionPath(pos).text;
@@ -104,9 +100,7 @@ export default function UclPage({ today, onWhatIf }: { today: string; onWhatIf?:
                 {showStakes && <td className="fk-tl fk-ucl-stakes">{stakes.get(r.team)!.map((c) => <span key={c.text} className={`fk-stake fk-stake-${c.kind}`} title={c.tip} data-testid="ucl-stake">{c.text}</span>)}</td>}
               </tr>
             );
-          })}
-        </tbody>
-      </table>
+          })} />
       <UclKnockout table={table} today={today} />
       <div className="fk-ucl-rules" data-testid="ucl-rules">
         <section>

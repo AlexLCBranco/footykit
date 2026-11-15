@@ -19,6 +19,7 @@ import { GroupNav, HELP, ord, Row, signed, Tools, useFitHeight, useGroupNav, use
 import { Scenarios } from './WhatIfScenarios';
 import './ucl.css';
 import './whatif.css';
+import { SplitTable } from './SplitTable';
 
 const zoneAt = (zones: LeagueZone[], pos: number) => zones.find((z) => pos >= z.from && pos <= z.to);
 const FINALS: [FinalKey, string][] = [['sula', 'Sudamericana'], ['lib', 'Libertadores'], ['cup', 'Copa do Brasil']];
@@ -125,7 +126,7 @@ export default function LeagueWhatIfPage({ league, today, onBack }: { league: Le
       </div>
       <Scenarios store={store} team={team} placeOf={placeOf}
         onStore={(s) => setMeta({ saved: s.saved, active: s.active })} onLoad={onLoad} />
-      <div className="fk-wi-cols" ref={root} style={{ height }}>
+      <div className="fk-wi-cols" ref={root} style={{ minHeight: height, ["--fk-wi-h" as string]: height ? `${height}px` : undefined }}>
         <section className="fk-wi-col fk-wi-list" aria-label="Matches left to play">
           <div className="fk-wi-pending" data-testid="wi-pending">
             <div className="fk-wi-group-title">Pending <span className="fk-muted">· postponed or past without a result</span></div>
@@ -144,10 +145,7 @@ export default function LeagueWhatIfPage({ league, today, onBack }: { league: Le
         <section className="fk-wi-col fk-wi-table-col" aria-label="Table">
           {finals && <FinalsBox finals={finals} winners={sim.winners ?? {}} onPick={(k, t) => change((x) => setWinner(x, k, t))} />}
           <div className="fk-wi-group-title">{table.complete ? 'Final table' : `Table · ${all.length - picked} matches still empty`} <span className="fk-muted">· ▲▼ against the real table</span></div>
-          <table className="fk-table fk-ucl-table fk-wi-table">
-            <thead><tr><th>#</th><th /><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead>
-            <tbody>
-              {table.rows.map((r, i) => {
+          <SplitTable className="fk-table fk-ucl-table fk-wi-table" bound="parent" testId="wi-split" head={<tr><th>#</th><th /><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr>} rows={table.rows.map((r, i) => {
                 const p = i + 1;
                 const z = zones[i];
                 const end = !!z && zones[i + 1]?.kind !== z.kind;
@@ -167,9 +165,7 @@ export default function LeagueWhatIfPage({ league, today, onBack }: { league: Le
                     <td>{signed(r.gd)}</td><td className="fk-pts">{r.pts}</td>
                   </tr>
                 );
-              })}
-            </tbody>
-          </table>
+              })} />
           <div className="fk-ucl-key fk-wi-key">
             {legend.map((z) => <span key={z.kind} className={`fk-ucl-zone-key fk-lz-${z.kind}`}>{z.label}</span>)}
             {(finals || rules.zones.some((z) => z.maybe)) && <span className="fk-ucl-zone-key fk-lz-maybe-key">hatched: only with some outcomes</span>}

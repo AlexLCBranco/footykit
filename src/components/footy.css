@@ -1385,3 +1385,25 @@ button.fk-chip:hover {
 .fk-cell-tags .fk-tags {
   flex-wrap: wrap;
 }
+
+/* SplitTable.tsx: a tall table flows into 2–3 side-by-side tables instead of scrolling inside its panel */
+.fk-split {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+.fk-split > table {
+  flex: none;
+}
+/* the quick standings popup grows with its tables (they split to fit its width); no scrolling box inside it */
+.fk-float.fk-standings {
+  height: auto !important;
+  max-height: none;
+}
+.fk-standings .fk-float-body {
+  overflow: visible;
+}
+.fk-float.fk-float-tall {
+  position: absolute;
+}

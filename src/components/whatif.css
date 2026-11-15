@@ -34,7 +34,7 @@
 }
 .fk-wi-cols {
   display: grid;
-  grid-template-columns: minmax(330px, 400px) minmax(300px, auto) minmax(300px, 1fr);
+  grid-template-columns: minmax(330px, 400px) minmax(300px, 1fr) minmax(300px, 460px);
   gap: 16px;
   min-height: 0;
 }
@@ -42,6 +42,11 @@
   min-height: 0;
   overflow-y: auto;
   padding-right: 4px;
+}
+/* the table never scrolls inside its column: it splits to fit (SplitTable.tsx), and where it still cannot, the column
+   (and the page) grows */
+.fk-wi-table-col {
+  overflow: visible;
 }
 .fk-wi-list {
   display: flex;
@@ -384,7 +389,7 @@
 
 /* a league's simulator: the matches left | the full table (no bracket) */
 .fk-wi-league .fk-wi-cols {
-  grid-template-columns: minmax(330px, 400px) minmax(420px, max-content);
+  grid-template-columns: minmax(330px, 400px) minmax(420px, 1fr);
 }
 
 /* the Brasileirão's finals: pick a winner */
@@ -447,4 +452,9 @@
 }
 .fk-wi-nav-of {
   margin-left: 4px;
+}
+/* the list and bracket columns keep the window's height and scroll on their own; only the table column may grow */
+.fk-wi-list,
+.fk-wi-bracket {
+  max-height: var(--fk-wi-h, none);
 }

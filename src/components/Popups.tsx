@@ -2,13 +2,14 @@
 // two-leg tie) and the quick standings (movable by its header, resizable by its edges and corners, place remembered
 // in localStorage `fk:stpop:v1`, "↺" resets; like calendarkit's).
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { isPlayed, resultFor, shortDay } from '../data/model';
 import { seasonSeries } from '../data/series';
 import { matchUrl } from '../data/snapshot';
 import { CompMark, TeamLink } from './Bits';
 import { useFooty } from './ctx';
 import { EDGES, useFloatBox } from './floatBox';
+import { SplitTable } from './SplitTable';
 
 export interface SeriesOpen { a: string; b: string; x: number; y: number }
 
@@ -70,8 +71,19 @@ export function StandingsPopup({ team, onClose }: { team?: string; onClose: () =
   const tables = slug ? model.snap.tables[slug] ?? [] : [];
   const shown = tables.length > 1 && team ? tables.filter((t) => t.rows.some((r) => r.team === team)) : tables;
   const day = new Intl.DateTimeFormat('en-CA').format(now);
+  // No scrolling box inside: the popup grows with its tables (they split to fit its width). Taller than the window,
+  // it stops being pinned to the window and sits on the page, so the page scrolls to its end; the margin keeps it
+  // where it was on screen.
+  const [tall, setTall] = useState<number>();
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const over = el.offsetHeight > window.innerHeight - 16;
+    if (over && tall === undefined) setTall(window.scrollY);
+    else if (!over && tall !== undefined && el.offsetHeight < window.innerHeight - 80) setTall(undefined);
+  }, [ref, tall, slug, team, style]);
   return (
-    <div ref={ref} className="fk-float fk-standings" style={style} role="dialog" aria-label="Quick standings" data-testid="standings-popup" data-no-marquee="true" data-capture-exclude="true">
+    <div ref={ref} className={`fk-float fk-standings${tall !== undefined ? ' fk-float-tall' : ''}`} style={tall !== undefined ? { ...style, marginTop: tall } : style} role="dialog" aria-label="Quick standings" data-testid="standings-popup" data-no-marquee="true" data-capture-exclude="true">
       <div className="fk-float-head" {...dragProps}>
         <span className="fk-pop-head">Standings</span>
         <select value={slug} onChange={(e) => setSlug(e.target.value)} aria-label="Competition">
@@ -84,19 +96,15 @@ export function StandingsPopup({ team, onClose }: { team?: string; onClose: () =
       </div>
       <div className="fk-float-body">
         {shown.map((t) => (
-          <table key={t.name} className="fk-table">
-            {shown.length > 1 || tables.length > 1 ? <caption>{t.name}</caption> : null}
-            <thead><tr><th>#</th><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead>
-            <tbody>
-              {t.rows.map((r) => (
+          <SplitTable key={t.name} className="fk-table" bound="parent" testId="standings-split" caption={shown.length > 1 || tables.length > 1 ? t.name : undefined}
+            head={<tr><th>#</th><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr>}
+            rows={t.rows.map((r) => (
                 <tr key={r.team} className={r.team === team ? 'fk-me' : undefined}>
                   <td className="fk-rank" style={r.zc ? { boxShadow: `inset 3px 0 ${r.zc}` } : undefined} title={r.zone}>{r.rank}</td>
                   <td className="fk-tl"><TeamLink id={r.team} day={day} label="short" logoSize={16} /></td>
                   <td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td><td>{r.gf - r.ga > 0 ? '+' : ''}{r.gf - r.ga}</td><td className="fk-pts">{r.pts}</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              ))} />
         ))}
         <p className="fk-muted fk-pop-foot">ESPN's table as of the last snapshot ({new Date(model.snap.generatedAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}). Zone colours are ESPN's.</p>
       </div>

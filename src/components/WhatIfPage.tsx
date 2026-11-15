@@ -15,6 +15,7 @@ import { TeamLogo } from './Bits';
 import { Scenarios } from './WhatIfScenarios';
 import './ucl.css';
 import './whatif.css';
+import { SplitTable } from './SplitTable';
 
 const potBadge = (id: string) => <span className={`fk-pot fk-pot-${potOf(id)}`}>{potOf(id)}</span>;
 
@@ -93,7 +94,7 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
       </div>
       <Scenarios store={store} team={team} placeOf={placeOf}
         onStore={(s) => setMeta({ saved: s.saved, active: s.active })} onLoad={onLoad} />
-      <div className="fk-wi-cols" ref={root} style={{ height }}>
+      <div className="fk-wi-cols" ref={root} style={{ minHeight: height, ["--fk-wi-h" as string]: height ? `${height}px` : undefined }}>
         <section className="fk-wi-col fk-wi-list" aria-label="Matches left to play">
           <div className="fk-wi-pending" data-testid="wi-pending">
             <div className="fk-wi-group-title">Pending <span className="fk-muted">· postponed or past without a result</span></div>
@@ -111,10 +112,7 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
         </section>
         <section className="fk-wi-col fk-wi-table-col" aria-label="Table">
           <div className="fk-wi-group-title">{table.complete ? 'Final table' : `Table · ${all.length - picked} matches still empty`} <span className="fk-muted">· ▲▼ against the real table</span></div>
-          <table className="fk-table fk-ucl-table fk-wi-table">
-            <thead><tr><th>#</th><th /><th className="fk-tl">Team</th><th>P</th><th>GD</th><th>Pts</th></tr></thead>
-            <tbody>
-              {table.rows.map((r, i) => {
+          <SplitTable className="fk-table fk-ucl-table fk-wi-table" bound="parent" testId="wi-split" head={<tr><th>#</th><th /><th className="fk-tl">Team</th><th>P</th><th>GD</th><th>Pts</th></tr>} rows={table.rows.map((r, i) => {
                 const p = i + 1;
                 const zone = zoneOf(p);
                 const move = realPos.get(r.team)! - p;
@@ -132,9 +130,7 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
                     <td>{r.p}</td><td>{signed(r.gd)}</td><td className="fk-pts">{r.pts}</td>
                   </tr>
                 );
-              })}
-            </tbody>
-          </table>
+              })} />
           <div className="fk-ucl-key fk-wi-key">{UCL_ZONES.map((z) => <span key={z.id} className={`fk-ucl-zone-key fk-zone-${z.id}`}>{z.from}–{z.to}</span>)}</div>
         </section>
         <section className="fk-wi-col fk-wi-bracket" aria-label="Knockout places" data-testid="wi-bracket">

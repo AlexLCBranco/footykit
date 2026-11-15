@@ -473,3 +473,62 @@ test('simulator rows: a team code never runs into the badge after it, whatever i
   }
   expect(errors).toEqual([]);
 });
+
+// App-wide rule: no scrolling box around a table; tall tables flow into 2–3 columns, each with its header.
+const tableScrollers = (page: Page) => page.evaluate(() => [...document.querySelectorAll<HTMLElement>('*')]
+  .filter((e) => /(auto|scroll)/.test(getComputedStyle(e).overflowY) && e.scrollHeight > e.clientHeight + 1 && (e.tagName === 'TABLE' || !!e.querySelector('table')))
+  .map((e) => e.className || e.tagName));
+const splits = (page: Page) => page.locator('.fk-split').evaluateAll((els) => els.map((s) => ({
+  id: s.getAttribute('data-testid'), cols: Number(s.getAttribute('data-cols')),
+  heads: s.querySelectorAll('thead').length, runs: [...s.querySelectorAll('tbody')].map((b) => b.rows.length),
+})));
+
+for (const [width, height] of [[1920, 911], [1280, 800], [1024, 768]] as const) {
+  test(`no scrollbars inside tables at ${width}×${height}: tall tables split into columns with their headers`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    const errors: string[] = [];
+    for (const search of ['?view=whatif', '?view=whatif&league=bra.1', '?view=trailing&comp=eng.fa', '?view=trailing&comp=uefa.champions', '?view=ucl', '?view=table&league=eng.1', '?view=cups&cup=conmebol.libertadores']) {
+      errors.push(...await open(page, search));
+      await expect(page.locator('table').first()).toBeVisible();
+      await page.waitForTimeout(150); // the split settles after one measure
+      expect(await tableScrollers(page), search).toEqual([]);
+      for (const s of await splits(page)) {
+        expect(s.heads, `${search} ${s.id}`).toBe(s.cols); // every column repeats the header
+        expect(Math.max(...s.runs) - Math.min(...s.runs), `${search} ${s.id}`).toBeLessThanOrEqual(1); // split evenly
+      }
+    }
+    // the quick standings popup
+    await open(page, '?view=table&league=eng.1');
+    await page.getByTestId('standings-button').click();
+    await expect(page.getByTestId('standings-popup')).toBeVisible();
+    await page.waitForTimeout(150);
+    expect(await tableScrollers(page), 'standings popup').toEqual([]);
+    // the 36-team table in the popup: no box scrolls, and its end can always be reached (page scroll if needed)
+    await page.getByTestId('standings-popup').getByLabel('Competition').selectOption('uefa.champions');
+    await page.waitForTimeout(150);
+    expect(await tableScrollers(page), 'standings popup, UCL').toEqual([]);
+    const reach = await page.getByTestId('standings-popup').evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const fixed = getComputedStyle(el).position === 'fixed';
+      return fixed ? r.bottom <= innerHeight + 1 : r.bottom + scrollY <= document.documentElement.scrollHeight + 1;
+    });
+    expect(reach, 'standings popup end reachable').toBe(true);
+    expect(errors).toEqual([]);
+  });
+}
+
+test('the simulator table splits on a full-size window: 36 → 18 | 18, zone bars and ▲▼ stay on their rows', async ({ page }) => {
+  const errors = await open(page, '?view=whatif');
+  const split = page.getByTestId('wi-split');
+  await expect(split).toHaveAttribute('data-cols', /^[23]$/);
+  const runs = await split.locator('tbody').evaluateAll((bs) => bs.map((b) => b.querySelectorAll('tr').length));
+  expect(runs.reduce((a, b) => a + b, 0)).toBe(36);
+  // the 8th place keeps the round-of-16 zone and its end line, wherever it lands
+  await expect(page.getByTestId('wi-row').nth(7)).toHaveClass(/fk-zone-r16.*fk-zone-end|fk-zone-end.*fk-zone-r16/);
+  await page.getByTestId('wi-fill-home').click();
+  await expect(page.getByTestId('wi-row').locator('.fk-wi-up, .fk-wi-down').first()).toBeVisible();
+  // the long FA Cup list: 3 columns
+  await open(page, '?view=trailing&comp=eng.fa');
+  await expect(page.getByTestId('trailing-split')).toHaveAttribute('data-cols', '3');
+  expect(errors).toEqual([]);
+});

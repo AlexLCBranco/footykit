@@ -59,7 +59,10 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   Sudamericana places live over the picked table (`braRowZones`, shared with the Tables page), the Sudamericana,
   Libertadores and Copa do Brasil finals pickable by winner (`Sim.winners`; an open final counts both ways, a played one
   drops the pick).
-- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.19.1 item 4, simulator team codes in a fixed slot (four
+- **Feature backlog (2026-11-15, 10 items, in order, one commit each)**: v0.20.0 item 5, no scrollbars inside tables: every table goes
+  through `SplitTable.tsx` (2–3 side-by-side tables, header repeated, rows split evenly; 1 column and the page grows when
+  the width won't hold 2); the simulators' table column and the quick standings popup grow instead of scrolling (a popup
+  taller than the window sits on the page). v0.19.1 item 4, simulator team codes in a fixed slot (four
   bold letters fit, longer ones end in "…"), so the badge after them never covers them at any window width. v0.19.0 item 3, the simulators show one matchday (a
   league: one window) at a time, opening on the next to play, ◀ ▶ beside its header or ← → to step (`useGroupNav` in
   `WhatIfParts.tsx`); fills, Clear and the counts still cover every match left. v0.18.1 item 2, "What-if" shown as "Simulator"
@@ -130,6 +133,8 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   for the side credited; extra time counts, shootouts don't. A match's goals are kept only when they add up to the
   score; competitions with gaps (Copa do Brasil, Copa del Rey, Coupe de France, state championships, super cups) are
   left out of the page (`TRAILING_COMPS`).
+- No scrolling box around a table (Alex): tall tables split into 2–3 columns (`SplitTable`); list columns of matches
+  (simulator Pending / matchday) may still scroll, they are not tables.
 - Copies are transparent; a Slate copy lays its cards out by the largest-cards rule (page 1920 × 911).
 
 ## Testing policy
