@@ -85,13 +85,13 @@ export function StandingsPopup({ team, onClose }: { team?: string; onClose: () =
   return (
     <div ref={ref} className={`fk-float fk-standings${tall !== undefined ? ' fk-float-tall' : ''}`} style={tall !== undefined ? { ...style, marginTop: tall } : style} role="dialog" aria-label="Quick standings" data-testid="standings-popup" data-no-marquee="true" data-capture-exclude="true">
       <div className="fk-float-head" {...dragProps}>
-        <span className="fk-pop-head">Standings</span>
+        <span className="fk-float-title">Standings</span>
         <select value={slug} onChange={(e) => setSlug(e.target.value)} aria-label="Competition">
           {order.map((s) => <option key={s} value={s}>{model.comp(s).name}</option>)}
         </select>
         <span className="fk-float-tools">
           <button type="button" className="fk-icon" title="Reset place and size" onClick={reset}>↺</button>
-          <button type="button" className="fk-icon" title="Close" onClick={onClose}>×</button>
+          <button type="button" className="fk-icon fk-float-close" title="Close" aria-label="Close" onClick={onClose}>×</button>
         </span>
       </div>
       <div className="fk-float-body">

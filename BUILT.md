@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-15
+- FK-25 — Screenshot parity pass against calendarkit (v0.40.0) — A side-by-side pass against calendarkit: list rows and Slate cards on its card surface, its table panels and Quick standings frame, its month dividers and page margins; screenshots and the differences kept on purpose are in docs/parity/.
 - FK-24 — Team Calendar grid and cells on calendarkit's design (v0.39.0) — The club Calendar uses calendarkit's grid and cards: small day numbers, today in blue, the kickoff on top of every match, the matchup line, chips below with the competition as a pill, content scaled to fill each cell, and the key moved into the ⓘ.
 - FK-23 — Team header above the team views, like calendarkit (v0.38.0) — A club's Calendar and List open with calendarkit's header: the club logo on a light disc, the full name, and the period shown at the right.
 - FK-22 — Same shell as calendarkit: bar, buttons, switches, date block, accent colour (v0.37.0) — The bar matches calendarkit: one 44 px row of 32 px controls, calendarkit's switches, buttons, square ‹ › and date block order, and its blue accent for picked and focused controls (green now only means a win or a positive mark).

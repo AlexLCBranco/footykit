@@ -2104,3 +2104,104 @@ button.fk-chip:hover {
   padding-top: 8px;
   border-top: 1px solid var(--fk-border);
 }
+
+/* ---------- FK-25: parity pass against calendarkit at 1920 × 911 (docs/parity/) ---------- */
+/* list rows and Slate cards: calendarkit's .ck-card surface */
+.fk-row,
+.fk-card {
+  background: var(--fk-surface-2);
+}
+/* Team List: calendarkit's month dividers and "Load more" button (lists.css / team.css) */
+.fk-tl-month h3 {
+  margin: 6px 0 2px;
+  padding: 2px 8px;
+  border-bottom: 1px solid var(--fk-border);
+  color: var(--fk-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fk-root .fk-earlier {
+  display: block;
+  margin: 0 auto 6px;
+}
+/* popups: calendarkit's Quick standings frame (.ck-st-pop) and header */
+.fk-float {
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.55);
+}
+.fk-float-head {
+  padding: 12px 14px 8px;
+  border-bottom: 0;
+  gap: 12px;
+}
+.fk-float-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+.fk-float-head select {
+  height: 30px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.fk-float-tools {
+  gap: 6px;
+}
+.fk-root .fk-icon,
+.fk-float .fk-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: var(--fk-muted);
+  font-size: 16px;
+  line-height: 1;
+}
+.fk-float .fk-float-close {
+  font-size: 18px;
+}
+.fk-float .fk-icon:hover {
+  color: var(--fk-text);
+}
+.fk-float-body {
+  padding: 0 14px 14px;
+}
+/* tables: calendarkit's standings panels (.ck-st-table / .ck-st-mini): on the surface, a border, 11 px headers,
+   lines between rows */
+.fk-table {
+  background: var(--fk-surface);
+  border: 1px solid var(--fk-border);
+  border-radius: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+.fk-table th,
+.fk-table td {
+  padding: 0 7px;
+  border-bottom: 0;
+  border-top: 1px solid var(--fk-border);
+}
+.fk-table thead th {
+  border-top: 0;
+  height: 26px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.fk-table td {
+  height: 28px;
+}
+.fk-table caption {
+  font-size: 12px;
+  color: var(--fk-text);
+  font-weight: 700;
+}
+/* the season-series popup: calendarkit's .ck-series-pop head (12 px, sentence case) */
+.fk-series-pop > .fk-pop-head {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  font-weight: 500;
+}

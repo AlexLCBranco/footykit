@@ -346,3 +346,21 @@ test('FK-24: Team Calendar cells on calendarkit design: scaled content, pills, t
   await expect(page.getByTestId('top-bar').getByTestId('copy')).toHaveText('✓');
   expect(errors).toEqual([]);
 });
+
+test('FK-25: calendarkit\'s surfaces: card rows, table panels, the Quick standings frame, month dividers', async ({ page }) => {
+  const errors = await open(page);
+  await expect(page.getByTestId('match-row').first()).toHaveCSS('background-color', 'rgb(31, 35, 44)');
+  await page.getByTestId('standings-button').click();
+  const pop = page.getByTestId('standings-popup');
+  await expect(pop).toHaveCSS('border-top-left-radius', '12px');
+  await expect(pop.locator('.fk-float-title')).toHaveText('Standings');
+  await expect(pop.locator('.fk-float-title')).toHaveCSS('font-size', '18px');
+  await expect(pop.locator('table.fk-table').first()).toHaveCSS('border-top-left-radius', '10px');
+  await expect(pop.locator('table.fk-table th').first()).toHaveCSS('font-size', '11px');
+  await page.goto('/football/?view=table&league=eng.1');
+  const head = await page.locator('.fk-ucl-head h2').boundingBox(), bar = await page.getByTestId('top-bar').boundingBox();
+  expect(Math.abs(head!.x - bar!.x)).toBeLessThan(2); // the page starts at the bar's left edge
+  await page.goto('/football/?view=list&team=359');
+  await expect(page.locator('.fk-tl-month h3').first()).toHaveCSS('text-transform', 'uppercase');
+  expect(errors).toEqual([]);
+});

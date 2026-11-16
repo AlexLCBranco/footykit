@@ -1,7 +1,8 @@
 /* The Champions League page (UclPage.tsx). Zone colours: green = round of 16, blue = play-offs (seeded stronger),
    none = out. */
 .fk-ucl {
-  padding: 10px 14px 24px;
+  /* the page margin as calendarkit's pages (FK-25): the heading and tables start at the bar's left edge */
+  padding: 4px 0 24px;
   --fk-zone-r16: #37c47a;
   --fk-zone-po: #4c8dff;
   --fk-zone-po2: rgb(76 141 255 / 0.5);
@@ -18,7 +19,8 @@
   margin-bottom: 6px;
 }
 .fk-ucl-head h2 {
-  font-size: 17px;
+  font-size: 18px; /* calendarkit's .ck-st-title */
+  font-weight: 700;
   margin: 0;
 }
 .fk-ucl-key {
