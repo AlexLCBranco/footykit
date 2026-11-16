@@ -45,7 +45,7 @@ export interface FootyProps {
   live?: boolean;
 }
 
-function Info({ model, timeZone }: { model: Model; timeZone?: string }) {
+function Info({ model, timeZone, calendarKey }: { model: Model; timeZone?: string; calendarKey?: boolean }) {
   const [open, setOpen] = useState(false);
   const when = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone }).format(Date.parse(model.snap.generatedAt));
   const zone = timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -64,6 +64,15 @@ function Info({ model, timeZone }: { model: Model; timeZone?: string }) {
           <span><span className="fk-chip">2/3</span> meeting k of n this season — click for the season series.</span>
           <span><span className="fk-chip fk-fifa-chip">FIFA</span> inside a FIFA window (Brasileirão matches flagged).</span>
           <span>Odds: DraftKings via ESPN, decimal, Slate only.</span>
+          {calendarKey && (
+            // the club Calendar's key lives here, as calendarkit keeps its Team Calendar free of a legend (FK-24)
+            <div className="fk-info-key" data-testid="calendar-key">
+              <span className="fk-pop-head">Club calendar</span>
+              <span><span className="fk-key fk-key-free" /> free window (no match that midweek Tue–Thu / weekend Fri–Mon)</span>
+              <span><span className="fk-key fk-key-fifa">FIFA</span> FIFA window</span>
+              <span><span className="fk-run-label" data-run="road">Road trip · 2/4</span> <span className="fk-run-label" data-run="home">Homestand · 1/3</span> 3+ matches in a row away / at home</span>
+            </div>
+          )}
           <span className="fk-pop-head">Tags (hover them for details)</span>
           <span><span className="fk-tag fk-tag-cup">◂UCL</span> <span className="fk-tag fk-tag-free">free▸</span> previous / next window (midweek Tue–Thu, weekend Fri–Mon): free, league or cup / continental; a second leg shows the first-leg score.</span>
           <span><span className="fk-tag fk-tag-streak">5th</span> straight window with a match · <span className="fk-tag fk-tag-rest">REST</span> had the previous window free while the opponent played · <span className="fk-tag fk-tag-alive">3C</span> competitions still alive · <span className="fk-tag fk-tag-z4">Z4R</span> relegation race · <span className="fk-chip fk-derby">DERBY</span> rivalry.</span>
@@ -122,7 +131,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
       <div className="fk-root" style={{ width }} data-testid="footy">
         <TopBar page={page} today={today} history={history} onPage={onPage} onStep={(d) => onPage(stepPage(page, d, model))}
           onStandings={() => setStandings(standings ? null : { team: page.team })}
-          info={<Info model={model} timeZone={timeZone} />}
+          info={<Info model={model} timeZone={timeZone} calendarKey={page.view === 'cal' && !!page.team} />}
           end={<>
             <label className="fk-check fk-tag-pick" title="Context tags next to each team (Phase 3 variants, to compare): hover a team's tags for the details">
               Tags

@@ -1942,3 +1942,165 @@ button.fk-chip:hover {
   color: var(--fk-text);
   white-space: nowrap;
 }
+
+/* ---------- FK-24: the Team Calendar on calendarkit's grid.css / game-card.css / team.css ---------- */
+.fk-cal-grid {
+  gap: 4px;
+}
+.fk-cal-wd {
+  font-size: 12px;
+  color: var(--fk-muted);
+  text-align: center;
+  padding: 4px 0;
+}
+.fk-cal .fk-cal-cell {
+  min-height: 0; /* the grid rows hold the minimum (TEAM_CELL_MIN_HEIGHT), every span */
+  min-width: 0;
+  padding: 4px;
+  gap: 2px;
+  border-radius: 8px;
+  background: var(--fk-surface);
+  overflow: hidden;
+}
+.fk-cal-date {
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  min-height: 14px;
+}
+.fk-daynum {
+  font-size: 11px;
+  color: var(--fk-muted);
+  flex: none;
+}
+.fk-cal .fk-cal-cell.fk-today {
+  border-color: var(--fk-accent);
+  box-shadow: inset 0 0 0 1px var(--fk-accent);
+}
+.fk-cal-cell.fk-today .fk-daynum {
+  color: var(--fk-accent);
+  font-weight: 700;
+}
+.fk-cal-cell.fk-cell-past {
+  opacity: 0.6;
+}
+.fk-cal-cell.fk-out.fk-cell-past {
+  opacity: 0.45;
+}
+.fk-cal-date .fk-cal-runs {
+  margin: 0 2px;
+}
+/* the cell's content, scaled to the cell (calendarkit's --ck-team-scale zoom) */
+.fk-cell-body {
+  zoom: var(--fk-cal-scale, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+/* calendarkit's compact card in a cell: no box of its own, 12 px, stacked */
+.fk-cal .fk-cell-match {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  border-radius: 0;
+  font-size: 12px;
+  min-width: 0;
+}
+.fk-cal .fk-cell-time,
+.fk-cal .fk-cell-time .fk-time {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fk-text);
+}
+.fk-cal .fk-cell-line {
+  gap: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+.fk-cal .fk-cell-line .fk-team {
+  gap: 4px;
+}
+.fk-cal .fk-cell-line .fk-team-name {
+  font-weight: 600;
+}
+.fk-cal .fk-cell-final .fk-cell-line .fk-team:not(.fk-loss) .fk-team-name {
+  font-weight: 700;
+}
+.fk-cal .fk-loss .fk-team-name {
+  color: var(--fk-muted);
+}
+.fk-cal .fk-cell-ha {
+  color: var(--fk-muted);
+  font-weight: 400;
+  font-size: inherit;
+}
+.fk-cal .fk-cell-line .fk-cell-score {
+  gap: 4px;
+  font-weight: 600;
+}
+.fk-cal .fk-cell-num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--fk-text);
+}
+.fk-cal .fk-num-win {
+  color: var(--fk-text);
+  font-weight: 700;
+}
+.fk-cal .fk-num-lose {
+  color: var(--fk-muted);
+  font-weight: 500;
+}
+.fk-cal .fk-cell-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+/* the competition in calendarkit's game-marker pill (.ck-tag) */
+.fk-cell-comp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 0 6px 0 2px;
+  border-radius: 999px;
+  border: 1px solid var(--fk-border);
+  color: var(--fk-muted);
+  white-space: nowrap;
+  font-weight: 500;
+}
+.fk-cell-comp .fk-comp {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+.fk-cell-comp .fk-comp img {
+  width: 11px;
+  height: 11px;
+}
+.fk-comp-pill-continental {
+  color: var(--fk-link);
+  border-color: rgb(124 184 255 / 0.5);
+}
+.fk-comp-pill-cup,
+.fk-comp-pill-super {
+  color: #d9a521; /* calendarkit's --ck-cup */
+  border-color: #d9a521;
+}
+/* the club Calendar's key in the ⓘ popover (calendarkit's .ck-info-key) */
+.fk-info-key {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--fk-border);
+}

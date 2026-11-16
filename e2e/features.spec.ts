@@ -169,7 +169,7 @@ test('FK-18: the team Calendar fills the window down to the bottom; a short wind
   const errors = await open(page, '?view=cal&team=359&span=month');
   await expect(page.getByTestId('cal-match').first()).toBeVisible();
   const fit = () => page.evaluate(() => ({
-    gap: innerHeight - document.querySelector('[data-testid="window-legend"]')!.getBoundingClientRect().bottom,
+    gap: innerHeight - document.querySelector('.fk-cal-grid')!.getBoundingClientRect().bottom,
     scrolls: document.documentElement.scrollHeight > innerHeight,
     rows: [...document.querySelectorAll('.fk-cal-cell')].map((c) => c.getBoundingClientRect().height),
   }));
@@ -233,11 +233,11 @@ test('FK-20: a Calendar cell reads "NEW 1 @ 3 EVE", the winner\'s number bright;
   await expect(line.locator('.fk-num-win')).toHaveText('3');
   await expect(line.locator('.fk-num-lose')).toHaveText('1');
   // the result marker stays; the score isn't repeated lower down
-  await expect(played.locator('.fk-cell-bottom .fk-res')).toHaveText('L');
-  await expect(played.locator('.fk-cell-bottom')).not.toContainText('1-3');
+  await expect(played.locator('.fk-cell-tags .fk-res')).toHaveText('L');
+  await expect(played).not.toContainText('1-3');
   const next = page.locator('.fk-cal-cell[data-day="2026-11-21"]').getByTestId('cal-match');
   await expect(next.getByTestId('cal-line')).toHaveText(/^\s*NEW\s*vs\s*ARS\s*$/);
-  await expect(next.locator('.fk-cell-top')).toContainText('14:30');
+  await expect(next.locator('.fk-cell-time')).toHaveText('14:30');
   expect(errors).toEqual([]);
 });
 
@@ -299,5 +299,50 @@ test('FK-23: a team header (logo, full name, period) above the Calendar and List
   const picker = page.getByTestId('scope-picker');
   await picker.click(); await picker.pressSequentially('gremio'); await picker.press('Enter');
   await expect(name).toHaveText('Grêmio');
+  expect(errors).toEqual([]);
+});
+
+test('FK-24: Team Calendar cells on calendarkit design: scaled content, pills, today, key in ⓘ; copy and marquee still work', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  const errors = await open(page, '?view=cal&team=359&span=month');
+  const grid = page.locator('.fk-cal-grid');
+  // calendarkit's content scale, 0.8–2 in a month (3 in week views)
+  const scale = Number(await grid.getAttribute('data-scale'));
+  expect(scale).toBeGreaterThanOrEqual(0.8);
+  expect(scale).toBeLessThanOrEqual(2);
+  // every cell's content fits its cell
+  const over = await page.locator('.fk-cal-cell').evaluateAll((cells) => cells.filter((c) => c.scrollHeight > c.clientHeight + 1 || c.scrollWidth > c.clientWidth + 1).length);
+  expect(over).toBe(0);
+  // today: the accent border and number
+  const today = page.locator('.fk-cal-cell[data-day="2026-11-21"]');
+  await expect(today).toHaveCSS('border-top-color', 'rgb(78, 161, 255)');
+  await expect(today.locator('.fk-daynum')).toHaveCSS('color', 'rgb(78, 161, 255)');
+  // kickoff on top, played or not; the competition as a marker pill
+  const played = page.locator('.fk-cal-cell[data-day="2026-11-04"]').getByTestId('cal-match');
+  await expect(played.locator('.fk-cell-time')).toHaveText(/^\d\d:\d\d$/);
+  await expect(played.getByTestId('cal-comp')).toHaveText('UCL');
+  // no legend under the grid: it's in the ⓘ
+  await expect(page.getByTestId('window-legend')).toHaveCount(0);
+  await page.getByTestId('bar-info').click();
+  await expect(page.getByTestId('calendar-key')).toContainText('free window');
+  await page.getByTestId('bar-info').click();
+  // week views scale up to 3
+  await page.getByTestId('span').getByRole('tab', { name: '1 week' }).click();
+  await expect.poll(async () => Number(await grid.getAttribute('data-scale'))).toBeGreaterThan(scale);
+  // marquee over two match cells, then copy them
+  await page.getByTestId('span').getByRole('tab', { name: 'Month' }).click();
+  const a = (await page.locator('.fk-cal-cell[data-day="2026-11-04"]').boundingBox())!, b = (await page.locator('.fk-cal-cell[data-day="2026-11-07"]').boundingBox())!;
+  await page.mouse.move(a.x + 4, a.y + a.height - 4);
+  await page.mouse.down();
+  await page.mouse.move(b.x + b.width - 4, b.y + 30, { steps: 10 });
+  await page.mouse.up();
+  const bar = page.getByTestId('selection-bar');
+  await expect(bar).toContainText('2 matches selected');
+  await bar.getByTestId('copy').click();
+  await expect(bar.getByTestId('copy')).toHaveText('✓');
+  // and the whole view
+  await page.locator('.fk-team-header').click();
+  await page.getByTestId('top-bar').getByTestId('copy').click();
+  await expect(page.getByTestId('top-bar').getByTestId('copy')).toHaveText('✓');
   expect(errors).toEqual([]);
 });
