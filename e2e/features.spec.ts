@@ -388,3 +388,49 @@ test('FK-29: the UCL is in the Cups section, not a tab of its own', async ({ pag
   await page.goto('/football/?view=cups&cup=uefa.champions'); await title('Champions League');
   expect(errors).toEqual([]);
 });
+
+test('FK-30: every cup has a simulator — pick ties, the bracket follows, kept, cleared', async ({ page }) => {
+  const errors = await open(page, '?view=cups&cup=conmebol.libertadores');
+  await expect(page.getByTestId('cup-sim-pick')).toHaveCount(0); // off until asked
+  await page.getByTestId('cup-sim-toggle').click();
+  const picks = page.getByTestId('cup-sim-pick');
+  await expect(picks).toHaveCount(2); // the final, the only tie left
+  await picks.first().click();
+  const champ = page.getByTestId('cup-sim-champion');
+  await expect(champ).toContainText('(picked)');
+  await expect(page.getByTestId('cup-sim-count')).toHaveText('1 picked · 0 to pick');
+  // kept across a reload, and per cup
+  await page.reload();
+  await page.getByTestId('cup-sim-toggle').click();
+  await expect(page.getByTestId('cup-sim-champion')).toContainText('(picked)');
+  await page.getByTestId('cup-picker').selectOption('ger.dfb_pokal');
+  await page.getByTestId('cup-sim-toggle').click();
+  await expect(page.getByTestId('cup-sim-champion')).toHaveCount(0);
+  await expect(page.getByTestId('cup-sim-count')).toHaveText('0 picked · 8 to pick');
+  // a round not drawn yet: the clubs through are listed, not paired
+  await page.getByTestId('cup-sim-pick').first().click();
+  await expect(page.getByTestId('cup-sim-waiting').first()).toContainText('not paired yet');
+  // a second click clears that pick
+  await page.getByTestId('cup-sim-pick').first().click();
+  await expect(page.getByTestId('cup-sim-count')).toHaveText('0 picked · 8 to pick');
+  // another domestic cup starts off, with its own picks
+  await page.getByTestId('cup-sim-pick').first().click();
+  await page.getByTestId('cup-picker').selectOption('eng.league_cup');
+  await expect(page.getByTestId('cup-sim-pick')).toHaveCount(0);
+  await page.getByTestId('cup-sim-toggle').click();
+  await expect(page.getByTestId('cup-sim-count')).toHaveText('0 picked · 4 to pick');
+  await page.getByTestId('cup-picker').selectOption('ger.dfb_pokal');
+  await page.getByTestId('cup-sim-toggle').click();
+  await page.getByTestId('cup-sim-clear').click();
+  // every cup on the Cups page has it
+  for (const c of ['conmebol.sudamericana', 'bra.copa_do_brazil', 'eng.fa', 'eng.league_cup', 'esp.copa_del_rey', 'ita.coppa_italia', 'fra.coupe_de_france']) {
+    await page.getByTestId('cup-picker').selectOption(c);
+    await expect(page.getByTestId('cup-sim-toggle')).toBeVisible();
+  }
+  await page.getByTestId('cup-picker').selectOption('conmebol.libertadores');
+  await page.getByTestId('cup-sim-toggle').click();
+  await page.getByTestId('cup-sim-clear').click();
+  await expect(page.getByTestId('cup-sim-champion')).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem('fk:whatif:v1'))).toBeNull();
+  expect(errors).toEqual([]);
+});

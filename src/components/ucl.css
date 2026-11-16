@@ -460,3 +460,49 @@
   color: var(--fk-muted);
   margin-right: 5px;
 }
+
+/* FK-30: the cups' simulator */
+.fk-cupsim-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.fk-btn.fk-btn-on {
+  border-color: var(--fk-accent);
+  color: var(--fk-accent);
+}
+.fk-cupsim-pick {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 1px dashed transparent;
+  border-radius: 4px;
+  padding: 0 3px;
+  cursor: pointer;
+}
+.fk-cupsim-pick:hover {
+  border-color: var(--fk-accent);
+}
+.fk-cupsim-pick .fk-team-nolink {
+  pointer-events: none;
+}
+.fk-cupsim-pick.fk-ko-picked {
+  background: color-mix(in srgb, var(--fk-accent) 18%, transparent);
+  border: 1px solid var(--fk-accent);
+}
+.fk-cupsim-open {
+  border-style: dashed;
+}
+.fk-cupsim-waiting {
+  border-style: dashed;
+  font-size: 12px;
+}
+.fk-cupsim-champ {
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

@@ -9,6 +9,8 @@ import { dayLabel, isPlayed, kickoffTime, shortDay } from '../data/model';
 import { matchUrl, type Match } from '../data/snapshot';
 import { bracketColumns, cupGroups, cupRounds, stageTies, type CupGroup, type CupTie } from '../data/cups';
 import { TeamLink } from './Bits';
+import { CupSimBar, CupSimCtx, CupSimWaiting, simTieOf, useCupSim, useCupSimState } from './CupSim';
+import type { SimRound } from '../data/cupSim';
 import { useFooty } from './ctx';
 import './ucl.css';
 
@@ -18,15 +20,30 @@ const legsOf = (cfg: CupConfig, round: string) => (round === cfg.knockout[cfg.kn
 
 function TieCard({ t, today }: { t: CupTie; today: string }) {
   const { model } = useFooty();
+  const sim = useCupSimState();
+  const st = simTieOf(sim, t);
   const started = t.legs.some(isPlayed);
-  const side = (team: string, goals: number, pens?: number) => (
-    <div className={`fk-ko-side${t.winner === team ? ' fk-ko-win' : t.winner ? ' fk-ko-lose' : ''}`}>
-      <TeamLink id={team} day={today} label="short" />
-      <span className="fk-ko-agg">{started ? goals : ''}{pens !== undefined ? <small> ({pens})</small> : null}</span>
-    </div>
-  );
+  // FK-30: with the simulator on, an open tie's sides are picks (a click sends the team through, again clears)
+  const pickable = !!st && !t.winner;
+  const through = st ? st.through : t.winner;
+  const side = (team: string, goals: number, pens?: number) => {
+    const cls = `fk-ko-side${through === team ? ' fk-ko-win' : through ? ' fk-ko-lose' : ''}${st?.picked === team ? ' fk-ko-picked' : ''}`;
+    const score = <span className="fk-ko-agg">{started ? goals : ''}{pens !== undefined ? <small> ({pens})</small> : null}</span>;
+    if (pickable) {
+      const on = st!.picked === team;
+      return (
+        <button type="button" className={`${cls} fk-cupsim-pick`} data-testid="cup-sim-pick" data-team={model.team(team).abbr} aria-pressed={on}
+          title={on ? `${model.team(team).name} picked through: click to clear` : `Pick ${model.team(team).name} to go through`}
+          onClick={() => sim!.pick(t, on ? undefined : team)}>
+          <TeamLink id={team} day={today} label="short" className="fk-team-nolink" />
+          {score}
+        </button>
+      );
+    }
+    return <div className={cls}><TeamLink id={team} day={today} label="short" />{score}</div>;
+  };
   return (
-    <div className="fk-ko-tie" data-testid="cup-tie">
+    <div className={`fk-ko-tie${pickable ? ' fk-cupsim-open' : ''}`} data-testid="cup-tie" data-picked={st?.picked ? model.team(st.picked).abbr : undefined}>
       {side(t.a, t.goalsA, t.pensA)}
       {side(t.b, t.goalsB, t.pensB)}
       <div className="fk-ko-legs">
@@ -98,11 +115,16 @@ function DomesticCupPage({ cfg, today }: { cfg: DomesticCup; today: string }) {
   const cols = bracketColumns(bracket.map((r) => r.ties));
   const earlier = rounds.slice(0, from);
   const current = earlier.length && earlier[earlier.length - 1]!.ties.some((t) => !t.winner) ? earlier[earlier.length - 1] : undefined;
+  const simRounds = useMemo<SimRound[]>(() => rounds.map((r, i) => ({ round: r.round, ties: i >= from ? cols[i - from]! : r.ties, open: r.open })), [rounds, from, cols]);
+  const { state: sim, setOn, clear, empty } = useCupSim(cfg.slug, simRounds);
+  const waiting = (round: string) => (sim.on ? sim.view.rounds.find((x) => x.round === round)?.waiting ?? [] : []);
   return (
-    <div className="fk-ucl fk-lt fk-cups" data-testid="cups-page" data-cup={cfg.slug}>
+    <CupSimCtx.Provider value={sim}>
+    <div className="fk-ucl fk-lt fk-cups" data-testid="cups-page" data-cup={cfg.slug} data-sim={sim.on || undefined}>
       <div className="fk-ucl-head">
         <h2>{model.comp(cfg.slug).name}</h2>
         <span className="fk-muted">Final {shortDay(cfg.final.day)} {cfg.final.day.slice(0, 4)}{cfg.final.venue ? `, ${cfg.final.venue}` : ''}</span>
+        <CupSimBar on={sim.on} onToggle={() => setOn(!sim.on)} onClear={clear} empty={empty} view={sim.view} />
       </div>
       <section className="fk-ko" data-testid="cup-knockout">
         <div className="fk-ko-grid" style={{ gridTemplateColumns: `repeat(${bracket.length}, minmax(160px, 210px))` }}>
@@ -111,6 +133,7 @@ function DomesticCupPage({ cfg, today }: { cfg: DomesticCup; today: string }) {
               <div className="fk-ko-col-title">{roundText(r.round)}{r.legs === 2 ? <span className="fk-muted"> two legs</span> : null}</div>
               <div className="fk-ko-col-ties">
                 {cols[i]!.map((t) => <TieCard key={`${t.a}-${t.b}`} t={t} today={today} />)}
+                <CupSimWaiting teams={waiting(r.round)} />
                 {r.open > 0 && <div className="fk-ko-tie fk-ko-projected fk-muted" data-testid="cup-open">{r.open === 1 ? 'to be decided' : `${r.open} ties to be decided`}{r.round === 'Final' ? ` · ${shortDay(cfg.final.day)}` : ''}</div>}
               </div>
             </div>
@@ -121,7 +144,7 @@ function DomesticCupPage({ cfg, today }: { cfg: DomesticCup; today: string }) {
         <section className="fk-ko">
           <h3>Earlier rounds</h3>
           {earlier.map((r) => (
-            <details key={r.round} className="fk-cup-qual" open={r === current}>
+            <details key={r.round} className="fk-cup-qual" open={r === current || (sim.on && r.ties.some((t) => !t.winner))}>
               <summary className="fk-ko-col-title">{roundText(r.round)} <span className="fk-muted">{r.ties.length} ties{r.legs === 2 ? ', two legs' : ''}</span></summary>
               <div className="fk-cup-qual-ties">{r.ties.map((t) => <TieCard key={`${t.a}-${t.b}`} t={t} today={today} />)}</div>
             </details>
@@ -137,13 +160,15 @@ function DomesticCupPage({ cfg, today }: { cfg: DomesticCup; today: string }) {
         </section>
       </div>
     </div>
+    </CupSimCtx.Provider>
   );
 }
 
 export default function CupsPage({ cup, today }: { cup: string; today: string }) {
   const domestic = DOMESTIC_CUPS.find((c) => c.slug === cup);
-  if (domestic) return <DomesticCupPage cfg={domestic} today={today} />;
-  return <ContinentalCupPage cup={cup} today={today} />;
+  // keyed by cup: each cup has its own simulator state and picks
+  if (domestic) return <DomesticCupPage key={cup} cfg={domestic} today={today} />;
+  return <ContinentalCupPage key={cup} cup={cup} today={today} />;
 }
 
 function ContinentalCupPage({ cup, today }: { cup: string; today: string }) {
@@ -158,11 +183,15 @@ function ContinentalCupPage({ cup, today }: { cup: string; today: string }) {
     };
   }, [model, cfg]);
   const legend = cfg.groupZones.filter((z, i, a) => a.findIndex((x) => x.kind === z.kind) === i);
+  const simRounds = useMemo<SimRound[]>(() => cfg.knockout.map((r, i) => ({ round: r, ties: knockout[i]!, open: 0 })), [cfg, knockout]);
+  const { state: sim, setOn, clear, empty } = useCupSim(cfg.slug, simRounds);
   return (
-    <div className="fk-ucl fk-lt fk-cups" data-testid="cups-page" data-cup={cfg.slug}>
+    <CupSimCtx.Provider value={sim}>
+    <div className="fk-ucl fk-lt fk-cups" data-testid="cups-page" data-cup={cfg.slug} data-sim={sim.on || undefined}>
       <div className="fk-ucl-head">
         <h2>{model.comp(cfg.slug).name}</h2>
         <span className="fk-muted">Final {shortDay(cfg.final.day)}, {cfg.final.venue}</span>
+        <CupSimBar on={sim.on} onToggle={() => setOn(!sim.on)} onClear={clear} empty={empty} view={sim.view} />
       </div>
       <section className="fk-ko" data-testid="cup-knockout">
         <h3>Knockout stages</h3>
@@ -171,7 +200,9 @@ function ContinentalCupPage({ cup, today }: { cup: string; today: string }) {
             <div key={r} className="fk-ko-col">
               <div className="fk-ko-col-title">{roundText(r)}</div>
               <div className="fk-ko-col-ties">
-                {knockout[i]!.length ? knockout[i]!.map((t) => <TieCard key={`${t.a}-${t.b}`} t={t} today={today} />) : <div className="fk-ko-tie fk-ko-projected fk-muted">not fixtured yet</div>}
+                {knockout[i]!.map((t) => <TieCard key={`${t.a}-${t.b}`} t={t} today={today} />)}
+                {sim.on && <CupSimWaiting teams={sim.view.rounds[i]?.waiting ?? []} />}
+                {!knockout[i]!.length && <div className="fk-ko-tie fk-ko-projected fk-muted">not fixtured yet</div>}
               </div>
             </div>
           ))}
@@ -207,5 +238,6 @@ function ContinentalCupPage({ cup, today }: { cup: string; today: string }) {
         </section>
       </div>
     </div>
+    </CupSimCtx.Provider>
   );
 }
