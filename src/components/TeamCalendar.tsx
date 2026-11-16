@@ -11,6 +11,7 @@ import { withLive } from '../data/live';
 import { CompMark, FormSquares, MatchTime, SeriesChip, TeamLink, tieNote } from './Bits';
 import { useFooty } from './ctx';
 import { DerbyTag, TeamTags } from './Tags';
+import { RunLabel } from './Runs';
 import type { Span } from './page';
 import { useLayoutEffect, useRef, useState } from 'react';
 
@@ -119,6 +120,7 @@ export function TeamCalendar({ team, span, week, month, today, showFree = true }
             <div key={d} className={`fk-cal-cell fk-win-${w.kind}${free ? ' fk-free' : ''}${out ? ' fk-out' : ''}${d === today ? ' fk-today' : ''}${fifa ? ' fk-fifa' : ''}`} data-day={d} title={[free ? `Free ${w.kind === 'mid' ? 'midweek' : 'weekend'} window` : '', fifa?.label ?? ''].filter(Boolean).join('\n') || undefined}>
               <div className="fk-cal-date">
                 <span>{Number(d.slice(8, 10))}</span>
+                {matches.length > 0 && <span className="fk-cal-runs">{matches.map((x) => <RunLabel key={x.id} m={x} team={team} />)}</span>}
                 {fifa && <span className="fk-fifa-dot" aria-label={fifa.label}>FIFA</span>}
               </div>
               {matches.map((x) => <CellMatch key={x.id} m={x} team={team} day={d} />)}

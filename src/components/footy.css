@@ -618,13 +618,13 @@ button.fk-chip:hover {
 .fk-cal-cell {
   position: relative;
   min-height: var(--fk-cal-row);
-  padding: 4px 6px 6px;
+  padding: 3px 6px 4px;
   border: 1px solid var(--fk-border);
   border-radius: 8px;
   background: var(--fk-surface);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 /* each span's smallest row (FK-18: rows grow from it to fill the window) */
 .fk-cal {
@@ -666,8 +666,8 @@ button.fk-chip:hover {
 .fk-cell-match {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 4px 6px;
+  gap: 3px; /* FK-20's extra line: a 6-week month still fits a 911 px window (FK-18) */
+  padding: 3px 6px;
   border-radius: 6px;
   background: var(--fk-surface-2);
   border-left: 3px solid var(--fk-border);
@@ -1709,4 +1709,44 @@ button.fk-chip:hover {
 .fk-num-lose {
   font-weight: 500;
   color: var(--fk-muted);
+}
+
+/* FK-21: road trips and homestands (calendarkit's runs.css): road = rose-red, homestand = periwinkle, an outlined
+   pill on each match of the run */
+.fk-root {
+  --fk-road: #ef7f96;
+  --fk-home: #8f9dff;
+}
+[data-run='road'] {
+  --fk-run: var(--fk-road);
+}
+[data-run='home'] {
+  --fk-run: var(--fk-home);
+}
+.fk-run-label {
+  display: inline-block;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0 5px;
+  border-radius: 999px;
+  color: var(--fk-run);
+  background: var(--fk-bg);
+  border: 1px solid var(--fk-run);
+  font-variant-numeric: tabular-nums;
+  cursor: help;
+}
+/* Calendar: after the day number */
+.fk-cal-date .fk-cal-runs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 4px;
+  margin: 0 6px;
 }

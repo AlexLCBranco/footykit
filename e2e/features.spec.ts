@@ -240,3 +240,23 @@ test('FK-20: a Calendar cell reads "NEW 1 @ 3 EVE", the winner\'s number bright;
   await expect(next.locator('.fk-cell-top')).toContainText('14:30');
   expect(errors).toEqual([]);
 });
+
+test('FK-21: road trip and homestand labels on the team Calendar and List, counted over the whole season', async ({ page }) => {
+  const errors = await open(page, '?view=cal&team=86&span=month');
+  const label = (d: string) => page.locator(`.fk-cal-cell[data-day="${d}"]`).getByTestId('run-label');
+  await expect(label('2026-11-01')).toHaveText('Road trip · 1/3');
+  await expect(label('2026-11-04')).toHaveText('Road trip · 2/3');
+  await expect(label('2026-11-07')).toHaveText('Road trip · 3/3');
+  await expect(label('2026-11-21')).toHaveText('Homestand · 1/3');
+  await expect(label('2026-11-01')).toHaveCSS('border-top-color', 'rgb(239, 127, 150)');
+  await expect(label('2026-11-21')).toHaveCSS('border-top-color', 'rgb(143, 157, 255)');
+  await expect(label('2026-11-01')).toHaveAttribute('title', /Road trip · match 1 of 3\n.+ – .+\n.+ → /);
+  // a run crossing the month keeps its full length: Como's 4-match homestand from Nov 21 ends "4/4" in December
+  await page.goto('/football/?view=cal&team=2572&span=month');
+  await page.getByLabel('Next').click();
+  await expect(page.locator('.fk-cal-cell[data-day="2026-12-02"]').getByTestId('run-label')).toHaveText('Homestand · 4/4');
+  // the List
+  await page.goto('/football/?view=list&team=86');
+  await expect(page.getByTestId('run-label').filter({ hasText: 'Road trip · 2/3' })).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
