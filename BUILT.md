@@ -5,6 +5,8 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-16
+- FK-32 — Bigger, more informative last-games squares (v0.44.0) — A Slate card's last five games are bigger squares showing the opponent's crest on green / grey / red, each after "vs" (home) or "@" (away) in a fixed slot so they line up; cards are a little wider to fit them.
+- FK-31 — Score closer to the team names on the Slate card (v0.44.0) — On a Slate card the score now sits right after each team's name instead of at the far right past the form squares.
 - FK-30 — Simulator for every cup (v0.43.0) — Every cup page has a Simulator button: click a team in any tie still to play to send it through (again to clear), the next round lists who is in it (unpaired until it's drawn), a picked final shows the champion; picks are kept per cup.
 - FK-29 — Move the UCL into the Cups section (v0.42.0) — The UCL tab is gone from the bar: the Champions League is the first entry in the Cups picker and opens its page (simulator included) with Cups selected; old ?view=ucl links still work.
 - FK-27 — Highlight today in the List view (v0.41.0) — In a club's List view today's line has a blue outline, tint and a "Today" pill, on a match day or not (with rest days off it still gets a "No match" line).

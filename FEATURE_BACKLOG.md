@@ -14,12 +14,6 @@ Show each team's current position in its domestic league table on the match rows
 Open: where and how it's displayed is not decided yet. Ask the owner before building.
 Blocked: needs the owner's choice of where (Day List / Slate / Team List rows, which side of the name) and how (e.g. "3rd", "#3", with the league code for cup matches) the position is shown.
 
-### FK-31 — Score closer to the team names on the Slate card
-On the match card (e.g. Cruzeiro 1 × 0 Atlético-MG), the score sits at the far right past the form dots, far from the names. Move it right next to the team names.
-
-### FK-32 — Bigger, more informative last-games squares
-On the match card, make the form squares bigger. Each square shows the opponent's crest (or short name), colored green / grey / red for win / draw / loss, and is prefixed "vs" for a home game or "@" for an away game. The prefix sits in a fixed-width slot so the squares stay aligned either way. Football cards carry less information than NBA ones, so there's room.
-
 ### FK-33 — Season-series popup like calendarkit's
 footykit already has the "k/n" series chip and a meetings popup. Make the popup look and work like calendarkit's (the "G2/4" badge popup): a header "A – B · N meetings" with "X leads n–m" on the right, and one card per meeting (home/away, crest, winner and score for played games, date; the current game outlined). Count meetings across all competitions.
 

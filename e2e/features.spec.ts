@@ -434,3 +434,31 @@ test('FK-30: every cup has a simulator — pick ties, the bracket follows, kept,
   expect(await page.evaluate(() => localStorage.getItem('fk:whatif:v1'))).toBeNull();
   expect(errors).toEqual([]);
 });
+
+test('FK-31 / FK-32: Slate card score beside the name; bigger last-games squares with crests and vs / @', async ({ page }) => {
+  const errors = await open(page, '?view=slate');
+  // a day of played matches in the recorded snapshot
+  await page.getByLabel('Pick a date').fill('2026-11-08');
+  const card = page.getByTestId('slate-card').first();
+  await expect(card).toBeVisible();
+  const rows = await page.locator('[data-testid="slate-card"] .fk-card-row').evaluateAll((els) => els.map((r) => {
+    const name = r.querySelector('.fk-team-name')!.getBoundingClientRect();
+    const score = r.querySelector('[data-testid="card-score"]')?.getBoundingClientRect();
+    const sq = [...r.querySelectorAll('.fk-fg-sq')].map((s) => s.getBoundingClientRect());
+    return { gap: score ? score.left - name.right : undefined, sqLefts: sq.map((s) => Math.round(s.left - r.getBoundingClientRect().left)), sqW: sq[0]?.width, prefixes: [...r.querySelectorAll('[data-testid="form-game"] .fk-fg-at')].map((p) => p.textContent) };
+  }));
+  // FK-31: every played card's score sits right after the name
+  for (const r of rows) { expect(r.gap).toBeGreaterThanOrEqual(0); expect(r.gap).toBeLessThan(12); }
+  // FK-32: 22 px squares, "vs" / "@" before each, at the same x on every row
+  const withForm = rows.filter((r) => r.sqLefts.length);
+  expect(withForm.length).toBeGreaterThan(5);
+  for (const r of withForm) {
+    expect(r.sqW).toBe(22);
+    expect(r.sqLefts).toEqual(withForm[0]!.sqLefts);
+    for (const p of r.prefixes) expect(['vs', '@']).toContain(p);
+  }
+  const game = card.getByTestId('form-game').first();
+  await expect(game.locator('img')).toHaveCount(1); // the opponent's crest
+  expect(['W', 'D', 'L']).toContain(await game.getAttribute('data-result'));
+  expect(errors).toEqual([]);
+});

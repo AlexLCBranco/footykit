@@ -10,7 +10,7 @@ import { neutralVenue } from '../data/neutral';
 import type { Match } from '../data/snapshot';
 import { NoteBox } from '../slate/NoteBox';
 import type { SlateNotes } from '../slate/notes';
-import { CompMark, FormSquares, MatchLink, MatchTime, SeriesChip, TeamLink, tieNote } from './Bits';
+import { CompMark, FormGames, MatchLink, MatchTime, SeriesChip, TeamLink, tieNote } from './Bits';
 import { DerbyTag, TeamTags } from './Tags';
 import { useFooty } from './ctx';
 import { dayMatches } from './DayList';
@@ -26,12 +26,13 @@ function SideRow({ m, side, day, odds }: { m: Match; side: 'a' | 'h'; day: strin
   return (
     <div className={`fk-card-row${win ? ' fk-win' : ''}`}>
       <span className="fk-card-at">{side === 'h' ? (neutralVenue(m) ? 'v' : '@') : ''}</span>
+      {/* FK-31: the score right after the name, before the tags */}
       <span className="fk-card-teamcell">
         <TeamLink id={id} day={day} label="short" logoSize={26} className="fk-card-team" />
+        {shown && <span className="fk-card-score" data-testid="card-score">{score}</span>}
         <TeamTags m={m} side={side} />
       </span>
-      {model.followed.has(id) ? <FormSquares line={formAt(model, id, m)} teamId={id} /> : <span className="fk-form-gap" />}
-      <span className="fk-card-score">{shown ? score : ''}</span>
+      {model.followed.has(id) ? <FormGames line={formAt(model, id, m)} teamId={id} /> : <span className="fk-form-gap" />}
       <span className="fk-card-odds" title={odds ? `${model.team(id).name} to win (decimal)` : undefined}>{odds?.toFixed(2) ?? ''}</span>
     </div>
   );

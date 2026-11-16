@@ -5,7 +5,7 @@
 import { useState, type MouseEvent, type ReactNode } from 'react';
 import { compLogoUrl, teamLogoUrl } from '../address';
 import { formAt, recordText, type FormLine } from '../data/form';
-import { kickoffTime, isPlayed } from '../data/model';
+import { kickoffTime, isPlayed, shortDay } from '../data/model';
 import { neutralVenue } from '../data/neutral';
 import { seasonSeries } from '../data/series';
 import { matchUrl, type Match } from '../data/snapshot';
@@ -97,6 +97,40 @@ export function FormSquares({ line, teamId }: { line: FormLine; teamId: string }
       {squares}
     </button>
   );
+}
+
+/** FK-32: the Slate card's last games: one square per match (oldest first), the opponent's crest (its short name if the
+ * crest fails) on the result's colour, after "vs" (home) or "@" (away) in a slot of one width so the squares line up. */
+export function FormGames({ line, teamId }: { line: FormLine; teamId: string }) {
+  const { model, onStandings } = useFooty();
+  const t = model.team(teamId);
+  const tip = [
+    `${t.name}: last ${line.games.length}`,
+    ...line.games.map((g) => `${g.r} ${g.gf}-${g.ga} ${g.home ? 'vs' : '@'} ${model.team(g.opp).name} (${shortDay(g.day)})`),
+    `League record ${recordText(line.record)} (W-D-L)`,
+    line.streak && `Streak ${line.streak}`,
+    onStandings && 'Click: standings',
+  ].filter(Boolean).join('\n');
+  const empty = Array.from({ length: 5 - line.games.length }, (_, i) => <span key={`e${i}`} className="fk-fg"><span className="fk-fg-at" /><span className="fk-fg-sq" /></span>);
+  const squares = [...empty, ...line.games.map((g) => (
+    <span key={g.id} className="fk-fg" data-testid="form-game" data-result={g.r} data-home={g.home || undefined}>
+      <span className="fk-fg-at">{g.home ? 'vs' : '@'}</span>
+      <span className={`fk-fg-sq fk-form-${g.r}`}><GameCrest id={g.opp} /></span>
+    </span>
+  ))];
+  if (!onStandings) return <span className="fk-form fk-form-games fk-form-plain" title={tip} data-testid="form">{squares}</span>;
+  return (
+    <button type="button" className="fk-form fk-form-games" title={tip} data-testid="form" onClick={(e) => { e.stopPropagation(); onStandings(teamId); }}>
+      {squares}
+    </button>
+  );
+}
+
+function GameCrest({ id }: { id: string }) {
+  const { model } = useFooty();
+  const [failed, setFailed] = useState(false);
+  if (failed) return <span className="fk-fg-name">{model.team(id).abbr}</span>;
+  return <img src={teamLogoUrl(id)} alt={model.team(id).abbr} width={16} height={16} loading="lazy" decoding="async" onError={() => setFailed(true)} />;
 }
 
 /** "2-1 agg", "pens 4-5" — a second leg's or a shootout's line, from the home side. */

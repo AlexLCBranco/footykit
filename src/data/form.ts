@@ -11,6 +11,8 @@ export type Result = 'W' | 'D' | 'L';
 export interface FormLine {
   /** up to 5 results, oldest first */
   last5: Result[];
+  /** the same matches: opponent, home or away, result, score from the club's side (FK-32, the Slate card's squares) */
+  games: { id: string; opp: string; home: boolean; r: Result; gf: number; ga: number; day: string }[];
   /** league record W-D-L */
   record: [number, number, number];
   /** "W3", "D1", "L2"; undefined before the first played match */
@@ -45,7 +47,11 @@ export function formAt(model: Model, teamId: string, m: Match): FormLine {
     const r = resultFor(x, teamId)!;
     record[r === 'W' ? 0 : r === 'D' ? 1 : 2]++;
   }
-  const line: FormLine = { last5: results.slice(-5), record };
+  const games = played.slice(-5).map((x) => {
+    const home = x.h === teamId;
+    return { id: x.id, opp: home ? x.a : x.h, home, r: resultFor(x, teamId)!, gf: home ? x.hs! : x.as!, ga: home ? x.as! : x.hs!, day: model.dayOf(x) };
+  });
+  const line: FormLine = { last5: results.slice(-5), record, games };
   const last = results[results.length - 1];
   if (last) {
     let n = 0;
