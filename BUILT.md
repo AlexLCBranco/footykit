@@ -13,6 +13,9 @@ spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Featu
 - FK-29 — Move the UCL into the Cups section (v0.42.0) — The UCL tab is gone from the bar: the Champions League is the first entry in the Cups picker and opens its page (simulator included) with Cups selected; old ?view=ucl links still work.
 - FK-27 — Highlight today in the List view (v0.41.0) — In a club's List view today's line has a blue outline, tint and a "Today" pill, on a match day or not (with rest days off it still gets a "No match" line).
 
+### Internal
+- FK-26 — Fix the window streak count — no bug: the count was right (Flamengo at Vasco, Oct 29 is the 7th straight window; owner confirmed); a test now pins it (tests/window-streak.test.ts).
+
 ## 2026-11-15
 - FK-25 — Screenshot parity pass against calendarkit (v0.40.0) — A side-by-side pass against calendarkit: list rows and Slate cards on its card surface, its table panels and Quick standings frame, its month dividers and page margins; screenshots and the differences kept on purpose are in docs/parity/.
 - FK-24 — Team Calendar grid and cells on calendarkit's design (v0.39.0) — The club Calendar uses calendarkit's grid and cards: small day numbers, today in blue, the kickoff on top of every match, the matchup line, chips below with the competition as a pill, content scaled to fill each cell, and the key moved into the ⓘ.
