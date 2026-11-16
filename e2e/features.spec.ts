@@ -51,7 +51,7 @@ test('FK-12: the club picker takes typing, accentless, and Enter picks the club'
   await picker.press('ArrowDown');
   await picker.press('ArrowUp');
   await picker.press('Enter');
-  await expect(page).toHaveTitle(/^Sat, Nov 21/);
+  await expect(page).toHaveTitle(/^Day · Nov 21/);
   expect(errors).toEqual([]);
 });
 
@@ -140,7 +140,7 @@ test('FK-16: from a team page, one click on a main tab or the × lands on that m
   // the × goes to the main List on today
   await page.goto('/football/?view=list&team=359');
   await page.getByTestId('club-clear').click();
-  await expect(page).toHaveTitle('Sat, Nov 21 — footykit');
+  await expect(page).toHaveTitle('Day · Nov 21 — footykit');
   await expect(page.getByTestId('day-list')).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -184,5 +184,43 @@ test('FK-18: the team Calendar fills the window down to the bottom; a short wind
   await page.setViewportSize({ width: 1920, height: 500 });
   await expect.poll(async () => Math.min(...(await fit()).rows)).toBeGreaterThanOrEqual(92);
   expect((await fit()).scrolls).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('FK-19: the tab title follows every navigation, worded like calendarkit', async ({ page }) => {
+  const errors = await open(page);
+  const title = (t: string) => expect(page).toHaveTitle(`${t} — footykit`);
+  await title('Day · Nov 21');
+  await page.getByLabel('Next').click(); await title('Day · Nov 22');
+  await page.getByTestId('today').click(); await title('Day · Nov 21');
+  await page.getByLabel('Pick a date').fill('2026-11-25'); await title('Day · Nov 25');
+  await page.getByTestId('views').getByRole('tab', { name: 'Slate' }).click(); await title('Slate · Nov 25');
+  await page.getByLabel('Previous').click(); await title('Slate · Nov 24');
+  // club pick → its calendar, span changes, steps, its list, unpick
+  const picker = page.getByTestId('scope-picker');
+  await picker.click(); await picker.pressSequentially('arsenal'); await picker.press('Enter');
+  await expect(page).toHaveTitle(/^ARS schedule · Nov 16 – 29 /);
+  await page.getByTestId('span').getByRole('tab', { name: 'Month' }).click(); await title('ARS schedule · Nov 2026');
+  await page.getByLabel('Next').click(); await title('ARS schedule · Dec 2026');
+  await page.getByTestId('today').click(); await title('ARS schedule · Nov 2026');
+  await page.getByTestId('span').getByRole('tab', { name: '1 week' }).click(); await title('ARS schedule · Nov 16 – 22');
+  await page.getByLabel('Next').click(); await title('ARS schedule · Nov 23 – 29');
+  await page.getByLabel('Next').click(); await title('ARS schedule · Nov 30 – Dec 6');
+  await page.getByTestId('team-views').getByRole('tab', { name: 'List' }).click(); await expect(page).toHaveTitle(/^ARS list · /);
+  await page.getByText(/Load earlier/).click(); await expect(page).toHaveTitle(/^ARS list · \w{3} – \w{3} 2026 — footykit$/);
+  await page.getByTestId('club-clear').click(); await title('Day · Nov 21');
+  // other views and their pickers
+  await page.getByTestId('views').getByRole('tab', { name: 'UCL' }).click(); await title('Champions League');
+  await page.getByTestId('views').getByRole('tab', { name: 'Tables' }).click(); await title('Premier League table');
+  await page.getByTestId('league-picker').selectOption('bra.1'); await title('Brasileirão table');
+  await page.getByTestId('views').getByRole('tab', { name: 'Cups' }).click(); await title('Libertadores');
+  await page.getByTestId('cup-picker').selectOption('eng.fa'); await title('FA Cup');
+  await page.getByTestId('views').getByRole('tab', { name: 'Trailing' }).click(); await expect(page).toHaveTitle(/goals while trailing — footykit$/);
+  // back / forward and a direct load
+  await page.goBack(); await title('FA Cup');
+  await page.goForward(); await expect(page).toHaveTitle(/goals while trailing/);
+  await page.getByTestId('page-history').getByLabel('Back').click(); await title('FA Cup');
+  await page.goto('/football/?view=list&team=359'); await title('ARS list · Nov 2026');
+  await page.goto('/football/?view=slate'); await title('Slate · Nov 21');
   expect(errors).toEqual([]);
 });

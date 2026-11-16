@@ -16,7 +16,7 @@ async function open(page: Page, search = '') {
 
 test('day list: the day\'s matches of the followed clubs, by kickoff, in Brazil time', async ({ page }) => {
   const errors = await open(page);
-  await expect(page).toHaveTitle('Sat, Nov 21 — footykit');
+  await expect(page).toHaveTitle('Day · Nov 21 — footykit');
   const rows = page.getByTestId('match-row');
   await expect(rows).toHaveCount(20);
   await expect(rows.first()).toContainText('09:30');
@@ -30,7 +30,7 @@ test('day list: the day\'s matches of the followed clubs, by kickoff, in Brazil 
 test('days are never skipped: a day without matches says so', async ({ page }) => {
   const errors = await open(page);
   await page.locator('.fk-strip-day', { hasText: '16' }).first().click();
-  await expect(page).toHaveTitle('Mon, Nov 16 — footykit');
+  await expect(page).toHaveTitle('Day · Nov 16 — footykit');
   await expect(page.getByTestId('no-matches')).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -39,21 +39,21 @@ test('a team link opens its Team Calendar; ← comes back', async ({ page }) => 
   const errors = await open(page);
   await page.locator('[data-team="ARS"]').first().click();
   // month span, on the current month
-  await expect(page).toHaveTitle(/^ARS · Nov 2026/);
+  await expect(page).toHaveTitle(/^ARS schedule · Nov 2026/);
   await expect(page.getByTestId('span').getByRole('tab', { name: 'Month' })).toHaveAttribute('aria-selected', 'true');
   // a span picked now sticks…
   await page.getByTestId('span').getByRole('tab', { name: '2 weeks' }).click();
-  await expect(page).toHaveTitle(/^ARS · Nov/);
+  await expect(page).toHaveTitle(/^ARS schedule · Nov/);
   await page.getByTestId('page-history').getByLabel('Back').click();
-  await expect(page).toHaveTitle(/^ARS · Nov 2026/);
+  await expect(page).toHaveTitle(/^ARS schedule · Nov 2026/);
   await page.getByTestId('page-history').getByLabel('Back').click();
-  await expect(page).toHaveTitle('Sat, Nov 21 — footykit');
+  await expect(page).toHaveTitle('Day · Nov 21 — footykit');
   expect(errors).toEqual([]);
 });
 
 test('team calendar month and team list', async ({ page }) => {
   const errors = await open(page, '?view=cal&team=359&span=month');
-  await expect(page).toHaveTitle('ARS · Nov 2026 — footykit');
+  await expect(page).toHaveTitle('ARS schedule · Nov 2026 — footykit');
   await expect(page.getByTestId('cal-match').first()).toBeVisible();
   await page.getByTestId('team-views').getByText('List').click();
   await expect(page).toHaveTitle(/^ARS list · Nov 2026/);
@@ -92,9 +92,9 @@ test('season series popup and quick standings', async ({ page }) => {
 test('a reload keeps the page; the version is shown', async ({ page }) => {
   await open(page);
   await page.getByLabel('Next').click();
-  await expect(page).toHaveTitle('Sun, Nov 22 — footykit');
+  await expect(page).toHaveTitle('Day · Nov 22 — footykit');
   await page.reload();
-  await expect(page).toHaveTitle('Sun, Nov 22 — footykit');
+  await expect(page).toHaveTitle('Day · Nov 22 — footykit');
   const v = (await import('../package.json', { with: { type: 'json' } })).default.version;
   await expect(page.getByTestId('site-version')).toHaveText(`v${v}`);
 });
@@ -207,7 +207,7 @@ test('Champions League page: 36 rows, 8 squares each, zones and paths', async ({
   await expect(page.getByTestId('ucl-knockout')).toContainText('if the league phase ended now');
   // reached from the bar too, and back
   await page.getByTestId('views').getByText('List').click();
-  await expect(page).toHaveTitle('Sat, Nov 21 — footykit');
+  await expect(page).toHaveTitle('Day · Nov 21 — footykit');
   await page.getByTestId('views').getByText('UCL').click();
   await expect(rows).toHaveCount(36);
   expect(errors).toEqual([]);
@@ -609,7 +609,7 @@ test('team names open the month Calendar from the tables, UCL, Trailing and cups
   for (const search of ['?view=table&league=eng.1', '?view=ucl', '?view=trailing&comp=eng.1', '?view=cups&cup=eng.league_cup']) {
     errors.push(...await open(page, search));
     await page.locator('a.fk-team, button.fk-team').filter({ hasText: 'Arsenal' }).first().click();
-    await expect(page, search).toHaveTitle(/^ARS · Nov 2026/);
+    await expect(page, search).toHaveTitle(/^ARS schedule · Nov 2026/);
   }
   expect(errors).toEqual([]);
 });

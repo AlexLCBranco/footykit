@@ -137,12 +137,12 @@ describe('page helpers', () => {
     const t = teamPage({ ...p, span: 1 }, ARS, '2026-11-21');
     expect(t).toMatchObject({ view: 'cal', team: ARS, span: 1, week: '2026-11-16', month: '2026-11' });
     expect(pageFromSearch(pageSearch(t), '2026-11-14', model)).toMatchObject({ view: 'cal', team: ARS, span: 1 });
-    expect(pagePart(t, model)).toBe('ARS · Nov 16 – Nov 22');
+    expect(pagePart(t, model)).toBe('ARS schedule · Nov 16 – 22');
   });
   it('a team-name click opens that team\'s calendar in month span on the current month, whatever span was shown', () => {
     const t = teamClickPage({ ...p, view: 'cal', team: ARS, span: 1 }, ARS, '2026-10-03', '2026-11-14');
     expect(t).toMatchObject({ view: 'cal', team: ARS, span: 'month', month: '2026-11' });
-    expect(pagePart(t, model)).toBe('ARS · Nov 2026');
+    expect(pagePart(t, model)).toBe('ARS schedule · Nov 2026');
     // a span the person picks afterwards is kept by the page until the next click
     expect(pageFromSearch(pageSearch({ ...t, span: 2 }), '2026-11-14', model)).toMatchObject({ span: 2 });
     // the Slate part's team link (a host outside footykit) opens the same

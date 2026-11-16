@@ -3,7 +3,7 @@
 
 import type { LeagueSlug } from '../../config/season';
 import { DEFAULT_TRAILING, TRAILING_COMPS } from '../data/trailing';
-import { addDays, addMonths, dayLabel, monthLabel, monthOf, mondayOf, shortDay, type Model } from '../data/model';
+import { addDays, addMonths, monthLabel, monthOf, mondayOf, shortDay, type Model } from '../data/model';
 
 /** day = the day's matches (list), slate = the day as cards, cal = Team Calendar, list = Team List, ucl = the Champions
  * League page, whatif = a what-if simulator (the UCL's, or with `league` a league's), table = a league table, cups = the
@@ -113,21 +113,25 @@ export function isPage(x: unknown): x is Page {
   return !!p && typeof p === 'object' && ['day', 'slate', 'cal', 'list', 'ucl', 'whatif', 'table', 'cups', 'trailing'].includes(p.view) && typeof p.day === 'string' && typeof p.week === 'string' && typeof p.month === 'string' && typeof p.listFrom === 'string';
 }
 
-/** The tab title's page part, most specific first ("ARS · Nov 2026", "Slate · Sat, Nov 21"). */
+/** "Nov 8 – 14", "Nov 29 – Dec 5" (calendarkit's pageTitle.ts) */
+const dayRange = (from: string, to: string) => (from.slice(0, 7) === to.slice(0, 7) ? `${shortDay(from)} – ${Number(to.slice(8, 10))}` : `${shortDay(from)} – ${shortDay(to)}`);
+/** "Nov 2026", "Oct – Nov 2026", "Dec 2026 – Jan 2027" */
+const monthRange = (from: string, to: string) =>
+  from === to ? monthLabel(from, false) : from.slice(0, 4) === to.slice(0, 4) ? `${monthLabel(from, false).slice(0, 3)} – ${monthLabel(to, false)}` : `${monthLabel(from, false)} – ${monthLabel(to, false)}`;
+
+/** The tab title's page part, most specific first, worded like calendarkit's ("ARS schedule · Nov 2026", "ARS list ·
+ * Oct – Nov 2026", "Day · Nov 21", "Slate · Nov 21"). */
 export function pagePart(p: Page, model: Model): string {
   const abbr = p.team ? model.team(p.team).abbr : '';
-  if (p.view === 'cal') {
-    if (p.span === 'month') return `${abbr} · ${monthLabel(p.month, false)}`;
-    return `${abbr} · ${shortDay(p.week)} – ${shortDay(addDays(p.week, 7 * p.span - 1))}`;
-  }
-  if (p.view === 'list') return `${abbr} list · ${p.listFrom === p.month ? monthLabel(p.month, false) : `${monthLabel(p.listFrom, false)} – ${monthLabel(p.month, false)}`}`;
-  if (p.view === 'slate') return `Slate · ${dayLabel(p.day)}`;
+  if (p.view === 'cal') return `${abbr} schedule · ${p.span === 'month' ? monthLabel(p.month, false) : dayRange(p.week, addDays(p.week, 7 * p.span - 1))}`;
+  if (p.view === 'list') return `${abbr} list · ${monthRange(p.listFrom, p.month)}`;
+  if (p.view === 'slate') return `Slate · ${shortDay(p.day)}`;
   if (p.view === 'ucl') return p.uclTab === 'pots' ? 'Champions League pots' : 'Champions League';
   if (p.view === 'whatif') { const l = simLeague(p); return `${l ? model.comp(l).name : 'UCL'} simulator`; }
   if (p.view === 'table') return `${model.comp(p.league ?? DEFAULT_LEAGUE).name} table`;
   if (p.view === 'cups') return model.comp(p.cup ?? DEFAULT_CUP).name;
   if (p.view === 'trailing') return `${model.comp(p.comp ?? DEFAULT_TRAILING).name} goals while trailing`;
-  return dayLabel(p.day);
+  return `Day · ${shortDay(p.day)}`;
 }
 
 export const pageTitle = (p: Page, model: Model) => `${pagePart(p, model)} — ${SITE_NAME}`;

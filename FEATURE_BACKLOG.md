@@ -5,14 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-19 — Browser tab title follows the page, like calendarkit
-
-`pageTitle()` in `src/components/page.ts` already sets titles (e.g. "NEW · Nov 2026 — footykit"), but the owner says it doesn't follow where he is. Reference: calendarkit's `src/pageTitle.ts` ("BOS schedule · Nov 2026 — calendarkit", "Slate · Nov 13 — calendarkit", most specific part first).
-
-- Make sure the title updates on every navigation: view tabs, club pick/unpick, ‹ › steps, Today, date input, span change, league/cup/comp pickers, back/forward, and direct URL load.
-- Align the wording with calendarkit: team pages read "<ABBR> schedule · <period>" (calendar) / "<ABBR> list · <period>" (list); Day List "Day · Nov 15", Slate "Slate · Nov 15"; others keep their current names.
-- Tests: e2e walks through each view and asserts `document.title` after each step.
-
 ### FK-20 — Team calendar cells: both abbreviations with the score between them
 
 In the team Calendar cells, a played match shows "[logo] @ [logo] EVE" and the score only lower down ("L 1-3"). Like calendarkit ("BOS 108 @ 97 ORL"):
