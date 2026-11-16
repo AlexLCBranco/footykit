@@ -80,6 +80,14 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   (`?view=trailing&comp=…`, "Trailing" on the bar, lazy `TrailingPage.tsx`; logic `src/data/trailing.ts`): the goals
   each team scored while the other side was ahead, per competition, for the competitions whose goals ESPN gives in
   full (audit in docs/HISTORY.md). The snapshot now keeps each match's goals (`Match.g`).
+- **Backlog FK-27 … FK-34 (2026-11-16)**: v0.41.0 FK-27 today highlighted in the Team List (`fk-is-today`, a "No match"
+  line when today has none). v0.42.0 FK-29 the UCL tab is gone: the Champions League is the first entry of the Cups picker
+  (`UCL_SLUG` in page.ts; `?view=ucl` and `?view=cups&cup=uefa.champions` open it). v0.43.0 FK-30 a simulator on every cup
+  page (`src/data/cupSim.ts`, `CupSim.tsx`): picks only, unfixtured rounds list the clubs through without pairing them;
+  picks per cup in `fk:whatif:v1` comps. v0.44.0 FK-31 / FK-32 the Slate card's score beside the name and its last games
+  as crest squares (`FormGames`, `FormLine.games`). v0.45.0 FK-33 calendarkit's season series popup (`seriesStatus`).
+  v0.46.0 FK-34 the Tags setting in plain words with descriptions (`TagVariantPicker`; values in `fk:tags:v1` unchanged:
+  chips = All tags, rail = Window strip, alerts = Highlights only, off = Hide tags). FK-26 and FK-28 Blocked (backlog notes).
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site

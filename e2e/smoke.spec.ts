@@ -163,7 +163,7 @@ test('marquee selection: drag over two rows, copy only them; a click clears it',
 for (const variant of ['chips', 'rail', 'alerts'] as const) {
   test(`context tags, ${variant} variant: drawn next to the teams, kept after a reload`, async ({ page }) => {
     const errors = await open(page);
-    await page.getByTestId('tag-variant').selectOption(variant);
+    await page.getByTestId('tag-variant').click(); await page.getByTestId(`tag-variant-${variant}`).click();
     const tags = page.locator(`[data-testid="team-tags"][data-variant="${variant}"]`);
     await expect(tags.first()).toBeVisible();
     // Sat Nov 21: the Seville derby is flagged; Sunderland (in the drop zone) carries Z4R in chips and alerts
@@ -177,7 +177,7 @@ for (const variant of ['chips', 'rail', 'alerts'] as const) {
     await page.evaluate(() => localStorage.removeItem('fk:tags:hidden:v1'));
     await page.reload();
     await expect(page.locator(`[data-testid="team-tags"][data-variant="${variant}"]`).first()).toBeVisible();
-    await page.getByTestId('tag-variant').selectOption('off');
+    await page.getByTestId('tag-variant').click(); await page.getByTestId('tag-variant-off').click();
     await expect(page.getByTestId('team-tags')).toHaveCount(0);
     await page.evaluate(() => localStorage.removeItem('fk:tags:v1'));
     expect(errors).toEqual([]);

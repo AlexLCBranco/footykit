@@ -15,7 +15,39 @@ import { z4Text } from '../data/z4r';
 import { useFooty } from './ctx';
 
 export type TagVariant = 'chips' | 'rail' | 'alerts' | 'off';
-export const TAG_VARIANTS: [TagVariant, string][] = [['chips', 'Chips'], ['rail', 'Rail'], ['alerts', 'Alerts'], ['off', 'Off']];
+/** FK-34: the Tags setting in plain words, with what each choice shows (the saved values in fk:tags:v1 are unchanged). */
+export const TAG_VARIANTS: [TagVariant, string, string][] = [
+  ['chips', 'All tags', 'Every tag as a chip next to each team'],
+  ['rail', 'Window strip', 'A three-cell strip per team: previous / this / next window, with short marks'],
+  ['alerts', 'Highlights only', 'Only what stands out: a streak, rest, a cup match next, 3+ competitions, Z4R'],
+  ['off', 'Hide tags', 'No tags next to the teams'],
+];
+
+/** The bar's Tags setting: a button with the choice's name, opening the four choices, each with its one-line description. */
+export function TagVariantPicker({ value, onChange }: { value: TagVariant; onChange: (v: TagVariant) => void }) {
+  const [open, setOpen] = useState(false);
+  const current = TAG_VARIANTS.find(([v]) => v === value) ?? TAG_VARIANTS[0]!;
+  return (
+    <span className="fk-pop-wrap" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpen(false); }}
+      onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false); }}>
+      <button type="button" className="fk-btn fk-tag-variant-btn" aria-haspopup="listbox" aria-expanded={open} data-testid="tag-variant" data-value={value}
+        title={`Tags: ${current[2]}`} onClick={() => setOpen(!open)}>
+        Tags: {current[1]} ▾
+      </button>
+      {open && (
+        <div className="fk-pop fk-tag-variant-pop" role="listbox" aria-label="How tags show" data-testid="tag-variant-pop">
+          {TAG_VARIANTS.map(([v, name, about]) => (
+            <button key={v} type="button" role="option" aria-selected={v === value} className={`fk-tag-variant-opt${v === value ? ' fk-tag-variant-on' : ''}`}
+              data-testid={`tag-variant-${v}`} onClick={() => { onChange(v); setOpen(false); }}>
+              <strong>{name}</strong>
+              <span className="fk-muted">{about}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </span>
+  );
+}
 
 const TAG_KEY = 'fk:tags:v1';
 /** The variant last picked (saved only when picked: no default is ever written). */

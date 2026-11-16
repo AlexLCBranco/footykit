@@ -17,7 +17,7 @@ import { createSelectionStore, useMarqueeSelection } from './selection';
 import { SelectionBar, SelectionStyle } from './SelectionBar';
 import { TeamCalendar } from './TeamCalendar';
 import { TeamList } from './TeamList';
-import { saveHiddenTags, savedHiddenTags, saveTagVariant, savedTagVariant, TAG_VARIANTS, TagMenu, type TagVariant } from './Tags';
+import { saveHiddenTags, savedHiddenTags, saveTagVariant, savedTagVariant, TagMenu, TagVariantPicker, type TagVariant } from './Tags';
 import { TopBar, type History } from './TopBar';
 import { useLive } from './useLive';
 import type { Model } from '../data/model';
@@ -133,12 +133,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
           onStandings={() => setStandings(standings ? null : { team: page.team })}
           info={<Info model={model} timeZone={timeZone} calendarKey={page.view === 'cal' && !!page.team} />}
           end={<>
-            <label className="fk-check fk-tag-pick" title="Context tags next to each team (Phase 3 variants, to compare): hover a team's tags for the details">
-              Tags
-              <select value={tags} onChange={(e) => { const v = e.target.value as TagVariant; setTags(v); saveTagVariant(v); }} data-testid="tag-variant" aria-label="Tag display">
-                {TAG_VARIANTS.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
-              </select>
-            </label>
+            <TagVariantPicker value={tags} onChange={(v) => { setTags(v); saveTagVariant(v); }} />
             {tags !== 'off' && <TagMenu hidden={hiddenTags} onChange={(s) => { setHiddenTags(s); saveHiddenTags(s); }} />}
             {page.view === 'list' && (
               <label className="fk-check" title="A quiet row for each day without a match between the club's first and last match (until a reload)"><input type="checkbox" checked={showRest} onChange={(e) => setShowRest(e.target.checked)} data-testid="show-rest" /> Rest days</label>

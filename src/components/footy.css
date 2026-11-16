@@ -2368,3 +2368,42 @@ a.fk-series-sq:hover {
 .fk-series-next {
   opacity: 0.6;
 }
+
+/* FK-34: the Tags setting's choices, each with its one-line description */
+.fk-tag-variant-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 320px;
+  padding: 4px;
+}
+.fk-tag-variant-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--fk-text);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.fk-tag-variant-opt:hover,
+.fk-tag-variant-opt:focus-visible {
+  background: var(--fk-surface-2);
+  outline: none;
+}
+.fk-tag-variant-opt.fk-tag-variant-on {
+  border-color: var(--fk-accent);
+}
+.fk-tag-variant-opt .fk-muted {
+  font-size: 11px;
+}

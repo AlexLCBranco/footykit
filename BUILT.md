@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-16
+- FK-34 — Make the Tags setting self-explanatory (v0.46.0) — The bar's Tags setting reads "Tags: All tags ▾" and opens four choices in plain words (All tags, Window strip, Highlights only, Hide tags), each with a one-line description; your saved choice carries over.
 - FK-33 — Season-series popup like calendarkit's (v0.45.0) — The k/n chip's popup now matches calendarkit's: "A – B · N meetings" with who leads on the right (draws counted after), and one card per meeting across all competitions with the home crest, "AWAY @ HOME", the winner and score, the date, and the match you opened it from outlined.
 - FK-32 — Bigger, more informative last-games squares (v0.44.0) — A Slate card's last five games are bigger squares showing the opponent's crest on green / grey / red, each after "vs" (home) or "@" (away) in a fixed slot so they line up; cards are a little wider to fit them.
 - FK-31 — Score closer to the team names on the Slate card (v0.44.0) — On a Slate card the score now sits right after each team's name instead of at the far right past the form squares.

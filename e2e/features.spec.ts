@@ -116,7 +116,7 @@ test('FK-15: Z4R and 1C/2C/3C are off by default; turned on they show and surviv
   await expect(z4.first()).toBeVisible();
   await expect(alive.first()).toBeVisible();
   // Rail drops a hidden tag's segment too
-  await page.getByTestId('tag-variant').selectOption('rail');
+  await page.getByTestId('tag-variant').click(); await page.getByTestId('tag-variant-rail').click();
   await expect(page.locator('.fk-rail-mark[data-tag="alive"]').first()).toBeVisible();
   await page.getByTestId('tag-menu').click();
   await page.getByTestId('tag-on-alive').uncheck();
@@ -460,5 +460,25 @@ test('FK-31 / FK-32: Slate card score beside the name; bigger last-games squares
   const game = card.getByTestId('form-game').first();
   await expect(game.locator('img')).toHaveCount(1); // the opponent's crest
   expect(['W', 'D', 'L']).toContain(await game.getAttribute('data-result'));
+  expect(errors).toEqual([]);
+});
+
+test('FK-34: the Tags setting says what each choice does; the saved choice still works', async ({ page }) => {
+  await page.addInitScript(() => { if (!sessionStorage.getItem('fk34')) { localStorage.setItem('fk:tags:v1', 'rail'); sessionStorage.setItem('fk34', '1'); } });
+  const errors = await open(page);
+  const pick = page.getByTestId('tag-variant');
+  await expect(pick).toHaveText('Tags: Window strip ▾'); // an old saved "rail" reads as its new name
+  await pick.click();
+  const opts = page.getByTestId('tag-variant-pop').getByRole('option');
+  await expect(opts.locator('strong')).toHaveText(['All tags', 'Window strip', 'Highlights only', 'Hide tags']);
+  for (const o of await opts.all()) await expect(o.locator('.fk-muted')).toHaveText(/^\S+( \S+){3,}$/); // a sentence, not a bare word
+  await expect(page.getByTestId('tag-variant-rail')).toHaveAttribute('aria-selected', 'true');
+  await page.getByTestId('tag-variant-alerts').click();
+  await expect(page.getByTestId('tag-variant-pop')).toHaveCount(0);
+  await expect(pick).toHaveText('Tags: Highlights only ▾');
+  expect(await page.evaluate(() => localStorage.getItem('fk:tags:v1'))).toBe('alerts');
+  await page.reload();
+  await expect(page.getByTestId('tag-variant')).toHaveText('Tags: Highlights only ▾');
+  await page.evaluate(() => localStorage.removeItem('fk:tags:v1'));
   expect(errors).toEqual([]);
 });

@@ -13,6 +13,3 @@ Blocked: no overcount found (2026-11-16). By the snapshot (ESPN), Flamengo has a
 Show each team's current position in its domestic league table on the match rows.
 Open: where and how it's displayed is not decided yet. Ask the owner before building.
 Blocked: needs the owner's choice of where (Day List / Slate / Team List rows, which side of the name) and how (e.g. "3rd", "#3", with the league code for cup matches) the position is shown.
-
-### FK-34 — Make the Tags setting self-explanatory
-The bar's "Tags" dropdown (Chips / Rail / Alerts / Off) doesn't say what anything does. Rename the options to plain words, e.g. "All tags" (every tag as a chip), "Window strip" (the three-cell previous/now/next strip), "Highlights only" (only what stands out), "Hide tags". Show a one-line description under each option. Keep the saved choice working (`fk:tags:v1`).
