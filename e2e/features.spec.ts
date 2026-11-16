@@ -130,7 +130,7 @@ test('FK-16: from a team page, one click on a main tab or the × lands on that m
   await expect(page).toHaveTitle(/^ARS /);
   // the main tabs stay, none selected; the club's own tabs sit in its group
   const main = page.getByTestId('views');
-  await expect(main.getByRole('tab')).toHaveText(['List', 'Slate', 'UCL', 'Tables', 'Cups', 'Trailing']);
+  await expect(main.getByRole('tab')).toHaveText(['List', 'Slate', 'Tables', 'Cups', 'Trailing']);
   await expect(main.locator('[aria-selected="true"]')).toHaveCount(0);
   await expect(page.getByTestId('club-group').getByTestId('team-views')).toBeVisible();
   await main.getByRole('tab', { name: 'Slate' }).click();
@@ -210,7 +210,7 @@ test('FK-19: the tab title follows every navigation, worded like calendarkit', a
   await page.getByText(/Load earlier/).click(); await expect(page).toHaveTitle(/^ARS list · \w{3} – \w{3} 2026 — footykit$/);
   await page.getByTestId('club-clear').click(); await title('Day · Nov 21');
   // other views and their pickers
-  await page.getByTestId('views').getByRole('tab', { name: 'UCL' }).click(); await title('Champions League');
+  await page.getByTestId('views').getByRole('tab', { name: 'Cups' }).click(); await page.getByTestId('cup-picker').selectOption('uefa.champions'); await title('Champions League');
   await page.getByTestId('views').getByRole('tab', { name: 'Tables' }).click(); await title('Premier League table');
   await page.getByTestId('league-picker').selectOption('bra.1'); await title('Brasileirão table');
   await page.getByTestId('views').getByRole('tab', { name: 'Cups' }).click(); await title('Libertadores');
@@ -362,5 +362,29 @@ test('FK-25: calendarkit\'s surfaces: card rows, table panels, the Quick standin
   expect(Math.abs(head!.x - bar!.x)).toBeLessThan(2); // the page starts at the bar's left edge
   await page.goto('/football/?view=list&team=359');
   await expect(page.locator('.fk-tl-month h3').first()).toHaveCSS('text-transform', 'uppercase');
+  expect(errors).toEqual([]);
+});
+
+test('FK-29: the UCL is in the Cups section, not a tab of its own', async ({ page }) => {
+  const errors = await open(page, '?view=cups');
+  const title = (t: string) => expect(page).toHaveTitle(`${t} — footykit`);
+  const views = page.getByTestId('views');
+  await expect(views.getByRole('tab', { name: 'UCL' })).toHaveCount(0);
+  const picker = page.getByTestId('cup-picker');
+  await expect(picker.locator('option').first()).toHaveText('Champions League');
+  await picker.selectOption('uefa.champions');
+  await title('Champions League');
+  await expect(page.getByTestId('ucl-knockout')).toBeVisible();
+  await expect(views.locator('[aria-selected="true"]')).toHaveText('Cups');
+  await expect(picker).toHaveValue('uefa.champions');
+  // its simulator stays in the section; another cup leads back to the cups page
+  await page.getByTestId('ucl-whatif').click();
+  await expect(page).toHaveTitle('UCL simulator — footykit');
+  await expect(views.locator('[aria-selected="true"]')).toHaveText('Cups');
+  await page.getByTestId('cup-picker').selectOption('eng.fa');
+  await expect(page.getByTestId('cups-page')).toHaveAttribute('data-cup', 'eng.fa');
+  // old addresses still work
+  await page.goto('/football/?view=ucl'); await title('Champions League');
+  await page.goto('/football/?view=cups&cup=uefa.champions'); await title('Champions League');
   expect(errors).toEqual([]);
 });

@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 import { addDays, dayLabel, mondayOf, monthLabel, shortDay } from '../data/model';
 import { useFooty } from './ctx';
 import { ClubPicker } from './ClubPicker';
-import { CUP_SLUGS, DEFAULT_CUP, DEFAULT_LEAGUE, LEAGUE_SLUGS, simLeague, type Page, type Span, type View } from './page';
+import { CUP_SLUGS, DEFAULT_CUP, DEFAULT_LEAGUE, LEAGUE_SLUGS, simLeague, UCL_SLUG, type Page, type Span, type View } from './page';
 import type { LeagueSlug } from '../../config/season';
 import { DEFAULT_TRAILING, TRAILING_COMPS } from '../data/trailing';
 
@@ -40,7 +40,7 @@ function CupPicker({ cup, onPick }: { cup: string; onPick: (c: string) => void }
   return (
     <label className="fk-scope" title="The cup shown">
       <select value={cup} onChange={(e) => onPick(e.target.value)} aria-label="Cup" data-testid="cup-picker">
-        {CUP_SLUGS.map((c) => <option key={c} value={c}>{model.comp(c).name}</option>)}
+        {[UCL_SLUG, ...CUP_SLUGS].map((c) => <option key={c} value={c}>{model.comp(c).name}</option>)}
       </select>
     </label>
   );
@@ -84,11 +84,13 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
         )}
       </span>
       {/* the main views stay on the bar in team mode (none selected then); one leaves the club */}
-      <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (simLeague(page) ? 'table' : 'ucl') : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['ucl', 'UCL'], ['table', 'Tables'], ['cups', 'Cups'], ['trailing', 'Trailing']]} onChange={(v) => onPage({ ...page, view: v, team: undefined })} />
+      <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (simLeague(page) ? 'table' : 'cups') : page.view === 'ucl' ? 'cups' : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['table', 'Tables'], ['cups', 'Cups'], ['trailing', 'Trailing']]} onChange={(v) => onPage({ ...page, view: v, team: undefined })} />
       {team && page.view === 'cal' && <Tabs<Span> label="Span" testId="span" value={page.span} options={[[1, '1 week'], [2, '2 weeks'], ['month', 'Month']]} onChange={(s) => onPage({ ...page, span: s, week: page.span === 'month' && s !== 'month' ? mondayOf(today.slice(0, 7) === page.month ? today : `${page.month}-01`) : page.week, month: s === 'month' && page.span !== 'month' ? addDays(page.week, 3).slice(0, 7) : page.month })} />}
       {(page.view === 'table' || (page.view === 'whatif' && simLeague(page))) && <LeaguePicker league={page.league ?? DEFAULT_LEAGUE} onPick={(l) => onPage({ ...page, league: l })} />}
       {page.view === 'trailing' && <CompPicker comp={page.comp ?? DEFAULT_TRAILING} onPick={(c) => onPage({ ...page, comp: c })} />}
-      {page.view === 'cups' && <CupPicker cup={page.cup ?? DEFAULT_CUP} onPick={(c) => onPage({ ...page, cup: c })} />}
+      {/* FK-29: the UCL page (and its simulator) sits in the Cups section: the picker shows it and leads back to the other cups */}
+      {(page.view === 'cups' || page.view === 'ucl' || (page.view === 'whatif' && !simLeague(page))) && <CupPicker cup={page.view === 'cups' ? page.cup ?? DEFAULT_CUP : UCL_SLUG}
+        onPick={(c) => onPage(c === UCL_SLUG ? { ...page, view: 'ucl' } : { ...page, view: 'cups', cup: c })} />}
       {page.view !== 'ucl' && page.view !== 'whatif' && page.view !== 'table' && page.view !== 'cups' && page.view !== 'trailing' && <span className="fk-date-block">
         <button type="button" className="fk-step" aria-label="Previous" title="Previous" onClick={() => onStep(-1)}>‹</button>
         <span className="fk-date-text" data-testid="date-text">{dateText}</span>

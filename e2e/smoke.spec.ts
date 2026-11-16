@@ -208,7 +208,7 @@ test('Champions League page: 36 rows, 8 squares each, zones and paths', async ({
   // reached from the bar too, and back
   await page.getByTestId('views').getByText('List').click();
   await expect(page).toHaveTitle('Day · Nov 21 — footykit');
-  await page.getByTestId('views').getByText('UCL').click();
+  await page.getByTestId('views').getByText('Cups').click(); await page.getByTestId('cup-picker').selectOption('uefa.champions');
   await expect(rows).toHaveCount(36);
   expect(errors).toEqual([]);
 });
@@ -333,7 +333,7 @@ test('league what-if: from the Tables page, windows, picks move the table, kept 
 
 test('Tables keeps its league across a trip to the UCL what-if', async ({ page }) => {
   const errors = await open(page, '?view=table&league=bra.1');
-  await page.getByTestId('views').getByText('UCL').click();
+  await page.getByTestId('views').getByText('Cups').click(); await page.getByTestId('cup-picker').selectOption('uefa.champions');
   await page.getByTestId('ucl-whatif').click();
   await expect(page).toHaveTitle('UCL simulator — footykit');
   await page.getByRole('button', { name: '← UCL' }).click();

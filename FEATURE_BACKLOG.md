@@ -14,9 +14,6 @@ Show each team's current position in its domestic league table on the match rows
 Open: where and how it's displayed is not decided yet. Ask the owner before building.
 Blocked: needs the owner's choice of where (Day List / Slate / Team List rows, which side of the name) and how (e.g. "3rd", "#3", with the league code for cup matches) the position is shown.
 
-### FK-29 — Move the UCL into the Cups section
-The UCL works more like a cup than a league. List it in the Cups section with the other cups (opening the existing UCL page, simulator included) instead of having its own top-level "UCL" tab.
-
 ### FK-30 — Simulator for every cup
 The Simulator already covers the UCL and the six leagues. Add it to every cup on the Cups page: the owner picks the result of each tie still to play and sees how the bracket ends up. Picks only, never auto-generated results. (Libertadores / Sudamericana groups stay in IDEAS.md I-8.)
 

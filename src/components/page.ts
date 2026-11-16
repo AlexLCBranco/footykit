@@ -45,6 +45,8 @@ export const DEFAULT_LEAGUE: LeagueSlug = LEAGUE_SLUGS[0]!;
 // the cups page's competitions (config/conmebol.ts and config/domesticCups.ts hold their rules; a plain list keeps them out of the main chunk)
 export const CUP_SLUGS = ['conmebol.libertadores', 'conmebol.sudamericana', 'bra.copa_do_brazil', 'eng.fa', 'eng.league_cup', 'esp.copa_del_rey', 'ita.coppa_italia', 'ger.dfb_pokal', 'fra.coupe_de_france'];
 export const DEFAULT_CUP = CUP_SLUGS[0]!;
+/** FK-29: the Champions League is listed with the cups; picking it opens its own page (view `ucl`). */
+export const UCL_SLUG = 'uefa.champions';
 export const isLeague = (x: unknown): x is LeagueSlug => LEAGUE_SLUGS.includes(x as LeagueSlug);
 
 /** The league a `whatif` page simulates, or undefined for the UCL's simulator. */
@@ -102,7 +104,7 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
   if (view === 'whatif') { const l = q.get('league'); return isLeague(l) ? { ...p, view, league: l } : { ...p, view }; }
   if (view === 'ucl') return q.get('tab') === 'pots' ? { ...p, view, uclTab: 'pots' } : { ...p, view };
   if (view === 'slate') return { ...p, view };
-  if (view === 'cups') { const c = q.get('cup'); return { ...p, view, cup: c && CUP_SLUGS.includes(c) ? c : DEFAULT_CUP }; }
+  if (view === 'cups') { const c = q.get('cup'); if (c === UCL_SLUG) return { ...p, view: 'ucl' }; return { ...p, view, cup: c && CUP_SLUGS.includes(c) ? c : DEFAULT_CUP }; }
   if (view === 'trailing') { const c = q.get('comp'); return { ...p, view, comp: c && TRAILING_COMPS.includes(c) ? c : DEFAULT_TRAILING }; }
   if (view === 'table') { const l = q.get('league'); return { ...p, view, league: isLeague(l) ? l : DEFAULT_LEAGUE }; }
   return p;

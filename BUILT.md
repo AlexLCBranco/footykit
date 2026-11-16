@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-16
+- FK-29 — Move the UCL into the Cups section (v0.42.0) — The UCL tab is gone from the bar: the Champions League is the first entry in the Cups picker and opens its page (simulator included) with Cups selected; old ?view=ucl links still work.
 - FK-27 — Highlight today in the List view (v0.41.0) — In a club's List view today's line has a blue outline, tint and a "Today" pill, on a match day or not (with rest days off it still gets a "No match" line).
 
 ## 2026-11-15
