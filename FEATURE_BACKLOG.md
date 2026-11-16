@@ -5,14 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-18 — Team Calendar month view: bigger day cells, no dead space at the bottom
-
-In the team Calendar with span = Month, the grid ends well above the bottom of the window, leaving empty space. Make the grid fill the available height:
-
-- Week rows grow so the month (5 or 6 weeks) fills the viewport below the bar/header, with a sensible minimum row height (today's size) so short windows scroll instead of squashing.
-- Content inside a cell stays top-aligned; bigger cells just get more room.
-- 1-week and 2-week spans unchanged unless they also leave dead space (then same rule).
-
 ### FK-19 — Browser tab title follows the page, like calendarkit
 
 `pageTitle()` in `src/components/page.ts` already sets titles (e.g. "NEW · Nov 2026 — footykit"), but the owner says it doesn't follow where he is. Reference: calendarkit's `src/pageTitle.ts` ("BOS schedule · Nov 2026 — calendarkit", "Slate · Nov 13 — calendarkit", most specific part first).

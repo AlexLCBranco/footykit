@@ -12,6 +12,7 @@ import { CompMark, FormSquares, MatchTime, SeriesChip, TeamLink, tieNote } from 
 import { useFooty } from './ctx';
 import { DerbyTag, TeamTags } from './Tags';
 import type { Span } from './page';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 export function calendarDays(span: Span, week: string, month: string): { days: string[]; month?: string } {
   if (span !== 'month') return { days: Array.from({ length: 7 * span }, (_, i) => addDays(week, i)) };
@@ -66,13 +67,34 @@ export function byDayFor(model: Model, team: string, live: ReturnType<typeof use
   return out;
 }
 
+/** FK-18: the week rows grow so the grid reaches the bottom of the window (the legend and the page's bottom padding
+ * still fit under it); each span's own minimum row height stays, so a short window scrolls instead of squashing. */
+function useFillHeight(weeks: number) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number>();
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      const below = (el.nextElementSibling?.getBoundingClientRect().height ?? 0) + 8 + 16; // legend + its margin + .app's bottom padding
+      setHeight(Math.floor(window.innerHeight - top - below));
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [weeks]);
+  return { ref, style: height ? { minHeight: height, gridTemplateRows: `auto repeat(${weeks}, minmax(var(--fk-cal-row), 1fr))` } : undefined };
+}
+
 export function TeamCalendar({ team, span, week, month, today, showFree = true }: { team: string; span: Span; week: string; month: string; today: string; showFree?: boolean }) {
   const { model, live } = useFooty();
   const { days, month: m } = calendarDays(span, week, month);
+  const fill = useFillHeight(days.length / 7);
   const byDay = byDayFor(model, team, live);
   return (
     <section className={`fk-cal fk-cal-${span}`} data-testid="team-calendar">
-      <div className="fk-cal-grid">
+      <div className="fk-cal-grid" ref={fill.ref} style={fill.style} data-weeks={days.length / 7}>
         {days.slice(0, 7).map((d) => <div key={`h${d}`} className="fk-cal-wd">{weekdayShort(d)}</div>)}
         {days.map((d) => {
           const matches = byDay.get(d) ?? [];

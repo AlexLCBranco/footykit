@@ -617,7 +617,7 @@ button.fk-chip:hover {
 }
 .fk-cal-cell {
   position: relative;
-  min-height: 92px;
+  min-height: var(--fk-cal-row);
   padding: 4px 6px 6px;
   border: 1px solid var(--fk-border);
   border-radius: 8px;
@@ -626,11 +626,18 @@ button.fk-chip:hover {
   flex-direction: column;
   gap: 4px;
 }
-.fk-cal-1 .fk-cal-cell {
-  min-height: 160px;
+/* each span's smallest row (FK-18: rows grow from it to fill the window) */
+.fk-cal {
+  --fk-cal-row: 92px;
 }
-.fk-cal-2 .fk-cal-cell {
-  min-height: 130px;
+.fk-cal-1 {
+  --fk-cal-row: 160px;
+}
+.fk-cal-2 {
+  --fk-cal-row: 130px;
+}
+.fk-cal-grid {
+  box-sizing: border-box;
 }
 .fk-cal-cell.fk-free {
   background: linear-gradient(var(--fk-free), var(--fk-free)), var(--fk-surface);

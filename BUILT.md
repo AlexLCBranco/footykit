@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-15
+- FK-18 — Team Calendar month view: bigger day cells, no dead space at the bottom (v0.33.0) — The club Calendar's grid now reaches the bottom of the window in every span (bigger day cells, no empty space below); a short window scrolls instead of squashing the rows.
 - FK-17 — Picked club highlighted in the top bar, like calendarkit (v0.32.0) — A picked club stands out in the bar like calendarkit: blue border and tint, logo and bold white name, with the × right beside it; "All clubs" is plain.
 - FK-16 — Easy way back to the main menu from a team (v0.31.0) — With a club picked, the main tabs (List, Slate, UCL, Tables, Cups, Trailing) stay on the bar and one click leaves the club; a × beside the club goes back to today's List.
 - FK-15 — Hide Z4R and the "1C/2C/3C" tags by default, user can turn them on (v0.30.0) — A menu beside the Tags switch turns each tag type on or off, with what it means; Z4R and 1C/2C/3C start off, and the choice is remembered.

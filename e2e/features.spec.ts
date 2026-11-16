@@ -164,3 +164,25 @@ test('FK-17: the picked club is highlighted like calendarkit (blue border, bold 
   expect(x!.x - (p!.x + p!.width)).toBeLessThan(8);
   expect(errors).toEqual([]);
 });
+
+test('FK-18: the team Calendar fills the window down to the bottom; a short window scrolls instead of squashing', async ({ page }) => {
+  const errors = await open(page, '?view=cal&team=359&span=month');
+  await expect(page.getByTestId('cal-match').first()).toBeVisible();
+  const fit = () => page.evaluate(() => ({
+    gap: innerHeight - document.querySelector('[data-testid="window-legend"]')!.getBoundingClientRect().bottom,
+    scrolls: document.documentElement.scrollHeight > innerHeight,
+    rows: [...document.querySelectorAll('.fk-cal-cell')].map((c) => c.getBoundingClientRect().height),
+  }));
+  for (const span of ['Month', '2 weeks'] as const) {
+    await page.getByTestId('span').getByRole('tab', { name: span }).click();
+    const f = await fit();
+    expect(f.gap).toBeGreaterThanOrEqual(0);
+    expect(f.gap).toBeLessThan(40); // no dead space under the grid
+    expect(f.scrolls).toBe(false);
+  }
+  await page.getByTestId('span').getByRole('tab', { name: 'Month' }).click();
+  await page.setViewportSize({ width: 1920, height: 500 });
+  await expect.poll(async () => Math.min(...(await fit()).rows)).toBeGreaterThanOrEqual(92);
+  expect((await fit()).scrolls).toBe(true);
+  expect(errors).toEqual([]);
+});
