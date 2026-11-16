@@ -7,13 +7,12 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ### FK-26 — Fix the window streak count
 The match tooltip's "Window streak" overcounts. Example: on Flamengo v Vasco (Thu Oct 29, 2026) it says "7th straight window (7 windows in a row with a match)", which doesn't match Flamengo's fixture list. Recount from the real fixtures (windows: midweek Tue–Thu, weekend Fri–Mon; logic in `src/data/tags.ts`). Add an automated test that checks the streak against a known fixture list, including this Flamengo case.
-
-### FK-27 — Highlight today in the List view
-Today's row (e.g. Mon, Nov 16) looks the same as every other rest day. Make today's date clearly highlighted in the List view, whether or not there's a match that day.
+Blocked: no overcount found (2026-11-16). By the snapshot (ESPN), Flamengo has a match in each of the 7 windows up to Oct 29, in São Paulo time: Thu Oct 8 (Santos), Sun Oct 11 (Fluminense), Wed Oct 15 (Estudiantes), Sun Oct 18 (Bahia), Wed Oct 22 (Estudiantes), Mon Oct 26 (Atlético-MG), Thu Oct 29 (Vasco); before that, nothing Sep 21 – Oct 5 (FIFA window). So "7th straight window" is what the rule gives. Owner: which of these matches is wrong, or should the streak count differently (e.g. only windows before this match, which would be 6)?
 
 ### FK-28 — Show a team's position in its domestic league
 Show each team's current position in its domestic league table on the match rows.
 Open: where and how it's displayed is not decided yet. Ask the owner before building.
+Blocked: needs the owner's choice of where (Day List / Slate / Team List rows, which side of the name) and how (e.g. "3rd", "#3", with the league code for cup matches) the position is shown.
 
 ### FK-29 — Move the UCL into the Cups section
 The UCL works more like a cup than a league. List it in the Cups section with the other cups (opening the existing UCL page, simulator included) instead of having its own top-level "UCL" tab.

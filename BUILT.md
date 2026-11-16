@@ -4,6 +4,9 @@ Shipped work only, newest first. Planned work is in `FEATURE_BACKLOG.md`, never 
 Entries dated before 2026-11-16 were backfilled from the git commit messages (data, docs, test-only, merge and
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-16
+- FK-27 — Highlight today in the List view (v0.41.0) — In a club's List view today's line has a blue outline, tint and a "Today" pill, on a match day or not (with rest days off it still gets a "No match" line).
+
 ## 2026-11-15
 - FK-25 — Screenshot parity pass against calendarkit (v0.40.0) — A side-by-side pass against calendarkit: list rows and Slate cards on its card surface, its table panels and Quick standings frame, its month dividers and page margins; screenshots and the differences kept on purpose are in docs/parity/.
 - FK-24 — Team Calendar grid and cells on calendarkit's design (v0.39.0) — The club Calendar uses calendarkit's grid and cards: small day numbers, today in blue, the kickoff on top of every match, the matchup line, chips below with the competition as a pill, content scaled to fill each cell, and the key moved into the ⓘ.

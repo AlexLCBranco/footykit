@@ -29,11 +29,12 @@ export function bandsOf<T>(items: T[], dayOf: (x: T) => string): { kind: 'mid' |
 }
 
 /** A day line's date cell: the date, and the FIFA marker on a FIFA-window day (the Team Calendar's). */
-function LineDate({ day }: { day: string }) {
+function LineDate({ day, today }: { day: string; today?: boolean }) {
   const fifa = fifaWindowOn(day);
   return (
     <span className="fk-tl-date">
       {dayLabel(day)}
+      {today && <span className="fk-today-pill" data-testid="today-mark">Today</span>}
       {fifa && <span className="fk-fifa-dot" title={fifa.label} data-testid="fifa-mark">FIFA</span>}
     </span>
   );
@@ -64,6 +65,8 @@ export function TeamList({ team, from, to, today, onEarlier, showRest = false, s
       {months.map((mo) => {
         const list = rows.filter((m) => monthOf(model.dayOf(m)) === mo);
         const restIn = rest.filter((d) => monthOf(d) === mo);
+        // FK-27: today always has a line, highlighted, even with rest days off or outside the club's season
+        if (monthOf(today) === mo && !list.some((m) => model.dayOf(m) === today) && !restIn.includes(today)) restIn.push(today);
         // matches and rest days in date order (a rest day never shares a date with a match)
         const items: (Match | string)[] = [...list, ...restIn].sort((a, b) => {
           const da = typeof a === 'string' ? a : model.dayOf(a), db = typeof b === 'string' ? b : model.dayOf(b);
@@ -81,11 +84,14 @@ export function TeamList({ team, from, to, today, onEarlier, showRest = false, s
                 // the Team Calendar's free-window tint, on top of the band
                 const free = showFree && isFreeWindowDay(model, team, m);
                 const tip = [free ? `Free ${band.kind === 'mid' ? 'midweek' : 'weekend'} window` : '', fifaWindowOn(m)?.label ?? '', gap ? `${gap} days between matches (rest counted as the difference of the match dates)` : ''].filter(Boolean).join('\n');
+                const isToday = m === today;
+                // today without a match, outside the rest days (rest days off, or before / after the season)
+                const restDay = rest.includes(m);
                 return (
-                  <div key={m} className={`fk-rest-row${free ? ' fk-free' : ''}${fifaWindowOn(m) ? ' fk-fifa' : ''}`} data-testid="rest-row" data-rest={m} data-free={free || undefined} aria-label={`${dayLabel(m)}, rest day`}
-                    title={tip || undefined}>
-                    <LineDate day={m} />
-                    <span className="fk-rest">Rest</span>
+                  <div key={m} className={`fk-rest-row${free ? ' fk-free' : ''}${fifaWindowOn(m) ? ' fk-fifa' : ''}${isToday ? ' fk-is-today' : ''}`} data-testid="rest-row" data-rest={m} data-free={free || undefined} data-today={isToday || undefined} aria-label={`${dayLabel(m)}, ${isToday ? 'today, ' : ''}${restDay ? 'rest day' : 'no match'}`}
+                    aria-current={isToday ? 'date' : undefined} title={tip || undefined}>
+                    <LineDate day={m} today={isToday} />
+                    <span className="fk-rest">{restDay ? 'Rest' : 'No match'}</span>
                   </div>
                 );
               }
@@ -93,8 +99,8 @@ export function TeamList({ team, from, to, today, onEarlier, showRest = false, s
               const r = resultFor(m, team);
               const f = formAt(model, team, m);
               return (
-                <div key={m.id} className={`fk-row fk-tl-row${r ? ` fk-res-${r}` : ''}${fifaWindowOn(day) ? ' fk-fifa' : ''}`} data-testid="team-row" data-game-id={m.id}>
-                  <LineDate day={day} />
+                <div key={m.id} className={`fk-row fk-tl-row${r ? ` fk-res-${r}` : ''}${fifaWindowOn(day) ? ' fk-fifa' : ''}${day === today ? ' fk-is-today' : ''}`} data-testid="team-row" data-game-id={m.id} data-today={day === today || undefined} aria-current={day === today ? 'date' : undefined}>
+                  <LineDate day={day} today={day === today} />
                   <MatchTime m={m} />
                   <CompMark slug={m.c} round={m.r} showName />
                   <Scoreline m={m} day={day} label="short" form={false} />

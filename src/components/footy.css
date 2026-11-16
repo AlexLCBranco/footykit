@@ -2205,3 +2205,32 @@ button.fk-chip:hover {
   font-size: 12px;
   font-weight: 500;
 }
+
+/* FK-27: today's line in the Team List stands out (calendarkit's blue today), match or not */
+.fk-tl-row.fk-is-today,
+.fk-rest-row.fk-is-today {
+  border: 1px solid var(--fk-accent);
+  box-shadow: inset 3px 0 0 var(--fk-accent);
+  background: color-mix(in srgb, var(--fk-accent) 14%, var(--fk-surface));
+  border-radius: 6px;
+}
+.fk-rest-row.fk-is-today {
+  padding: 2px 10px;
+  color: var(--fk-text, #e8eef6);
+}
+.fk-is-today .fk-tl-date {
+  color: var(--fk-accent);
+  font-weight: 700;
+  opacity: 1;
+}
+.fk-today-pill {
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--fk-accent);
+  color: #0b1220;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  vertical-align: 1px;
+}
