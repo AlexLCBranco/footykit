@@ -72,15 +72,20 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
         <button type="button" className="fk-hist-btn" disabled={!history.back} title={history.back ? `Back to ${history.back}` : 'Nothing to go back to'} aria-label="Back" onClick={history.onBack}>←</button>
         <button type="button" className="fk-hist-btn" disabled={!history.forward} title={history.forward ? `Forward to ${history.forward}` : 'Nothing to go forward to'} aria-label="Forward" onClick={history.onForward}>→</button>
       </span>
-      <ClubPicker team={team} onPick={(id) => onPage(id ? { ...page, view: page.view === 'list' ? 'list' : 'cal', team: id } : { ...page, view: 'day' })} />
-      {team ? (
-        <>
-          <Tabs<View> label="View" testId="views" value={page.view} options={[['cal', 'Calendar'], ['list', 'List']]} onChange={(v) => onPage({ ...page, view: v })} />
-          {page.view === 'cal' && <Tabs<Span> label="Span" testId="span" value={page.span} options={[[1, '1 week'], [2, '2 weeks'], ['month', 'Month']]} onChange={(s) => onPage({ ...page, span: s, week: page.span === 'month' && s !== 'month' ? mondayOf(today.slice(0, 7) === page.month ? today : `${page.month}-01`) : page.week, month: s === 'month' && page.span !== 'month' ? addDays(page.week, 3).slice(0, 7) : page.month })} />}
-        </>
-      ) : (
-        <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (simLeague(page) ? 'table' : 'ucl') : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['ucl', 'UCL'], ['table', 'Tables'], ['cups', 'Cups'], ['trailing', 'Trailing']]} onChange={(v) => onPage({ ...page, view: v })} />
-      )}
+      {/* the club and its own views, grouped; the × leaves team mode for the main List on today (FK-16) */}
+      <span className={`fk-club-group${team ? ' fk-club-group-on' : ''}`} data-testid="club-group">
+        <ClubPicker team={team} onPick={(id) => onPage(id ? { ...page, view: page.view === 'list' ? 'list' : 'cal', team: id } : { ...page, view: 'day', team: undefined })} />
+        {team && (
+          <>
+            <button type="button" className="fk-club-clear" aria-label="Leave this club" title="Leave this club: back to all clubs, today" data-testid="club-clear"
+              onClick={() => onPage({ ...page, view: 'day', team: undefined, day: today })}>×</button>
+            <Tabs<View> label="Club view" testId="team-views" value={page.view} options={[['cal', 'Calendar'], ['list', 'List']]} onChange={(v) => onPage({ ...page, view: v })} />
+          </>
+        )}
+      </span>
+      {/* the main views stay on the bar in team mode (none selected then); one leaves the club */}
+      <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (simLeague(page) ? 'table' : 'ucl') : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['ucl', 'UCL'], ['table', 'Tables'], ['cups', 'Cups'], ['trailing', 'Trailing']]} onChange={(v) => onPage({ ...page, view: v, team: undefined })} />
+      {team && page.view === 'cal' && <Tabs<Span> label="Span" testId="span" value={page.span} options={[[1, '1 week'], [2, '2 weeks'], ['month', 'Month']]} onChange={(s) => onPage({ ...page, span: s, week: page.span === 'month' && s !== 'month' ? mondayOf(today.slice(0, 7) === page.month ? today : `${page.month}-01`) : page.week, month: s === 'month' && page.span !== 'month' ? addDays(page.week, 3).slice(0, 7) : page.month })} />}
       {(page.view === 'table' || (page.view === 'whatif' && simLeague(page))) && <LeaguePicker league={page.league ?? DEFAULT_LEAGUE} onPick={(l) => onPage({ ...page, league: l })} />}
       {page.view === 'trailing' && <CompPicker comp={page.comp ?? DEFAULT_TRAILING} onPick={(c) => onPage({ ...page, comp: c })} />}
       {page.view === 'cups' && <CupPicker cup={page.cup ?? DEFAULT_CUP} onPick={(c) => onPage({ ...page, cup: c })} />}

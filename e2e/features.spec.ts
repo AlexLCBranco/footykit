@@ -93,7 +93,7 @@ test('FK-14: the team List has the Calendar\'s free-window tint, FIFA marker and
   await expect(legend).toContainText('free window');
   await expect(legend).toContainText('FIFA window');
   // the same days are free on the Calendar
-  await page.getByTestId('views').getByText('Calendar').click();
+  await page.getByTestId('team-views').getByText('Calendar').click();
   await page.getByTestId('span').getByRole('tab', { name: 'Month' }).click();
   await expect(page.locator('.fk-cal-cell[data-day="2026-11-10"]')).toHaveClass(/fk-free/);
   expect(errors).toEqual([]);
@@ -122,5 +122,25 @@ test('FK-15: Z4R and 1C/2C/3C are off by default; turned on they show and surviv
   await page.getByTestId('tag-on-alive').uncheck();
   await expect(page.locator('.fk-rail-mark[data-tag="alive"]')).toHaveCount(0);
   await page.evaluate(() => { localStorage.removeItem('fk:tags:hidden:v1'); localStorage.removeItem('fk:tags:v1'); });
+  expect(errors).toEqual([]);
+});
+
+test('FK-16: from a team page, one click on a main tab or the × lands on that main view', async ({ page }) => {
+  const errors = await open(page, '?view=cal&team=359&span=month');
+  await expect(page).toHaveTitle(/^ARS /);
+  // the main tabs stay, none selected; the club's own tabs sit in its group
+  const main = page.getByTestId('views');
+  await expect(main.getByRole('tab')).toHaveText(['List', 'Slate', 'UCL', 'Tables', 'Cups', 'Trailing']);
+  await expect(main.locator('[aria-selected="true"]')).toHaveCount(0);
+  await expect(page.getByTestId('club-group').getByTestId('team-views')).toBeVisible();
+  await main.getByRole('tab', { name: 'Slate' }).click();
+  await expect(page).toHaveTitle(/^Slate · /);
+  await expect(page.getByTestId('scope-picker')).toHaveValue('');
+  await expect(page.getByTestId('club-clear')).toHaveCount(0);
+  // the × goes to the main List on today
+  await page.goto('/football/?view=list&team=359');
+  await page.getByTestId('club-clear').click();
+  await expect(page).toHaveTitle('Sat, Nov 21 — footykit');
+  await expect(page.getByTestId('day-list')).toBeVisible();
   expect(errors).toEqual([]);
 });

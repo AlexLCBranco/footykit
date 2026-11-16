@@ -45,7 +45,9 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: nowrap;
+  /* one row on a full-size window; a narrower one (the main tabs stay in team mode, FK-16) wraps instead of overflowing */
+  flex-wrap: wrap;
+  row-gap: 6px;
   min-height: 44px;
   margin-bottom: 8px;
 }
@@ -1607,4 +1609,36 @@ button.fk-chip:hover {
 }
 .fk-rail-off {
   opacity: 0.25;
+}
+
+/* FK-16: the club, its × and its Calendar / List tabs as one group; the main tabs stay on the bar beside it */
+.fk-club-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+.fk-club-group-on {
+  padding: 0 4px 0 0;
+  margin-right: 4px;
+  border-right: 1px solid var(--fk-border);
+}
+.fk-club-group .fk-tabs {
+  margin-left: 4px;
+}
+.fk-club-clear {
+  flex: none;
+  width: 30px;
+  height: 36px;
+  border: 1px solid var(--fk-border);
+  border-radius: 8px;
+  background: var(--fk-surface);
+  color: var(--fk-muted) !important;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.fk-club-clear:hover {
+  color: var(--fk-text) !important;
+  border-color: var(--fk-club-accent, var(--fk-accent));
 }

@@ -55,7 +55,7 @@ test('team calendar month and team list', async ({ page }) => {
   const errors = await open(page, '?view=cal&team=359&span=month');
   await expect(page).toHaveTitle('ARS · Nov 2026 — footykit');
   await expect(page.getByTestId('cal-match').first()).toBeVisible();
-  await page.getByTestId('views').getByText('List').click();
+  await page.getByTestId('team-views').getByText('List').click();
   await expect(page).toHaveTitle(/^ARS list · Nov 2026/);
   const n = await page.getByTestId('team-row').count();
   await page.getByText(/Load earlier/).click();

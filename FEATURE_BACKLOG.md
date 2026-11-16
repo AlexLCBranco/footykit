@@ -5,16 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-16 — Easy way back to the main menu from a team
-
-When a club is picked, `TopBar.tsx` swaps the main tabs (List, Slate, UCL, Tables, Cups, Trailing) for Calendar/List, so the only ways out are the ← history arrow or picking "All clubs" in the dropdown. Fix:
-
-- Keep the main tabs visible while a club is picked; clicking one leaves team mode and opens that view. The team's Calendar/List tabs sit beside them, visually grouped with the club.
-- Add a clear × on the selected club (next to its logo/name) that leaves team mode and returns to the main List (today).
-- Clicking the footykit name/logo (if there is one in the bar) also goes to the main List.
-- Works with FK-12 (the new typeable club picker).
-- Tests: from a team page, one click on a main tab or the × lands on that main view.
-
 ### FK-17 — Picked club highlighted in the top bar, like calendarkit
 
 Reference: calendarkit (repo AlexLCBranco/calendarkit, team mode). When a team is picked, its picker button is clearly highlighted: blue border/outline, team logo, team name in bold white, plus an × button right next to it. footykit's `TeamPicker` (`TopBar.tsx`, class `fk-scope-team`) doesn't stand out the same way.
