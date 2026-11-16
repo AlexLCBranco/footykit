@@ -1584,3 +1584,27 @@ button.fk-chip:hover {
   background: var(--fk-band);
   border-radius: 2px;
 }
+
+/* FK-15: the Tags menu (each tag type on / off) */
+.fk-tag-menu-btn {
+  height: 26px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+.fk-tag-menu {
+  right: 0;
+  top: calc(100% + 4px);
+  width: 360px;
+  gap: 6px;
+}
+.fk-tag-menu-row {
+  align-items: flex-start;
+  white-space: normal;
+  font-size: 13px;
+}
+.fk-tag-menu-row input {
+  margin-top: 2px;
+}
+.fk-rail-off {
+  opacity: 0.25;
+}

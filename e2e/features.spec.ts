@@ -98,3 +98,29 @@ test('FK-14: the team List has the Calendar\'s free-window tint, FIFA marker and
   await expect(page.locator('.fk-cal-cell[data-day="2026-11-10"]')).toHaveClass(/fk-free/);
   expect(errors).toEqual([]);
 });
+
+test('FK-15: Z4R and 1C/2C/3C are off by default; turned on they show and survive a reload', async ({ page }) => {
+  const errors = await open(page);
+  const z4 = page.locator('[data-tag="z4"]'), alive = page.locator('[data-tag="alive"]');
+  await expect(page.getByTestId('team-tags').first()).toBeVisible();
+  await expect(z4).toHaveCount(0);
+  await expect(alive).toHaveCount(0);
+  await expect(page.locator('[data-tag="prev"]').first()).toBeVisible(); // the other tags stay on
+  await page.getByTestId('tag-menu').click();
+  await expect(page.getByTestId('tag-menu-pop')).toContainText('relegation');
+  await page.getByTestId('tag-on-z4').check();
+  await page.getByTestId('tag-on-alive').check();
+  await expect(z4.first()).toBeVisible();
+  await expect(alive.first()).toBeVisible();
+  await page.reload();
+  await expect(z4.first()).toBeVisible();
+  await expect(alive.first()).toBeVisible();
+  // Rail drops a hidden tag's segment too
+  await page.getByTestId('tag-variant').selectOption('rail');
+  await expect(page.locator('.fk-rail-mark[data-tag="alive"]').first()).toBeVisible();
+  await page.getByTestId('tag-menu').click();
+  await page.getByTestId('tag-on-alive').uncheck();
+  await expect(page.locator('.fk-rail-mark[data-tag="alive"]')).toHaveCount(0);
+  await page.evaluate(() => { localStorage.removeItem('fk:tags:hidden:v1'); localStorage.removeItem('fk:tags:v1'); });
+  expect(errors).toEqual([]);
+});

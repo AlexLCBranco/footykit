@@ -31,6 +31,32 @@ export function saveTagVariant(v: TagVariant) {
   try { localStorage.setItem(TAG_KEY, v); } catch { /* private mode: the pick lasts for this page only */ }
 }
 
+/** The tag types, each on or off on its own (FK-15), with what it means for the bar's Tags menu. */
+export type TagKey = 'prev' | 'streak' | 'rest' | 'alive' | 'z4' | 'next' | 'derby';
+export const TAG_TYPES: { key: TagKey; label: string; about: string }[] = [
+  { key: 'prev', label: '◂ Previous window', about: 'what the team played in the window before (free, league, cup / continental)' },
+  { key: 'next', label: 'Next window ▸', about: 'what it plays in the window after; a second leg shows the first-leg score' },
+  { key: 'streak', label: 'Streak (5th)', about: 'straight windows with a match, from 3' },
+  { key: 'rest', label: 'REST', about: 'had the previous window free while the opponent played' },
+  { key: 'alive', label: '1C / 2C / 3C', about: 'competitions the team is still alive in' },
+  { key: 'z4', label: 'Z4R', about: 'in the relegation race (in the zone or close to its line)' },
+  { key: 'derby', label: 'DERBY', about: 'the two teams are rivals' },
+];
+/** Off unless turned on (Alex): Z4R and the competitions-alive count. */
+export const DEFAULT_HIDDEN: ReadonlySet<TagKey> = new Set<TagKey>(['z4', 'alive']);
+const HIDDEN_KEY = 'fk:tags:hidden:v1';
+/** The tag types turned off: saved once the menu is used, else the defaults. */
+export function savedHiddenTags(): ReadonlySet<TagKey> {
+  try {
+    const v: unknown = JSON.parse(localStorage.getItem(HIDDEN_KEY) ?? 'null');
+    if (Array.isArray(v)) return new Set(v.filter((k): k is TagKey => TAG_TYPES.some((t) => t.key === k)));
+  } catch { /* unreadable or private mode: the defaults */ }
+  return DEFAULT_HIDDEN;
+}
+export function saveHiddenTags(s: ReadonlySet<TagKey>) {
+  try { localStorage.setItem(HIDDEN_KEY, JSON.stringify([...s])); } catch { /* private mode: lasts for this page only */ }
+}
+
 const windowName = (s: WindowSlot) => `${s.kind === 'mid' ? 'Midweek' : 'Weekend'} ${shortDay(s.start)}–${shortDay(windowEnd(s.start))}`;
 
 /** Short code of a window: "free", "PL", "UCL", "CDB 2-0" (a second leg with the first-leg score). */
@@ -59,7 +85,7 @@ function slotLines(model: Model, s: WindowSlot, team: string): string {
   }
 }
 
-interface Token { key: string; text: string; cls: string }
+interface Token { key: TagKey; text: string; cls: string }
 
 function tokens(model: Model, s: SideTags): Token[] {
   const out: Token[] = [];
@@ -77,8 +103,11 @@ function tokens(model: Model, s: SideTags): Token[] {
 /** Alerts keep only what stands out: a streak, rest, a cup match next window, 3+ competitions, Z4R. */
 const ALERT = (t: Token) => t.key === 'streak' || t.key === 'rest' || t.key === 'z4' || (t.key === 'next' && t.cls === 'fk-tag-cup') || (t.key === 'alive' && /fk-tag-alive-3/.test(t.cls));
 
-function Rail({ s }: { s: SideTags }) {
-  const cell = (slot: WindowSlot, which: string) => <span className={`fk-rail-cell fk-rail-${slotKind(slot)}${which === 'prev' && s.rested ? ' fk-rail-rest' : ''}`} />;
+function Rail({ s, hidden }: { s: SideTags; hidden: ReadonlySet<TagKey> }) {
+  // a hidden window keeps its place in the strip, blank
+  const cell = (slot: WindowSlot, which: 'prev' | 'next') => hidden.has(which)
+    ? <span className="fk-rail-cell fk-rail-off" />
+    : <span className={`fk-rail-cell fk-rail-${slotKind(slot)}${which === 'prev' && s.rested && !hidden.has('rest') ? ' fk-rail-rest' : ''}`} />;
   const n = aliveCount(s);
   return (
     <>
@@ -87,10 +116,10 @@ function Rail({ s }: { s: SideTags }) {
         <span className="fk-rail-cell fk-rail-now" />
         {cell(s.next, 'next')}
       </span>
-      {s.streak !== undefined && s.streak >= STREAK_TAG_MIN && <span className="fk-rail-mark fk-tag-streak">{s.streak}</span>}
-      {n !== undefined && <span className="fk-rail-mark">{n}C</span>}
-      {s.z4?.tagged && <span className="fk-rail-mark fk-tag-z4">Z</span>}
-      {s.rested && <span className="fk-rail-mark fk-tag-rest">R</span>}
+      {!hidden.has('streak') && s.streak !== undefined && s.streak >= STREAK_TAG_MIN && <span className="fk-rail-mark fk-tag-streak" data-tag="streak">{s.streak}</span>}
+      {!hidden.has('alive') && n !== undefined && <span className="fk-rail-mark" data-tag="alive">{n}C</span>}
+      {!hidden.has('z4') && s.z4?.tagged && <span className="fk-rail-mark fk-tag-z4" data-tag="z4">Z</span>}
+      {!hidden.has('rest') && s.rested && <span className="fk-rail-mark fk-tag-rest" data-tag="rest">R</span>}
     </>
   );
 }
@@ -133,15 +162,15 @@ function Popup({ model, m, s, opp, at }: { model: Model; m: Match; s: SideTags; 
 
 /** One team's tags in the chosen variant, with the detailed popup on hover. */
 export function TeamTags({ m, side, align = 'start' }: { m: Match; side: 'a' | 'h'; align?: 'start' | 'end' }) {
-  const { model, tags: variant } = useFooty();
+  const { model, tags: variant, hiddenTags: hidden = DEFAULT_HIDDEN } = useFooty();
   const [at, setAt] = useState<DOMRect>();
   if (!variant || variant === 'off') return null;
   const all = matchTags(model, m);
   const s = side === 'a' ? all.a : all.h, opp = side === 'a' ? all.h : all.a;
   let body: ReactNode;
-  if (variant === 'rail') body = <Rail s={s} />;
+  if (variant === 'rail') body = <Rail s={s} hidden={hidden} />;
   else {
-    const list = tokens(model, s).filter(variant === 'alerts' ? ALERT : () => true);
+    const list = tokens(model, s).filter((t) => !hidden.has(t.key) && (variant === 'alerts' ? ALERT(t) : true));
     if (!list.length) return null;
     body = list.map((t) => <span key={t.key} className={`fk-tag ${t.cls}`} data-tag={t.key}>{t.text}</span>);
   }
@@ -156,9 +185,33 @@ export function TeamTags({ m, side, align = 'start' }: { m: Match; side: 'a' | '
 
 /** The derby flag of a match (any variant but Off). */
 export function DerbyTag({ m }: { m: Match }) {
-  const { model, tags: variant } = useFooty();
-  if (!variant || variant === 'off') return null;
+  const { model, tags: variant, hiddenTags: hidden = DEFAULT_HIDDEN } = useFooty();
+  if (!variant || variant === 'off' || hidden.has('derby')) return null;
   const d = matchTags(model, m).derby;
   if (!d) return null;
   return <span className="fk-chip fk-derby" title={`Derby: ${d.name}`} data-testid="derby">{variant === 'rail' ? 'D' : 'DERBY'}</span>;
+}
+
+/** The bar's "Tags ▾" menu: each tag type on or off, with what it means. */
+export function TagMenu({ hidden, onChange }: { hidden: ReadonlySet<TagKey>; onChange: (s: ReadonlySet<TagKey>) => void }) {
+  const [open, setOpen] = useState(false);
+  const shown = TAG_TYPES.length - TAG_TYPES.filter((t) => hidden.has(t.key)).length;
+  return (
+    <span className="fk-pop-wrap" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpen(false); }}>
+      <button type="button" className="fk-btn fk-tag-menu-btn" aria-expanded={open} aria-haspopup="true" title="Which tags show" data-testid="tag-menu" onClick={() => setOpen(!open)}>
+        {shown}/{TAG_TYPES.length} ▾
+      </button>
+      {open && (
+        <div className="fk-pop fk-tag-menu" role="group" aria-label="Tags shown" data-testid="tag-menu-pop">
+          {TAG_TYPES.map((t) => (
+            <label key={t.key} className="fk-check fk-tag-menu-row">
+              <input type="checkbox" checked={!hidden.has(t.key)} data-testid={`tag-on-${t.key}`}
+                onChange={(e) => { const s = new Set(hidden); if (e.target.checked) s.delete(t.key); else s.add(t.key); onChange(s); }} />
+              <span><strong>{t.label}</strong> <span className="fk-muted">{t.about}</span></span>
+            </label>
+          ))}
+        </div>
+      )}
+    </span>
+  );
 }

@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-15
+- FK-15 — Hide Z4R and the "1C/2C/3C" tags by default, user can turn them on (v0.30.0) — A menu beside the Tags switch turns each tag type on or off, with what it means; Z4R and 1C/2C/3C start off, and the choice is remembered.
 - FK-14 — Calendar's free-window marking + legend in the team List view (v0.29.0) — The club's List view tints free-window days like the Calendar, marks FIFA-window days "FIFA" by the date, and has the Calendar's legend underneath with the midweek / weekend band colours added.
 - FK-13 — Midweek / weekend window bands in the team List view (v0.28.0) — In a club's List view each midweek (Tue–Thu) and weekend (Fri–Mon) window is one tinted band with a thin left bar, violet for midweek and green for weekend, so the windows alternate visibly.
 - FK-12 — Club picker must clearly accept typing (v0.27.0) — The club picker is a box you type into: it filters live ignoring case and accents ("gremio" finds Grêmio), ↑/↓ move, Enter picks, Esc closes.

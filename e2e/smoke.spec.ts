@@ -163,7 +163,13 @@ for (const variant of ['chips', 'rail', 'alerts'] as const) {
     await expect(tags.first()).toBeVisible();
     // Sat Nov 21: the Seville derby is flagged; Sunderland (in the drop zone) carries Z4R in chips and alerts
     await expect(page.getByTestId('derby')).toHaveCount(1);
-    if (variant !== 'rail') await expect(page.getByTestId('match-row').filter({ hasText: 'SUN' }).locator('[data-tag="z4"]')).toHaveCount(1);
+    // (Z4R is off until turned on in the Tags menu: FK-15)
+    const sunZ4 = page.getByTestId('match-row').filter({ hasText: 'SUN' }).locator('[data-tag="z4"]');
+    await expect(sunZ4).toHaveCount(0);
+    await page.getByTestId('tag-menu').click();
+    await page.getByTestId('tag-on-z4').check();
+    await expect(sunZ4).toHaveCount(1);
+    await page.evaluate(() => localStorage.removeItem('fk:tags:hidden:v1'));
     await page.reload();
     await expect(page.locator(`[data-testid="team-tags"][data-variant="${variant}"]`).first()).toBeVisible();
     await page.getByTestId('tag-variant').selectOption('off');

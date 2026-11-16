@@ -5,15 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-15 — Hide Z4R and the "1C/2C/3C" tags by default, user can turn them on
-
-Today tags are all-or-nothing per display mode (the "Tag display" select in `Footy.tsx`: Chips / Rail / Alerts / Off, saved under `fk:tags:v1`). The user wants the Z4R tag (`key: 'z4'`) and the alive-in-competitions tag (`key: 'alive'`, "1C/2C/3C") hidden unless they turn them on.
-
-- Add per-tag on/off settings next to the Tag display select (e.g. small checkboxes or a "Tags ▾" menu listing each tag type with a short explanation of what it means).
-- Defaults: Z4R off, 1C/2C/3C off; all other tags on as today. Saved in localStorage (new key, e.g. `fk:tags:hidden:v1`).
-- Applies everywhere tags render (`TeamTags` in Day List, Slate, Team List, popups), in Chips and Alerts mode; Rail mode drops those segments too.
-- Tests: default load shows no Z4R / nC tags; turning them on shows them and survives reload.
-
 ### FK-16 — Easy way back to the main menu from a team
 
 When a club is picked, `TopBar.tsx` swaps the main tabs (List, Slate, UCL, Tables, Cups, Trailing) for Calendar/List, so the only ways out are the ← history arrow or picking "All clubs" in the dropdown. Fix:

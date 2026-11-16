@@ -4,7 +4,7 @@
 import { createContext, useContext } from 'react';
 import type { LiveLayer } from '../data/live';
 import type { Model } from '../data/model';
-import type { TagVariant } from './Tags';
+import type { TagKey, TagVariant } from './Tags';
 
 export interface FootyCtx {
   model: Model;
@@ -22,6 +22,8 @@ export interface FootyCtx {
   onStandings?: (teamId: string) => void;
   /** how the context tags are drawn; none (a host like the gauntlet's Slate part) = no tags */
   tags?: TagVariant;
+  /** tag types turned off (the bar's Tags menu); unset = the defaults (Z4R and 1C/2C/3C off) */
+  hiddenTags?: ReadonlySet<TagKey>;
 }
 
 export const Ctx = createContext<FootyCtx | null>(null);
