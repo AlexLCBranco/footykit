@@ -5,14 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-20 — Team calendar cells: both abbreviations with the score between them
-
-In the team Calendar cells, a played match shows "[logo] @ [logo] EVE" and the score only lower down ("L 1-3"). Like calendarkit ("BOS 108 @ 97 ORL"):
-
-- Played: `<own logo> NEW 1 @ 3 EVE <opp logo>` on one line, the picked club always first, `@` / `vs` as today, the winner's number in bold/bright and the loser's dimmed, like calendarkit.
-- Not played: `NEW @ EVE` (both abbreviations) with the kickoff time above, as now.
-- Keep the W/L/D marker and form squares; drop the duplicated score from the lower line.
-
 ### FK-21 — Road trip and homestand labels, like calendarkit
 
 Port calendarkit's runs (`src/data/runs.ts`, styles in `src/components/styles/runs.css`) to footykit's team views (Calendar and List):

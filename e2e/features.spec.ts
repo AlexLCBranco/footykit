@@ -224,3 +224,19 @@ test('FK-19: the tab title follows every navigation, worded like calendarkit', a
   await page.goto('/football/?view=slate'); await title('Slate · Nov 21');
   expect(errors).toEqual([]);
 });
+
+test('FK-20: a Calendar cell reads "NEW 1 @ 3 EVE", the winner\'s number bright; to come: "NEW vs ARS" under the kickoff', async ({ page }) => {
+  const errors = await open(page, '?view=cal&team=361&span=month');
+  const played = page.locator('.fk-cal-cell[data-day="2026-10-29"]').getByTestId('cal-match');
+  const line = played.getByTestId('cal-line');
+  await expect(line).toHaveText(/^\s*NEW\s*1\s*@\s*3\s*EVE\s*$/);
+  await expect(line.locator('.fk-num-win')).toHaveText('3');
+  await expect(line.locator('.fk-num-lose')).toHaveText('1');
+  // the result marker stays; the score isn't repeated lower down
+  await expect(played.locator('.fk-cell-bottom .fk-res')).toHaveText('L');
+  await expect(played.locator('.fk-cell-bottom')).not.toContainText('1-3');
+  const next = page.locator('.fk-cal-cell[data-day="2026-11-21"]').getByTestId('cal-match');
+  await expect(next.getByTestId('cal-line')).toHaveText(/^\s*NEW\s*vs\s*ARS\s*$/);
+  await expect(next.locator('.fk-cell-top')).toContainText('14:30');
+  expect(errors).toEqual([]);
+});

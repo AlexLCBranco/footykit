@@ -1684,3 +1684,29 @@ button.fk-chip:hover {
 .fk-club-group-on .fk-club-clear {
   height: 36px;
 }
+
+/* FK-20: a Calendar cell's match on one line, calendarkit's "BOS 108 @ 97 ORL": the club first, the winner's number
+   bright, the loser's dimmed */
+.fk-cell-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  white-space: nowrap;
+}
+.fk-cell-line .fk-cell-score {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.fk-cell-num {
+  font-weight: 600;
+}
+.fk-num-win {
+  font-weight: 800;
+  color: #fff;
+}
+.fk-num-lose {
+  font-weight: 500;
+  color: var(--fk-muted);
+}

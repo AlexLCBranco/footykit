@@ -33,23 +33,36 @@ function CellMatch({ m, team, day }: { m: Match; team: string; day: string }) {
   const neutral = neutralVenue(m);
   const mine = home ? m.hs : m.as, theirs = home ? m.as : m.hs;
   const tie = tieNote(m);
+  const scored = (isPlayed(m) || m.st === 'in') && mine !== undefined && theirs !== undefined;
+  // calendarkit's "BOS 108 @ 97 ORL": the club first, the winner's number bright, the loser's dimmed (a draw: both plain)
+  const num = (n: number | undefined, won: boolean, lost: boolean) => <span className={`fk-cell-num${won ? ' fk-num-win' : lost ? ' fk-num-lose' : ''}`}>{n}</span>;
+  const ha = neutral ? 'v' : home ? 'vs' : '@';
+  const haTip = neutral ? `Neutral venue (${neutral.why})` : home ? 'Home' : 'Away';
+  const link = { href: matchUrl(m, model), target: '_blank', rel: 'noopener noreferrer' };
   return (
     <div className={`fk-cell-match${r ? ` fk-res-${r}` : ''}${neutral ? ' fk-neutral' : ''}`} data-testid="cal-match" data-game-id={m.id}>
       <div className="fk-cell-top">
         <CompMark slug={m.c} round={m.r} />
-        <span className="fk-cell-ha" title={neutral ? `Neutral venue (${neutral.why})` : home ? 'Home' : 'Away'}>{neutral ? 'v' : home ? 'vs' : '@'}</span>
-        <TeamLink id={opp} day={day} />
+        {!scored && <a className="fk-cell-time" {...link} title="Search the match on Google"><MatchTime m={m} /></a>}
         <DerbyTag m={m} />
+      </div>
+      <div className="fk-cell-line" data-testid="cal-line">
+        <TeamLink id={team} day={day} />
+        {scored ? (
+          <a className="fk-cell-score" {...link} title={`${model.team(m.a).name} ${m.as}-${m.hs} ${model.team(m.h).name}${tie ? ` · ${tie}` : ''} (${haTip.toLowerCase()}) — search on Google`}>
+            {num(mine, r === 'W', r === 'L')}
+            <span className="fk-cell-ha">{ha}</span>
+            {num(theirs, r === 'L', r === 'W')}
+            {m.hp !== undefined && <span className="fk-cell-ha">p</span>}
+          </a>
+        ) : (
+          <span className="fk-cell-ha" title={haTip}>{ha}</span>
+        )}
+        <TeamLink id={opp} day={day} logo="after" />
       </div>
       <div className="fk-cell-tags"><TeamTags m={m} side={home ? 'h' : 'a'} /></div>
       <div className="fk-cell-bottom">
-        {isPlayed(m) || m.st === 'in' ? (
-          <a className="fk-cell-score" href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer" title={`${model.team(m.a).name} ${m.as}-${m.hs} ${model.team(m.h).name}${tie ? ` · ${tie}` : ''} — search on Google`}>
-            {r ?? ''} {mine}-{theirs}{m.hp !== undefined ? ' p' : ''}
-          </a>
-        ) : (
-          <a className="fk-cell-time" href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer" title="Search the match on Google"><MatchTime m={m} /></a>
-        )}
+        {r && <span className={`fk-res fk-res-${r}`} title={r === 'W' ? 'Win' : r === 'L' ? 'Defeat' : 'Draw'}>{r}</span>}
         <FormSquares line={formAt(model, team, m)} teamId={team} />
         <SeriesChip m={m} />
       </div>
