@@ -10,7 +10,7 @@ import { neutralVenue } from '../data/neutral';
 import type { Match } from '../data/snapshot';
 import { NoteBox } from '../slate/NoteBox';
 import type { SlateNotes } from '../slate/notes';
-import { CompMark, FormGames, MatchLink, MatchTime, SeriesChip, TeamLink, tieNote } from './Bits';
+import { CompMark, FormGames, LeaguePos, MatchLink, MatchTime, SeriesChip, TeamLink, tieNote } from './Bits';
 import { DerbyTag, TeamTags } from './Tags';
 import { useFooty } from './ctx';
 import { dayMatches } from './DayList';
@@ -29,6 +29,7 @@ function SideRow({ m, side, day, odds }: { m: Match; side: 'a' | 'h'; day: strin
       {/* FK-31: the score right after the name, before the tags */}
       <span className="fk-card-teamcell">
         <TeamLink id={id} day={day} label="short" logoSize={26} className="fk-card-team" />
+        <LeaguePos id={id} />
         {shown && <span className="fk-card-score" data-testid="card-score">{score}</span>}
         <TeamTags m={m} side={side} />
       </span>

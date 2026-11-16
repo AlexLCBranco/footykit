@@ -7,6 +7,8 @@ import { compLogoUrl, teamLogoUrl } from '../address';
 import { formAt, recordText, type FormLine } from '../data/form';
 import { kickoffTime, isPlayed, shortDay } from '../data/model';
 import { neutralVenue } from '../data/neutral';
+import { leaguePosition } from '../data/position';
+import { ordinal } from '../data/tags';
 import { seasonSeries } from '../data/series';
 import { matchUrl, type Match } from '../data/snapshot';
 import { useFooty } from './ctx';
@@ -133,6 +135,15 @@ function GameCrest({ id }: { id: string }) {
   return <img src={teamLogoUrl(id)} alt={model.team(id).abbr} width={16} height={16} loading="lazy" decoding="async" onError={() => setFailed(true)} />;
 }
 
+/** FK-28: a team's current place in its domestic league, small and muted beside its name ("3rd"); nothing for a team
+ * in no followed league's table. */
+export function LeaguePos({ id }: { id: string }) {
+  const { model } = useFooty();
+  const p = leaguePosition(model, id);
+  if (!p) return null;
+  return <span className="fk-pos" data-testid="league-pos" title={`${model.team(id).name}: ${ordinal(p.rank)} of ${p.teams} in the ${model.comp(p.league).name} now`}>{ordinal(p.rank)}</span>;
+}
+
 /** "2-1 agg", "pens 4-5" — a second leg's or a shootout's line, from the home side. */
 export function tieNote(m: Match): string | undefined {
   const parts: string[] = [];
@@ -174,6 +185,7 @@ export function Scoreline({ m, day, label = 'abbr', form = true, logoSize = 20, 
         {tags && <TeamTags m={m} side="a" align="end" />}
         {fa && <FormSquares line={fa} teamId={m.a} />}
         <TeamLink id={m.a} day={day} label={label} logoSize={logoSize} />
+        <LeaguePos id={m.a} />
       </span>
       <button type="button" className="fk-at" title={`${model.team(m.a).name} at ${model.team(m.h).name}${venue ? ` — ${venue}` : ''}${neutral ? ` (neutral venue: ${neutral.why})` : ''}${tie ? `\n${tie}` : ''}\nSearch the match on Google`} onClick={openMatch(matchUrl(m, model))}>
         {scored && <span className="fk-score">{m.as}</span>}
@@ -181,6 +193,7 @@ export function Scoreline({ m, day, label = 'abbr', form = true, logoSize = 20, 
         {scored && <span className="fk-score">{m.hs}</span>}
       </button>
       <span className="fk-side fk-home">
+        <LeaguePos id={m.h} />
         <TeamLink id={m.h} day={day} label={label} logo="after" logoSize={logoSize} />
         {fh && <FormSquares line={fh} teamId={m.h} />}
         {tags && <TeamTags m={m} side="h" />}

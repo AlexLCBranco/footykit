@@ -2407,3 +2407,13 @@ a.fk-series-sq:hover {
 .fk-tag-variant-opt .fk-muted {
   font-size: 11px;
 }
+
+/* FK-28: the team's place in its domestic league, small and muted beside its name */
+.fk-pos {
+  flex: none;
+  color: var(--fk-muted);
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

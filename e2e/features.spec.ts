@@ -442,7 +442,8 @@ test('FK-31 / FK-32: Slate card score beside the name; bigger last-games squares
   const card = page.getByTestId('slate-card').first();
   await expect(card).toBeVisible();
   const rows = await page.locator('[data-testid="slate-card"] .fk-card-row').evaluateAll((els) => els.map((r) => {
-    const name = r.querySelector('.fk-team-name')!.getBoundingClientRect();
+    // the name, or its league place right after it (FK-28: "Arsenal 1st 2")
+    const name = (r.querySelector('.fk-pos') ?? r.querySelector('.fk-team-name'))!.getBoundingClientRect();
     const score = r.querySelector('[data-testid="card-score"]')?.getBoundingClientRect();
     const sq = [...r.querySelectorAll('.fk-fg-sq')].map((s) => s.getBoundingClientRect());
     return { gap: score ? score.left - name.right : undefined, sqLefts: sq.map((s) => Math.round(s.left - r.getBoundingClientRect().left)), sqW: sq[0]?.width, prefixes: [...r.querySelectorAll('[data-testid="form-game"] .fk-fg-at')].map((p) => p.textContent) };
@@ -480,5 +481,29 @@ test('FK-34: the Tags setting says what each choice does; the saved choice still
   await page.reload();
   await expect(page.getByTestId('tag-variant')).toHaveText('Tags: Highlights only ▾');
   await page.evaluate(() => localStorage.removeItem('fk:tags:v1'));
+  expect(errors).toEqual([]);
+});
+
+test('FK-28: each team\'s domestic league place beside its name on list rows and Slate cards', async ({ page }) => {
+  const errors = await open(page); // Sat Nov 21: Premier League, LaLiga, ... rows
+  const row = page.getByTestId('match-row').first();
+  await expect(row.getByTestId('league-pos')).toHaveCount(2);
+  for (const p of await row.getByTestId('league-pos').all()) {
+    await expect(p).toHaveText(/^\d+(st|nd|rd|th)$/);
+    await expect(p).toHaveAttribute('title', /of \d+ in the /);
+  }
+  // the away place sits after its name, the home place before its name (both beside the score)
+  const xs = await row.evaluate((r) => {
+    const x = (sel: string) => r.querySelector(sel)!.getBoundingClientRect().left;
+    return { awayName: x('.fk-away .fk-team'), awayPos: x('.fk-away .fk-pos'), homePos: x('.fk-home .fk-pos'), homeName: x('.fk-home .fk-team') };
+  });
+  expect(xs.awayPos).toBeGreaterThan(xs.awayName);
+  expect(xs.homePos).toBeLessThan(xs.homeName);
+  // Arsenal (1st on the recorded day) in its Team List
+  await page.goto('/football/?view=list&team=359');
+  await expect(page.getByTestId('team-row').first().locator('[data-testid="league-pos"]').first()).toBeVisible();
+  // Slate cards: both teams
+  await page.getByTestId('views').getByRole('tab', { name: 'Slate' }).click();
+  await expect(page.getByTestId('slate-card').first().getByTestId('league-pos')).toHaveCount(2);
   expect(errors).toEqual([]);
 });

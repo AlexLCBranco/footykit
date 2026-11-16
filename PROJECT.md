@@ -86,8 +86,9 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   page (`src/data/cupSim.ts`, `CupSim.tsx`): picks only, unfixtured rounds list the clubs through without pairing them;
   picks per cup in `fk:whatif:v1` comps. v0.44.0 FK-31 / FK-32 the Slate card's score beside the name and its last games
   as crest squares (`FormGames`, `FormLine.games`). v0.45.0 FK-33 calendarkit's season series popup (`seriesStatus`).
+  v0.47.0 FK-28 each team's domestic league place beside its name (`LeaguePos`, `src/data/position.ts`; owner: Slate + list rows, small muted "3rd").
   v0.46.0 FK-34 the Tags setting in plain words with descriptions (`TagVariantPicker`; values in `fk:tags:v1` unchanged:
-  chips = All tags, rail = Window strip, alerts = Highlights only, off = Hide tags). FK-26 and FK-28 Blocked (backlog notes).
+  chips = All tags, rail = Window strip, alerts = Highlights only, off = Hide tags). FK-26: no bug (owner confirmed the count).
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
