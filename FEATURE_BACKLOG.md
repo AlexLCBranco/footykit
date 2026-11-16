@@ -5,15 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-23 — Team header above the team views, like calendarkit
-
-calendarkit shows a header above its Team Calendar and Team List (`src/components/TeamHeader.tsx`, `styles/team-header.css`): logo on a backing, team name, the period shown. footykit has none.
-
-- Add the same header above footykit's team Calendar and team List: club logo (same backing treatment), full club name, the period shown (month, or the 1 / 2 week range), same sizes and spacing as calendarkit's.
-- It is part of the page, not the fixed bar, and is included in whole-view copies exactly where calendarkit includes its header (follow calendarkit's rule).
-- FK-18's "fill the viewport" height accounts for this header.
-- Tests: e2e for the header's name and period on Calendar (each span) and List, updating on ‹ › and club change.
-
 ### FK-24 — Team Calendar grid and cells on calendarkit's design
 
 footykit's team Calendar uses its own cell layout (`TeamCalendar.tsx`: `fk-cell-top`, `fk-cell-time`, `fk-cell-ha`, `fk-cell-score`, `fk-cell-bottom`, `fk-cell-tags`). Rebuild the grid and cell look on calendarkit's Team Calendar (`TeamMonthGrid.tsx`, `GameCard.tsx`, `styles/grid.css`, `styles/game-card.css`, `styles/team.css`) so the two calendars read as the same design.

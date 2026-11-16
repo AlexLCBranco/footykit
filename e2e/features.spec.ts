@@ -273,3 +273,31 @@ test('FK-22: the bar has calendarkit\'s metrics and blue accent', async ({ page 
   await expect(page.locator('.fk-form-W').first()).toHaveCSS('background-color', 'rgb(55, 196, 122)');
   expect(errors).toEqual([]);
 });
+
+test('FK-23: a team header (logo, full name, period) above the Calendar and List, following ‹ › and the club', async ({ page }) => {
+  const errors = await open(page, '?view=cal&team=359&span=month');
+  const name = page.getByTestId('team-header-name'), period = page.getByTestId('team-period');
+  await expect(name).toHaveText('Arsenal');
+  await expect(period).toHaveText('November 2026');
+  await expect(page.getByTestId('team-header').locator('.fk-logo-backing img')).toBeVisible();
+  await page.getByLabel('Next').click();
+  await expect(period).toHaveText('December 2026');
+  await page.getByTestId('span').getByRole('tab', { name: '2 weeks' }).click();
+  await expect(period).toHaveText(/^\w{3} \d+ – (\w{3} )?\d+, 202[67]$/);
+  await page.getByTestId('span').getByRole('tab', { name: '1 week' }).click();
+  await page.getByTestId('today').click();
+  await expect(period).toHaveText('Nov 16 – 22, 2026');
+  await page.getByLabel('Next').click();
+  await expect(period).toHaveText('Nov 23 – 29, 2026');
+  // the header sits above the grid, inside the page, not in the bar
+  expect(await page.getByTestId('team-calendar').getByTestId('team-header').count()).toBe(1);
+  await page.getByTestId('team-views').getByRole('tab', { name: 'List' }).click();
+  await expect(period).toHaveText('November 2026');
+  await page.getByText(/Load earlier/).click();
+  await expect(period).toHaveText('October – November 2026');
+  // another club
+  const picker = page.getByTestId('scope-picker');
+  await picker.click(); await picker.pressSequentially('gremio'); await picker.press('Enter');
+  await expect(name).toHaveText('Grêmio');
+  expect(errors).toEqual([]);
+});

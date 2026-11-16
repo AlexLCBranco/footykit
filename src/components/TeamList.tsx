@@ -13,6 +13,7 @@ import { CompMark, MatchLink, MatchTime, Scoreline, SeriesChip } from './Bits';
 import { useFooty } from './ctx';
 import { WindowLegend } from './TeamCalendar';
 import { RunLabel } from './Runs';
+import { fmtMonthSpan, TeamHeader } from './TeamHeader';
 
 /** Day lines grouped by fixture window (midweek Tue–Thu, weekend Fri–Mon), in order: one band per window, by date
  * (a window's rest lines are in its band too). */
@@ -56,6 +57,7 @@ export function TeamList({ team, from, to, today, onEarlier, showRest = false, s
   };
   return (
     <section className="fk-teamlist" data-testid="team-list">
+      <TeamHeader team={team} period={fmtMonthSpan(from, to)} />
       {from > earliest && (
         <button type="button" className="fk-btn fk-earlier" data-capture-exclude="true" onClick={onEarlier}>Load earlier ({monthLabel(addMonths(from, -1))})</button>
       )}

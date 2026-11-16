@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-15
+- FK-23 — Team header above the team views, like calendarkit (v0.38.0) — A club's Calendar and List open with calendarkit's header: the club logo on a light disc, the full name, and the period shown at the right.
 - FK-22 — Same shell as calendarkit: bar, buttons, switches, date block, accent colour (v0.37.0) — The bar matches calendarkit: one 44 px row of 32 px controls, calendarkit's switches, buttons, square ‹ › and date block order, and its blue accent for picked and focused controls (green now only means a win or a positive mark).
 - FK-21 — Road trip and homestand labels, like calendarkit (v0.36.0) — A club's Calendar and List label each match of 3+ in a row away "Road trip · 2/4" (red outline) or at home "Homestand · 1/3" (blue), counted over the whole season.
 - FK-20 — Team calendar cells: both abbreviations with the score between them (v0.35.0) — Calendar cells read "NEW 1 @ 3 EVE" on one line with both logos, the club first, the winner's number bright and the loser's dimmed; matches to come read "NEW @ EVE" under the kickoff time.

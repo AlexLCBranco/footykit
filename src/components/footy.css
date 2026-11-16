@@ -1906,3 +1906,39 @@ button.fk-chip:hover {
   outline: 2px solid var(--fk-accent);
   outline-offset: 1px;
 }
+
+/* FK-23: the team header (calendarkit's team-header.css and .ck-logo-backing) */
+.fk-team-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 12px;
+}
+.fk-logo-backing {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(226, 231, 238, 0.92);
+}
+.fk-logo-backing img {
+  display: block;
+  width: 38.4px; /* 80 % of the disc */
+  height: 38.4px;
+  object-fit: contain;
+}
+.fk-team-header-name {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.fk-team-period {
+  margin-left: auto;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--fk-text);
+  white-space: nowrap;
+}

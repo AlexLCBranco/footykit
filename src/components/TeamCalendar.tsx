@@ -2,7 +2,7 @@
 // (competition, vs / @ opponent, kickoff or score with the result's colour). Free windows (no match in that midweek
 // or weekend window) are tinted, FIFA windows marked on the day number.
 
-import { addDays, addMonths, isPlayed, monthOf, mondayOf, resultFor, weekdayShort, type Model } from '../data/model';
+import { addDays, addMonths, isPlayed, monthLabel, monthOf, mondayOf, resultFor, weekdayShort, type Model } from '../data/model';
 import { formAt } from '../data/form';
 import { neutralVenue } from '../data/neutral';
 import { fifaWindowOn, isFreeWindowDay, windowOf } from '../data/windows';
@@ -12,6 +12,7 @@ import { CompMark, FormSquares, MatchTime, SeriesChip, TeamLink, tieNote } from 
 import { useFooty } from './ctx';
 import { DerbyTag, TeamTags } from './Tags';
 import { RunLabel } from './Runs';
+import { fmtRange, TeamHeader } from './TeamHeader';
 import type { Span } from './page';
 import { useLayoutEffect, useRef, useState } from 'react';
 
@@ -108,6 +109,7 @@ export function TeamCalendar({ team, span, week, month, today, showFree = true }
   const byDay = byDayFor(model, team, live);
   return (
     <section className={`fk-cal fk-cal-${span}`} data-testid="team-calendar">
+      <TeamHeader team={team} period={span === 'month' ? monthLabel(month) : fmtRange(days[0]!, days[days.length - 1]!)} />
       <div className="fk-cal-grid" ref={fill.ref} style={fill.style} data-weeks={days.length / 7}>
         {days.slice(0, 7).map((d) => <div key={`h${d}`} className="fk-cal-wd">{weekdayShort(d)}</div>)}
         {days.map((d) => {
