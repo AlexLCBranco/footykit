@@ -3,18 +3,23 @@
 // in localStorage `fk:stpop:v1`, "↺" resets; like calendarkit's).
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { isPlayed, resultFor, shortDay } from '../data/model';
-import { seasonSeries } from '../data/series';
+import { shortDay } from '../data/model';
+import { neutralVenue } from '../data/neutral';
+import { meetingWinner, seasonSeries, seriesStatus } from '../data/series';
 import { matchUrl } from '../data/snapshot';
-import { CompMark, TeamLink } from './Bits';
+import { CompMark, TeamLink, TeamLogo } from './Bits';
 import { useFooty } from './ctx';
 import { EDGES, useFloatBox } from './floatBox';
 import { SplitTable } from './SplitTable';
 
-export interface SeriesOpen { a: string; b: string; x: number; y: number }
+/** The season series popup: where, the chip that opened it (its match outlined). */
+export interface SeriesOpen { a: string; b: string; x: number; y: number; current?: string }
 
+/** FK-33: calendarkit's season series popup ("G2/4"): a header "A – B · N meetings" with the series' state on the
+ * right, one card per meeting across all competitions, oldest first (where: the home crest and "AWAY @ HOME"; played:
+ * the winner and score; the date; the match that opened it outlined). A card searches the match on Google. */
 export function SeriesPopup({ open, onClose }: { open: SeriesOpen; onClose: () => void }) {
-  const { model, timeZone } = useFooty();
+  const { model, onTeam } = useFooty();
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const away = (e: PointerEvent) => { if (!ref.current?.contains(e.target as Node)) onClose(); };
@@ -25,27 +30,39 @@ export function SeriesPopup({ open, onClose }: { open: SeriesOpen; onClose: () =
   }, [onClose]);
   const meetings = seasonSeries(model, open.a, open.b);
   const ta = model.team(open.a), tb = model.team(open.b);
+  const abbr = (id: string) => model.team(id).abbr;
+  const width = Math.min(innerWidth - 16, 24 + meetings.length * 96);
+  const name = (id: string) => (onTeam && model.followed.has(id)
+    ? <button type="button" className="fk-series-team" onClick={() => { onTeam(id, model.dayOf(meetings[0]!.m)); onClose(); }} title={`${model.team(id).name}: open its calendar`}>{abbr(id)}</button>
+    : <span title={model.team(id).name}>{abbr(id)}</span>);
   return (
-    <div ref={ref} className="fk-pop fk-series-pop" role="dialog" aria-label={`${ta.abbr} – ${tb.abbr} this season`} data-testid="series-popup" style={{ left: Math.min(open.x, innerWidth - 380), top: open.y + 6 }}>
-      <div className="fk-pop-head">{ta.name} – {tb.name}: {meetings.length} meeting{meetings.length === 1 ? '' : 's'} this season</div>
-      <div className="fk-squares">
+    <div ref={ref} className="fk-pop fk-series-pop" role="dialog" aria-label={`${ta.abbr} – ${tb.abbr} this season`} data-testid="series-popup" style={{ left: Math.max(8, Math.min(open.x, innerWidth - width - 8)), top: open.y + 6 }}>
+      <div className="fk-series-head">
+        <span className="fk-series-title">{name(open.a)} – {name(open.b)} · {meetings.length} meeting{meetings.length === 1 ? '' : 's'}</span>
+        <span className="fk-series-status" data-testid="series-status">{seriesStatus(meetings, open.a, open.b, abbr)}</span>
+      </div>
+      <div className="fk-series-row">
         {meetings.map(({ m, tie }) => {
-          const r = resultFor(m, open.a);
-          const home = m.h === open.a;
-          const when = shortDay(model.dayOf(m));
-          const score = isPlayed(m) ? `${home ? m.hs : m.as}-${home ? m.as : m.hs}` : m.tbd ? 'TBD' : new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone }).format(Date.parse(m.t));
+          const w = meetingWinner(m);
+          const day = model.dayOf(m);
+          const where = `${abbr(m.a)} ${neutralVenue(m) ? 'v' : '@'} ${abbr(m.h)}`;
+          const hi = Math.max(m.hs ?? 0, m.as ?? 0), lo = Math.min(m.hs ?? 0, m.as ?? 0);
+          const pens = m.hp !== undefined && m.ap !== undefined ? ` (p ${Math.max(m.hp, m.ap)}–${Math.min(m.hp, m.ap)})` : '';
+          const comp = `${model.comp(m.c).name}${m.r ? ` · ${m.r}` : ''}${m.leg ? ` · leg ${m.leg}` : ''}`;
+          const label = w ? `${shortDay(day)}, ${where}: ${w === 'draw' ? `draw ${hi}–${lo}` : `${abbr(w)} won ${hi}–${lo}${pens}`}` : `${shortDay(day)}, ${where}: to come`;
           return (
-            <a key={m.id} className={`fk-square${r ? ` fk-res-${r}` : ''}`} href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer" data-testid="series-square"
-              title={`${when} · ${model.comp(m.c).name}${m.r ? ` · ${m.r}` : ''}${m.leg ? ` · leg ${m.leg}` : ''}\n${model.team(m.a).name} at ${model.team(m.h).name}${tie ? `\nAggregate ${ta.abbr} ${tie.agg[0]}-${tie.agg[1]} ${tb.abbr}${tie.pens ? `, pens ${tie.pens[0]}-${tie.pens[1]}` : ''}` : ''}\nSearch on Google`}>
-              <span className="fk-square-top"><CompMark slug={m.c} round={m.r} /> {home ? 'vs' : '@'}</span>
-              <span className="fk-square-score">{score}</span>
-              <span className="fk-square-date">{when}</span>
-              {tie && <span className="fk-square-agg">agg {tie.agg[0]}-{tie.agg[1]}{tie.pens ? ` (p ${tie.pens[0]}-${tie.pens[1]})` : ''}</span>}
+            <a key={m.id} className={`fk-series-sq${w ? ' fk-series-played' : ' fk-series-next'}${m.id === open.current ? ' fk-series-current' : ''}`} href={matchUrl(m, model)} target="_blank" rel="noopener noreferrer"
+              data-testid="series-square" data-current={m.id === open.current || undefined} aria-label={`${label}. Search on Google`}
+              title={`${comp}${tie ? `\nAggregate ${ta.abbr} ${tie.agg[0]}-${tie.agg[1]} ${tb.abbr}${tie.pens ? `, pens ${tie.pens[0]}-${tie.pens[1]}` : ''}` : ''}\nSearch the match on Google`}>
+              <span className="fk-series-match" data-testid="series-match"><TeamLogo id={m.h} size={18} />{where}</span>
+              {w && <span className="fk-series-win">{w === 'draw' ? 'Draw' : abbr(w)}</span>}
+              {w && <span className="fk-series-score">{hi}–{lo}{pens}</span>}
+              <span className="fk-series-date">{shortDay(day)}</span>
+              <span className="fk-series-comp"><CompMark slug={m.c} round={m.r} /></span>
             </a>
           );
         })}
       </div>
-      <div className="fk-muted fk-pop-foot">From {ta.abbr}'s side. Click a square to search the match on Google.</div>
     </div>
   );
 }

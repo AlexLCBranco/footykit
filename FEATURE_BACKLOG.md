@@ -14,8 +14,5 @@ Show each team's current position in its domestic league table on the match rows
 Open: where and how it's displayed is not decided yet. Ask the owner before building.
 Blocked: needs the owner's choice of where (Day List / Slate / Team List rows, which side of the name) and how (e.g. "3rd", "#3", with the league code for cup matches) the position is shown.
 
-### FK-33 — Season-series popup like calendarkit's
-footykit already has the "k/n" series chip and a meetings popup. Make the popup look and work like calendarkit's (the "G2/4" badge popup): a header "A – B · N meetings" with "X leads n–m" on the right, and one card per meeting (home/away, crest, winner and score for played games, date; the current game outlined). Count meetings across all competitions.
-
 ### FK-34 — Make the Tags setting self-explanatory
 The bar's "Tags" dropdown (Chips / Rail / Alerts / Off) doesn't say what anything does. Rename the options to plain words, e.g. "All tags" (every tag as a chip), "Window strip" (the three-cell previous/now/next strip), "Highlights only" (only what stands out), "Hide tags". Show a one-line description under each option. Keep the saved choice working (`fk:tags:v1`).

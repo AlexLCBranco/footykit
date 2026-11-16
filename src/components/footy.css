@@ -2277,3 +2277,94 @@ button.fk-chip:hover {
   font-weight: 800;
   color: #111;
 }
+
+/* FK-33: calendarkit's season series popup (.ck-series-pop: header with the state, one card per meeting) */
+.fk-pop.fk-series-pop {
+  padding: 8px 10px 10px;
+  font-size: 12px;
+  max-width: calc(100vw - 16px);
+}
+.fk-series-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+.fk-series-title {
+  color: var(--fk-muted);
+}
+.fk-series-team {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.fk-series-team:hover {
+  color: var(--fk-link);
+  text-decoration: underline;
+}
+.fk-series-status {
+  font-weight: 700;
+}
+.fk-series-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fk-series-sq {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 90px;
+  min-height: 78px;
+  padding: 4px 2px;
+  border: 1px solid var(--fk-border);
+  border-radius: 6px;
+  background: var(--fk-surface-2);
+  color: inherit;
+  text-decoration: none;
+}
+a.fk-series-sq:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.fk-series-sq.fk-series-current {
+  border-color: var(--fk-accent);
+  box-shadow: inset 0 0 0 1px var(--fk-accent);
+}
+.fk-series-match {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--fk-muted);
+}
+.fk-series-win {
+  font-weight: 700;
+}
+.fk-series-score {
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+}
+.fk-series-date {
+  color: var(--fk-muted);
+  font-size: 10px;
+}
+.fk-series-comp {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  transform: scale(0.75);
+  transform-origin: top right;
+}
+.fk-series-next {
+  opacity: 0.6;
+}

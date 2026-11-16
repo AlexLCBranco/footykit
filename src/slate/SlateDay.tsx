@@ -43,7 +43,7 @@ export function SlateDay({ data, day, timeZone, notes, width = 1840, teamLink, l
     timeZone,
     live: liveOn ? live : EMPTY_LIVE,
     teamHref: teamLink,
-    onSeries: (a, b, el) => { const r = el.getBoundingClientRect(); setSeries({ a, b, x: r.left, y: r.bottom }); },
+    onSeries: (a, b, el, current) => { const r = el.getBoundingClientRect(); setSeries({ a, b, x: r.left, y: r.bottom, current }); },
   }), [data, now, timeZone, live, liveOn, teamLink]);
   return (
     <Ctx.Provider value={ctx}>

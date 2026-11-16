@@ -201,7 +201,7 @@ export function SeriesChip({ m }: { m: Match }) {
   if (meetings.length < 2) return null;
   const k = meetings.findIndex((x) => x.m.id === m.id) + 1;
   return (
-    <button type="button" className="fk-chip fk-series-chip" title={`Meeting ${k} of ${meetings.length} this season — click for all of them`} onClick={(e) => { e.stopPropagation(); onSeries(a, b, e.currentTarget); }}>
+    <button type="button" className="fk-chip fk-series-chip" title={`Meeting ${k} of ${meetings.length} this season — click for all of them`} onClick={(e) => { e.stopPropagation(); onSeries(a, b, e.currentTarget, m.id); }}>
       {k}/{meetings.length}
     </button>
   );

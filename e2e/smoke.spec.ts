@@ -83,6 +83,11 @@ test('season series popup and quick standings', async ({ page }) => {
   await page.locator('.fk-series-chip').first().click();
   await expect(page.getByTestId('series-popup')).toBeVisible();
   await expect(page.getByTestId('series-square')).toHaveCount(2);
+  // FK-33: calendarkit's popup — "A – B · N meetings", the state on the right, the match that opened it outlined
+  await expect(page.getByTestId('series-popup').locator('.fk-series-title')).toHaveText(/^[A-Z0-9-]+ – [A-Z0-9-]+ · 2 meetings$/);
+  await expect(page.getByTestId('series-status')).toHaveText(/leads|tied|split|won|played yet|Only meeting/);
+  await expect(page.locator('[data-testid="series-square"][data-current]')).toHaveCount(1);
+  await expect(page.getByTestId('series-match').first()).toHaveText(/^[A-Z0-9-]+ [@v] [A-Z0-9-]+$/);
   await page.keyboard.press('Escape');
   await page.getByTestId('standings-button').click();
   await expect(page.getByTestId('standings-popup').locator('tbody tr')).toHaveCount(20);
