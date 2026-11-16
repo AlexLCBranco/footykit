@@ -144,3 +144,23 @@ test('FK-16: from a team page, one click on a main tab or the × lands on that m
   await expect(page.getByTestId('day-list')).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('FK-17: the picked club is highlighted like calendarkit (blue border, bold name, 36 px, × beside); All clubs stays plain', async ({ page }) => {
+  const errors = await open(page);
+  const box = page.locator('.fk-club-pick');
+  const look = () => box.evaluate((el) => {
+    const s = getComputedStyle(el), i = getComputedStyle(el.querySelector('input')!);
+    return { border: s.borderTopColor, width: s.borderTopWidth, height: el.getBoundingClientRect().height, radius: s.borderTopLeftRadius, weight: i.fontWeight, color: i.color, logo: !!el.querySelector('.fk-logo') };
+  });
+  const plain = await look();
+  expect(plain.border).not.toBe('rgb(78, 161, 255)');
+  expect(plain.logo).toBe(false);
+  await page.goto('/football/?view=cal&team=359');
+  const picked = await look();
+  expect(picked).toMatchObject({ border: 'rgb(78, 161, 255)', width: '2px', height: 36, radius: '8px', weight: '700', color: 'rgb(255, 255, 255)', logo: true });
+  await expect(page.getByTestId('scope-picker')).toHaveValue('Arsenal');
+  // the × right beside it
+  const [p, x] = await Promise.all([box.boundingBox(), page.getByTestId('club-clear').boundingBox()]);
+  expect(x!.x - (p!.x + p!.width)).toBeLessThan(8);
+  expect(errors).toEqual([]);
+});

@@ -48,7 +48,7 @@ export function ClubPicker({ team, onPick }: { team?: string; onPick: (id: strin
 
   return (
     <span className={`fk-scope fk-club-pick${team ? ' fk-scope-team' : ''}`} title="Show one club, or all followed clubs: type a club's name">
-      {team ? <TeamLogo id={team} size={22} /> : (
+      {team ? <TeamLogo id={team} size={24} /> : (
         <svg className="fk-search-icon" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><circle cx="6.8" cy="6.8" r="4.6" fill="none" stroke="currentColor" strokeWidth="1.8" /><path d="M10.3 10.3l3.9 3.9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
       )}
       <input

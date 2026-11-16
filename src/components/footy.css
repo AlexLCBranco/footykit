@@ -1642,3 +1642,38 @@ button.fk-chip:hover {
   color: var(--fk-text) !important;
   border-color: var(--fk-club-accent, var(--fk-accent));
 }
+
+/* FK-17: the picked club stands out like calendarkit's scope picker (toolbar.css .ck-picker-scope): accent-blue 2 px
+   border and tint, 24 px logo, the full name bold white, 36 px tall, 8 px corners; "All clubs" stays plain. */
+.fk-root {
+  --fk-club-accent: #4ea1ff;
+}
+.fk-club-pick {
+  border: 1px solid var(--fk-border);
+  background: var(--fk-surface);
+  border-radius: 8px;
+  height: 36px;
+}
+.fk-club-pick:focus-within {
+  border-color: var(--fk-club-accent);
+}
+.fk-club-pick.fk-scope-team {
+  border: 2px solid var(--fk-club-accent);
+  background: rgb(78 161 255 / 0.16);
+  padding: 0 7px; /* 2 px border: same outer size */
+  gap: 8px;
+}
+.fk-club-pick.fk-scope-team:hover,
+.fk-club-pick.fk-scope-team:focus-within {
+  background: rgb(78 161 255 / 0.26);
+}
+.fk-club-pick.fk-scope-team .fk-club-input {
+  height: 32px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #fff;
+}
+.fk-club-group-on .fk-club-clear {
+  height: 36px;
+}

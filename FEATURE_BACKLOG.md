@@ -5,15 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-17 — Picked club highlighted in the top bar, like calendarkit
-
-Reference: calendarkit (repo AlexLCBranco/calendarkit, team mode). When a team is picked, its picker button is clearly highlighted: blue border/outline, team logo, team name in bold white, plus an × button right next to it. footykit's `TeamPicker` (`TopBar.tsx`, class `fk-scope-team`) doesn't stand out the same way.
-
-- Match calendarkit's look for the picked state: accent-blue border, logo + bold full club name, same height as the other bar buttons (36 px, 8 px corners per calendarkit's toolbar.css).
-- The × from FK-16 sits right beside it, like calendarkit.
-- Unpicked ("All clubs") stays plain.
-- Applies to the FK-12 typeable picker once it lands (build FK-12 first if both are in the batch).
-
 ### FK-18 — Team Calendar month view: bigger day cells, no dead space at the bottom
 
 In the team Calendar with span = Month, the grid ends well above the bottom of the window, leaving empty space. Make the grid fill the available height:
