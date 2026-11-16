@@ -51,7 +51,7 @@ body {
   cursor: pointer;
 }
 .app-retry:hover {
-  border-color: #37c47a;
+  border-color: #4ea1ff;
 }
 /* site version, bottom-right corner of the window (SiteVersion.tsx), inside the page's bottom padding */
 .app-version {

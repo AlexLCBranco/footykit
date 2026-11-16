@@ -5,21 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-22 — Same shell as calendarkit: bar, buttons, switches, date block, accent colour
-
-Goal of FK-22 to FK-25: footykit and calendarkit must feel like one website. Reference for all four: the calendarkit repo (public, github.com/AlexLCBranco/calendarkit, `main`). Read its files; copy values and structure, don't invent.
-
-Build after FK-17 and FK-19 (same top bar).
-
-- Accent colour: footykit's control accent becomes calendarkit's blue (`--ck-accent`, #4ea1ff): picked tab/switch, scope border, focus rings, active states. Green stays only where it means something (win, weekend band, live/positive marks). `--fk-win` keeps its green.
-- Top bar metrics as calendarkit's packed bar (`src/components/styles/toolbar.css`, `menu.css`): same row height, gaps, padding and separators. Today footykit's bar is 44 px min-height with 12 px gaps; calendarkit's rows are 36 px with 8 px gaps.
-- Switches: footykit's `Tabs` strip (`fk-tabs` / `fk-tab`) takes the look and states of calendarkit's `Segmented` (`src/components/Segmented.tsx` and its styles): same height, corners, picked / hover / disabled states, font size and weight.
-- Buttons: `fk-btn`, `fk-icon-btn`, `fk-hist-btn` and the ‹ › steps (`fk-step`, round today) match calendarkit's equivalents in size, shape, border and hover.
-- Date block: same order, spacing and text style as calendarkit's (`PeriodNav.tsx`, `period-nav.css`), Today button included.
-- The league / cup / competition `<select>` pickers take the same box style as the other bar controls (height, border, corners, font); they stay native selects.
-- No behaviour change: same tabs, same addresses, same test ids. Football-only controls (Tags switch and its menu) stay, restyled to match.
-- Tests: existing e2e pass unchanged; add one e2e asserting the bar's computed row height and the picked switch's colour.
-
 ### FK-23 — Team header above the team views, like calendarkit
 
 calendarkit shows a header above its Team Calendar and Team List (`src/components/TeamHeader.tsx`, `styles/team-header.css`): logo on a backing, team name, the period shown. footykit has none.

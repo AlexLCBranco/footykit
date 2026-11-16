@@ -10,7 +10,8 @@
   --fk-border: #2a2f3a;
   --fk-text: #e6e8ec;
   --fk-muted: #8b93a3;
-  --fk-accent: #37c47a;
+  /* controls: calendarkit's accent blue (--ck-accent), FK-22; green stays only where it means something (--fk-win) */
+  --fk-accent: #4ea1ff;
   --fk-link: #7cb8ff;
   --fk-win: #37c47a;
   --fk-draw: #9aa3b2;
@@ -88,7 +89,7 @@
   padding: 0 4px 0 8px;
   border: 1px solid var(--fk-accent);
   border-radius: 8px;
-  background: rgb(55 196 122 / 0.08);
+  background: rgb(78 161 255 / 0.08);
   flex: none;
 }
 .fk-scope select {
@@ -140,7 +141,7 @@
 }
 .fk-tab-on {
   background: var(--fk-accent);
-  color: #06140c !important;
+  color: #06121f !important;
   font-weight: 600;
 }
 .fk-date-block {
@@ -303,11 +304,11 @@
 }
 .fk-strip-day.fk-on {
   background: var(--fk-accent);
-  color: #06140c;
+  color: #06121f;
 }
 .fk-strip-day.fk-on .fk-strip-wd,
 .fk-strip-day.fk-on .fk-strip-n {
-  color: #06140c;
+  color: #06121f;
 }
 
 /* ---------- team bits ---------- */
@@ -1086,7 +1087,7 @@ button.fk-chip:hover {
   font-weight: 800;
 }
 .fk-table tr.fk-me td {
-  background: rgb(55 196 122 / 0.12);
+  background: rgb(78 161 255 / 0.12);
 }
 
 /* copies: no link styling in images */
@@ -1749,4 +1750,159 @@ button.fk-chip:hover {
   display: flex;
   gap: 4px;
   margin: 0 6px;
+}
+
+/* ---------- FK-22: calendarkit's shell (toolbar.css .ck-bar1, menu.css, period-nav.css), measured on its live bar
+   at 1920 × 911: one 44 px row (6 px top padding), 32 px controls, 14 px between groups, 8 px inside a group,
+   8 px corners. ---------- */
+.fk-bar {
+  min-height: 44px;
+  padding: 6px 0 0;
+  box-sizing: border-box;
+  column-gap: 14px;
+  margin-bottom: 4px;
+}
+.fk-bar-end,
+.fk-date-block {
+  gap: 8px;
+}
+.fk-club-group {
+  gap: 4px; /* calendarkit's picker and its × */
+}
+/* switches: calendarkit's Segmented in the packed bar */
+.fk-tabs {
+  height: 32px;
+}
+.fk-root .fk-tab {
+  padding: 0 11px;
+  font-size: 13px;
+}
+.fk-root .fk-tab-on {
+  font-weight: 600;
+}
+/* (.fk-root: these buttons' sizes beat .fk-root button { font: inherit }) */
+/* page history ← →: one joined pill, 30 px buttons on surface-2 */
+.fk-hist {
+  height: 32px;
+  box-sizing: border-box;
+}
+.fk-root .fk-hist-btn {
+  width: 30px;
+  background: var(--fk-surface-2);
+  color: var(--fk-text);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+}
+.fk-hist-btn:hover:not(:disabled) {
+  color: var(--fk-accent);
+}
+.fk-hist-btn:disabled {
+  color: var(--fk-muted);
+  opacity: 0.4;
+}
+/* ‹ › : calendarkit's .ck-arrow (8 px corners, not round) */
+.fk-root .fk-step {
+  width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  font-size: 20px;
+  color: var(--fk-text);
+  flex: none;
+}
+.fk-step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+/* the date: calendarkit's .ck-nav-title, a fixed width so the arrows never move */
+.fk-date-text {
+  width: 16.5em;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* buttons: calendarkit's .ck-button / .ck-today */
+.fk-root .fk-btn {
+  height: 32px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fk-text);
+  white-space: nowrap;
+  flex: none;
+}
+.fk-btn:disabled {
+  opacity: 0.35;
+  color: var(--fk-text);
+}
+.fk-icon-btn {
+  box-sizing: border-box;
+}
+.fk-icon-btn:hover,
+.fk-icon-btn[aria-expanded='true'] {
+  color: var(--fk-text);
+}
+.fk-date-input {
+  height: 32px;
+}
+/* the league / cup / competition pickers: native selects in the bar's box style */
+.fk-scope:not(.fk-club-pick) {
+  height: 32px;
+  box-sizing: border-box;
+  padding: 0 4px 0 6px;
+  border: 1px solid var(--fk-border);
+  background: var(--fk-surface);
+}
+.fk-scope:not(.fk-club-pick):hover,
+.fk-scope:not(.fk-club-pick):focus-within {
+  border-color: var(--fk-accent);
+}
+.fk-scope:not(.fk-club-pick) select {
+  height: 30px;
+  font-size: 13px;
+  font-weight: 600;
+}
+/* the bar's checkboxes (Rest days, Hide notes, Tags): calendarkit's chip checks — 28 px pills, the box kept */
+.fk-bar-end .fk-check {
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 10px 0 8px;
+  border: 1px solid var(--fk-border);
+  border-radius: 999px;
+  font-size: 12px;
+  gap: 5px;
+  color: var(--fk-muted);
+}
+.fk-bar-end .fk-check:hover {
+  color: var(--fk-text);
+}
+.fk-bar-end .fk-check:has(input:checked) {
+  border-color: var(--fk-accent);
+  color: var(--fk-text);
+}
+.fk-bar-end .fk-check input {
+  margin: 0;
+  width: 12px;
+  height: 12px;
+}
+.fk-tag-pick select {
+  height: 22px;
+  margin-left: 2px;
+}
+.fk-root .fk-tag-menu-btn {
+  height: 28px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.fk-tag-menu-btn[aria-expanded='true'] {
+  border-color: var(--fk-accent);
+}
+/* focus rings in the accent */
+.fk-root :focus-visible {
+  outline: 2px solid var(--fk-accent);
+  outline-offset: 1px;
 }

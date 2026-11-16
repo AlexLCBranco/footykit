@@ -260,3 +260,16 @@ test('FK-21: road trip and homestand labels on the team Calendar and List, count
   await expect(page.getByTestId('run-label').filter({ hasText: 'Road trip · 2/3' })).toHaveCount(1);
   expect(errors).toEqual([]);
 });
+
+test('FK-22: the bar has calendarkit\'s metrics and blue accent', async ({ page }) => {
+  const errors = await open(page);
+  const bar = await page.getByTestId('top-bar').evaluate((el) => {
+    const h = (s: string) => Math.round(el.querySelector(s)!.getBoundingClientRect().height);
+    const on = getComputedStyle(el.querySelector('.fk-tab-on')!);
+    return { row: Math.round(el.getBoundingClientRect().height), gap: getComputedStyle(el).columnGap, tabs: h('.fk-tabs'), hist: h('.fk-hist'), step: h('.fk-step'), today: h('[data-testid="today"]'), icon: h('.fk-icon-btn'), onBg: on.backgroundColor, onFont: `${on.fontSize} ${on.fontWeight}` };
+  });
+  expect(bar).toEqual({ row: 44, gap: '14px', tabs: 32, hist: 32, step: 32, today: 32, icon: 32, onBg: 'rgb(78, 161, 255)', onFont: '13px 600' });
+  // green stays for meaning: a win square
+  await expect(page.locator('.fk-form-W').first()).toHaveCSS('background-color', 'rgb(55, 196, 122)');
+  expect(errors).toEqual([]);
+});

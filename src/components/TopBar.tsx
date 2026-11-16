@@ -93,10 +93,11 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
         <button type="button" className="fk-step" aria-label="Previous" title="Previous" onClick={() => onStep(-1)}>‹</button>
         <span className="fk-date-text" data-testid="date-text">{dateText}</span>
         <button type="button" className="fk-step" aria-label="Next" title="Next" onClick={() => onStep(1)}>›</button>
-        <button type="button" className="fk-btn" disabled={isToday} onClick={goToday} data-testid="today">Today</button>
+        {/* calendarkit's date block order: ‹ date › · date picker · Today (PeriodNav.tsx) */}
         {(page.view === 'day' || page.view === 'slate') && (
           <input type="date" className="fk-date-input" value={page.day} aria-label="Pick a date" onChange={(e) => e.target.value && onPage({ ...page, day: e.target.value })} />
         )}
+        <button type="button" className="fk-btn fk-today" disabled={isToday} onClick={goToday} data-testid="today" title={isToday ? 'Showing today' : 'Back to today'}>Today</button>
       </span>}
       <span className="fk-bar-end">
         {end}

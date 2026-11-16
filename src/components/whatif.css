@@ -224,7 +224,7 @@
 }
 .fk-wi-table tr.fk-wi-me td,
 .fk-wi-table tr.fk-wi-self td {
-  background: rgb(55 196 122 / 0.16);
+  background: rgb(78 161 255 / 0.16);
 }
 .fk-wi-table tr.fk-wi-meets td {
   background: rgb(76 141 255 / 0.13);
@@ -292,7 +292,7 @@
   font-weight: 400;
 }
 .fk-wi-chip.fk-wi-self {
-  background: rgb(55 196 122 / 0.35);
+  background: rgb(78 161 255 / 0.35);
 }
 .fk-wi-chip.fk-wi-meets,
 .fk-wi-meets-key {
@@ -340,7 +340,7 @@
 }
 .fk-wi-scen-active {
   border-color: var(--fk-accent);
-  background: rgb(55 196 122 / 0.14);
+  background: rgb(78 161 255 / 0.14);
 }
 .fk-wi-scen-chip,
 .fk-wi-scen-x {
