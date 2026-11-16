@@ -77,3 +77,24 @@ test('FK-13: the team List shows each midweek / weekend window as one band, alte
   expect(await page.locator('[data-testid="window-band"] [data-testid="team-row"]').count()).toBe(await page.getByTestId('team-row').count());
   expect(errors).toEqual([]);
 });
+
+test('FK-14: the team List has the Calendar\'s free-window tint, FIFA marker and legend', async ({ page }) => {
+  const errors = await open(page, '?view=list&team=6273');
+  // Grêmio has no match in the midweek of Nov 10–12 (a FIFA window): the Calendar's free days, the List's too
+  for (const d of ['2026-11-10', '2026-11-11', '2026-11-12']) {
+    await expect(page.locator(`[data-rest="${d}"]`)).toHaveAttribute('data-free', 'true');
+    await expect(page.locator(`.fk-cal-cell[data-day="${d}"]`)).toHaveCount(0);
+  }
+  await expect(page.locator('[data-rest="2026-11-10"]').getByTestId('fifa-mark')).toHaveText('FIFA');
+  // a day with a match is never free
+  expect(await page.locator('[data-testid="team-row"].fk-free').count()).toBe(0);
+  const legend = page.getByTestId('window-legend');
+  await expect(legend).toContainText('midweek Tue–Thu');
+  await expect(legend).toContainText('free window');
+  await expect(legend).toContainText('FIFA window');
+  // the same days are free on the Calendar
+  await page.getByTestId('views').getByText('Calendar').click();
+  await page.getByTestId('span').getByRole('tab', { name: 'Month' }).click();
+  await expect(page.locator('.fk-cal-cell[data-day="2026-11-10"]')).toHaveClass(/fk-free/);
+  expect(errors).toEqual([]);
+});

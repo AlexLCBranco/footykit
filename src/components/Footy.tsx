@@ -106,7 +106,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const closeSeries = useCallback(() => setSeries(null), []);
   let view: ReactNode;
   if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} />;
-  else if (page.view === 'list' && page.team) view = <TeamList team={page.team} from={page.listFrom} to={page.month} showRest={showRest} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
+  else if (page.view === 'list' && page.team) view = <TeamList team={page.team} today={today} from={page.listFrom} to={page.month} showRest={showRest} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
   else if (page.view === 'ucl') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><UclPage today={today} tab={page.uclTab ?? 'table'} onTab={(t) => onPage({ ...page, uclTab: t })} onWhatIf={() => onPage(uclWhatIfPage(page))} /></Suspense>;
   else if (page.view === 'whatif' && simLeague(page)) view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueWhatIfPage key={simLeague(page)} league={simLeague(page)!} today={today} onBack={() => onPage({ ...page, view: 'table' })} /></Suspense>;
   else if (page.view === 'whatif') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WhatIfPage today={today} onBack={() => onPage({ ...page, view: 'ucl' })} /></Suspense>;

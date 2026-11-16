@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-15
+- FK-14 — Calendar's free-window marking + legend in the team List view (v0.29.0) — The club's List view tints free-window days like the Calendar, marks FIFA-window days "FIFA" by the date, and has the Calendar's legend underneath with the midweek / weekend band colours added.
 - FK-13 — Midweek / weekend window bands in the team List view (v0.28.0) — In a club's List view each midweek (Tue–Thu) and weekend (Fri–Mon) window is one tinted band with a thin left bar, violet for midweek and green for weekend, so the windows alternate visibly.
 - FK-12 — Club picker must clearly accept typing (v0.27.0) — The club picker is a box you type into: it filters live ignoring case and accents ("gremio" finds Grêmio), ↑/↓ move, Enter picks, Esc closes.
 - FK-11 — Competition name spelled out in match rows (v0.26.0) — Day List and Team List rows show the competition's name after its logo, in a fixed-width column (long names end in "…", the tooltip has it whole).

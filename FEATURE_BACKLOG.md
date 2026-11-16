@@ -5,15 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-14 — Calendar's free-window marking + legend in the team List view
-
-The team Calendar (`TeamCalendar.tsx`) already tints free windows (`isFreeWindowDay`) and marks FIFA windows (`fifaWindowOn`), with a legend under it. The List view has none of that. Bring the same thing to the List view:
-
-- Free-window days (no match that midweek/weekend window) get the same free tint as the calendar, on top of the FK-13 bands.
-- FIFA window days get the same FIFA marker as the calendar.
-- Same legend line under the list (extended with the FK-13 midweek/weekend colours). Reuse the calendar's code/classes; don't duplicate the logic.
-- Respect the same "show free" toggle the calendar uses, if there is one.
-
 ### FK-15 — Hide Z4R and the "1C/2C/3C" tags by default, user can turn them on
 
 Today tags are all-or-nothing per display mode (the "Tag display" select in `Footy.tsx`: Chips / Rail / Alerts / Off, saved under `fk:tags:v1`). The user wants the Z4R tag (`key: 'z4'`) and the alive-in-competitions tag (`key: 'alive'`, "1C/2C/3C") hidden unless they turn them on.

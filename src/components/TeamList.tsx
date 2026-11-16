@@ -7,10 +7,11 @@ import { useMemo } from 'react';
 import { addMonths, daysBetween, dayLabel, monthLabel, monthOf, restDays, resultFor } from '../data/model';
 import { formAt, recordText } from '../data/form';
 import { withLive } from '../data/live';
-import { windowOf } from '../data/windows';
+import { fifaWindowOn, isFreeWindowDay, windowOf } from '../data/windows';
 import type { Match } from '../data/snapshot';
 import { CompMark, MatchLink, MatchTime, Scoreline, SeriesChip } from './Bits';
 import { useFooty } from './ctx';
+import { WindowLegend } from './TeamCalendar';
 
 /** Day lines grouped by fixture window (midweek Tue–Thu, weekend Fri–Mon), in order: one band per window, by date
  * (a window's rest lines are in its band too). */
@@ -25,7 +26,18 @@ export function bandsOf<T>(items: T[], dayOf: (x: T) => string): { kind: 'mid' |
   return out;
 }
 
-export function TeamList({ team, from, to, onEarlier, showRest = false }: { team: string; from: string; to: string; onEarlier: () => void; showRest?: boolean }) {
+/** A day line's date cell: the date, and the FIFA marker on a FIFA-window day (the Team Calendar's). */
+function LineDate({ day }: { day: string }) {
+  const fifa = fifaWindowOn(day);
+  return (
+    <span className="fk-tl-date">
+      {dayLabel(day)}
+      {fifa && <span className="fk-fifa-dot" title={fifa.label} data-testid="fifa-mark">FIFA</span>}
+    </span>
+  );
+}
+
+export function TeamList({ team, from, to, today, onEarlier, showRest = false, showFree = true }: { team: string; from: string; to: string; today: string; onEarlier: () => void; showRest?: boolean; showFree?: boolean }) {
   const { model, live } = useFooty();
   const all = withLive(model.byTeam.get(team) ?? [], live);
   // from every match of the club, never the months shown (a filter would invent rest days)
@@ -63,10 +75,13 @@ export function TeamList({ team, from, to, onEarlier, showRest = false }: { team
             {band.items.map((m) => {
               if (typeof m === 'string') {
                 const gap = gapOf(m);
+                // the Team Calendar's free-window tint, on top of the band
+                const free = showFree && isFreeWindowDay(model, team, m);
+                const tip = [free ? `Free ${band.kind === 'mid' ? 'midweek' : 'weekend'} window` : '', fifaWindowOn(m)?.label ?? '', gap ? `${gap} days between matches (rest counted as the difference of the match dates)` : ''].filter(Boolean).join('\n');
                 return (
-                  <div key={m} className="fk-rest-row" data-testid="rest-row" data-rest={m} aria-label={`${dayLabel(m)}, rest day`}
-                    title={gap ? `${gap} days between matches (rest counted as the difference of the match dates)` : undefined}>
-                    <span className="fk-tl-date">{dayLabel(m)}</span>
+                  <div key={m} className={`fk-rest-row${free ? ' fk-free' : ''}${fifaWindowOn(m) ? ' fk-fifa' : ''}`} data-testid="rest-row" data-rest={m} data-free={free || undefined} aria-label={`${dayLabel(m)}, rest day`}
+                    title={tip || undefined}>
+                    <LineDate day={m} />
                     <span className="fk-rest">Rest</span>
                   </div>
                 );
@@ -75,8 +90,8 @@ export function TeamList({ team, from, to, onEarlier, showRest = false }: { team
               const r = resultFor(m, team);
               const f = formAt(model, team, m);
               return (
-                <div key={m.id} className={`fk-row fk-tl-row${r ? ` fk-res-${r}` : ''}`} data-testid="team-row" data-game-id={m.id}>
-                  <span className="fk-tl-date">{dayLabel(day)}</span>
+                <div key={m.id} className={`fk-row fk-tl-row${r ? ` fk-res-${r}` : ''}${fifaWindowOn(day) ? ' fk-fifa' : ''}`} data-testid="team-row" data-game-id={m.id}>
+                  <LineDate day={day} />
                   <MatchTime m={m} />
                   <CompMark slug={m.c} round={m.r} showName />
                   <Scoreline m={m} day={day} label="short" form={false} />
@@ -95,6 +110,7 @@ export function TeamList({ team, from, to, onEarlier, showRest = false }: { team
           </div>
         );
       })}
+      <WindowLegend team={team} today={today} what="list" />
     </section>
   );
 }

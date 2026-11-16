@@ -21,6 +21,8 @@
   --fk-free: rgb(124 184 255 / 0.12);
   /* list rows' competition cell (logo + name): fixed, so the team columns line up row to row */
   --fk-comp-col: 168px;
+  /* Team List date cell: "Wed, Nov 18" and room for the FIFA marker */
+  --fk-date-col: 132px;
   font-family: 'Inter fk', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: var(--fk-text);
   font-size: 14px;
@@ -564,7 +566,7 @@ button.fk-chip:hover {
   margin: 16px 0 6px;
 }
 .fk-tl-row {
-  grid-template-columns: 104px 64px var(--fk-comp-col) minmax(0, 1fr) auto;
+  grid-template-columns: var(--fk-date-col) 64px var(--fk-comp-col) minmax(0, 1fr) auto;
   margin-bottom: 4px;
 }
 .fk-tl-date {
@@ -1430,7 +1432,7 @@ button.fk-chip:hover {
    tall, the date in the match rows' column so "Rest" starts where their time does */
 .fk-rest-row {
   display: grid;
-  grid-template-columns: 104px auto;
+  grid-template-columns: var(--fk-date-col) auto;
   align-items: center;
   gap: 10px;
   min-height: 17px;
@@ -1564,4 +1566,21 @@ button.fk-chip:hover {
 .fk-band > .fk-rest-row:last-child,
 .fk-band > .fk-tl-row:last-child {
   margin-bottom: 3px;
+}
+
+/* FK-14: the Team Calendar's free-window tint and FIFA marker on the Team List's day lines, and its legend */
+.fk-tl-date .fk-fifa-dot {
+  margin-left: 6px;
+}
+.fk-rest-row.fk-free {
+  background: var(--fk-free);
+  border: 1px dashed var(--fk-border);
+  border-radius: 6px;
+  padding: 0 10px; /* 1 px border + 10: the dates stay in line */
+}
+.fk-key-band {
+  border: 0;
+  border-left: 3px solid var(--fk-band-bar);
+  background: var(--fk-band);
+  border-radius: 2px;
 }

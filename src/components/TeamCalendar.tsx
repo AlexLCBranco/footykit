@@ -91,9 +91,17 @@ export function TeamCalendar({ team, span, week, month, today, showFree = true }
           );
         })}
       </div>
-      <p className="fk-legend" data-capture-exclude="true">
-        <span className="fk-key fk-key-free" /> free window (no match that midweek Tue–Thu / weekend Fri–Mon) · <span className="fk-key fk-key-fifa">FIFA</span> FIFA window · <TeamLink id={team} day={today} label="name" /> calendar
-      </p>
+      <WindowLegend team={team} today={today} what="calendar" />
     </section>
+  );
+}
+
+/** The key under a club's Calendar and List: free windows, FIFA windows, and in the List the midweek / weekend bands. */
+export function WindowLegend({ team, today, what }: { team: string; today: string; what: 'calendar' | 'list' }) {
+  return (
+    <p className="fk-legend" data-capture-exclude="true" data-testid="window-legend">
+      {what === 'list' && <><span className="fk-key fk-key-band fk-band-mid" /> midweek Tue–Thu · <span className="fk-key fk-key-band fk-band-wkd" /> weekend Fri–Mon · </>}
+      <span className="fk-key fk-key-free" /> free window (no match that midweek Tue–Thu / weekend Fri–Mon) · <span className="fk-key fk-key-fifa">FIFA</span> FIFA window · <TeamLink id={team} day={today} label="name" /> {what}
+    </p>
   );
 }
