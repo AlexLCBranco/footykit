@@ -626,3 +626,26 @@ test('FK-39: the weather at kick-off — a sign on the Slate card, the forecast 
   expect(await card.evaluate((e) => e.getBoundingClientRect().width)).toBe(509);
   expect(errors).toEqual([]);
 });
+
+test('FK-42: league tables have Pts as the first column after Team, bold, values unchanged', async ({ page }) => {
+  const errors = await open(page);
+  for (const league of ['eng.1', 'esp.1', 'ita.1', 'ger.1', 'fra.1', 'bra.1']) {
+    await page.goto(`/football/?view=table&league=${league}`);
+    const split = page.getByTestId('league-split');
+    await expect(split.locator('thead th').first()).toHaveText('#');
+    const heads = await split.locator('table').first().locator('thead th').allTextContents();
+    expect(heads.slice(0, 10), league).toEqual(['#', 'Team', 'Pts', 'P', 'W', 'D', 'L', 'GF', 'GA', 'GD']);
+    // the values are the points: 3 a win, 1 a draw, in table order (non-increasing)
+    const rows = await page.getByTestId('league-row').evaluateAll((trs) => trs.map((tr) => [...tr.querySelectorAll('td')].slice(2, 6).map((td) => Number(td.textContent))));
+    expect(rows.length).toBeGreaterThan(15);
+    for (const [pts, , w, d] of rows) expect(pts, league).toBe(3 * w! + d!);
+    for (let i = 1; i < rows.length; i++) expect(rows[i]![0]!).toBeLessThanOrEqual(rows[i - 1]![0]!);
+    await expect(page.getByTestId('league-row').first().getByTestId('pts')).toHaveCSS('font-weight', '800');
+  }
+  // the simulator's table and the quick standings too
+  await page.goto('/football/?view=whatif&league=eng.1');
+  await expect(page.getByTestId('wi-split').locator('thead th').first()).toBeVisible();
+  const wi = await page.getByTestId('wi-split').locator('table').first().locator('thead th').allTextContents();
+  expect(wi.slice(0, 5)).toEqual(['#', '', 'Team', 'Pts', 'P']);
+  expect(errors).toEqual([]);
+});

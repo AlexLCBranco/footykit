@@ -145,7 +145,7 @@ export default function LeagueWhatIfPage({ league, today, onBack }: { league: Le
         <section className="fk-wi-col fk-wi-table-col" aria-label="Table">
           {finals && <FinalsBox finals={finals} winners={sim.winners ?? {}} onPick={(k, t) => change((x) => setWinner(x, k, t))} />}
           <div className="fk-wi-group-title">{table.complete ? 'Final table' : `Table · ${all.length - picked} matches still empty`} <span className="fk-muted">· ▲▼ against the real table</span></div>
-          <SplitTable className="fk-table fk-ucl-table fk-wi-table" bound="parent" testId="wi-split" head={<tr><th>#</th><th /><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr>} rows={table.rows.map((r, i) => {
+          <SplitTable className="fk-table fk-ucl-table fk-wi-table" bound="parent" testId="wi-split" head={<tr><th>#</th><th /><th className="fk-tl">Team</th><th title="Points">Pts</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th></tr>} rows={table.rows.map((r, i) => {
                 const p = i + 1;
                 const z = zones[i];
                 const end = !!z && zones[i + 1]?.kind !== z.kind;
@@ -161,8 +161,8 @@ export default function LeagueWhatIfPage({ league, today, onBack }: { league: Le
                         <TeamLogo id={r.team} size={16} /> {model.team(r.team).short}
                       </button>
                     </td>
-                    <td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td>
-                    <td>{signed(r.gd)}</td><td className="fk-pts">{r.pts}</td>
+                    <td className="fk-pts" data-testid="pts">{r.pts}</td><td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td>
+                    <td>{signed(r.gd)}</td>
                   </tr>
                 );
               })} />

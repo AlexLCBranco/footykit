@@ -88,7 +88,7 @@ export default function LeagueTablePage({ league, today, onWhatIf }: { league: L
         </span>
       </div>
       <SplitTable className="fk-table fk-ucl-table" testId="league-split" head={<tr>
-            <th>#</th><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
+            <th>#</th><th className="fk-tl">Team</th><th title="Points">Pts</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th>
             <th className="fk-tl" title="The last 5 league results and the next 3 league matches">Last 5 · next 3</th>
           </tr>} rows={table.rows.map((r, i) => {
             const z = zones[i];
@@ -98,9 +98,8 @@ export default function LeagueTablePage({ league, today, onWhatIf }: { league: L
               <tr key={r.team} className={`${z ? `fk-lz-${z.kind}` : ''}${z?.open ? ' fk-lz-maybe' : ''}${end ? ' fk-zone-end' : ''}`} data-testid="league-row" data-team={model.team(r.team).abbr}>
                 <td className="fk-rank" title={tip || undefined}>{r.rank}{r.level && <span className="fk-ucl-eq">=</span>}</td>
                 <td className="fk-tl fk-ucl-team"><TeamLink id={r.team} day={today} label="short" /></td>
-                <td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td>
+                <td className="fk-pts" data-testid="pts">{r.pts}</td><td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td>
                 <td>{r.gd > 0 ? `+${r.gd}` : r.gd < 0 ? `−${-r.gd}` : 0}</td>
-                <td className="fk-pts">{r.pts}</td>
                 <td className="fk-tl">
                   <span className="fk-lt-squares">
                     {Array.from({ length: 5 - r.last.length }, (_, k) => <span key={`e${k}`} />)}

@@ -114,12 +114,12 @@ export function StandingsPopup({ team, onClose }: { team?: string; onClose: () =
       <div className="fk-float-body">
         {shown.map((t) => (
           <SplitTable key={t.name} className="fk-table" bound="parent" testId="standings-split" caption={shown.length > 1 || tables.length > 1 ? t.name : undefined}
-            head={<tr><th>#</th><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr>}
+            head={<tr><th>#</th><th className="fk-tl">Team</th><th title="Points">Pts</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th></tr>}
             rows={t.rows.map((r) => (
                 <tr key={r.team} className={r.team === team ? 'fk-me' : undefined}>
                   <td className="fk-rank" style={r.zc ? { boxShadow: `inset 3px 0 ${r.zc}` } : undefined} title={r.zone}>{r.rank}</td>
                   <td className="fk-tl"><TeamLink id={r.team} day={day} label="short" logoSize={16} /></td>
-                  <td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td><td>{r.gf - r.ga > 0 ? '+' : ''}{r.gf - r.ga}</td><td className="fk-pts">{r.pts}</td>
+                  <td className="fk-pts" data-testid="pts">{r.pts}</td><td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td><td>{r.gf - r.ga > 0 ? '+' : ''}{r.gf - r.ga}</td>
                 </tr>
               ))} />
         ))}

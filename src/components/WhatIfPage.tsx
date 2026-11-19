@@ -110,7 +110,7 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
         </section>
         <section className="fk-wi-col fk-wi-table-col" aria-label="Table">
           <div className="fk-wi-group-title">{table.complete ? 'Final table' : `Table · ${all.length - picked} matches still empty`} <span className="fk-muted">· ▲▼ against the real table</span></div>
-          <SplitTable className="fk-table fk-ucl-table fk-wi-table" bound="parent" testId="wi-split" head={<tr><th>#</th><th /><th className="fk-tl">Team</th><th>P</th><th>GD</th><th>Pts</th></tr>} rows={table.rows.map((r, i) => {
+          <SplitTable className="fk-table fk-ucl-table fk-wi-table" bound="parent" testId="wi-split" head={<tr><th>#</th><th /><th className="fk-tl">Team</th><th title="Points">Pts</th><th>P</th><th>GD</th></tr>} rows={table.rows.map((r, i) => {
                 const p = i + 1;
                 const zone = zoneOf(p);
                 const move = realPos.get(r.team)! - p;
@@ -124,7 +124,7 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
                         <TeamLogo id={r.team} size={16} /> {model.team(r.team).short}
                       </button>
                     </td>
-                    <td>{r.p}</td><td>{signed(r.gd)}</td><td className="fk-pts">{r.pts}</td>
+                    <td className="fk-pts" data-testid="pts">{r.pts}</td><td>{r.p}</td><td>{signed(r.gd)}</td>
                   </tr>
                 );
               })} />

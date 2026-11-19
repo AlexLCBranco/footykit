@@ -101,7 +101,7 @@ export default function UclPage({ today, onWhatIf, tab = 'table', onTab }: { tod
       </div>
       {tab === 'pots' ? <Pots today={today} /> : <>
       <SplitTable className="fk-table fk-ucl-table" onMouseLeave={() => setHover(null)} testId="ucl-split" head={<tr>
-            <th>#</th><th className="fk-tl">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
+            <th>#</th><th className="fk-tl">Team</th><th title="Points">Pts</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th>
             <th className="fk-tl">Last 5</th><th className="fk-tl" title="The 8 league-phase matches in date order (hover one for the opponent's pot)">Matches</th><th className="fk-tl" title="The opponents still to play (hover for their pots and places)">Left</th>
             {showStakes && <th className="fk-tl" title="What is settled, and what the next match can settle (points only: a claim holds whatever else happens)">Stakes</th>}
           </tr>} rows={table.rows.map((r, i) => {
@@ -117,9 +117,8 @@ export default function UclPage({ today, onWhatIf, tab = 'table', onTab }: { tod
                 <td className="fk-tl fk-ucl-team" title={`${model.team(r.team).name} · pot ${r.pot}`}>
                   <TeamLink id={r.team} day={today} label="short" />
                 </td>
-                <td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td>
+                <td className="fk-pts" data-testid="pts">{r.pts}</td><td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td>
                 <td>{r.gd > 0 ? `+${r.gd}` : r.gd < 0 ? `−${-r.gd}` : 0}</td>
-                <td className="fk-pts">{r.pts}</td>
                 <td className="fk-tl"><span className="fk-form fk-form-plain" title="Last 5 league-phase results">{Array.from({ length: 5 }, (_, k) => { const x = r.last5[k - (5 - r.last5.length)]; return <span key={k} className={`fk-form-sq${x ? ` fk-form-${x}` : ''}`} />; })}</span></td>
                 <td className="fk-tl"><span className="fk-ucl-squares">{r.slots.map((s) => <Square key={s.m.id} s={s} team={r.team} today={today} />)}</span></td>
                 <td className="fk-tl"><Left row={r} ranks={ranks} /></td>
