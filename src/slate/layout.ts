@@ -5,7 +5,7 @@
 //
 // calendarkit:  "@" 13 · logo 28 · name + score 149 · record 39 · streak 28 · fatigue 102 · odds 34   (7 tracks)
 // footykit:     "@" 13 · logo 28 · name + place + score 149 · tags 33 · last / next games 140 · odds 34   (6 tracks)
-// The strip (FK-47): 5 window slots × ("vs"/"@" 8 + 1 + square 18) + 4 × 1 apart = 139.
+// The strip (FK-47 / FK-48): ◀ 7 + 1 + 5 window slots × ("vs"/"@" 7 + square 17) + 4 × 1 apart + 1 + ▶ 7 = 140.
 // The tags (All tags would not fit): the highlights only on the card, every tag in the hover popup.
 
 /** calendarkit's strip (tip-off time, then the chips wrapping in two lines) and the gap after it. */

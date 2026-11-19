@@ -118,7 +118,7 @@ export function FormSquares({ line, teamId }: { line: FormLine; teamId: string }
  * before, this match's window in the middle (accent colour, the competition's icon), 2 after. Played: the opponent's
  * crest on green / grey / red; to come: outlined; "vs" / "@" before it. A window without a match: a dashed "–" slot.
  * A window with two matches splits its slot. Hover a slot for its window; a click opens the standings.
- * FK-48: ◀ ▶ at the strip's ends (shown while the pointer is on it, over its edges so the card keeps 509 × 78) move it
+ * FK-48: ◀ ▶ at the strip's ends, beside the slots (their room is kept; shown only while the pointer is on the strip), move it
  * one window earlier / later; a click on this match's square (or a reload: the shift is not kept) centres it again.
  */
 export function FormGames({ m, teamId }: { m: Match; teamId: string }) {
@@ -169,11 +169,11 @@ export function FormGames({ m, teamId }: { m: Match; teamId: string }) {
     ? <button type="button" className={`fk-form fk-form-games${onStandings ? '' : ' fk-form-plain'}`} title={tip} data-testid="form" data-shift={shift} onClick={onClick}>{slots}</button>
     : <span className="fk-form fk-form-games fk-form-plain" title={tip} data-testid="form" data-shift={shift}>{slots}</span>;
   const arrow = (dir: -1 | 1) => (
-    <button type="button" className={`fk-strip-arrow fk-strip-${dir < 0 ? 'prev' : 'next'}`} data-testid={`strip-${dir < 0 ? 'prev' : 'next'}`} data-capture-exclude="true"
+    <button type="button" className={`fk-fgstrip-arrow fk-fgstrip-${dir < 0 ? 'prev' : 'next'}`} data-testid={`strip-${dir < 0 ? 'prev' : 'next'}`} data-capture-exclude="true"
       aria-label={`${t.name}: one window ${dir < 0 ? 'earlier' : 'later'}`} title={`One window ${dir < 0 ? 'earlier' : 'later'}`}
       onClick={(e) => { e.stopPropagation(); setShift(shift + dir); }}>{dir < 0 ? '◀' : '▶'}</button>
   );
-  return <span className={`fk-strip${shift ? ' fk-strip-moved' : ''}`} data-testid="strip">{arrow(-1)}{strip}{arrow(1)}</span>;
+  return <span className={`fk-fgstrip${shift ? ' fk-fgstrip-moved' : ''}`} data-testid="strip">{arrow(-1)}{strip}{arrow(1)}</span>;
 }
 
 /** FK-47: the competition's icon in the middle slot (its code when there is no logo file). */

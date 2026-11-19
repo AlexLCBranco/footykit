@@ -2312,7 +2312,7 @@ button.fk-chip:hover {
 /* FK-32: the Slate card's last games: crest on the result colour, "vs" / "@" in a fixed slot */
 .fk-form-games {
   gap: 1px;
-  width: 140px; /* FK-47: 5 window slots of 8 + 1 + 18 px, 1 apart (layout.ts games track) */
+  width: 140px; /* 5 window slots of 7 + 17 px, 1 apart, and the FK-48 arrows (layout.ts games track) */
   justify-content: flex-end;
 }
 /* the result's colour over the square's grey (.fk-fg-sq comes later in this file, so the plain .fk-form-* lost) */
@@ -2349,7 +2349,7 @@ button.fk-chip:hover {
   gap: 1px;
 }
 .fk-fg-sq.fk-fg-half {
-  width: 8.5px;
+  width: 8px;
   border-radius: 3px;
   overflow: hidden;
 }
@@ -2368,13 +2368,15 @@ button.fk-chip:hover {
 .fk-fg {
   display: inline-flex;
   align-items: center;
-  gap: 1px;
+  gap: 0;
 }
 .fk-fg-at {
   display: inline-block;
-  width: 8px;
+  width: 7px;
+  padding-right: 1px;
+  box-sizing: border-box;
   text-align: right;
-  font-size: 8px;
+  font-size: 7px;
   letter-spacing: -0.3px;
   color: var(--fk-muted);
   line-height: 1;
@@ -2383,14 +2385,14 @@ button.fk-chip:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px; /* FK-47: 5 window slots fit calendarkit's card */
-  height: 18px;
+  width: 17px; /* 5 window slots and the FK-48 arrows fit calendarkit's card */
+  height: 17px;
   border-radius: 4px;
   background: var(--fk-border);
 }
 .fk-fg-sq img {
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
   object-fit: contain;
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
 }
@@ -2735,44 +2737,37 @@ a.fk-series-sq:hover {
   cursor: pointer;
 }
 
-/* FK-48: ◀ ▶ over the strip's ends while the pointer is on it (or while it is moved), inside the 509 × 78 card */
-.fk-strip {
-  position: relative;
+/* FK-48: ◀ ▶ at the strip's two ends, in their own 7 px beside the slots (never over them); shown only while the
+   pointer is on the strip, their room kept the rest of the time so nothing moves */
+.fk-fgstrip {
   display: inline-flex;
+  align-items: center;
+  gap: 1px;
 }
-.fk-strip-arrow {
+.fk-fgstrip-arrow {
   all: unset;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1;
   display: grid;
   place-items: center;
-  width: 10px;
-  height: 20px;
-  border-radius: 3px;
-  font-size: 7px;
+  flex: none;
+  width: 7px;
+  height: 17px;
+  border-radius: 2px;
+  font-size: 6px;
   color: var(--fk-text);
   background: var(--fk-surface-2);
-  box-shadow: 0 0 0 1px var(--fk-border);
   cursor: pointer;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.1s;
 }
-.fk-strip-prev {
-  left: -4px;
-}
-.fk-strip-next {
-  right: -4px;
-}
-.fk-strip:hover .fk-strip-arrow,
-.fk-strip-moved .fk-strip-arrow,
-.fk-strip-arrow:focus-visible {
+.fk-fgstrip:hover .fk-fgstrip-arrow,
+.fk-fgstrip-arrow:focus-visible {
   opacity: 1;
+  pointer-events: auto;
 }
-.fk-strip-arrow:hover {
+.fk-fgstrip-arrow:hover {
   color: var(--fk-link);
 }
-.fk-strip-moved [data-now] {
+.fk-fgstrip-moved [data-now] {
   cursor: pointer;
 }

@@ -462,11 +462,11 @@ test('FK-31 / FK-32: Slate card score beside the name; bigger last-games squares
   }));
   // FK-31: every played card's score sits right after the name
   for (const r of rows) { expect(r.gap).toBeGreaterThanOrEqual(0); expect(r.gap).toBeLessThan(12); }
-  // FK-32: squares (18 px since FK-47 fitted 5 window slots into calendarkit's card), "vs" / "@" before each, slots at the same x on every row
+  // FK-32: squares (17 px since FK-47 / FK-48 fitted 5 window slots and the arrows into calendarkit's card), "vs" / "@" before each, slots at the same x on every row
   const withForm = rows.filter((r) => r.sqLefts.length);
   expect(withForm.length).toBeGreaterThan(5);
   for (const r of withForm) {
-    expect(r.sqW).toBe(18);
+    expect(r.sqW).toBe(17);
     expect(r.sqLefts).toEqual(withForm[0]!.sqLefts);
     for (const p of r.prefixes) expect(['vs', '@']).toContain(p);
   }
@@ -823,5 +823,33 @@ test('FK-48: ◀ ▶ on the Slate strip move it one window earlier / later; a cl
   expect(await card.locator('.fk-card-row').nth(1).getByTestId('strip-slot').nth(2).getAttribute('data-window')).toBe('2026-11-20');
   const box = (await card.boundingBox())!;
   expect([box.width, box.height]).toEqual([509, 78]);
+  expect(errors).toEqual([]);
+});
+
+test('FK-48 fix: the strip arrows show only on hover (moved or not) and sit beside the window slots, never over them', async ({ page }) => {
+  const errors = await open(page, '?view=slate');
+  const cards = page.getByTestId('slate-card');
+  const strip = cards.first().getByTestId('strip').first();
+  const opacity = () => strip.evaluate((s) => ['strip-prev', 'strip-next'].map((id) => getComputedStyle(s.querySelector(`[data-testid="${id}"]`)!).opacity));
+  await page.mouse.move(2, 2);
+  await expect.poll(opacity).toEqual(['0', '0']);
+  await strip.hover();
+  await expect.poll(opacity).toEqual(['1', '1']);
+  // on every strip: neither arrow's box meets a slot's box
+  const overlaps = await page.locator('[data-testid="slate-card"] [data-testid="strip"]').evaluateAll((els) => els.flatMap((s) => {
+    const slots = [...s.querySelectorAll('[data-testid="strip-slot"]')].map((x) => x.getBoundingClientRect());
+    return [...s.querySelectorAll('.fk-fgstrip-arrow')].map((a) => a.getBoundingClientRect()).filter((a) => slots.some((b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom)).length;
+  }));
+  expect(overlaps.length).toBeGreaterThan(5);
+  expect(overlaps.every((n) => n === 0)).toBe(true);
+  // moved: still hidden once the pointer leaves
+  await strip.getByTestId('strip-next').click();
+  await expect(strip.getByTestId('form')).toHaveAttribute('data-shift', '1');
+  await page.mouse.move(2, 2);
+  await expect.poll(opacity).toEqual(['0', '0']);
+  // the cards keep calendarkit's size, nothing spills out of a row
+  const sizes = await cards.evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
+  expect(new Set(sizes)).toEqual(new Set(['509x78']));
+  expect(await page.locator('.fk-card-row').evaluateAll((els) => els.filter((r) => r.scrollWidth > r.clientWidth).length)).toBe(0);
   expect(errors).toEqual([]);
 });
