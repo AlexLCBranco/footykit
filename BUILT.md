@@ -15,6 +15,7 @@ spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Featu
 - Last-games squares show their win / draw / loss colours (fix) (v0.48.0) — The Slate squares were all grey since v0.44.0; the colours now show.
 ### Internal
 - Report for FK-35 … FK-43 in REPORTS.md; Blocked notes on FK-37 and FK-41; PROJECT.md state (v0.54.0)
+- Version check: REPORTS.md needs no version bump (CI fix) (v0.54.0)
 
 ## 2026-11-16
 - FK-28 — Show a team's position in its domestic league (v0.47.0) — Each team's current league place shows small and muted beside its name ("Arsenal 1st 2 @ 1 12th Everton") on the List rows, a club's List rows and the Slate cards, in every competition; hover it for the league.
