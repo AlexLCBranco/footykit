@@ -1123,57 +1123,70 @@ test('FK-55: the cup page title is the competition switcher (the bar picker\'s l
   expect(errors).toEqual([]);
 });
 
-test('FK-56: UCL simulator — start the knockouts from the current table, pick play-off winners into the R16, swap a section\'s draw', async ({ page }) => {
+test('FK-56: UCL simulator — start the knockouts from the current table, a full-size bracket beside it, pick play-off winners into the R16, swap a section\'s draw', async ({ page }) => {
   const errors = await open(page, '?view=whatif');
   await page.evaluate(() => localStorage.removeItem('fk:whatif:v1'));
   await page.reload();
   await page.getByTestId('wi-ko-start').click();
-  const sim = page.getByTestId('ko-sim');
-  await expect(sim).toBeVisible();
-  // the table stays beside it
+  await expect(page.getByTestId('ko-sim')).toBeVisible();
+  // a full bracket like the cups pages: Play-offs, Round of 16, Quarter-finals, Semi-finals, Final, each beside the
+  // ties it feeds; the table beside it, both on the first screen
+  const cols = page.getByTestId('ko-col');
+  await expect(cols).toHaveCount(5);
+  expect(await cols.evaluateAll((cs) => cs.map((c) => c.querySelectorAll('[data-testid="ko-tie"]').length))).toEqual([8, 8, 4, 2, 1]);
+  const lefts = await cols.evaluateAll((cs) => cs.map((c) => Math.round(c.getBoundingClientRect().left)));
+  expect([...lefts].sort((a, b) => a - b)).toEqual(lefts); // left to right
+  const box = await page.evaluate(() => {
+    const b = document.querySelector('[data-testid="ko-bracket"]')!.getBoundingClientRect();
+    const t = document.querySelector('[data-testid="wi-split"]')!.getBoundingClientRect();
+    return { bracketBottom: b.bottom, tableRight: t.right, bracketLeft: b.left, vh: innerHeight };
+  });
+  expect(box.bracketBottom).toBeLessThanOrEqual(box.vh);
+  expect(box.tableRight).toBeLessThanOrEqual(box.bracketLeft);
   await expect(page.getByTestId('wi-row').first()).toBeVisible();
-  // the real table's order: 9th / 10th v 24th / 23rd in section D, 7th / 8th waiting
+  // a play-off tie sits level with the R16 tie it fills
+  const mid = (k: string) => page.locator(`[data-key="${k}"]`).evaluate((e) => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; });
+  expect(Math.abs((await mid('po-D2')) - (await mid('r16-D1')))).toBeLessThan(30);
+  // the real table's order: section D is 9th / 10th v 24th / 23rd, then 7th / 8th
   const real = await page.getByTestId('wi-row').evaluateAll((rows) => rows.map((r) => r.getAttribute('data-team')));
-  const d = sim.locator('[data-testid="ko-section"][data-letter="D"]');
-  const ties = d.getByTestId('ko-tie');
-  const sides = (i: number) => ties.nth(i).getByTestId('ko-pick').evaluateAll((b) => b.map((x) => x.getAttribute('data-team')));
-  expect(await sides(0)).toEqual([real[23], real[8]]); // 24th v 9th (the seeded side second)
-  expect(await sides(1)).toEqual([real[22], real[9]]); // 23rd v 10th
-  // 1st–8th wait in the round of 16: section D's two ties have 7th and 8th, the other side empty
-  await expect(d.locator('.fk-ko-sim-wait')).toHaveCount(2);
+  const sides = (k: string) => page.locator(`[data-key="${k}"]`).getByTestId('ko-pick').evaluateAll((b) => b.map((x) => x.getAttribute('data-team')));
+  expect(await sides('po-D1')).toEqual([real[23], real[8]]); // 24th v 9th (the seeded side second)
+  expect(await sides('po-D2')).toEqual([real[22], real[9]]); // 23rd v 10th
+  expect(await sides('r16-D1')).toEqual([real[6]]); // 7th waits for a play-off winner
   // pick the winners: 24th beats 9th → meets 8th; 10th beats 23rd → meets 7th
-  await ties.nth(0).getByTestId('ko-pick').first().click();
-  await ties.nth(1).getByTestId('ko-pick').nth(1).click();
-  await expect(ties.nth(0)).toHaveAttribute('data-winner', real[23]!);
-  expect(await sides(2)).toEqual([real[9], real[6]]);
-  expect(await sides(3)).toEqual([real[23], real[7]]);
-  // a click on the picked side again clears it (and its R16 slot waits again)
-  await ties.nth(0).getByTestId('ko-pick').first().click();
-  await expect(ties.nth(0)).not.toHaveAttribute('data-winner', /./);
-  await expect(d.locator('.fk-ko-sim-wait')).toHaveCount(1);
-  await ties.nth(0).getByTestId('ko-pick').first().click();
+  await page.locator('[data-key="po-D1"]').getByTestId('ko-pick').first().click();
+  await page.locator('[data-key="po-D2"]').getByTestId('ko-pick').nth(1).click();
+  await expect(page.locator('[data-key="po-D1"]')).toHaveAttribute('data-winner', real[23]!);
+  expect(await sides('r16-D1')).toEqual([real[9], real[6]]);
+  expect(await sides('r16-D2')).toEqual([real[23], real[7]]);
+  // a click on the picked side again clears it (its R16 slot waits again)
+  await page.locator('[data-key="po-D1"]').getByTestId('ko-pick').first().click();
+  expect(await sides('r16-D2')).toEqual([real[7]]);
+  await page.locator('[data-key="po-D1"]').getByTestId('ko-pick').first().click();
+  const d = page.locator('[data-testid="ko-section"][data-letter="D"]');
   // swap the R16 draw: the winners trade seeds
   await d.getByTestId('ko-swap-r16').click();
-  expect(await sides(2)).toEqual([real[23], real[6]]);
-  expect(await sides(3)).toEqual([real[9], real[7]]);
+  expect(await sides('r16-D1')).toEqual([real[23], real[6]]);
+  expect(await sides('r16-D2')).toEqual([real[9], real[7]]);
   // swap the pairing: 9 v 23 and 10 v 24 — the picks no longer in their ties drop
   await d.getByTestId('ko-swap-pairing').click();
-  expect(await sides(0)).toEqual([real[22], real[8]]);
-  expect(await sides(1)).toEqual([real[23], real[9]]);
+  expect(await sides('po-D1')).toEqual([real[22], real[8]]);
+  expect(await sides('po-D2')).toEqual([real[23], real[9]]);
   // the half swap moves the section's R16 ties between the halves
-  const halves = () => d.getByTestId('ko-half').allTextContents();
-  expect(await halves()).toEqual(['top', 'bottom']);
+  const half = (k: string) => page.locator(`[data-key="${k}"]`).getByTestId('ko-half').getAttribute('data-half');
+  expect([await half('r16-D1'), await half('r16-D2')]).toEqual(['top', 'bottom']);
   await d.getByTestId('ko-swap-half').click();
-  expect(await halves()).toEqual(['bottom', 'top']);
+  expect([await half('r16-D1'), await half('r16-D2')]).toEqual(['bottom', 'top']);
   // undo steps back through the knockout changes; the state survives a reload
   await page.keyboard.press('Control+z');
-  expect(await halves()).toEqual(['top', 'bottom']);
+  expect([await half('r16-D1'), await half('r16-D2')]).toEqual(['top', 'bottom']);
   await page.reload();
   await expect(page.getByTestId('ko-sim')).toBeVisible();
   expect(await page.locator('[data-testid="ko-section"][data-letter="D"]').getByTestId('ko-swap-pairing').getAttribute('aria-pressed')).toBe('true');
-  // back to the knockout places
+  // back to the league phase: the matches and the knockout places
   await page.getByTestId('wi-ko-stop').click();
   await expect(page.getByTestId('ko-sim')).toHaveCount(0);
   await expect(page.getByTestId('wi-block').first()).toBeVisible();
+  await expect(page.getByTestId('wi-pending')).toBeVisible();
   expect(errors).toEqual([]);
 });

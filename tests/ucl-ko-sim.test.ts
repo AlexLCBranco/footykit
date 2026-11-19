@@ -105,3 +105,19 @@ describe('koBracket (FK-56)', () => {
     expect(back.current.ko).toEqual(stored);
   });
 });
+
+describe('koColumns (FK-56, the full-size bracket)', () => {
+  it('play-offs, R16, QF, SF, final; each tie beside the ties it feeds, top half first', async () => {
+    const { koColumns } = await import('../src/data/uclKoSim');
+    const cols = koColumns(koBracket(base));
+    expect(cols.map((c) => c.length)).toEqual([8, 8, 4, 2, 1]);
+    expect(cols.map((c) => c[0]!.round)).toEqual(['po', 'r16', 'qf', 'sf', 'final']);
+    // tie i of a column is fed by ties 2i and 2i+1 of the one before (one-to-one from the play-offs to the R16)
+    for (let c = 2; c < 5; c++) cols[c]!.forEach((t, i) => expect(t.from).toEqual([cols[c - 1]![2 * i]!.key, cols[c - 1]![2 * i + 1]!.key]));
+    cols[1]!.forEach((t, i) => expect(t.from).toEqual([cols[0]![i]!.key]));
+    expect(cols[1]!.slice(0, 4).every((t) => t.half === 'top')).toBe(true);
+    expect(cols[1]!.slice(4).every((t) => t.half === 'bottom')).toBe(true);
+    // the first quarter-final: A v D in the top half (1st's tie and 7th's)
+    expect(cols[1]!.slice(0, 2).map((t) => at(t.b))).toEqual([1, 7]);
+  });
+});

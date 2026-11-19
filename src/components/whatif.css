@@ -466,20 +466,33 @@
   margin-left: 6px;
 }
 
-/* FK-56: the knockout bracket in the simulator's third column */
+/* FK-56: the knockouts as a full-size bracket beside the table (the matches column gives way) */
+.fk-wi-cols.fk-wi-ko {
+  grid-template-columns: minmax(720px, 760px) minmax(0, 1fr); /* the table splits in two (SplitTable), the bracket fills the rest */
+}
+.fk-wi-ko .fk-wi-bracket {
+  overflow: visible;
+}
 .fk-ko-sim-start {
   margin: 0 0 8px;
 }
 .fk-ko-sim-tools {
   display: flex;
-  gap: 6px;
-  margin: 4px 0 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
 }
-.fk-ko-sim-swaps {
+.fk-ko-sim-draws {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 12px;
+}
+.fk-ko-sim-section {
   display: inline-flex;
+  align-items: center;
   gap: 4px;
-  margin-left: 8px;
-  float: right;
 }
 .fk-ko-sim-swap {
   height: 20px;
@@ -501,63 +514,15 @@
   color: var(--fk-text);
   background: rgb(78 161 255 / 0.18);
 }
-.fk-ko-sim-tie {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr 40px;
-  align-items: center;
-  gap: 6px;
-  margin: 3px 0;
+.fk-ko-sim .fk-ko {
+  margin-top: 8px;
 }
-.fk-ko-sim-side {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
-  height: 24px;
-  padding: 0 6px;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  background: var(--fk-surface-2);
-  color: var(--fk-text);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  cursor: pointer;
-}
-.fk-ko-sim-side:disabled {
-  cursor: default;
-}
-.fk-ko-sim-side:hover:not(:disabled) {
-  border-color: var(--fk-accent);
-}
-.fk-ko-sim-won {
-  background: rgb(55 196 122 / 0.25);
-  border-color: var(--fk-win);
-}
-.fk-ko-sim-lost {
-  opacity: 0.45;
-}
-.fk-ko-sim-wait {
-  color: var(--fk-muted);
-  font-weight: 400;
+.fk-ko-sim .fk-ko-wait {
   font-size: 11px;
-  cursor: default;
-  background: transparent;
   border: 1px dashed var(--fk-border);
+  border-radius: 4px;
+  padding: 0 4px;
 }
-.fk-ko-sim-v {
-  font-size: 11px;
-}
-.fk-ko-sim-next {
-  margin-top: 8px;
-}
-.fk-ko-sim-champ {
-  margin-top: 8px;
-  font-weight: 700;
-  color: var(--fk-win);
-}
-.fk-ko-sim-note {
-  font-size: 10.5px;
+.fk-ko-sim .fk-cupsim-pick:disabled {
+  cursor: default;
 }

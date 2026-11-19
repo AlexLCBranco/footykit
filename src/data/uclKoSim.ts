@@ -34,6 +34,10 @@ export interface KoTie {
   posA?: number;
   posB?: number;
   winner?: string;
+  /** the ties whose winners fill this one (a round-of-16 tie: its play-off tie only; the seed waits there) */
+  from?: string[];
+  /** a round-of-16 tie's half */
+  half?: 'top' | 'bottom';
 }
 
 export interface KoBracket { po: KoTie[]; r16: KoTie[]; qf: KoTie[]; sf: KoTie[]; final: KoTie; champion?: string }
@@ -63,8 +67,8 @@ export function koBracket(ko: KoSim): KoBracket {
     po.push(...ties);
     // which seed each play-off winner meets
     const [forR0, forR1] = d.r16 ? [ties[0]!, ties[1]!] : [ties[1]!, ties[0]!];
-    const t0 = decide({ key: `r16-${b.letter}1`, round: 'r16', letter: b.letter, a: forR0.winner, b: team(b.r16[0]), posB: b.r16[0] });
-    const t1 = decide({ key: `r16-${b.letter}2`, round: 'r16', letter: b.letter, a: forR1.winner, b: team(b.r16[1]), posB: b.r16[1] });
+    const t0 = decide({ key: `r16-${b.letter}1`, round: 'r16', letter: b.letter, a: forR0.winner, b: team(b.r16[0]), posB: b.r16[0], from: [forR0.key], half: d.half ? 'bottom' : 'top' });
+    const t1 = decide({ key: `r16-${b.letter}2`, round: 'r16', letter: b.letter, a: forR1.winner, b: team(b.r16[1]), posB: b.r16[1], from: [forR1.key], half: d.half ? 'top' : 'bottom' });
     r16.push(t0, t1);
     top.set(b.letter, d.half ? t1 : t0);
     bottom.set(b.letter, d.half ? t0 : t1);
@@ -72,12 +76,23 @@ export function koBracket(ko: KoSim): KoBracket {
   const qf: KoTie[] = [];
   for (const [half, h] of [['t', top], ['b', bottom]] as const) {
     for (const [x, y] of [['A', 'D'], ['B', 'C']] as const) {
-      qf.push(decide({ key: `qf-${half}${x}${y}`, round: 'qf', a: h.get(x)!.winner, b: h.get(y)!.winner }));
+      qf.push(decide({ key: `qf-${half}${x}${y}`, round: 'qf', a: h.get(x)!.winner, b: h.get(y)!.winner, from: [h.get(x)!.key, h.get(y)!.key] }));
     }
   }
-  const sf = [decide({ key: 'sf-t', round: 'sf', a: qf[0]!.winner, b: qf[1]!.winner }), decide({ key: 'sf-b', round: 'sf', a: qf[2]!.winner, b: qf[3]!.winner })];
-  const final = decide({ key: 'final', round: 'final', a: sf[0]!.winner, b: sf[1]!.winner });
+  const sf = [decide({ key: 'sf-t', round: 'sf', a: qf[0]!.winner, b: qf[1]!.winner, from: [qf[0]!.key, qf[1]!.key] }), decide({ key: 'sf-b', round: 'sf', a: qf[2]!.winner, b: qf[3]!.winner, from: [qf[2]!.key, qf[3]!.key] })];
+  const final = decide({ key: 'final', round: 'final', a: sf[0]!.winner, b: sf[1]!.winner, from: [sf[0]!.key, sf[1]!.key] });
   return { po, r16, qf, sf, final, champion: final.winner };
+}
+
+/**
+ * The bracket as columns, play-offs to the final, each tie beside the ones it feeds (as the cups pages): worked back from
+ * the final, so the top half comes first and a play-off tie sits level with the round-of-16 tie it fills.
+ */
+export function koColumns(b: KoBracket): KoTie[][] {
+  const all = new Map([...b.po, ...b.r16, ...b.qf, ...b.sf, b.final].map((t) => [t.key, t]));
+  const cols: KoTie[][] = [[b.final]];
+  while (cols[0]![0]!.from) cols.unshift(cols[0]!.flatMap((t) => t.from!.map((k) => all.get(k)!)));
+  return cols;
 }
 
 /** Pick `team` through tie `key` (the same team again clears it). */

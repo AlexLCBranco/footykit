@@ -98,8 +98,9 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
       </div>
       <Scenarios store={store} team={team} placeOf={placeOf}
         onStore={(s) => setMeta({ saved: s.saved, active: s.active })} onLoad={onLoad} />
-      <div className="fk-wi-cols" ref={root} style={{ minHeight: height, ["--fk-wi-h" as string]: height ? `${height}px` : undefined }}>
-        <section className="fk-wi-col fk-wi-list" aria-label="Matches left to play">
+      <div className={`fk-wi-cols${sim.ko ? " fk-wi-ko" : ""}`} ref={root} style={{ minHeight: height, ["--fk-wi-h" as string]: height ? `${height}px` : undefined }}>
+        {/* FK-56: with the knockouts on, the bracket takes the matches column too (the league phase is frozen) */}
+        {!sim.ko && <section className="fk-wi-col fk-wi-list" aria-label="Matches left to play">
           <div className="fk-wi-pending" data-testid="wi-pending">
             <div className="fk-wi-group-title">Pending <span className="fk-muted">· postponed or past without a result</span></div>
             {pending.length ? pending.map(rowOf) : <div className="fk-muted fk-wi-none">none</div>}
@@ -113,7 +114,7 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
             )}
             {!shown.length && <div className="fk-muted fk-wi-none">Nothing left to play.</div>}
           </div>
-        </section>
+        </section>}
         <section className="fk-wi-col fk-wi-table-col" aria-label="Table">
           <div className="fk-wi-group-title">{table.complete ? 'Final table' : `Table · ${all.length - picked} matches still empty`} <span className="fk-muted">· ▲▼ against the real table</span></div>
           <SplitTable className="fk-table fk-ucl-table fk-wi-table" bound="parent" testId="wi-split" head={<tr><th>#</th><th /><th className="fk-tl">Team</th><th title="Points">Pts</th><th>P</th><th>GD</th></tr>} rows={table.rows.map((r, i) => {
