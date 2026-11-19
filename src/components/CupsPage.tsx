@@ -9,6 +9,7 @@ import { dayLabel, isPlayed, kickoffTime, shortDay } from '../data/model';
 import { matchUrl, type Match } from '../data/snapshot';
 import { bracketColumns, cupGroups, cupRounds, stageTies, type CupGroup, type CupTie } from '../data/cups';
 import { TeamLink } from './Bits';
+import { CupPicker } from './TopBar';
 import { CupSimBar, CupSimCtx, CupSimWaiting, simTieOf, useCupSim, useCupSimState } from './CupSim';
 import type { SimRound } from '../data/cupSim';
 import { useFooty } from './ctx';
@@ -133,7 +134,7 @@ function useFitBracket(on: boolean, key: unknown) {
 }
 
 /** A domestic cup: the last rounds (16 ties or fewer) as a bracket, the earlier ones folded, the rules and source. */
-function DomesticCupPage({ cfg, today, fit }: { cfg: DomesticCup; today: string; fit: boolean }) {
+function DomesticCupPage({ cfg, today, fit, onPick }: { cfg: DomesticCup; today: string; fit: boolean; onPick?: (c: string) => void }) {
   const { model } = useFooty();
   const rounds = useMemo(() => {
     const rs = cupRounds(model.snap.matches.filter((m) => m.c === cfg.slug), cfg.twoLeg, (id) => model.snap.teams[id]?.name);
@@ -157,7 +158,7 @@ function DomesticCupPage({ cfg, today, fit }: { cfg: DomesticCup; today: string;
     <CupSimCtx.Provider value={sim}>
     <div className="fk-ucl fk-lt fk-cups" data-testid="cups-page" data-cup={cfg.slug} data-sim={sim.on || undefined}>
       <div className="fk-ucl-head">
-        <h2>{model.comp(cfg.slug).name}</h2>
+        <h2>{onPick ? <CupPicker cup={cfg.slug} onPick={onPick} title /> : model.comp(cfg.slug).name}</h2>
         <span className="fk-muted">Final {shortDay(cfg.final.day)} {cfg.final.day.slice(0, 4)}{cfg.final.venue ? `, ${cfg.final.venue}` : ''}</span>
         <CupSimBar on={sim.on} onToggle={() => setOn(!sim.on)} onClear={clear} empty={empty} view={sim.view} />
       </div>
@@ -200,14 +201,14 @@ function DomesticCupPage({ cfg, today, fit }: { cfg: DomesticCup; today: string;
 }
 
 /** `fit`: the bracket fills the first screen (FK-54) — the Cups page itself, not where the League view shows it. */
-export default function CupsPage({ cup, today, fit = false }: { cup: string; today: string; fit?: boolean }) {
+export default function CupsPage({ cup, today, fit = false, onPick }: { cup: string; today: string; fit?: boolean; /** FK-55: the title switches competition */ onPick?: (c: string) => void }) {
   const domestic = DOMESTIC_CUPS.find((c) => c.slug === cup);
   // keyed by cup: each cup has its own simulator state and picks
-  if (domestic) return <DomesticCupPage key={cup} cfg={domestic} today={today} fit={fit} />;
-  return <ContinentalCupPage key={cup} cup={cup} today={today} fit={fit} />;
+  if (domestic) return <DomesticCupPage key={cup} cfg={domestic} today={today} fit={fit} onPick={onPick} />;
+  return <ContinentalCupPage key={cup} cup={cup} today={today} fit={fit} onPick={onPick} />;
 }
 
-function ContinentalCupPage({ cup, today, fit }: { cup: string; today: string; fit: boolean }) {
+function ContinentalCupPage({ cup, today, fit, onPick }: { cup: string; today: string; fit: boolean; onPick?: (c: string) => void }) {
   const { model } = useFooty();
   const cfg = CUPS.find((c) => c.slug === cup) ?? CUPS[0]!;
   const { groups, qualifying, knockout } = useMemo(() => {
@@ -226,7 +227,7 @@ function ContinentalCupPage({ cup, today, fit }: { cup: string; today: string; f
     <CupSimCtx.Provider value={sim}>
     <div className="fk-ucl fk-lt fk-cups" data-testid="cups-page" data-cup={cfg.slug} data-sim={sim.on || undefined}>
       <div className="fk-ucl-head">
-        <h2>{model.comp(cfg.slug).name}</h2>
+        <h2>{onPick ? <CupPicker cup={cfg.slug} onPick={onPick} title /> : model.comp(cfg.slug).name}</h2>
         <span className="fk-muted">Final {shortDay(cfg.final.day)}, {cfg.final.venue}</span>
         <CupSimBar on={sim.on} onToggle={() => setOn(!sim.on)} onClear={clear} empty={empty} view={sim.view} />
       </div>

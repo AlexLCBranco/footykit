@@ -1097,3 +1097,28 @@ for (const [w, h] of [[1920, 1080], [1366, 768]] as const) {
     expect(errors).toEqual([]);
   });
 }
+
+test('FK-55: the cup page title is the competition switcher (the bar picker\'s look, the heading\'s size)', async ({ page }) => {
+  const errors = await open(page, '?view=cups&cup=conmebol.libertadores');
+  const title = page.getByTestId('cups-page').getByTestId('cup-title-picker');
+  await expect(title).toHaveValue('conmebol.libertadores');
+  // the heading's size (18 px, as the plain title was), in the bar picker's outlined box
+  expect(await title.evaluate((e) => getComputedStyle(e).fontSize)).toBe('18px');
+  const box = await title.evaluate((e) => getComputedStyle(e.parentElement!).borderTopStyle);
+  expect(box).toBe('solid');
+  // beside the final's line, as before
+  await expect(page.getByTestId('cups-page').locator('.fk-ucl-head')).toContainText('Final Nov 28');
+  await title.selectOption('conmebol.sudamericana');
+  await expect(page).toHaveURL(/view=cups&cup=conmebol\.sudamericana/);
+  await expect(page.getByTestId('cups-page')).toHaveAttribute('data-cup', 'conmebol.sudamericana');
+  await expect(page.getByTestId('cup-picker')).toHaveValue('conmebol.sudamericana'); // the bar follows
+  // a domestic cup, then the Champions League (its page has the switcher too)
+  await page.getByTestId('cup-title-picker').selectOption('eng.fa');
+  await expect(page).toHaveURL(/cup=eng\.fa/);
+  await page.getByTestId('cup-title-picker').selectOption('uefa.champions');
+  await expect(page.getByTestId('ucl-page')).toBeVisible();
+  await expect(page.getByTestId('cup-title-picker')).toHaveValue('uefa.champions');
+  await page.getByTestId('cup-title-picker').selectOption('conmebol.libertadores');
+  await expect(page.getByTestId('cups-page')).toHaveAttribute('data-cup', 'conmebol.libertadores');
+  expect(errors).toEqual([]);
+});

@@ -11,6 +11,8 @@ import { stakeChips } from '../data/uclStakes';
 import { TeamLink } from './Bits';
 import { useFooty } from './ctx';
 import { UclKnockout } from './UclKnockout';
+import { CupPicker } from './TopBar';
+import { UCL_SLUG } from './page';
 import './ucl.css';
 import { SplitTable } from './SplitTable';
 
@@ -75,7 +77,7 @@ function Pots({ today }: { today: string }) {
 
 export type UclTab = 'table' | 'pots';
 
-export default function UclPage({ today, onWhatIf, tab = 'table', onTab }: { today: string; onWhatIf?: () => void; tab?: UclTab; onTab?: (t: UclTab) => void }) {
+export default function UclPage({ today, onWhatIf, tab = 'table', onTab, onPick }: { today: string; onWhatIf?: () => void; tab?: UclTab; onTab?: (t: UclTab) => void; /** FK-55: the title switches competition */ onPick?: (c: string) => void }) {
   const { model } = useFooty();
   const table = useMemo(() => uclTable(model.snap, (id) => model.team(id).name), [model]);
   const [hover, setHover] = useState<number | null>(null);
@@ -87,7 +89,7 @@ export default function UclPage({ today, onWhatIf, tab = 'table', onTab }: { tod
   return (
     <div className="fk-ucl" data-testid="ucl-page">
       <div className="fk-ucl-head">
-        <h2>Champions League <span className="fk-muted">· league phase</span></h2>
+        <h2>{onPick ? <CupPicker cup={UCL_SLUG} onPick={onPick} title /> : 'Champions League'} <span className="fk-muted">· league phase</span></h2>
         <span className="fk-muted" data-testid="ucl-matchday">{table.complete ? 'final table' : `after matchday ${table.matchday} of 8`}</span>
         {onWhatIf && !table.complete && <button type="button" className="fk-btn" onClick={onWhatIf} title="Pick the results left to play and see the table and the knockout places change" data-testid="ucl-whatif">Simulator</button>}
         <span className="fk-tabs fk-ucl-tabs" role="tablist" aria-label="Champions League page" data-testid="ucl-tabs">

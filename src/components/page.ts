@@ -200,3 +200,6 @@ export function monthStep(p: Page, dir: 1 | -1, model: Model): Page | undefined 
   if (p.view === 'league') return { ...p, day: shiftMonthDay(p.day, dir) };
   return undefined;
 }
+
+/** A cup picked (the bar's picker, a cup page's title): the Champions League's page or the cup's. */
+export const cupPage = (p: Page, cup: string): Page => (cup === UCL_SLUG ? { ...p, view: 'ucl' } : { ...p, view: 'cups', cup });

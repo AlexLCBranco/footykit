@@ -2917,3 +2917,15 @@ a.fk-series-sq:hover {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+/* FK-55: a cup page's title as the competition switcher: the bar's picker (outlined box, ▾), the heading's 18 px */
+.fk-scope.fk-scope-title {
+  height: auto;
+  vertical-align: baseline;
+}
+.fk-scope.fk-scope-title select {
+  height: 30px;
+  font-size: 18px;
+  font-weight: 700;
+  max-width: none;
+}

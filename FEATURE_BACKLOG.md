@@ -10,10 +10,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 **Tests:** unit for reading the market from a fixture; a counter test that one Slate costs at most one fetch per day.
 **Blocked:** (2026-11-19, step 1 done) The Odds API has no "team to score" key; the closest is `team_totals` (Over 0.5 goals = team scores), an additional market fetched one event at a time from `/events/{id}/odds`, costing 1 credit per event per region when it returns data. Followed clubs played 196 matches in Oct 2026 (max 18 in a day), so one region ≈ 200 credits a month of the free 500 (the event list call is free) — it fits on paper. Not verified: whether any EU/UK bookmaker prices `team_totals` for these leagues (The Odds API says additional markets are mostly US books; Brasileirão coverage unknown). Needs: you to create a free key at the-odds-api.com (an account I can't create for you), then one test call per league to confirm coverage before building.
 
-### FK-55 — Competition switcher in the cup page title
-**What:** the "Libertadores" title at the top of a cup page (next to "Final Nov 28, Estadio Centenario, Montevideo") becomes the switch-competition control: same size and position as the current title text, but styled like the bar's competition picker (outlined box with a ▾ chevron, same dropdown list and behaviour). Picking a competition opens its page, same as the bar picker.
-**Tests:** e2e: the title is a dropdown, same font size as before; choosing another competition opens its page and the URL updates.
-
 ### FK-56 — UCL simulator: start the knockouts from the current table + knockout play-off round
 **What:** in the Champions League simulator:
 1. A button "Start knockouts from current standings": fills the knockout stage from the league-phase table as it stands now (results left to play ignored), so knockout ties can be simulated right away.
