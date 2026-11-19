@@ -2734,3 +2734,45 @@ a.fk-series-sq:hover {
 .fk-comp-btn.fk-comp-named {
   cursor: pointer;
 }
+
+/* FK-48: ◀ ▶ over the strip's ends while the pointer is on it (or while it is moved), inside the 509 × 78 card */
+.fk-strip {
+  position: relative;
+  display: inline-flex;
+}
+.fk-strip-arrow {
+  all: unset;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 10px;
+  height: 20px;
+  border-radius: 3px;
+  font-size: 7px;
+  color: var(--fk-text);
+  background: var(--fk-surface-2);
+  box-shadow: 0 0 0 1px var(--fk-border);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.fk-strip-prev {
+  left: -4px;
+}
+.fk-strip-next {
+  right: -4px;
+}
+.fk-strip:hover .fk-strip-arrow,
+.fk-strip-moved .fk-strip-arrow,
+.fk-strip-arrow:focus-visible {
+  opacity: 1;
+}
+.fk-strip-arrow:hover {
+  color: var(--fk-link);
+}
+.fk-strip-moved [data-now] {
+  cursor: pointer;
+}

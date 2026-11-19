@@ -791,3 +791,37 @@ test('FK-46: a competition icon says the round on hover and opens the League vie
   expect(comp).toBeTruthy();
   expect(errors).toEqual([]);
 });
+
+test('FK-48: ◀ ▶ on the Slate strip move it one window earlier / later; a click on this match centres it', async ({ page }) => {
+  const errors = await open(page, '?view=slate');
+  const card = page.locator('[data-testid="slate-card"][data-match-id="401879233"]'); // Man City v Fulham, Sat Nov 21
+  const strip = card.locator('.fk-card-row').first().getByTestId('strip');
+  const windows = () => strip.getByTestId('strip-slot').evaluateAll((els) => els.map((e) => e.getAttribute('data-window')));
+  const before = await windows();
+  expect(before).toHaveLength(5);
+  expect(before[2]).toBe('2026-11-20'); // this match's weekend window in the middle
+  await strip.hover();
+  await expect(strip.getByTestId('strip-next')).toBeVisible();
+  await strip.getByTestId('strip-next').click();
+  const later = await windows();
+  expect(later.slice(0, 4)).toEqual(before.slice(1)); // one window later
+  expect(later).toHaveLength(5);
+  await expect(strip.locator('[data-testid="strip-slot"]').nth(1).locator('[data-now]')).toHaveCount(1);
+  await strip.getByTestId('strip-prev').click();
+  expect(await windows()).toEqual(before);
+  await strip.getByTestId('strip-prev').click();
+  await strip.getByTestId('strip-prev').click();
+  await strip.getByTestId('strip-prev').click();
+  await expect(strip.locator('[data-now]')).toHaveCount(0); // this match moved out of view
+  await strip.getByTestId('strip-next').click();
+  // a click on this match brings the strip back to centred (and doesn't open the standings)
+  await strip.locator('[data-now]').click();
+  expect(await windows()).toEqual(before);
+  await expect(strip.getByTestId('form')).toHaveAttribute('data-shift', '0');
+  await expect(page.getByTestId('standings-popup')).toHaveCount(0);
+  // the other team's strip didn't move; the card keeps calendarkit's size
+  expect(await card.locator('.fk-card-row').nth(1).getByTestId('strip-slot').nth(2).getAttribute('data-window')).toBe('2026-11-20');
+  const box = (await card.boundingBox())!;
+  expect([box.width, box.height]).toEqual([509, 78]);
+  expect(errors).toEqual([]);
+});

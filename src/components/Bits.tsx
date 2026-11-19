@@ -118,16 +118,19 @@ export function FormSquares({ line, teamId }: { line: FormLine; teamId: string }
  * before, this match's window in the middle (accent colour, the competition's icon), 2 after. Played: the opponent's
  * crest on green / grey / red; to come: outlined; "vs" / "@" before it. A window without a match: a dashed "–" slot.
  * A window with two matches splits its slot. Hover a slot for its window; a click opens the standings.
+ * FK-48: ◀ ▶ at the strip's ends (shown while the pointer is on it, over its edges so the card keeps 509 × 78) move it
+ * one window earlier / later; a click on this match's square (or a reload: the shift is not kept) centres it again.
  */
 export function FormGames({ m, teamId }: { m: Match; teamId: string }) {
   const { model, onStandings } = useFooty();
+  const [shift, setShift] = useState(0);
   const t = model.team(teamId);
   const line = formAt(model, teamId, m);
-  const windows = stripWindows(model, teamId, m);
+  const windows = stripWindows(model, teamId, m, shift);
   const text = (g: StripGame) => `${g.now ? 'this match' : g.r ? `${g.r} ${g.gf}-${g.ga}` : 'next'} ${g.home ? 'vs' : '@'} ${model.team(g.opp).name} (${shortDay(g.day)})`;
   const windowText = (w: StripWindow) => (w.games.length ? `${windowLabel(w)}: ${w.games.map(text).join(', ')}` : emptyWindowText(w));
   const tip = [
-    `${t.name}: the 2 windows before this match's, its own, the 2 after`,
+    shift ? `${t.name}: ${Math.abs(shift)} window${Math.abs(shift) > 1 ? 's' : ''} ${shift < 0 ? 'earlier' : 'later'} (click this match to centre)` : `${t.name}: the 2 windows before this match's, its own, the 2 after`,
     ...windows.map(windowText),
     `League record ${recordText(line.record)} (W-D-L)`,
     line.streak && `Streak ${line.streak}`,
@@ -143,25 +146,34 @@ export function FormGames({ m, teamId }: { m: Match; teamId: string }) {
     const side = w.offset < 0 ? 'before' : w.offset > 0 ? 'after' : 'now';
     if (!w.games.length) {
       return (
-        <span key={w.start} className="fk-fg fk-fg-empty" data-testid="strip-slot" data-side={side} data-state={w.state} title={emptyWindowText(w)}>
+        <span key={w.start} className="fk-fg fk-fg-empty" data-testid="strip-slot" data-window={w.start} data-side={side} data-state={w.state} title={emptyWindowText(w)}>
           <span className="fk-fg-at" /><span className="fk-fg-sq fk-fg-free">–</span>
         </span>
       );
     }
     const games = w.games.slice(0, 2);
     return (
-      <span key={w.start} className={`fk-fg${now ? ' fk-fg-now' : ''}`} data-testid="strip-slot" data-side={side} data-count={w.games.length} title={windowText(w)}>
+      <span key={w.start} className={`fk-fg${now ? ' fk-fg-now' : ''}`} data-testid="strip-slot" data-window={w.start} data-side={side} data-count={w.games.length} title={windowText(w)}>
         <span className="fk-fg-at">{games[0]!.home ? 'vs' : '@'}</span>
         {games.length === 1 ? square(games[0]!, false) : <span className="fk-fg-split">{games.map((g) => square(g, true))}</span>}
       </span>
     );
   });
-  if (!onStandings) return <span className="fk-form fk-form-games fk-form-plain" title={tip} data-testid="form">{slots}</span>;
-  return (
-    <button type="button" className="fk-form fk-form-games" title={tip} data-testid="form" onClick={(e) => { e.stopPropagation(); onStandings(teamId); }}>
-      {slots}
-    </button>
+  // a click on this match's square while the strip is moved centres it; any other click opens the standings
+  const onClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (shift && (e.target as HTMLElement).closest('[data-now]')) setShift(0);
+    else onStandings?.(teamId);
+  };
+  const strip = onStandings || shift
+    ? <button type="button" className={`fk-form fk-form-games${onStandings ? '' : ' fk-form-plain'}`} title={tip} data-testid="form" data-shift={shift} onClick={onClick}>{slots}</button>
+    : <span className="fk-form fk-form-games fk-form-plain" title={tip} data-testid="form" data-shift={shift}>{slots}</span>;
+  const arrow = (dir: -1 | 1) => (
+    <button type="button" className={`fk-strip-arrow fk-strip-${dir < 0 ? 'prev' : 'next'}`} data-testid={`strip-${dir < 0 ? 'prev' : 'next'}`} data-capture-exclude="true"
+      aria-label={`${t.name}: one window ${dir < 0 ? 'earlier' : 'later'}`} title={`One window ${dir < 0 ? 'earlier' : 'later'}`}
+      onClick={(e) => { e.stopPropagation(); setShift(shift + dir); }}>{dir < 0 ? '◀' : '▶'}</button>
   );
+  return <span className={`fk-strip${shift ? ' fk-strip-moved' : ''}`} data-testid="strip">{arrow(-1)}{strip}{arrow(1)}</span>;
 }
 
 /** FK-47: the competition's icon in the middle slot (its code when there is no logo file). */
