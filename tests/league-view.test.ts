@@ -53,3 +53,12 @@ describe('League view page', () => {
     expect(pagePart({ ...p, lmode: 'cal' }, model)).toBe('Premier League · Nov 16 – 22');
   });
 });
+
+describe('windowClickPage', () => {
+  it('opens the club\'s Team Calendar in month span on the window\'s month, the window kept for the highlight', async () => {
+    const { windowClickPage, teamClickPage } = await import('../src/components/page');
+    const p = windowClickPage(defaultPage('2026-11-21'), '382', '2026-10-30');
+    expect(p).toMatchObject({ view: 'cal', team: '382', span: 'month', month: '2026-10', hl: { team: '382', start: '2026-10-30' } });
+    expect(teamClickPage(p, '382', '2026-11-21', '2026-11-21').hl).toBeUndefined();
+  });
+});

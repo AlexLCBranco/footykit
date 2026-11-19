@@ -853,3 +853,36 @@ test('FK-48 fix: the strip arrows show only on hover (moved or not) and sit besi
   expect(await page.locator('.fk-card-row').evaluateAll((els) => els.filter((r) => r.scrollWidth > r.clientWidth).length)).toBe(0);
   expect(errors).toEqual([]);
 });
+
+test('Slate strip: a window opens the club\'s Team Calendar with that window highlighted, in a colour unlike today\'s; the arrows line up with the slots', async ({ page }) => {
+  const errors = await open(page, '?view=slate');
+  const strip = page.locator('[data-testid="slate-card"][data-match-id="401879233"] .fk-card-row').first().getByTestId('strip'); // Man City
+  // the arrows (and their triangles): a square's height, centred on the slots' line
+  await strip.hover();
+  const geo = await strip.evaluate((s) => {
+    const mid = (r: DOMRect) => r.top + r.height / 2;
+    const sq = s.querySelector('.fk-fg-sq')!.getBoundingClientRect();
+    return ['strip-prev', 'strip-next'].map((id) => { const b = s.querySelector(`[data-testid="${id}"]`)!; const a = b.getBoundingClientRect(); const tri = b.querySelector('svg')!.getBoundingClientRect(); return [Math.round(a.height), Math.round(mid(a) - mid(sq)) + Math.round(mid(tri) - mid(sq))]; }).concat([[Math.round(sq.height), 0]]);
+  });
+  expect(geo).toEqual([[17, 0], [17, 0], [17, 0]]);
+  // the first slot: the weekend of Nov 13–16
+  const slot = strip.getByTestId('strip-slot').first();
+  await expect(slot).toHaveAttribute('data-window', '2026-11-13');
+  await slot.click();
+  await expect(page).toHaveURL(/view=cal&team=382&span=month/);
+  const cal = page.getByTestId('team-calendar');
+  const hl = await cal.locator('[data-hl]').evaluateAll((els) => els.map((e) => e.getAttribute('data-day')));
+  expect(hl).toEqual(['2026-11-13', '2026-11-14', '2026-11-15', '2026-11-16']);
+  await expect(page.getByTestId('standings-popup')).toHaveCount(0);
+  const colour = (sel: string) => cal.locator(sel).first().evaluate((e) => getComputedStyle(e).boxShadow);
+  const [picked, today] = [await colour('[data-hl]'), await colour('.fk-today')];
+  expect(picked).toContain('232, 121, 249');
+  expect(today).toContain('78, 161, 255');
+  expect(today).not.toContain('232, 121, 249');
+  // a team-name click opens the calendar without a highlight
+  await page.goto('/football/?view=slate');
+  await page.locator('[data-testid="slate-card"][data-match-id="401879233"] .fk-card-team').first().click();
+  await expect(page.getByTestId('team-calendar')).toBeVisible();
+  await expect(page.getByTestId('team-calendar').locator('[data-hl]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

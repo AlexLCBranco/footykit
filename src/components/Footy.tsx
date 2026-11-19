@@ -11,7 +11,7 @@ import { Ctx, type FootyCtx } from './ctx';
 import { CopyButton } from './Copy';
 import { DayList } from './DayList';
 import { DayStrip } from './DayStrip';
-import { DEFAULT_CUP, DEFAULT_LEAGUE, leagueViewPage, leagueWhatIfPage, simLeague, stepPage, teamClickPage, uclWhatIfPage, type Page } from './page';
+import { DEFAULT_CUP, DEFAULT_LEAGUE, windowClickPage, leagueViewPage, leagueWhatIfPage, simLeague, stepPage, teamClickPage, uclWhatIfPage, type Page } from './page';
 import { StandingsPopup, useSeriesPopup } from './Popups';
 import { Slate } from './Slate';
 import { createSelectionStore, useMarqueeSelection } from './selection';
@@ -112,13 +112,14 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
     model, now, timeZone, live, tags, hiddenTags, gameMenu: true, weather: pageWeatherStore(),
     onTeam: (id, day) => onPage(teamClickPage(page, id, day, today)),
     onLeague: (comp, day) => onPage(leagueViewPage(page, comp, day)),
+    onWindow: (id, start) => onPage(windowClickPage(page, id, start)),
     onSeries: series.onSeries,
     onSeriesLeave: series.onSeriesLeave,
     onStandings: (team) => setStandings({ team }),
   }), [model, now, timeZone, live, tags, hiddenTags, page, onPage, today, series.onSeries, series.onSeriesLeave]);
 
   let view: ReactNode;
-  if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} />;
+  if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} highlight={page.hl?.team === page.team ? page.hl.start : undefined} />;
   else if (page.view === 'list' && page.team) view = <TeamList team={page.team} today={today} from={page.listFrom} to={page.month} showRest={showRest} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
   else if (page.view === 'ucl') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><UclPage today={today} tab={page.uclTab ?? 'table'} onTab={(t) => onPage({ ...page, uclTab: t })} onWhatIf={() => onPage(uclWhatIfPage(page))} /></Suspense>;
   else if (page.view === 'whatif' && simLeague(page)) view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueWhatIfPage key={simLeague(page)} league={simLeague(page)!} today={today} onBack={() => onPage({ ...page, view: 'table' })} /></Suspense>;

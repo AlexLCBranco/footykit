@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-19
+- Slate strip: click a window to see it on the club's calendar; arrows lined up (v0.61.0) — Clicking a window slot on a Slate strip opens that club's calendar on the window's month with the window's days highlighted in pink (today stays blue); the strip's ◀ ▶ are now drawn triangles centred on the slots, a square's height.
 - Slate strip arrows only on hover, beside the window slots (fix) (v0.60.1) — The ◀ ▶ on each Slate strip now show only while the pointer is on it (also after moving it) and sit in their own room at the strip's ends instead of over the slots; the slots are a pixel smaller to make room.
 - FK-48 — Arrows on the club form strip to move to earlier / later windows (v0.60.0) — Hovering a team's strip on a Slate card shows small ◀ ▶ at its ends that move it one window earlier / later; a click on this match's highlighted square (or a reload) centres it again; the card stays 509 × 78.
 - FK-47 — Club form strip: window slots, empty windows shown, current match highlighted (v0.59.0) — Each team's strip on a Slate card is now five window slots (2 midweek / weekend windows before, this match's, 2 after): a window without a match is a dashed "–" slot (hover: "No match · midweek 11–13 Nov"), two matches share a slot, and this match sits in the middle in the accent colour with its competition's icon; the card stays 509 × 78.

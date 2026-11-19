@@ -32,6 +32,8 @@ export interface Page {
   /** FK-45: the competition the League view shows, and its mode (List when unset); its day is `day` */
   lcomp?: string;
   lmode?: LeagueMode;
+  /** a window picked on a Slate strip: its first day, highlighted on that club's Team Calendar (not in the address) */
+  hl?: { team: string; start: string };
   /** the Champions League page's tab (view `ucl`); the table when unset */
   uclTab?: 'table' | 'pots';
   span: Span;
@@ -77,7 +79,13 @@ export function teamPage(p: Page, team: string, day: string, view: View = 'cal')
 /** What a click on a team name opens, anywhere: its Team Calendar in month span on the current month (Alex). The 1 /
  * 2-week spans stay on the bar; one picked there is kept by the page until the next team-name click. */
 export function teamClickPage(p: Page, team: string, day: string, today: string): Page {
-  return { ...teamPage(p, team, day, 'cal'), span: 'month', month: monthOf(today) };
+  return { ...teamPage(p, team, day, 'cal'), span: 'month', month: monthOf(today), hl: undefined };
+}
+
+/** A window clicked on a Slate strip: the club's Team Calendar in month span on the window's month, the window's days
+ * highlighted (in their own colour, not today's). */
+export function windowClickPage(p: Page, team: string, start: string): Page {
+  return { ...teamPage(p, team, start, 'cal'), span: 'month', month: monthOf(start), hl: { team, start } };
 }
 
 /** The address of a page. The date is written for sharing but never read back: a fresh visit opens on today. */

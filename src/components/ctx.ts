@@ -23,6 +23,8 @@ export interface FootyCtx {
   onSeriesLeave?: () => void;
   /** FK-46: a competition icon was clicked: open the League view on `comp` and `day` (the app); unset = not clickable */
   onLeague?: (comp: string, day: string) => void;
+  /** a window slot on a Slate strip was clicked: open the club's Team Calendar with that window highlighted (the app) */
+  onWindow?: (teamId: string, start: string) => void;
   /** open the quick standings popup on a team's league */
   onStandings?: (teamId: string) => void;
   /** how the context tags are drawn; none (a host like the gauntlet's Slate part) = no tags */

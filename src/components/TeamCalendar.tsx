@@ -142,7 +142,8 @@ function useCellScale(grid: React.RefObject<HTMLDivElement | null>, height: numb
   return scale.s;
 }
 
-export function TeamCalendar({ team, span, week, month, today, showFree = true }: { team: string; span: Span; week: string; month: string; today: string; showFree?: boolean }) {
+/** `highlight`: the first day of a window picked on a Slate strip; its days get their own colour (today keeps its own). */
+export function TeamCalendar({ team, span, week, month, today, showFree = true, highlight }: { team: string; span: Span; week: string; month: string; today: string; showFree?: boolean; highlight?: string }) {
   const { model, live, now, tags, hiddenTags } = useFooty();
   const { days, month: m } = calendarDays(span, week, month);
   const weeks = days.length / 7;
@@ -160,12 +161,13 @@ export function TeamCalendar({ team, span, week, month, today, showFree = true }
           const fifa = fifaWindowOn(d);
           const free = showFree && matches.length === 0 && isFreeWindowDay(model, team, d);
           const w = windowOf(d);
+          const hl = highlight !== undefined && w.start === highlight;
           const out = m !== undefined && monthOf(d) !== m;
           const past = matches.length > 0 && matches.every((x) => isPlayed(x) || x.st === 'can' || x.st === 'ppd');
           // a week view can cross a month: the 1st says which (calendarkit)
           const num = span !== 'month' && d.endsWith('-01') ? shortDay(d) : String(Number(d.slice(8, 10)));
           return (
-            <div key={d} className={`fk-cal-cell fk-win-${w.kind}${matches.length ? ' fk-cell-game' : ''}${past ? ' fk-cell-past' : ''}${free ? ' fk-free' : ''}${out ? ' fk-out' : ''}${d === today ? ' fk-today' : ''}${fifa ? ' fk-fifa' : ''}`} data-day={d} role="gridcell" title={[free ? `Free ${w.kind === 'mid' ? 'midweek' : 'weekend'} window` : '', fifa?.label ?? ''].filter(Boolean).join('\n') || undefined}>
+            <div key={d} className={`fk-cal-cell fk-win-${w.kind}${matches.length ? ' fk-cell-game' : ''}${past ? ' fk-cell-past' : ''}${free ? ' fk-free' : ''}${out ? ' fk-out' : ''}${d === today ? ' fk-today' : ''}${fifa ? ' fk-fifa' : ''}${hl ? ' fk-hl-window' : ''}`} data-day={d} data-hl={hl || undefined} role="gridcell" title={[free ? `Free ${w.kind === 'mid' ? 'midweek' : 'weekend'} window` : '', fifa?.label ?? ''].filter(Boolean).join('\n') || undefined}>
               <div className="fk-cal-date">
                 <span className="fk-daynum">{num}</span>
                 {matches.length > 0 && <span className="fk-cal-runs">{matches.map((x) => <RunLabel key={x.id} m={x} team={team} />)}</span>}

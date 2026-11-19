@@ -122,7 +122,7 @@ export function FormSquares({ line, teamId }: { line: FormLine; teamId: string }
  * one window earlier / later; a click on this match's square (or a reload: the shift is not kept) centres it again.
  */
 export function FormGames({ m, teamId }: { m: Match; teamId: string }) {
-  const { model, onStandings } = useFooty();
+  const { model, onStandings, onWindow } = useFooty();
   const [shift, setShift] = useState(0);
   const t = model.team(teamId);
   const line = formAt(model, teamId, m);
@@ -134,7 +134,7 @@ export function FormGames({ m, teamId }: { m: Match; teamId: string }) {
     ...windows.map(windowText),
     `League record ${recordText(line.record)} (W-D-L)`,
     line.streak && `Streak ${line.streak}`,
-    onStandings && 'Click: standings',
+    onWindow ? "Click a window: its days on the club's calendar" : onStandings && 'Click: standings',
   ].filter(Boolean).join('\n');
   const square = (g: StripGame, half: boolean) => (
     <span key={g.id} className={`fk-fg-sq${half ? ' fk-fg-half' : ''}${g.now ? ' fk-fg-this' : g.r ? ` fk-form-${g.r}` : ' fk-fg-next'}`} data-testid="form-game" data-result={g.r} data-home={g.home || undefined} data-now={g.now || undefined}>
@@ -146,14 +146,14 @@ export function FormGames({ m, teamId }: { m: Match; teamId: string }) {
     const side = w.offset < 0 ? 'before' : w.offset > 0 ? 'after' : 'now';
     if (!w.games.length) {
       return (
-        <span key={w.start} className="fk-fg fk-fg-empty" data-testid="strip-slot" data-window={w.start} data-side={side} data-state={w.state} title={emptyWindowText(w)}>
+        <span key={w.start} className="fk-fg fk-fg-empty" data-testid="strip-slot" data-window={w.start} data-side={side} data-state={w.state} title={`${emptyWindowText(w)}${onWindow ? WINDOW_CLICK : ''}`}>
           <span className="fk-fg-at" /><span className="fk-fg-sq fk-fg-free">–</span>
         </span>
       );
     }
     const games = w.games.slice(0, 2);
     return (
-      <span key={w.start} className={`fk-fg${now ? ' fk-fg-now' : ''}`} data-testid="strip-slot" data-window={w.start} data-side={side} data-count={w.games.length} title={windowText(w)}>
+      <span key={w.start} className={`fk-fg${now ? ' fk-fg-now' : ''}`} data-testid="strip-slot" data-window={w.start} data-side={side} data-count={w.games.length} title={`${windowText(w)}${onWindow ? WINDOW_CLICK : ''}`}>
         <span className="fk-fg-at">{games[0]!.home ? 'vs' : '@'}</span>
         {games.length === 1 ? square(games[0]!, false) : <span className="fk-fg-split">{games.map((g) => square(g, true))}</span>}
       </span>
@@ -162,19 +162,28 @@ export function FormGames({ m, teamId }: { m: Match; teamId: string }) {
   // a click on this match's square while the strip is moved centres it; any other click opens the standings
   const onClick = (e: MouseEvent) => {
     e.stopPropagation();
-    if (shift && (e.target as HTMLElement).closest('[data-now]')) setShift(0);
+    const target = e.target as HTMLElement;
+    if (shift && target.closest('[data-now]')) return setShift(0);
+    // a window: the club's Team Calendar with that window highlighted
+    const slot = target.closest<HTMLElement>('[data-window]');
+    if (onWindow && slot) onWindow(teamId, slot.dataset.window!);
     else onStandings?.(teamId);
   };
-  const strip = onStandings || shift
-    ? <button type="button" className={`fk-form fk-form-games${onStandings ? '' : ' fk-form-plain'}`} title={tip} data-testid="form" data-shift={shift} onClick={onClick}>{slots}</button>
+  const strip = onStandings || onWindow || shift
+    ? <button type="button" className={`fk-form fk-form-games${onStandings || onWindow ? '' : ' fk-form-plain'}`} title={tip} data-testid="form" data-shift={shift} onClick={onClick}>{slots}</button>
     : <span className="fk-form fk-form-games fk-form-plain" title={tip} data-testid="form" data-shift={shift}>{slots}</span>;
   const arrow = (dir: -1 | 1) => (
     <button type="button" className={`fk-fgstrip-arrow fk-fgstrip-${dir < 0 ? 'prev' : 'next'}`} data-testid={`strip-${dir < 0 ? 'prev' : 'next'}`} data-capture-exclude="true"
       aria-label={`${t.name}: one window ${dir < 0 ? 'earlier' : 'later'}`} title={`One window ${dir < 0 ? 'earlier' : 'later'}`}
-      onClick={(e) => { e.stopPropagation(); setShift(shift + dir); }}>{dir < 0 ? '◀' : '▶'}</button>
+      onClick={(e) => { e.stopPropagation(); setShift(shift + dir); }}>
+      {/* a drawn triangle, centred in a square's height (a ◀ ▶ glyph sits on the text baseline, below the squares' middle) */}
+      <svg viewBox="0 0 6 8" width="5" height="7" aria-hidden="true"><path d={dir < 0 ? 'M6 0V8L0 4Z' : 'M0 0V8L6 4Z'} fill="currentColor" /></svg>
+    </button>
   );
   return <span className={`fk-fgstrip${shift ? ' fk-fgstrip-moved' : ''}`} data-testid="strip">{arrow(-1)}{strip}{arrow(1)}</span>;
 }
+
+const WINDOW_CLICK = '\nClick: show it on the calendar';
 
 /** FK-47: the competition's icon in the middle slot (its code when there is no logo file). */
 function StripCompIcon({ slug }: { slug: string }) {
