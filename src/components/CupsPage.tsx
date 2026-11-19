@@ -2,7 +2,7 @@
 // the 8 group tables with each team's 6 group matches as squares, the qualifying ties, and the rules with sources
 // (config/conmebol.ts). Its own chunk, like the other competition pages.
 
-import { useMemo } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 import { CUPS, type CupConfig } from '../../config/conmebol';
 import { DOMESTIC_CUPS, type DomesticCup } from '../../config/domesticCups';
 import { dayLabel, isPlayed, kickoffTime, shortDay } from '../data/model';
@@ -98,8 +98,42 @@ function GroupTable({ g, cfg, today }: { g: CupGroup; cfg: CupConfig; today: str
   );
 }
 
+/** FK-54: the bracket's zoom limits and the room kept under it at the bottom of the window (CSS px). */
+export const FIT_MIN = 0.6;
+export const FIT_MAX = 3;
+export const FIT_MARGIN = 12;
+
+/**
+ * FK-54: the knockout bracket as big as the first screen allows — CSS zoom (text and crests grow with the cells) to the
+ * largest size at which it fits the page's width and the window's height below its top, so it is whole without
+ * scrolling and the groups start right under it. Worked out at the bracket's natural size, again on a resize and when
+ * the picks change (the simulator's waiting lists). Off where the bracket is not the page's first thing (the League view).
+ */
+function useFitBracket(on: boolean, key: unknown) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!on || !el) return;
+    const fit = () => {
+      el.style.zoom = '1';
+      el.classList.add('fk-ko-measure');
+      const r = el.getBoundingClientRect();
+      el.classList.remove('fk-ko-measure');
+      const width = el.parentElement!.clientWidth;
+      const height = window.innerHeight - (r.top + window.scrollY) - FIT_MARGIN;
+      const z = Math.max(FIT_MIN, Math.min(FIT_MAX, width / r.width, height / r.height));
+      el.style.zoom = String(Math.floor(z * 100) / 100);
+      el.dataset.zoom = el.style.zoom;
+    };
+    fit();
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, [on, key]);
+  return ref;
+}
+
 /** A domestic cup: the last rounds (16 ties or fewer) as a bracket, the earlier ones folded, the rules and source. */
-function DomesticCupPage({ cfg, today }: { cfg: DomesticCup; today: string }) {
+function DomesticCupPage({ cfg, today, fit }: { cfg: DomesticCup; today: string; fit: boolean }) {
   const { model } = useFooty();
   const rounds = useMemo(() => {
     const rs = cupRounds(model.snap.matches.filter((m) => m.c === cfg.slug), cfg.twoLeg, (id) => model.snap.teams[id]?.name);
@@ -118,6 +152,7 @@ function DomesticCupPage({ cfg, today }: { cfg: DomesticCup; today: string }) {
   const simRounds = useMemo<SimRound[]>(() => rounds.map((r, i) => ({ round: r.round, ties: i >= from ? cols[i - from]! : r.ties, open: r.open })), [rounds, from, cols]);
   const { state: sim, setOn, clear, empty } = useCupSim(cfg.slug, simRounds);
   const waiting = (round: string) => (sim.on ? sim.view.rounds.find((x) => x.round === round)?.waiting ?? [] : []);
+  const fitRef = useFitBracket(fit, sim.view);
   return (
     <CupSimCtx.Provider value={sim}>
     <div className="fk-ucl fk-lt fk-cups" data-testid="cups-page" data-cup={cfg.slug} data-sim={sim.on || undefined}>
@@ -127,7 +162,7 @@ function DomesticCupPage({ cfg, today }: { cfg: DomesticCup; today: string }) {
         <CupSimBar on={sim.on} onToggle={() => setOn(!sim.on)} onClear={clear} empty={empty} view={sim.view} />
       </div>
       <section className="fk-ko" data-testid="cup-knockout">
-        <div className="fk-ko-grid" style={{ gridTemplateColumns: `repeat(${bracket.length}, minmax(160px, 210px))` }}>
+        <div className="fk-ko-grid fk-ko-fit" ref={fitRef} data-testid="cup-bracket" style={{ gridTemplateColumns: `repeat(${bracket.length}, minmax(160px, 210px))` }}>
           {bracket.map((r, i) => (
             <div key={r.round} className="fk-ko-col">
               <div className="fk-ko-col-title">{roundText(r.round)}{r.legs === 2 ? <span className="fk-muted"> two legs</span> : null}</div>
@@ -164,14 +199,15 @@ function DomesticCupPage({ cfg, today }: { cfg: DomesticCup; today: string }) {
   );
 }
 
-export default function CupsPage({ cup, today }: { cup: string; today: string }) {
+/** `fit`: the bracket fills the first screen (FK-54) — the Cups page itself, not where the League view shows it. */
+export default function CupsPage({ cup, today, fit = false }: { cup: string; today: string; fit?: boolean }) {
   const domestic = DOMESTIC_CUPS.find((c) => c.slug === cup);
   // keyed by cup: each cup has its own simulator state and picks
-  if (domestic) return <DomesticCupPage key={cup} cfg={domestic} today={today} />;
-  return <ContinentalCupPage key={cup} cup={cup} today={today} />;
+  if (domestic) return <DomesticCupPage key={cup} cfg={domestic} today={today} fit={fit} />;
+  return <ContinentalCupPage key={cup} cup={cup} today={today} fit={fit} />;
 }
 
-function ContinentalCupPage({ cup, today }: { cup: string; today: string }) {
+function ContinentalCupPage({ cup, today, fit }: { cup: string; today: string; fit: boolean }) {
   const { model } = useFooty();
   const cfg = CUPS.find((c) => c.slug === cup) ?? CUPS[0]!;
   const { groups, qualifying, knockout } = useMemo(() => {
@@ -185,6 +221,7 @@ function ContinentalCupPage({ cup, today }: { cup: string; today: string }) {
   const legend = cfg.groupZones.filter((z, i, a) => a.findIndex((x) => x.kind === z.kind) === i);
   const simRounds = useMemo<SimRound[]>(() => cfg.knockout.map((r, i) => ({ round: r, ties: knockout[i]!, open: 0 })), [cfg, knockout]);
   const { state: sim, setOn, clear, empty } = useCupSim(cfg.slug, simRounds);
+  const fitRef = useFitBracket(fit, sim.view);
   return (
     <CupSimCtx.Provider value={sim}>
     <div className="fk-ucl fk-lt fk-cups" data-testid="cups-page" data-cup={cfg.slug} data-sim={sim.on || undefined}>
@@ -195,7 +232,7 @@ function ContinentalCupPage({ cup, today }: { cup: string; today: string }) {
       </div>
       <section className="fk-ko" data-testid="cup-knockout">
         <h3>Knockout stages</h3>
-        <div className="fk-ko-grid" style={{ gridTemplateColumns: `repeat(${cfg.knockout.length}, minmax(160px, 210px))` }}>
+        <div className="fk-ko-grid fk-ko-fit" ref={fitRef} data-testid="cup-bracket" style={{ gridTemplateColumns: `repeat(${cfg.knockout.length}, minmax(160px, 210px))` }}>
           {cfg.knockout.map((r, i) => (
             <div key={r} className="fk-ko-col">
               <div className="fk-ko-col-title">{roundText(r)}</div>

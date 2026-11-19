@@ -530,3 +530,11 @@
   opacity: 0.3;
   cursor: default;
 }
+
+/* FK-54: the cups' bracket is zoomed to fill the first screen (useFitBracket); measured at its natural width */
+.fk-ko-grid.fk-ko-fit {
+  justify-content: start;
+}
+.fk-ko-grid.fk-ko-measure {
+  width: max-content;
+}

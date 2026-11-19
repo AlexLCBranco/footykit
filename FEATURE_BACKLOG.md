@@ -10,10 +10,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 **Tests:** unit for reading the market from a fixture; a counter test that one Slate costs at most one fetch per day.
 **Blocked:** (2026-11-19, step 1 done) The Odds API has no "team to score" key; the closest is `team_totals` (Over 0.5 goals = team scores), an additional market fetched one event at a time from `/events/{id}/odds`, costing 1 credit per event per region when it returns data. Followed clubs played 196 matches in Oct 2026 (max 18 in a day), so one region ≈ 200 credits a month of the free 500 (the event list call is free) — it fits on paper. Not verified: whether any EU/UK bookmaker prices `team_totals` for these leagues (The Odds API says additional markets are mostly US books; Brasileirão coverage unknown). Needs: you to create a free key at the-odds-api.com (an account I can't create for you), then one test call per league to confirm coverage before building.
 
-### FK-54 — Cups page: knockout bracket fills the first screen
-**What:** on the cups pages (Libertadores, Sudamericana, every cup with a bracket) the knockout bracket cells are as big as possible so the bracket fills the default viewport (full-size desktop window) without scrolling; the group stage tables start right below it, visible as soon as the user scrolls down. Text and crests grow with the cells.
-**Tests:** e2e at 1920×1080 and 1366×768: bracket fits within the first viewport with no inner scroll; groups start just below the fold.
-
 ### FK-55 — Competition switcher in the cup page title
 **What:** the "Libertadores" title at the top of a cup page (next to "Final Nov 28, Estadio Centenario, Montevideo") becomes the switch-competition control: same size and position as the current title text, but styled like the bar's competition picker (outlined box with a ▾ chevron, same dropdown list and behaviour). Picking a competition opens its page, same as the bar picker.
 **Tests:** e2e: the title is a dropdown, same font size as before; choosing another competition opens its page and the URL updates.

@@ -1071,3 +1071,29 @@ test('FK-50: result streak chip (W / D / L) and its popup on a Slate card and a 
   await expect(page.getByText('Streak (5th)')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+for (const [w, h] of [[1920, 1080], [1366, 768]] as const) {
+  test(`FK-54: the cup bracket fills the first screen at ${w}×${h}, no inner scroll; the groups start just below`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    const errors = await open(page, '?view=cups&cup=conmebol.libertadores');
+    const bracket = page.getByTestId('cup-bracket');
+    await expect(bracket).toHaveAttribute('data-zoom', /\d/);
+    const geo = await page.evaluate(() => {
+      const b = document.querySelector('[data-testid="cup-bracket"]')!;
+      const r = b.getBoundingClientRect();
+      const groups = document.querySelector('.fk-cup-groups-wrap')!.getBoundingClientRect();
+      const tie = b.querySelector('[data-testid="cup-tie"]')!.getBoundingClientRect();
+      const inner = [b, ...b.querySelectorAll('*')].some((e) => e.scrollHeight > e.clientHeight + 1 && /(auto|scroll)/.test(getComputedStyle(e).overflowY));
+      return { bottom: r.bottom, top: r.top, groups: groups.top, tieW: tie.width, inner, zoom: Number((b as HTMLElement).dataset.zoom), vh: innerHeight, page: r.right, vw: innerWidth };
+    });
+    expect(geo.bottom).toBeLessThanOrEqual(geo.vh); // whole in the first screen
+    expect(geo.inner).toBe(false);
+    expect(geo.page).toBeLessThanOrEqual(geo.vw); // the bracket's right edge on screen too
+    // as big as it gets: within the last few % of the window's height
+    expect(geo.bottom).toBeGreaterThan(geo.vh * 0.9);
+    // the groups start right below it (their heading just under the fold or on screen)
+    expect(geo.groups).toBeGreaterThanOrEqual(geo.bottom - 1);
+    expect(geo.groups - geo.bottom).toBeLessThan(40);
+    expect(errors).toEqual([]);
+  });
+}
