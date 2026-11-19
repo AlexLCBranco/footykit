@@ -13,6 +13,8 @@ spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Featu
 - FK-35 — Slate in the same shape as calendarkit's (for a combined Slate) (v0.49.0) — Slate cards are now calendarkit's size and layout (509 × 78, kickoff strip, logo, name with place and score, tags, last / next games, odds) in a tight grid of shared borders under "SLATE · 19-11 · Football"; on the card the tags show their highlights (all of them on hover).
 - FK-36 — Club form strip: 2 before, 2 after (v0.48.0) — A Slate card's squares now show each club's last 2 played matches (crest on green / grey / red) and its next 2 (crest outlined), with a thin mark where this match sits.
 - Last-games squares show their win / draw / loss colours (fix) (v0.48.0) — The Slate squares were all grey since v0.44.0; the colours now show.
+### Internal
+- Report for FK-35 … FK-43 in REPORTS.md; Blocked notes on FK-37 and FK-41; PROJECT.md state (v0.54.0)
 
 ## 2026-11-16
 - FK-28 — Show a team's position in its domestic league (v0.47.0) — Each team's current league place shows small and muted beside its name ("Arsenal 1st 2 @ 1 12th Everton") on the List rows, a club's List rows and the Slate cards, in every competition; hover it for the league.

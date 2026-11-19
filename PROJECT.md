@@ -89,6 +89,10 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   v0.47.0 FK-28 each team's domestic league place beside its name (`LeaguePos`, `src/data/position.ts`; owner: Slate + list rows, small muted "3rd").
   v0.46.0 FK-34 the Tags setting in plain words with descriptions (`TagVariantPicker`; values in `fk:tags:v1` unchanged:
   chips = All tags, rail = Window strip, alerts = Highlights only, off = Hide tags). FK-26: no bug (owner confirmed the count).
+- **Backlog FK-35 … FK-43 (2026-11-19)**: v0.48.0 FK-36 Slate strip 2 played + next 2 (`stripAround`). v0.49.0 FK-35 Slate cards
+  in calendarkit's shape (`src/slate/layout.ts`, 509 × 78, header `slateHeaderLabel`). v0.50.0 FK-38 home team first on cards.
+  v0.51.0 FK-40 game button (`GameLinks.tsx`, `config/injuryLinks.ts`). v0.52.0 FK-39 weather (Open-Meteo). v0.53.0 FK-42 Pts
+  first. v0.54.0 FK-43 table after round N (`src/data/matchdays.ts`, rounds worked out from the schedule). FK-37, FK-41 blocked.
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
