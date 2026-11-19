@@ -13,10 +13,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 **What:** full weather for each match at kick-off (temperature, feels-like, rain chance, wind) from Open-Meteo (free, no key, non-commercial; attribution "Weather data by Open-Meteo.com" required, CC BY 4.0), using the coordinates already in `config/venues.json`. Show it in the match's popup and a small icon on the Slate card, no extra card width. Only forecasts (Open-Meteo forecasts up to 16 days ahead); cache per venue per hour.
 **Tests:** unit for building the request and reading the answer (fixture); one live check for one venue.
 
-### FK-40 — Slate game button: links (player props, injuries)
-**What:** same as calendarkit CK-15: a game button on each Slate card opens a pop-up with links, never betting in the app: each club's injury/suspension page (Transfermarkt team page is the first candidate: verify it exists for every followed club, including the Brazilian ones; if not, report which and use a fallback with a test) and a link to that match on a betting site's props page if one can be built reliably (else the site's football section).
-**Tests:** unit: an injury URL for every followed club; e2e pop-up opens with the links.
-
 ### FK-41 — "Team to score" odds in a Slate popup (feasibility first)
 **What:** for each Slate team, the odds that it scores at least 1 goal, shown only in a popup (not always visible). Step 1, then stop and report: check whether a free odds source has this market for the followed leagues and what it costs per day (The Odds API's free plan is 500 credits a month and a call can cost several credits). Fetch at most once per day per slate and cache. If it doesn't fit for free, mark `Blocked:` with the numbers.
 **Tests:** unit for reading the market from a fixture; a counter test that one Slate costs at most one fetch per day.

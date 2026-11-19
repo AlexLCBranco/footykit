@@ -18,9 +18,10 @@ import { DerbyTag, TeamTags } from './Tags';
 import { useFooty } from './ctx';
 import { dayMatches } from './DayList';
 import { CopyButton } from './Copy';
+import { GameMenu } from './GameLinks';
 
 function SideRow({ m, side, day, odds }: { m: Match; side: 'a' | 'h'; day: string; odds?: number }) {
-  const { model } = useFooty();
+  const { model, gameMenu: menu } = useFooty();
   const id = side === 'h' ? m.h : m.a;
   const score = side === 'h' ? m.hs : m.as;
   const other = side === 'h' ? m.as : m.hs;
@@ -29,8 +30,9 @@ function SideRow({ m, side, day, odds }: { m: Match; side: 'a' | 'h'; day: strin
   const loss = isPlayed(m) && score !== undefined && other !== undefined && score < other;
   return (
     <div className={`fk-card-row${win ? ' fk-win' : ''}${loss ? ' fk-loss' : ''}`} data-side={side === 'h' ? 'home' : 'away'}>
-      {/* FK-38: the home team is the first line, so no "@": the order says it (a neutral venue has its N mark) */}
-      <span className="fk-card-at" />
+      {/* FK-38: the home team is the first line, so no "@": the order says it (a neutral venue has its N mark).
+          FK-40: the first line's empty cell holds the game button (no extra width). */}
+      <span className="fk-card-at">{side === 'h' && menu && <GameMenu m={m} />}</span>
       <TeamLink id={id} day={day} label="none" logoSize={28} className="fk-card-logo" />
       {/* FK-31: the score right after the name (and its league place, FK-28) */}
       <span className="fk-card-teamcell">

@@ -570,3 +570,26 @@ test('FK-38: a Slate card has the home team on the first line, the away team on 
   expect(new Set(sides)).toEqual(new Set(['home,away']));
   expect(errors).toEqual([]);
 });
+
+test('FK-40: the Slate game button opens a pop-up of links (injuries, odds and props), closes on leaving', async ({ page }) => {
+  const errors = await open(page, '?view=slate');
+  const card = page.locator('[data-testid="slate-card"][data-match-id="401879233"]'); // Man City v Fulham
+  const btn = card.getByTestId('game-menu');
+  await expect(btn).toHaveCount(1); // one per card, in the first row's "@" cell
+  await expect(card.locator('.fk-card-row').first().getByTestId('game-menu')).toHaveCount(1);
+  await btn.hover();
+  const pop = page.getByTestId('game-links-popup');
+  await expect(pop).toBeVisible();
+  await expect(pop.getByTestId('injury-link')).toHaveCount(2);
+  await expect(pop.getByTestId('injury-link').first()).toHaveAttribute('href', 'https://www.transfermarkt.com/-/sperrenundverletzungen/verein/281');
+  await expect(pop.getByTestId('injury-link').first()).toHaveAttribute('target', '_blank');
+  await expect(pop.getByTestId('props-link')).toHaveAttribute('href', 'https://sportsbook.fanduel.com/soccer');
+  // the pointer can travel into the pop-up; leaving both closes it
+  await pop.hover();
+  await expect(pop).toBeVisible();
+  await page.mouse.move(5, 5);
+  await expect(pop).toHaveCount(0);
+  // the card keeps calendarkit's size with the button in it
+  expect(await card.evaluate((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; })).toBe('509x78');
+  expect(errors).toEqual([]);
+});

@@ -2522,3 +2522,61 @@ a.fk-series-sq:hover {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+
+/* FK-40: the Slate card's game button (calendarkit's .ck-game-menu) in the first row's "@" cell, and its links pop-up */
+.fk-game-menu {
+  width: 13px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--fk-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+  cursor: pointer;
+}
+.fk-game-menu:hover,
+.fk-game-menu:focus-visible,
+.fk-game-menu[aria-expanded='true'] {
+  color: var(--fk-text);
+  background: var(--fk-surface);
+  outline: 1px solid var(--fk-link);
+}
+.fk-pop.fk-game-links-pop {
+  position: fixed;
+  z-index: 60;
+  padding: 8px 10px 10px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fk-game-links-title {
+  font-size: 12px;
+}
+.fk-game-links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.fk-game-link {
+  display: block;
+  padding: 3px 4px;
+  border-radius: 4px;
+  color: var(--fk-text);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fk-game-link:hover,
+.fk-game-link:focus-visible {
+  background: var(--fk-surface-2);
+  color: var(--fk-link);
+}

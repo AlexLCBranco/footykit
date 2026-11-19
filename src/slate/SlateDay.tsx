@@ -29,11 +29,13 @@ export interface SlateDayProps {
   /** fetch the day's live scores and 3-way odds (/football/api/day, CDN-cached; one request per minute only while a
    *  match is live or about to start); off: no request, the odds column stays empty */
   live?: boolean;
+  /** FK-40: each card's game button (injury pages, the betting site's football section); default off */
+  gameMenu?: boolean;
   /** the clock for tests; default Date.now() at render */
   now?: number;
 }
 
-export function SlateDay({ data, day, timeZone, notes, width = 1840, teamLink, live: liveOn = false, now }: SlateDayProps) {
+export function SlateDay({ data, day, timeZone, notes, width = 1840, teamLink, live: liveOn = false, now, gameMenu = false }: SlateDayProps) {
   const live = useLive(day, timeZone, liveOn);
   const [series, setSeries] = useState<SeriesOpen | null>(null);
   const closeSeries = useCallback(() => setSeries(null), []);
@@ -43,8 +45,9 @@ export function SlateDay({ data, day, timeZone, notes, width = 1840, teamLink, l
     timeZone,
     live: liveOn ? live : EMPTY_LIVE,
     teamHref: teamLink,
+    gameMenu,
     onSeries: (a, b, el, current) => { const r = el.getBoundingClientRect(); setSeries({ a, b, x: r.left, y: r.bottom, current }); },
-  }), [data, now, timeZone, live, liveOn, teamLink]);
+  }), [data, now, timeZone, live, liveOn, teamLink, gameMenu]);
   return (
     <Ctx.Provider value={ctx}>
       <div className="fk-root fk-slate-widget" style={{ width }} data-testid="slate-day">
