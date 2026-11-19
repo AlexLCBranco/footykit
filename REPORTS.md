@@ -2,6 +2,24 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-19 (night) — FK-49 … FK-56
+
+**Built** (each its own commit, pushed to main):
+- v0.62.0 FK-51 — No copy button inside Slate cards; the bar's day copy and the marquee copy stay.
+- v0.62.1 fix — A copy as image failed ("!") whenever it held a team with no crest file (e.g. a Copa del Rey opponent ESPN has no logo for): html-to-image dropped the whole copy on one missing picture. Missing pictures are now left blank.
+- v0.63.0 FK-52 — Slate scores in one column on every card: the name and league place sit in a box of one width (long names end in "…", full name on hover), the score in its own column; same in the copy.
+- v0.64.0 FK-53 — Strip squares 21 px (were 17), crests 15 px (were 12). The card is 20 px wider for it.
+- v0.65.0 FK-49 — calendarkit's side arrows beside the Team Calendar and the League view's Calendar: a month back / forward (in a week view: the same weekday a month away), greyed out at the first / last month with data, never in a copy.
+- v0.66.0 FK-50 — Result streak W3 / D2 / L1 (all competitions; a shootout counts as a draw) on Slate cards after the name, on List rows outside each team's form squares, and on a club's List rows; hover for the games (date, vs / @, crest, result, "(pens)", Google link). Followed clubs only (the snapshot has every match of theirs, not of their opponents). The window tag is now "Windows in a row" so "streak" means one thing.
+- v0.67.0 FK-54 — On every cup page the bracket is zoomed to fill the first screen (checked at 1920×1080 and 1366×768); the groups start right under it. Not in the League view, where the bracket sits below the games.
+- v0.68.0 FK-55 — A cup page's title (and the Champions League page's) is the competition dropdown, in the bar picker's style at the old title's size.
+
+**Note on card width:** FK-53 (+20 px) and FK-50 (+32 px, calendarkit's streak track) take Slate cards from calendarkit's 509 to 561 px, so a combined gauntlet Slate no longer has equal card widths (docs/slate-in-gauntlet.md updated).
+
+**Blocked:** FK-56 — UEFA draws which of 9th/10th meets which of 23rd/24th, and which R16 seed gets which play-off winner; the Blocked note in FEATURE_BACKLOG.md asks you to pick a rule (fixed pairing, a swap per section, or FK-30's unpaired style). FK-41 unchanged (needs a free The Odds API key).
+**Ideas added:** none.
+**For you to check by hand** (judging feel, can't be automated): the 561 px Slate cards and the streak's colours at your whiteboard size; the zoomed cup bracket's look.
+
 ## 2026-11-19 (evening) — FK-44 … FK-48
 
 **Built** (each its own commit, pushed to main):
