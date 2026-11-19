@@ -8,6 +8,7 @@ import { useMemo } from 'react';
 import { Ctx, type FootyCtx } from '../components/ctx';
 import { useSeriesPopup } from '../components/Popups';
 import { Slate } from '../components/Slate';
+import { useStreakPopup } from '../components/Streak';
 import { useLive } from '../components/useLive';
 import { EMPTY_LIVE } from '../data/live';
 import type { Model } from '../data/model';
@@ -41,6 +42,7 @@ export interface SlateDayProps {
 export function SlateDay({ data, day, timeZone, notes, width = 1840, teamLink, live: liveOn = false, now, gameMenu = false, weather = false }: SlateDayProps) {
   const live = useLive(day, timeZone, liveOn);
   const series = useSeriesPopup();
+  const streak = useStreakPopup();
   const ctx: FootyCtx = useMemo(() => ({
     model: data,
     now: now ?? Date.now(),
@@ -54,9 +56,10 @@ export function SlateDay({ data, day, timeZone, notes, width = 1840, teamLink, l
   }), [data, now, timeZone, live, liveOn, teamLink, gameMenu, weather, series.onSeries, series.onSeriesLeave]);
   return (
     <Ctx.Provider value={ctx}>
-      <div className="fk-root fk-slate-widget" style={{ width }} data-testid="slate-day">
+      <div className="fk-root fk-slate-widget" style={{ width }} data-testid="slate-day" onMouseOver={streak.onOver} onFocus={streak.onOver} onMouseLeave={streak.onLeave}>
         <Slate day={day} notes={notes ?? NO_NOTES} showNotes={!!notes} />
         {series.node}
+        {streak.node}
       </div>
     </Ctx.Provider>
   );

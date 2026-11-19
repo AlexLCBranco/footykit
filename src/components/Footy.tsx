@@ -15,6 +15,7 @@ import { DEFAULT_CUP, DEFAULT_LEAGUE, windowClickPage, leagueViewPage, leagueWha
 import { StandingsPopup, useSeriesPopup } from './Popups';
 import { Slate } from './Slate';
 import { SideArrows } from './SideArrows';
+import { useStreakPopup } from './Streak';
 import { createSelectionStore, useMarqueeSelection } from './selection';
 import { SelectionBar, SelectionStyle } from './SelectionBar';
 import { TeamCalendar } from './TeamCalendar';
@@ -89,6 +90,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const dayView = page.view === 'day' || page.view === 'slate';
   const live = useLive(page.day, timeZone, liveOn && dayView);
   const series = useSeriesPopup();
+  const streak = useStreakPopup();
   const [standings, setStandings] = useState<{ team?: string } | null>(null);
   const [showNotes, setShowNotes] = useState(false);
   // Team List rest rows: on at every load, unchecking lasts until a reload (calendarkit's rule; not in the address)
@@ -137,7 +139,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
 
   return (
     <Ctx.Provider value={ctx}>
-      <div className="fk-root" style={{ width }} data-testid="footy">
+      <div className="fk-root" style={{ width }} data-testid="footy" onMouseOver={streak.onOver} onFocus={streak.onOver} onMouseLeave={streak.onLeave}>
         <TopBar page={page} today={today} history={history} onPage={onPage} onStep={(d) => onPage(stepPage(page, d, model))}
           onStandings={() => setStandings(standings ? null : { team: page.team })}
           info={<Info model={model} timeZone={timeZone} calendarKey={page.view === 'cal' && !!page.team} />}
@@ -158,6 +160,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
         <SelectionStyle store={selection} />
         <SelectionBar store={selection} target={captureTarget} />
         {series.node}
+        {streak.node}
         {standings && <StandingsPopup team={standings.team} onClose={() => setStandings(null)} />}
       </div>
     </Ctx.Provider>

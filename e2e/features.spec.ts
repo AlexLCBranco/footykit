@@ -558,7 +558,7 @@ test('FK-47: the Slate strip shows 5 window slots per team, the middle one (this
   expect([...byResult.get('W')!][0]).not.toBe([...byResult.get('L')!][0]);
   // the card keeps calendarkit's size
   const sizes = await page.getByTestId('slate-card').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
-  expect(new Set(sizes)).toEqual(new Set(['529x78']));
+  expect(new Set(sizes)).toEqual(new Set(['561x78']));
   expect(errors).toEqual([]);
 });
 
@@ -568,7 +568,7 @@ test('FK-35: Slate cards are calendarkit\'s size, in a tight grid, under "SLATE 
   // calendarkit's info-only card, measured on its live Slate (src/slate/layout.ts there): 509 × 78; ours 20 px wider since FK-53
   const sizes = await page.getByTestId('slate-card').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
   expect(sizes.length).toBeGreaterThan(3);
-  expect(new Set(sizes)).toEqual(new Set(['529x78']));
+  expect(new Set(sizes)).toEqual(new Set(['561x78']));
   // nothing spills out of a row; neighbours share their 1 px border
   const spill = await page.locator('.fk-card-row').evaluateAll((els) => els.filter((r) => r.scrollWidth > r.clientWidth).length);
   expect(spill).toBe(0);
@@ -616,7 +616,7 @@ test('FK-40: the Slate game button opens a pop-up of links (injuries, odds and p
   await page.mouse.move(5, 5);
   await expect(pop).toHaveCount(0);
   // the card keeps calendarkit's size with the button in it
-  expect(await card.evaluate((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; })).toBe('529x78');
+  expect(await card.evaluate((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; })).toBe('561x78');
   expect(errors).toEqual([]);
 });
 
@@ -637,7 +637,7 @@ test('FK-39: the weather at kick-off — a sign on the Slate card, the forecast 
   await expect(lines).toContainText(/feels .+ · rain \d+% · wind \d+ km\/h/);
   await expect(lines.getByRole('link', { name: 'Weather data by Open-Meteo.com' })).toHaveAttribute('href', 'https://open-meteo.com/');
   // no extra width
-  expect(await card.evaluate((e) => e.getBoundingClientRect().width)).toBe(529);
+  expect(await card.evaluate((e) => e.getBoundingClientRect().width)).toBe(561);
   expect(errors).toEqual([]);
 });
 
@@ -822,7 +822,7 @@ test('FK-48: ◀ ▶ on the Slate strip move it one window earlier / later; a cl
   // the other team's strip didn't move; the card keeps calendarkit's size
   expect(await card.locator('.fk-card-row').nth(1).getByTestId('strip-slot').nth(2).getAttribute('data-window')).toBe('2026-11-20');
   const box = (await card.boundingBox())!;
-  expect([box.width, box.height]).toEqual([529, 78]);
+  expect([box.width, box.height]).toEqual([561, 78]);
   expect(errors).toEqual([]);
 });
 
@@ -849,7 +849,7 @@ test('FK-48 fix: the strip arrows show only on hover (moved or not) and sit besi
   await expect.poll(opacity).toEqual(['0', '0']);
   // the cards keep calendarkit's size, nothing spills out of a row
   const sizes = await cards.evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
-  expect(new Set(sizes)).toEqual(new Set(['529x78']));
+  expect(new Set(sizes)).toEqual(new Set(['561x78']));
   expect(await page.locator('.fk-card-row').evaluateAll((els) => els.filter((r) => r.scrollWidth > r.clientWidth).length)).toBe(0);
   expect(errors).toEqual([]);
 });
@@ -980,9 +980,9 @@ test('FK-53: bigger last-games squares (21 px, crest scaled), lined up across ca
     expect(r.slots).toEqual(withStrip[0]!.slots);
   }
   expect(rows.some((r) => r.spill)).toBe(false);
-  // the card widened only by the squares' growth: 509 + 5 × 4
+  // the card widened by the squares' growth (509 + 5 × 4) and FK-50's streak track (+32)
   const box = (await cards.first().boundingBox())!;
-  expect([box.width, box.height]).toEqual([529, 78]);
+  expect([box.width, box.height]).toEqual([561, 78]);
   expect(errors).toEqual([]);
 });
 
@@ -1026,5 +1026,48 @@ test('FK-49: month arrows beside the calendar: a month each, as the bar\'s arrow
   expect(await week()).toBe('2026-12-21');
   await page.getByTestId('side-prev').click();
   expect(await week()).toBe('2026-11-16');
+  expect(errors).toEqual([]);
+});
+
+test('FK-50: result streak chip (W / D / L) and its popup on a Slate card and a List row; the window tag says "in a row"', async ({ page }) => {
+  const errors = await open(page, '?view=slate');
+  const card = page.locator('[data-testid="slate-card"][data-match-id="401879233"]'); // Man City v Fulham, to come
+  const chip = card.locator('.fk-card-row').first().getByTestId('streak');
+  await expect(chip).toHaveText(/^[WDL]\d+$/);
+  // right after the name cell, as calendarkit's Slate
+  const [cell, c] = [(await card.locator('.fk-card-teamcell').first().boundingBox())!, (await chip.boundingBox())!];
+  expect(c.x).toBeGreaterThanOrEqual(cell.x + cell.width - 1);
+  const text = (await chip.textContent())!;
+  await chip.hover();
+  const pop = page.getByTestId('streak-popup');
+  await expect(pop).toBeVisible();
+  await expect(pop.getByTestId('streak-row')).toHaveCount(Number(text.slice(1)));
+  const first = pop.getByTestId('streak-row').first();
+  expect(await first.getAttribute('href')).toMatch(/^https:\/\/www\.google\.com\/search\?q=/);
+  expect(await first.locator('.fk-streak-res').textContent()).toMatch(/^[WDL] \d+–\d+$/);
+  expect((await first.locator('.fk-streak-res').textContent())![0]).toBe(text[0]);
+  // it stays while the pointer is in it, closes once it leaves
+  await first.hover();
+  await expect(pop).toBeVisible();
+  await page.mouse.move(2, 400);
+  await expect(pop).toHaveCount(0);
+  // a Day List row: each followed team's chip outside its form squares
+  await page.goto('/football/');
+  const row = page.getByTestId('match-row').first();
+  const chips = row.getByTestId('streak');
+  await expect(chips.first()).toHaveText(/^[WDL]\d+$/);
+  await chips.first().hover();
+  await expect(page.getByTestId('streak-popup')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('streak-popup')).toHaveCount(0);
+  // a played day's row shows the streak through that match
+  await page.getByLabel('Pick a date').fill('2026-11-08');
+  await expect(page.getByTestId('match-row').first().getByTestId('streak').first()).toHaveText(/^[WDL]\d+$/);
+  // a club's List rows have it too
+  await page.goto('/football/?view=list&team=382');
+  await expect(page.getByTestId('team-row').first().getByTestId('streak')).toHaveText(/^[WDL]\d+$/);
+  // the window tag's menu entry no longer says "Streak"
+  await page.goto('/football/');
+  await expect(page.getByText('Streak (5th)')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

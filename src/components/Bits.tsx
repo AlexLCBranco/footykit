@@ -16,6 +16,7 @@ import { compLabel } from '../data/compLabel';
 import { isLeagueViewComp } from './page';
 import { useFooty } from './ctx';
 import { DerbyTag, TeamTags } from './Tags';
+import { StreakChip } from './Streak';
 
 /** A team's logo on a light disc (dark logos stay readable on the dark theme); a plain disc when there is no file. */
 export function TeamLogo({ id, size = 20 }: { id: string; size?: number }) {
@@ -248,6 +249,7 @@ export function Scoreline({ m, day, label = 'abbr', form = true, logoSize = 20, 
     <span className={`fk-line${neutral ? ' fk-neutral' : ''}${m.st === 'in' ? ' fk-line-live' : ''}`} data-match={m.id}>
       <span className="fk-side fk-away">
         {tags && <TeamTags m={m} side="a" align="end" />}
+        {form && <StreakChip teamId={m.a} m={m} />}
         {fa && <FormSquares line={fa} teamId={m.a} />}
         <TeamLink id={m.a} day={day} label={label} logoSize={logoSize} />
         <LeaguePos id={m.a} />
@@ -261,6 +263,7 @@ export function Scoreline({ m, day, label = 'abbr', form = true, logoSize = 20, 
         <LeaguePos id={m.h} />
         <TeamLink id={m.h} day={day} label={label} logo="after" logoSize={logoSize} />
         {fh && <FormSquares line={fh} teamId={m.h} />}
+        {form && <StreakChip teamId={m.h} m={m} />}
         {tags && <TeamTags m={m} side="h" />}
       </span>
       {tie && <span className="fk-tie" title={tie}>{tie}</span>}

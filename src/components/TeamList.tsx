@@ -14,6 +14,7 @@ import { useFooty } from './ctx';
 import { WindowLegend } from './TeamCalendar';
 import { RunLabel } from './Runs';
 import { fmtMonthSpan, TeamHeader } from './TeamHeader';
+import { StreakChip } from './Streak';
 
 /** Day lines grouped by fixture window (midweek Tue–Thu, weekend Fri–Mon), in order: one band per window, by date
  * (a window's rest lines are in its band too). */
@@ -108,7 +109,7 @@ export function TeamList({ team, from, to, today, onEarlier, showRest = false, s
                     <RunLabel m={m} team={team} />
                     {r && <span className={`fk-res fk-res-${r}`}>{r}</span>}
                     <span className="fk-muted fk-tl-rec" title="League record W-D-L (after a played match, going into one to come)">{recordText(f.record)}</span>
-                    {f.streak && <span className="fk-muted" title="Streak, all competitions">{f.streak}</span>}
+                    <StreakChip teamId={team} m={m} />
                     <SeriesChip m={m} />
                     <MatchLink m={m} />
                   </span>

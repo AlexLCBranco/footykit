@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-19
+- FK-50 — Result streak (W / D / L) like calendarkit (v0.66.0) — Each followed club's current run of wins, draws or defeats ("W3", "D2", "L1", all competitions, a shootout counts as a draw) shows after the name on Slate cards (cards 32 px wider), beside the form squares on List rows and on a club's List rows; hover it for the games with scores, "(pens)" and Google links. The window tag is now "Windows in a row".
 - FK-49 — Month arrows beside the calendar (like calendarkit) (v0.65.0) — Large ‹ › chevrons in the margin left and right of the Team Calendar and the League view's Calendar move a month back / forward ("Back a month" / "Forward a month"), greyed out at the first / last month with data, never in copies; the bar's arrows stay.
 - FK-53 — Bigger last-games squares on Slate cards (v0.64.0) — The strip squares are 21 px (were 17) with crests 15 px (were 12), still lined up across cards; the card is 20 px wider (529) to fit them.
 - FK-52 — Slate scores always aligned (v0.63.0) — On the Slate every card's scores sit in one column whatever the team name or league place; a long name ends in "…" with the full name on hover, on screen and in copies.

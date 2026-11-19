@@ -4,10 +4,12 @@
 // up to calendarkit's 417 px. All CSS px; the CSS reads them as variables (slateVars), so this is the one source.
 //
 // calendarkit:  "@" 13 · logo 28 · name + score 149 · record 39 · streak 28 · fatigue 102 · odds 34   (7 tracks)
-// footykit:     "@" 13 · logo 28 · name + place + score 149 · tags 33 · last / next games 160 · odds 34   (6 tracks)
+// footykit:     "@" 13 · logo 28 · name + place + score 149 · streak 28 · tags 33 · last / next games 160 · odds 34   (7 tracks)
 // The strip (FK-47 / FK-48): ◀ 7 + 1 + 5 window slots × ("vs"/"@" 7 + square 21) + 4 × 1 apart + 1 + ▶ 7 = 160.
 // FK-53 (owner): the squares grew 17 → 21 px so the crests read, and the card is 20 px wider than calendarkit's for
 // it (529, was 509); nothing else in the row had 20 px to give without cutting the names more.
+// FK-50: the result streak (W3 / D2 / L1) in calendarkit's streak track (28 px) right after the name, +32 px with its gap
+// (561 in all); calendarkit's record track (39) has no football twin on the card (the league place is in the name cell).
 // The tags (All tags would not fit): the highlights only on the card, every tag in the hover popup.
 
 /** calendarkit's strip (tip-off time, then the chips wrapping in two lines) and the gap after it. */
@@ -15,18 +17,20 @@ export const SLATE_STRIP = 68;
 export const SLATE_STRIP_GAP = 6;
 export const SLATE_ROW_GAP = 4;
 export const SLATE_ROW_HEIGHT = 28;
-export const SLATE_ROW_TRACKS = { at: 13, logo: 28, name: 149, tags: 33, games: 160, odds: 34 } as const;
-/** calendarkit's team-row total (its tracks and gaps); ours is it plus the FK-53 widening. */
+export const SLATE_ROW_TRACKS = { at: 13, logo: 28, name: 149, streak: 28, tags: 33, games: 160, odds: 34 } as const;
+/** calendarkit's team-row total (its tracks and gaps); ours is it plus the FK-53 and FK-50 widenings. */
 export const CK_ROW_TOTAL = 13 + 28 + 149 + 39 + 28 + 102 + 34 + 6 * SLATE_ROW_GAP;
 /** FK-53: the bigger strip squares, 5 × 4 px. */
 export const SLATE_FK53_WIDER = 20;
+/** FK-50: the streak track and its gap. */
+export const SLATE_FK50_WIDER = 28 + SLATE_ROW_GAP;
 const trackSum = (t: Record<string, number>) => Object.values(t).reduce((a, b) => a + b, 0) + (Object.keys(t).length - 1) * SLATE_ROW_GAP;
 export const SLATE_ROW_TOTAL = trackSum(SLATE_ROW_TRACKS);
-/** The info block: strip, its gap, the team rows (calendarkit: 491; ours 511 since FK-53). */
+/** The info block: strip, its gap, the team rows (calendarkit: 491; ours 543 since FK-53 / FK-50). */
 export const SLATE_INFO_WIDTH = SLATE_STRIP + SLATE_STRIP_GAP + SLATE_ROW_TOTAL;
 export const SLATE_CARD_PAD = 8;
 export const SLATE_CARD_BORDER = 1;
-/** An info-only card (notes hidden): 529 × 78 (calendarkit's 509 × 78 plus FK-53's 20 px). */
+/** An info-only card (notes hidden): 561 × 78 (calendarkit's 509 × 78 plus FK-53's 20 px and FK-50's 32). */
 export const SLATE_CARD_WIDTH = SLATE_INFO_WIDTH + 2 * (SLATE_CARD_PAD + SLATE_CARD_BORDER);
 export const SLATE_INFO_HEIGHT = 2 * SLATE_ROW_HEIGHT + SLATE_ROW_GAP;
 export const SLATE_CARD_HEIGHT = SLATE_INFO_HEIGHT + 2 * (SLATE_CARD_PAD + SLATE_CARD_BORDER);

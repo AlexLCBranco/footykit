@@ -19,6 +19,7 @@ import { DerbyTag, TeamTags } from './Tags';
 import { useFooty } from './ctx';
 import { dayMatches } from './DayList';
 import { GameMenu } from './GameLinks';
+import { StreakChip } from './Streak';
 import { useMatchWeather } from '../slate/weather';
 import { matchVenue, WEATHER_ATTRIBUTION, WEATHER_ATTRIBUTION_URL, weatherIcon, weatherLine, type Weather } from '../data/weather';
 
@@ -65,6 +66,8 @@ function SideRow({ m, side, day, odds, wx }: { m: Match; side: 'a' | 'h'; day: s
         </span>
         {shown && <span className="fk-card-score" data-testid="card-score">{score}</span>}
       </span>
+      {/* FK-50: the result streak, where calendarkit's Slate has it (after the name and score) */}
+      <StreakChip teamId={id} m={m} className="fk-card-streak" />
       <span className="fk-card-tags"><TeamTags m={m} side={side} compact /></span>
       {model.followed.has(id) ? <FormGames m={m} teamId={id} /> : <span className="fk-form-gap" />}
       <span className="fk-card-odds" data-testid="card-odds" title={odds ? `${model.team(id).name} to win (decimal)` : undefined}>{odds?.toFixed(2) ?? ''}</span>

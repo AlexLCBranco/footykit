@@ -19,7 +19,7 @@ export type TagVariant = 'chips' | 'rail' | 'alerts' | 'off';
 export const TAG_VARIANTS: [TagVariant, string, string][] = [
   ['chips', 'All tags', 'Every tag as a chip next to each team'],
   ['rail', 'Window strip', 'A three-cell strip per team: previous / this / next window, with short marks'],
-  ['alerts', 'Highlights only', 'Only what stands out: a streak, rest, a cup match next, 3+ competitions, Z4R'],
+  ['alerts', 'Highlights only', 'Only what stands out: windows in a row, rest, a cup match next, 3+ competitions, Z4R'],
   ['off', 'Hide tags', 'No tags next to the teams'],
 ];
 
@@ -68,7 +68,7 @@ export type TagKey = 'prev' | 'streak' | 'rest' | 'alive' | 'z4' | 'next' | 'der
 export const TAG_TYPES: { key: TagKey; label: string; about: string }[] = [
   { key: 'prev', label: '◂ Previous window', about: 'what the team played in the window before (free, league, cup / continental)' },
   { key: 'next', label: 'Next window ▸', about: 'what it plays in the window after; a second leg shows the first-leg score' },
-  { key: 'streak', label: 'Streak (5th)', about: 'straight windows with a match, from 3' },
+  { key: 'streak', label: 'Windows in a row (5th)', about: 'straight windows with a match, from 3 (not the result streak W3 / D2 / L1)' },
   { key: 'rest', label: 'REST', about: 'had the previous window free while the opponent played' },
   { key: 'alive', label: '1C / 2C / 3C', about: 'competitions the team is still alive in' },
   { key: 'z4', label: 'Z4R', about: 'in the relegation race (in the zone or close to its line)' },
@@ -132,7 +132,7 @@ function tokens(model: Model, s: SideTags): Token[] {
   return out;
 }
 
-/** Alerts keep only what stands out: a streak, rest, a cup match next window, 3+ competitions, Z4R. */
+/** Alerts keep only what stands out: windows in a row, rest, a cup match next window, 3+ competitions, Z4R. */
 const ALERT = (t: Token) => t.key === 'streak' || t.key === 'rest' || t.key === 'z4' || (t.key === 'next' && t.cls === 'fk-tag-cup') || (t.key === 'alive' && /fk-tag-alive-3/.test(t.cls));
 
 function Rail({ s, hidden }: { s: SideTags; hidden: ReadonlySet<TagKey> }) {
@@ -171,7 +171,7 @@ function Popup({ model, m, s, opp, at }: { model: Model; m: Match; s: SideTags; 
       <strong>{t.name}</strong>
       {line(`Previous window · ${windowName(s.prev)}`, slotLines(model, s.prev, s.team))}
       {line(`Next window · ${windowName(s.next)}`, slotLines(model, s.next, s.team))}
-      {line('Window streak', s.streak === undefined ? 'unknown (not a followed club)' : `${ordinal(s.streak)} straight window${s.streak >= 2 ? ` (${s.streak} windows in a row with a match)` : ''}`)}
+      {line('Windows in a row', s.streak === undefined ? 'unknown (not a followed club)' : `${ordinal(s.streak)} straight window${s.streak >= 2 ? ` (${s.streak} windows in a row with a match)` : ''}`)}
       {line('Window advantage', s.rested ? `rested: had the previous window free, ${model.team(opp.team).name} played` : opp.rested ? `${model.team(opp.team).name} had the previous window free; this team played` : 'none')}
       {line('Competitions alive', s.alive === undefined ? 'unknown (not a followed club)' : (
         <>

@@ -2850,3 +2850,70 @@ a.fk-series-sq:hover {
   opacity: 0.2;
   cursor: default;
 }
+
+/* FK-50: calendarkit's streak (StreakChip, season.css / slate.css): coloured text, no box; W green, D grey, L red */
+.fk-streak {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: default;
+}
+.fk-streak-w {
+  color: var(--fk-win);
+}
+.fk-streak-d {
+  color: var(--fk-muted);
+}
+.fk-streak-l {
+  color: var(--fk-loss);
+}
+.fk-streak:focus-visible {
+  outline: 1px solid var(--fk-link);
+  outline-offset: 1px;
+}
+/* list rows: each team's outside its form squares, in a fixed slot so they line up down the list */
+.fk-line .fk-streak {
+  display: inline-block;
+  width: 2.3em; /* "W10" */
+  font-size: 11px;
+  text-align: right;
+}
+.fk-line .fk-home .fk-streak {
+  text-align: left;
+}
+.fk-streak-pop {
+  position: fixed;
+  z-index: 60;
+  max-width: calc(100vw - 16px);
+}
+.fk-streak-rows {
+  display: grid;
+  grid-template-columns: auto auto 18px auto auto auto;
+  gap: 4px 6px;
+  align-items: center;
+}
+.fk-streak-row {
+  display: contents;
+  color: inherit;
+  text-decoration: none;
+}
+.fk-streak-row:hover > * {
+  color: var(--fk-link);
+}
+.fk-streak-date {
+  color: var(--fk-muted);
+  min-width: 52px;
+}
+.fk-streak-at {
+  color: var(--fk-muted);
+  font-size: 10px;
+  text-align: right;
+}
+.fk-streak-opp {
+  font-weight: 700;
+}
+.fk-streak-res {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

@@ -23,7 +23,7 @@ export interface FormLine {
 const cache = new WeakMap<Model, Map<string, FormLine>>();
 
 /** The played matches that count at `m` for `teamId`: up to and including `m` if it is played, else before it. */
-function playedUpTo(model: Model, teamId: string, m: Match): Match[] {
+export function playedUpTo(model: Model, teamId: string, m: Match): Match[] {
   const all = model.byTeam.get(teamId) ?? [];
   const i = all.findIndex((x) => x.id === m.id);
   const upTo = i < 0 ? all.filter((x) => x.t <= m.t) : all.slice(0, isPlayed(m) ? i + 1 : i);
