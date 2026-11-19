@@ -2,6 +2,13 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-19 (late) — FK-56
+
+**Built:** v0.69.0 FK-56 — your answer: a swap per section. In the UCL simulator, "Start knockouts from current standings" fills the play-offs (9th–24th) and the round of 16 from the real table as it stands (results left ignored), shown beside the table. A click on a side sends it through, again clears; it runs on to the quarter-finals (A v D and B v C in each half), semis and final. Each section has three swap buttons for what UEFA draws: ⇄ ties (9 v 24 / 10 v 23 ↔ 9 v 23 / 10 v 24), ⇄ R16 (which seed each play-off winner meets; default the 9/24 winner v 8th), ⇅ halves (each R16 tie labelled top / bottom). A pick a swap moves out of its tie drops. Undo, reload and saved scenarios keep it; "Knockout places" goes back to the old view.
+**Blocked:** FK-41 (unchanged: needs a free The Odds API key).
+**Ideas added:** none.
+**For you to check by hand:** whether the bracket column reads well beside the table while you run simulations.
+
 ## 2026-11-19 (night) — FK-49 … FK-56
 
 **Built** (each its own commit, pushed to main):

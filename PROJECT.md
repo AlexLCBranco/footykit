@@ -102,7 +102,7 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   crests). v0.63.0 FK-52 Slate name box of one width, score column. v0.64.0 FK-53 strip squares 21 px. v0.65.0 FK-49 side month
   arrows (`SideArrows.tsx`, `monthStep` in page.ts). v0.66.0 FK-50 result streak (`src/data/streak.ts`, `Streak.tsx`; Slate card
   561 × 78 since FK-53 / FK-50). v0.67.0 FK-54 cup bracket zoomed to the first screen (`useFitBracket`). v0.68.0 FK-55 title picker.
-  FK-56 blocked (the play-off draw).
+  v0.69.0 FK-56 UCL simulator knockouts (`src/data/uclKoSim.ts`, `UclKoSim.tsx`, `Sim.ko`; draws swapped per section).
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
