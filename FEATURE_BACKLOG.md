@@ -19,10 +19,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 Keep it clearly separate from the existing window streak tag (consecutive windows with a match): rename that tag's tooltip if needed so "streak" never means two things.
 **Tests:** unit: W/D/L sequences, a draw breaking a win streak, penalties counted as D, played vs next match; e2e: chip and popup on a Slate card and a List row.
 
-### FK-52 — Slate scores always aligned
-**What:** on Slate cards the two scores must sit in the same column on every card of the day, whatever the team name length, league position or crest: give names a fixed width (truncate with ellipsis + full name on hover) so scores line up vertically across cards, in the app and in the copied image.
-**Tests:** e2e: on a Slate day with long and short names, every card's score elements share the same x position (±1 px), on screen and in the capture.
-
 ### FK-53 — Bigger last-games squares on Slate cards
 **What:** the last-games squares with the opponent's crest (FK-32) are too small to read the teams. Make them slightly bigger (about 20–25% larger, crest scaled with them), keep them aligned across cards, and widen the card only as much as needed. Must still respect FK-52 alignment.
 **Tests:** e2e: square size ≥ the new minimum; squares still line up across cards; card doesn't overflow.

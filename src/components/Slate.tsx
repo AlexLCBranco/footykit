@@ -56,10 +56,13 @@ function SideRow({ m, side, day, odds, wx }: { m: Match; side: 'a' | 'h'; day: s
           FK-40: the first line's empty cell holds the game button (no extra width); FK-39: the second line's, the weather. */}
       <span className="fk-card-at">{side === 'h' ? menu && <GameMenu m={m} extra={wx && <WeatherLines m={m} w={wx} />} /> : wx && <WeatherMark w={wx} />}</span>
       <TeamLink id={id} day={day} label="none" logoSize={28} className="fk-card-logo" />
-      {/* FK-31: the score right after the name (and its league place, FK-28) */}
+      {/* FK-31: the score right after the name (and its league place, FK-28). FK-52: the name and place in a box of one
+          width (a long name ends in "…", the full name on hover), so every card's score sits in the same column */}
       <span className="fk-card-teamcell">
-        <TeamLink id={id} day={day} label="short" logo="none" className="fk-card-team" />
-        <LeaguePos id={id} />
+        <span className="fk-card-namebox">
+          <TeamLink id={id} day={day} label="short" logo="none" className="fk-card-team" />
+          <LeaguePos id={id} />
+        </span>
         {shown && <span className="fk-card-score" data-testid="card-score">{score}</span>}
       </span>
       <span className="fk-card-tags"><TeamTags m={m} side={side} compact /></span>

@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-19
+- FK-52 — Slate scores always aligned (v0.63.0) — On the Slate every card's scores sit in one column whatever the team name or league place; a long name ends in "…" with the full name on hover, on screen and in copies.
 - Copy as image no longer fails when a team has no crest (fix) (v0.62.1) — A copy that included a team without a crest file (some cup opponents) showed "!" and copied nothing; the crest is now left blank and the copy works.
 - FK-51 — No copy button inside Slate cards (v0.62.0) — Slate cards no longer have their own small copy button; copy the whole day from the bar or drag a box over cards to copy just those.
 - Slate strip: click a window to see it on the club's calendar; arrows lined up (v0.61.0) — Clicking a window slot on a Slate strip opens that club's calendar on the window's month with the window's days highlighted in pink (today stays blue); the strip's ◀ ▶ are now drawn triangles centred on the slots, a square's height.

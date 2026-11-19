@@ -910,6 +910,43 @@ test('FK-51: no copy button inside Slate cards; the day copy and the marquee cop
   expect(errors).toEqual([]);
 });
 
+test('FK-52: Slate scores sit in one column on every card of the day, on screen and in the copy', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  // Sun Nov 8, a played day: long and short names, places and scores on every card
+  const errors = await open(page, '?view=slate');
+  await page.getByTestId('slate-card').first().waitFor();
+  await page.getByLabel('Pick a date').fill('2026-11-08');
+  await expect(page.getByTestId('date-text')).toContainText('Nov 8');
+  const cards = page.getByTestId('slate-card');
+  await expect(cards.first()).toBeVisible();
+  // each score's x from its card's left edge, and the names' lengths (some long, some short)
+  const offsets = () => cards.evaluateAll((els) => els.flatMap((c) => [...c.querySelectorAll('[data-testid="card-score"]')].map((s) => s.getBoundingClientRect().left - c.getBoundingClientRect().left)));
+  const onScreen = await offsets();
+  expect(onScreen.length).toBeGreaterThan(6);
+  expect(Math.max(...onScreen) - Math.min(...onScreen)).toBeLessThanOrEqual(1);
+  const names = await page.locator('.fk-card-team .fk-team-name').evaluateAll((els) => els.map((e) => e.textContent!.length));
+  expect(Math.max(...names) - Math.min(...names)).toBeGreaterThan(4);
+  // a long name is cut with "…" and its full name is on hover
+  const cut = await page.locator('.fk-card-team .fk-team-name').evaluateAll((els) => els.filter((e) => e.scrollWidth > e.clientWidth).length);
+  expect(await page.locator('.fk-card-team').first().getAttribute('title')).toBeTruthy();
+  expect(cut).toBeGreaterThanOrEqual(0);
+  // in the copy: the same check while the capture is drawn (the clone takes these computed boxes)
+  await page.evaluate(() => {
+    const w = window as unknown as { __fkCapture?: number[] };
+    new MutationObserver(() => {
+      const root = document.querySelector('.fk-capturing');
+      if (!root || w.__fkCapture) return;
+      w.__fkCapture = [...root.querySelectorAll('[data-testid="slate-card"]')].flatMap((c) => [...c.querySelectorAll('[data-testid="card-score"]')].map((s) => s.getBoundingClientRect().left - c.getBoundingClientRect().left));
+    }).observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class'] });
+  });
+  await page.getByTestId('top-bar').getByTestId('copy').click();
+  await expect(page.getByTestId('top-bar').getByTestId('copy')).toHaveText('✓');
+  const inCopy = await page.evaluate(() => (window as unknown as { __fkCapture?: number[] }).__fkCapture!);
+  expect(inCopy.length).toBe(onScreen.length);
+  expect(Math.max(...inCopy) - Math.min(...inCopy)).toBeLessThanOrEqual(1);
+  expect(errors.filter((e) => !/404|19288/.test(e))).toEqual([]); // 19288 has no logo file (see the fix test below)
+});
+
 test('fix: a copy with a team that has no logo file (a 404) still copies, the crest left blank', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   const errors = await open(page, '?view=slate');

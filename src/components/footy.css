@@ -846,12 +846,23 @@ button.fk-chip:hover {
 .fk-card-logo {
   justify-self: center;
 }
-/* the name (the part that gives way), its league place and the score right after it */
+/* FK-52: the name and its league place in a box of one width (the name gives way: "…"), then the score in a column
+   of its own, so the scores of every card in the day sit at the same x whatever the name or place */
 .fk-card-teamcell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22px;
+  align-items: baseline;
+  column-gap: 4px;
+  min-width: 0;
+}
+.fk-card-namebox {
   display: flex;
   align-items: baseline;
   gap: 4px;
   min-width: 0;
+}
+.fk-card-teamcell .fk-card-score {
+  grid-column: 2;
 }
 .fk-card-team {
   flex: 0 1 auto;
