@@ -649,3 +649,34 @@ test('FK-42: league tables have Pts as the first column after Team, bold, values
   expect(wi.slice(0, 5)).toEqual(['#', '', 'Team', 'Pts', 'P']);
   expect(errors).toEqual([]);
 });
+
+test('FK-43: ◀ ▶ step a league table back through the rounds and return to the latest', async ({ page }) => {
+  const errors = await open(page, '?view=table&league=eng.1');
+  const label = page.getByTestId('lt-round');
+  await expect(label).toHaveText('after 10 rounds');
+  await expect(page.getByTestId('lt-next')).toBeDisabled();
+  const pts = async () => page.getByTestId('league-row').evaluateAll((trs) => trs.map((tr) => [tr.getAttribute('data-team'), Number(tr.querySelectorAll('td')[3]!.textContent)]));
+  const now = await pts();
+  expect(new Set(now.map(([, p]) => p))).toEqual(new Set([10]));
+  await page.getByTestId('lt-prev').click();
+  await expect(label).toHaveText('after 9 rounds');
+  // every Premier League team played all of rounds 1–9 (no postponement in the recorded season)
+  expect(new Set((await pts()).map(([, p]) => p))).toEqual(new Set([9]));
+  // ← → work too, down to round 1
+  await page.keyboard.press('ArrowLeft');
+  await expect(label).toHaveText('after 8 rounds');
+  for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowLeft');
+  await expect(label).toHaveText('after 1 round');
+  await expect(page.getByTestId('lt-prev')).toBeDisabled();
+  // the squares follow the round: one match up to round 1, then rounds 2-4 (already played, so with their results)
+  const squares = await page.getByTestId('league-row').first().evaluate((tr) => {
+    const kids = [...tr.querySelector('.fk-lt-squares')!.children];
+    const gap = kids.findIndex((k) => k.classList.contains('fk-lt-gap'));
+    return { last: kids.slice(0, gap).filter((k) => k.tagName === 'A').length, next: kids.slice(gap + 1).length };
+  });
+  expect(squares).toEqual({ last: 1, next: 3 });
+  for (let i = 0; i < 9; i++) await page.getByTestId('lt-next').click();
+  await expect(label).toHaveText('after 10 rounds');
+  expect(await pts()).toEqual(now);
+  expect(errors).toEqual([]);
+});

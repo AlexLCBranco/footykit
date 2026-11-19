@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-19
+- FK-43 — League tables: step back through matchdays (table after round N) (v0.54.0) — ◀ ▶ (or ← →) beside "after N rounds" show each league's table as it stood after any earlier round, last 5 and next 3 following the round; ESPN gives no round numbers, so rounds are worked out from the schedule (exact for the Premier League, Serie A, Bundesliga and Ligue 1; LaLiga and the Brasileirão, with many moved matches, are approximate).
 - FK-42 — League tables: Pts as the first column on the left (v0.53.0) — Every league table (the six leagues, their simulators, the UCL table and its simulator, the quick standings) now reads # · Team · Pts · P · W · D · L · GF · GA · GD, Pts still bold.
 - FK-39 — Weather on matches (v0.52.0) — Each Slate card shows the sky at kick-off (☀ ⛅ ☁ ☂ ❄ ⛈) in its second row, and the game pop-up gives temperature, feels-like, rain chance and wind from Open-Meteo (credited), for matches up to 16 days ahead.
 - FK-40 — Slate game button: links (player props, injuries) (v0.51.0) — Each Slate card has a small "⋯" button in its first row opening links to both clubs' Transfermarkt injuries & suspensions pages (all 54 followed clubs checked, Brazilian ones included) and FanDuel's soccer odds / props section; no betting in the app.

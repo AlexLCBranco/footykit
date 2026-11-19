@@ -506,3 +506,27 @@
   align-items: center;
   gap: 4px;
 }
+
+/* FK-43: ◀ ▶ beside a league table's "after N rounds" (the simulator's matchday arrows) */
+.fk-lt-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.fk-lt-arrow {
+  border: 1px solid var(--fk-border);
+  background: transparent;
+  color: inherit;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+.fk-lt-arrow:hover:not(:disabled) {
+  background: var(--fk-hover, rgb(255 255 255 / 0.06));
+}
+.fk-lt-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}

@@ -3,11 +3,12 @@
 // only some outcomes give the place), the rules and sources under it. The Brasileirão also lists the finals that can
 // still open Libertadores places. Its own chunk, like the UCL page.
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BRA_CONTINENTAL, BRA_CUP, LEAGUES, type LeagueZone } from '../../config/leagues';
 import type { LeagueSlug } from '../../config/season';
 import { braRowZones, finalOf, type Finals, type RowZone } from '../data/braPlaces';
 import { leagueTable } from '../data/leagueTable';
+import { leagueMatchdays, tableAfter } from '../data/matchdays';
 import { dayLabel, isPlayed, kickoffTime, shortDay } from '../data/model';
 import { matchUrl, type Match } from '../data/snapshot';
 import { TeamLink } from './Bits';
@@ -60,9 +61,27 @@ const zoneAt = (zones: LeagueZone[], pos: number) => zones.find((z) => pos >= z.
 export default function LeagueTablePage({ league, today, onWhatIf }: { league: LeagueSlug; today: string; onWhatIf?: () => void }) {
   const { model } = useFooty();
   const rules = LEAGUES[league];
-  const table = useMemo(() => leagueTable(model.snap, league), [model, league]);
+  // FK-43: the table as it stood after round N (◀ ▶ beside the label, or ← →); it opens on the latest played round
+  const { days } = useMemo(() => leagueMatchdays(model.snap, league), [model, league]);
+  const [picked, setPicked] = useState<{ league: LeagueSlug; n: number }>();
+  const latest = days.latest;
+  const n = picked?.league === league ? Math.min(picked.n, latest) : latest;
+  const now = useMemo(() => leagueTable(model.snap, league), [model, league]);
+  const table = useMemo(() => (n < latest ? { league, ...tableAfter(model.snap, league, n) } : now), [model, league, n, latest, now]);
+  const step = (d: 1 | -1) => { const to = n + d; if (to >= 1 && to <= latest) setPicked({ league, n: to }); };
+  const stepRef = useRef(step);
+  useEffect(() => { stepRef.current = step; });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); stepRef.current(-1); } else if (e.key === 'ArrowRight') { e.preventDefault(); stepRef.current(1); }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
   const comp = model.comp(league);
-  const played = Math.max(0, ...table.rows.map((r) => r.p));
   const legend = rules.zones.filter((z, i, a) => a.findIndex((x) => x.kind === z.kind) === i);
   // each row's zone: by position from config, except the Brasileirão's continental places, which come from CBF's rules
   // and the finals (src/data/braPlaces.ts); relegation stays by position
@@ -80,8 +99,14 @@ export default function LeagueTablePage({ league, today, onWhatIf }: { league: L
     <div className="fk-ucl fk-lt" data-testid="league-page" data-league={league}>
       <div className="fk-ucl-head">
         <h2>{comp.name}</h2>
-        <span className="fk-muted">{table.complete ? 'final table' : `after ${played} rounds`}</span>
-        {onWhatIf && !table.complete && <button type="button" className="fk-btn" onClick={onWhatIf} title="Pick the results left to play and see the table change" data-testid="league-whatif">Simulator</button>}
+        <span className="fk-lt-nav" data-testid="lt-nav">
+          <button type="button" className="fk-lt-arrow" disabled={n <= 1} aria-label="The table a round earlier" title="A round earlier (←)" onClick={() => step(-1)} data-testid="lt-prev">◀</button>
+          <span className="fk-muted" data-testid="lt-round" data-round={n} title={n < latest ? `The table as it stood after round ${n}: the matches of rounds 1–${n} (a postponed match counts in its own round)` : 'The table now'}>
+            {table.complete ? 'final table' : `after ${n} round${n === 1 ? '' : 's'}`}
+          </span>
+          <button type="button" className="fk-lt-arrow" disabled={n >= latest} aria-label="The table a round later" title="A round later (→)" onClick={() => step(1)} data-testid="lt-next">▶</button>
+        </span>
+        {onWhatIf && !now.complete && <button type="button" className="fk-btn" onClick={onWhatIf} title="Pick the results left to play and see the table change" data-testid="league-whatif">Simulator</button>}
         <span className="fk-ucl-key">
           {legend.map((z) => <span key={z.kind} className={`fk-ucl-zone-key fk-lz-${z.kind}`}>{z.label}</span>)}
           {rules.zones.some((z) => z.maybe) && <span className="fk-ucl-zone-key fk-lz-maybe-key">hatched: only with some outcomes</span>}
