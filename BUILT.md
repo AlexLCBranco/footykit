@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-19
+- FK-39 — Weather on matches (v0.52.0) — Each Slate card shows the sky at kick-off (☀ ⛅ ☁ ☂ ❄ ⛈) in its second row, and the game pop-up gives temperature, feels-like, rain chance and wind from Open-Meteo (credited), for matches up to 16 days ahead.
 - FK-40 — Slate game button: links (player props, injuries) (v0.51.0) — Each Slate card has a small "⋯" button in its first row opening links to both clubs' Transfermarkt injuries & suspensions pages (all 54 followed clubs checked, Brazilian ones included) and FanDuel's soccer odds / props section; no betting in the app.
 - FK-38 — Slate: home team on the first line (v0.50.0) — Every Slate card now lists the home team first and the away team second.
 - FK-35 — Slate in the same shape as calendarkit's (for a combined Slate) (v0.49.0) — Slate cards are now calendarkit's size and layout (509 × 78, kickoff strip, logo, name with place and score, tags, last / next games, odds) in a tight grid of shared borders under "SLATE · 19-11 · Football"; on the card the tags show their highlights (all of them on hover).

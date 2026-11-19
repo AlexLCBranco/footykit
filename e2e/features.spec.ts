@@ -1,6 +1,17 @@
 // Backlog features FK-11 … FK-21, one test (or a few) each. Same setup as smoke.spec.ts: "now" fixed at 2026-11-21
 // 12:00 Brazil time, the recorded snapshot of 2026-11-14, nothing from ESPN.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
+
+/** FK-39: tests never call Open-Meteo: every weather request gets the recorded answer (the Etihad's hours, per venue). */
+const OPEN_METEO = JSON.parse(readFileSync(join(import.meta.dirname, '../tests/fixtures/open-meteo.json'), 'utf8')) as unknown[];
+async function stubWeather(page: Page) {
+  await page.route(/api.open-meteo.com/, (route) => {
+    const n = new URL(route.request().url()).searchParams.get('latitude')!.split(',').length;
+    return route.fulfill({ json: n === 1 ? OPEN_METEO[0] : Array.from({ length: n }, () => OPEN_METEO[0]) });
+  });
+}
 
 const NOW = '2026-11-21T15:00:00Z';
 
@@ -9,6 +20,7 @@ async function open(page: Page, search = '') {
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.addInitScript((now) => { (window as { __FK_NOW__?: string }).__FK_NOW__ = now; }, NOW);
+  await stubWeather(page);
   await page.goto(`/football/${search}`);
   await expect(page.getByTestId('footy')).toBeVisible();
   return errors;
@@ -591,5 +603,26 @@ test('FK-40: the Slate game button opens a pop-up of links (injuries, odds and p
   await expect(pop).toHaveCount(0);
   // the card keeps calendarkit's size with the button in it
   expect(await card.evaluate((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; })).toBe('509x78');
+  expect(errors).toEqual([]);
+});
+
+test('FK-39: the weather at kick-off — a sign on the Slate card, the forecast with Open-Meteo\'s credit in the game pop-up', async ({ page }) => {
+  const asked: string[] = [];
+  page.on('request', (r) => { if (r.url().includes('open-meteo')) asked.push(r.url()); });
+  const errors = await open(page, '?view=slate');
+  const card = page.locator('[data-testid="slate-card"][data-match-id="401879233"]'); // Man City v Fulham at the Etihad
+  const mark = card.locator('.fk-card-row').nth(1).getByTestId('weather-mark');
+  await expect(mark).toBeVisible();
+  await expect(mark).toHaveAttribute('title', /^At kick-off: .+, -?\d+ °C, feels .+ · rain \d+% · wind \d+ km\/h\nWeather data by Open-Meteo\.com$/);
+  // one request for the whole day's venues
+  expect(asked).toHaveLength(1);
+  expect(new URL(asked[0]!).searchParams.get('hourly')).toContain('apparent_temperature');
+  await card.getByTestId('game-menu').hover();
+  const lines = page.getByTestId('game-links-popup').getByTestId('weather-lines');
+  await expect(lines).toContainText('At kick-off in Etihad Stadium, Manchester');
+  await expect(lines).toContainText(/feels .+ · rain \d+% · wind \d+ km\/h/);
+  await expect(lines.getByRole('link', { name: 'Weather data by Open-Meteo.com' })).toHaveAttribute('href', 'https://open-meteo.com/');
+  // no extra width
+  expect(await card.evaluate((e) => e.getBoundingClientRect().width)).toBe(509);
   expect(errors).toEqual([]);
 });

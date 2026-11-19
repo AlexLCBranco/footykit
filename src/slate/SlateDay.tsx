@@ -12,6 +12,7 @@ import { useLive } from '../components/useLive';
 import { EMPTY_LIVE } from '../data/live';
 import type { Model } from '../data/model';
 import { EMPTY_NOTE, type SlateNotes } from './notes';
+import { pageWeatherStore } from './weather';
 import '../components/footy.css';
 
 export interface SlateDayProps {
@@ -31,11 +32,13 @@ export interface SlateDayProps {
   live?: boolean;
   /** FK-40: each card's game button (injury pages, the betting site's football section); default off */
   gameMenu?: boolean;
+  /** FK-39: the weather at kick-off (Open-Meteo, one request for the day's venues, at most hourly); default off: no request */
+  weather?: boolean;
   /** the clock for tests; default Date.now() at render */
   now?: number;
 }
 
-export function SlateDay({ data, day, timeZone, notes, width = 1840, teamLink, live: liveOn = false, now, gameMenu = false }: SlateDayProps) {
+export function SlateDay({ data, day, timeZone, notes, width = 1840, teamLink, live: liveOn = false, now, gameMenu = false, weather = false }: SlateDayProps) {
   const live = useLive(day, timeZone, liveOn);
   const [series, setSeries] = useState<SeriesOpen | null>(null);
   const closeSeries = useCallback(() => setSeries(null), []);
@@ -46,8 +49,9 @@ export function SlateDay({ data, day, timeZone, notes, width = 1840, teamLink, l
     live: liveOn ? live : EMPTY_LIVE,
     teamHref: teamLink,
     gameMenu,
+    weather: weather ? pageWeatherStore() : undefined,
     onSeries: (a, b, el, current) => { const r = el.getBoundingClientRect(); setSeries({ a, b, x: r.left, y: r.bottom, current }); },
-  }), [data, now, timeZone, live, liveOn, teamLink, gameMenu]);
+  }), [data, now, timeZone, live, liveOn, teamLink, gameMenu, weather]);
   return (
     <Ctx.Provider value={ctx}>
       <div className="fk-root fk-slate-widget" style={{ width }} data-testid="slate-day">

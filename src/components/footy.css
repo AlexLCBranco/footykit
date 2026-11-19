@@ -2580,3 +2580,33 @@ a.fk-series-sq:hover {
   background: var(--fk-surface-2);
   color: var(--fk-link);
 }
+
+/* FK-39: the weather at kick-off — the sky's sign in the second row's empty cell, the forecast in the game pop-up */
+.fk-wx-mark {
+  display: inline-block;
+  width: 13px;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  color: var(--fk-muted);
+  cursor: default;
+}
+.fk-wx-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 4px 6px;
+  border-bottom: 1px solid var(--fk-border);
+  font-size: 12px;
+}
+.fk-wx-line {
+  font-variant-numeric: tabular-nums;
+}
+.fk-wx-credit {
+  color: var(--fk-muted);
+  font-size: 10px;
+  text-decoration: none;
+}
+.fk-wx-credit:hover {
+  color: var(--fk-link);
+}

@@ -5,6 +5,7 @@ import { createContext, useContext } from 'react';
 import type { LiveLayer } from '../data/live';
 import type { Model } from '../data/model';
 import type { TagKey, TagVariant } from './Tags';
+import type { WeatherStore } from '../slate/weather';
 
 export interface FootyCtx {
   model: Model;
@@ -24,6 +25,8 @@ export interface FootyCtx {
   tags?: TagVariant;
   /** FK-40: the Slate cards' game button (links: injuries, odds and props); off in a host that doesn't ask for it */
   gameMenu?: boolean;
+  /** FK-39: the weather at kick-off on the Slate (Open-Meteo); none = no request, no weather */
+  weather?: WeatherStore;
   /** tag types turned off (the bar's Tags menu); unset = the defaults (Z4R and 1C/2C/3C off) */
   hiddenTags?: ReadonlySet<TagKey>;
 }

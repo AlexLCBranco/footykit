@@ -101,6 +101,9 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - `config/neutral.ts`, `config/fifa-windows.ts`, `config/relegation.ts` (zone sizes, Z4R rule),
   `config/ucl.ts` (UCL pots, zones, tiebreakers, knockout pairings), `config/rivalries.ts` (derby list; `npm run check-rivalries` checks its sources answer) — researched facts with
   sources (for Alex to confirm).
+- `config/injuryLinks.ts` — each followed club's Transfermarkt injuries page (FK-40, Wikidata P7223, each page checked).
+- Weather (FK-39): `src/data/weather.ts` (Open-Meteo request / answer, forecasts only), `src/slate/weather.ts` (the
+  page's store: one request for a day's venues, a venue at most hourly); `npm run check-weather` is the live check.
 - `config/venues.json` — every venue's place and elevation from Wikidata, each with its item (`npm run make-venues`:
   batched query-service lookups, keeps known venues; `config/venue-overrides.json` names the item for venues ESPN
   spells differently). Basemaps: `src/map/basemaps.ts` from `npm run make-basemaps` (Natural Earth via world-atlas).

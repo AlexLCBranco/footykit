@@ -1,7 +1,7 @@
 {
   "name": "footykit",
   "private": true,
-  "version": "0.51.0",
+  "version": "0.52.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -19,7 +19,8 @@
     "make-venues": "tsx scripts/make-venues.ts",
     "make-basemaps": "tsx scripts/make-basemaps.ts",
     "make-ucl-fixture": "tsx scripts/make-ucl-fixture.ts",
-    "check-rivalries": "tsx scripts/check-rivalries.ts"
+    "check-rivalries": "tsx scripts/check-rivalries.ts",
+    "check-weather": "tsx scripts/check-weather.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

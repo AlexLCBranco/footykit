@@ -6,6 +6,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type
 import { dayLabel } from '../data/model';
 import { DEFAULT_TRAILING } from '../data/trailing';
 import { localNotesStore } from '../slate/notes';
+import { pageWeatherStore } from '../slate/weather';
 import { Ctx, type FootyCtx } from './ctx';
 import { CopyButton } from './Copy';
 import { DayList } from './DayList';
@@ -107,7 +108,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   };
 
   const ctx: FootyCtx = useMemo(() => ({
-    model, now, timeZone, live, tags, hiddenTags, gameMenu: true,
+    model, now, timeZone, live, tags, hiddenTags, gameMenu: true, weather: pageWeatherStore(),
     onTeam: (id, day) => onPage(teamClickPage(page, id, day, today)),
     onSeries: (a, b, el, current) => { const r = el.getBoundingClientRect(); setSeries({ a, b, x: r.left, y: r.bottom, current }); },
     onStandings: (team) => setStandings({ team }),

@@ -1,6 +1,17 @@
 // Smoke tests, one per view (every view is "in flux": behaviour and data only, no layout assertions). "Now" is fixed
 // at 2026-11-21 12:00 Brazil time through the app's test hook; the data is the recorded snapshot of 2026-11-14.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
+
+/** FK-39: tests never call Open-Meteo: every weather request gets the recorded answer (the Etihad's hours, per venue). */
+const OPEN_METEO = JSON.parse(readFileSync(join(import.meta.dirname, '../tests/fixtures/open-meteo.json'), 'utf8')) as unknown[];
+async function stubWeather(page: Page) {
+  await page.route(/api.open-meteo.com/, (route) => {
+    const n = new URL(route.request().url()).searchParams.get('latitude')!.split(',').length;
+    return route.fulfill({ json: n === 1 ? OPEN_METEO[0] : Array.from({ length: n }, () => OPEN_METEO[0]) });
+  });
+}
 
 const NOW = '2026-11-21T15:00:00Z';
 
@@ -9,6 +20,7 @@ async function open(page: Page, search = '') {
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.addInitScript((now) => { (window as { __FK_NOW__?: string }).__FK_NOW__ = now; }, NOW);
+  await stubWeather(page);
   await page.goto(`/football/${search}`);
   await expect(page.getByTestId('footy')).toBeVisible();
   return errors;
