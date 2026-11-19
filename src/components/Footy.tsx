@@ -32,6 +32,7 @@ const LeagueTablePage = lazy(() => import('./LeagueTablePage'));
 const LeagueWhatIfPage = lazy(() => import('./LeagueWhatIfPage'));
 const CupsPage = lazy(() => import('./CupsPage'));
 const TrailingPage = lazy(() => import('./TrailingPage'));
+const LeagueView = lazy(() => import('./LeagueView'));
 
 export interface FootyProps {
   model: Model;
@@ -98,7 +99,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const [selection] = useState(createSelectionStore);
   const marquee = useRef<HTMLDivElement>(null);
   const onMarquee = useMarqueeSelection(selection, marquee);
-  const viewKey = `${page.view}|${page.league}|${page.cup}|${page.comp}|${page.uclTab}|${page.day}|${page.team}|${page.span}|${page.week}|${page.month}`;
+  const viewKey = `${page.view}|${page.lcomp}|${page.lmode}|${page.league}|${page.cup}|${page.comp}|${page.uclTab}|${page.day}|${page.team}|${page.span}|${page.week}|${page.month}`;
   useEffect(() => selection.clear(), [viewKey, selection]);
   // What a copy takes: the Slate's cards, the day's list (not the map column beside it: the map is never in a copy, and
   // its space shouldn't be either), else the whole view.
@@ -124,6 +125,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   else if (page.view === 'table') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueTablePage league={page.league ?? DEFAULT_LEAGUE} today={today} onWhatIf={() => onPage(leagueWhatIfPage(page))} /></Suspense>;
   else if (page.view === 'cups') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><CupsPage cup={page.cup ?? DEFAULT_CUP} today={today} /></Suspense>;
   else if (page.view === 'trailing') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><TrailingPage comp={page.comp ?? DEFAULT_TRAILING} today={today} /></Suspense>;
+  else if (page.view === 'league') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueView comp={page.lcomp ?? DEFAULT_LEAGUE} mode={page.lmode ?? 'list'} day={page.day} today={today} onList={(d) => onPage({ ...page, day: d, lmode: undefined })} /></Suspense>;
   else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} />;
   else view = <DayList key={page.day} day={page.day} width={width} />;
 

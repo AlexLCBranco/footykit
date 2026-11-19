@@ -722,3 +722,39 @@ test('FK-44: a Slate card with odds shows the home and away prices and no draw p
   await expect(card.locator('.fk-card-draw')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('FK-45: the League view — a league\'s games for a day and its table; a cup\'s games and bracket; a team opens its calendar', async ({ page }) => {
+  const errors = await open(page);
+  await page.getByTestId('views').getByRole('tab', { name: 'League' }).click();
+  await expect(page).toHaveURL(/view=league&comp=eng\.1/);
+  const view = page.getByTestId('league-view');
+  // Sat Nov 21: every Premier League game of the day (all its teams, not only the followed clubs' feeds)
+  await expect(view.getByTestId('league-day')).toHaveAttribute('data-day', '2026-11-21');
+  await expect(view.getByTestId('match-row')).toHaveCount(7);
+  await expect(view.getByTestId('league-row')).toHaveCount(20);
+  await expect(view.getByTestId('league-team')).toHaveCount(20);
+  // ‹ a day back: a day without games says so
+  await page.getByRole('button', { name: 'Previous' }).click();
+  await expect(view.getByTestId('league-day')).toHaveAttribute('data-day', '2026-11-20');
+  await expect(view.getByTestId('league-no-games')).toHaveText('No games');
+  await page.getByTestId('today').click();
+  await expect(view.getByTestId('league-day')).toHaveAttribute('data-day', '2026-11-21');
+  // Calendar: the week's 7 days; a day's header opens it in the List
+  await page.getByTestId('league-modes').getByRole('tab', { name: 'Calendar' }).click();
+  await expect(view.getByTestId('league-cal-day')).toHaveCount(7);
+  await expect(view.locator('[data-testid="league-cal-day"][data-day="2026-11-21"] [data-testid="league-cal-game"]')).toHaveCount(7);
+  await view.locator('[data-testid="league-cal-day"][data-day="2026-11-22"] button').click();
+  await expect(view.getByTestId('league-day')).toHaveAttribute('data-day', '2026-11-22');
+  // a cup: its games (non-followed clubs too) and its bracket
+  await page.getByTestId('league-view-picker').selectOption('eng.league_cup');
+  await page.getByLabel('Pick a date').fill('2026-12-16');
+  await expect(view.getByTestId('match-row')).toHaveCount(2);
+  await expect(view.getByTestId('cup-tie').first()).toBeVisible();
+  await expect(view.getByTestId('league-team')).toHaveCount(92);
+  await expect(view.getByTestId('league-team').filter({ hasText: 'Tranmere' })).toHaveCount(1);
+  // a followed club's name opens its Team Calendar
+  await page.getByTestId('league-view-picker').selectOption('eng.1');
+  await view.locator('[data-testid="league-team"][data-team="ARS"] button').click();
+  await expect(page).toHaveURL(/view=cal&team=359/);
+  expect(errors).toEqual([]);
+});

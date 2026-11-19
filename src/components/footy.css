@@ -2603,3 +2603,84 @@ a.fk-series-sq:hover {
 .fk-wx-credit:hover {
   color: var(--fk-link);
 }
+
+/* ---------- FK-45 League view: games (List: a day; Calendar: a week), teams, standings ---------- */
+.fk-lv {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+/* .fk-daylist's flex basis is a width; in this column it would be a 980 px height */
+.fk-lv .fk-lv-day {
+  flex: none;
+  width: 100%;
+  max-width: 980px;
+}
+.fk-lv-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid var(--fk-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.fk-lv-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 120px;
+  padding: 4px 6px 8px;
+  border-left: 1px solid var(--fk-border);
+  min-width: 0;
+}
+.fk-lv-col:first-child {
+  border-left: none;
+}
+.fk-lv-today {
+  background: var(--fk-surface);
+}
+.fk-lv-colhead {
+  all: unset;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 2px 0 6px;
+}
+.fk-lv-colhead:hover {
+  color: var(--fk-link);
+}
+.fk-lv-game {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--fk-text);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 1px 2px;
+  border-radius: 3px;
+}
+.fk-lv-game:hover {
+  background: var(--fk-surface-2);
+}
+.fk-lv-live .fk-lv-teams b {
+  color: var(--fk-live);
+}
+.fk-lv-time {
+  color: var(--fk-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 34px;
+}
+.fk-lv-none {
+  font-size: 12px;
+}
+.fk-lv-teams-box h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+.fk-lv-team-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 13px;
+}

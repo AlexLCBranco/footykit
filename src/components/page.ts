@@ -7,8 +7,11 @@ import { addDays, addMonths, monthLabel, monthOf, mondayOf, shortDay, type Model
 
 /** day = the day's matches (list), slate = the day as cards, cal = Team Calendar, list = Team List, ucl = the Champions
  * League page, whatif = a what-if simulator (the UCL's, or with `league` a league's), table = a league table, cups = the
- * cups pages, trailing = goals while trailing per competition */
-export type View = 'day' | 'slate' | 'cal' | 'list' | 'ucl' | 'whatif' | 'table' | 'cups' | 'trailing';
+ * cups pages, trailing = goals while trailing per competition, league = one competition's games, teams and standings
+ * (FK-45) */
+export type View = 'day' | 'slate' | 'cal' | 'list' | 'ucl' | 'whatif' | 'table' | 'cups' | 'trailing' | 'league';
+/** FK-45: the League view's modes, calendarkit's List (one day) and Calendar (a week of days) */
+export type LeagueMode = 'list' | 'cal';
 export type Span = 1 | 2 | 'month';
 
 export interface Page {
@@ -26,6 +29,9 @@ export interface Page {
   cup?: string;
   /** the competition shown (view `trailing`) */
   comp?: string;
+  /** FK-45: the competition the League view shows, and its mode (List when unset); its day is `day` */
+  lcomp?: string;
+  lmode?: LeagueMode;
   /** the Champions League page's tab (view `ucl`); the table when unset */
   uclTab?: 'table' | 'pots';
   span: Span;
@@ -47,6 +53,11 @@ export const CUP_SLUGS = ['conmebol.libertadores', 'conmebol.sudamericana', 'bra
 export const DEFAULT_CUP = CUP_SLUGS[0]!;
 /** FK-29: the Champions League is listed with the cups; picking it opens its own page (view `ucl`). */
 export const UCL_SLUG = 'uefa.champions';
+/** FK-45: the League view's picker: the six leagues, the Champions League, then the cups (the Cups tab's order). */
+export const LEAGUE_VIEW_COMPS = [...LEAGUE_SLUGS, UCL_SLUG, ...CUP_SLUGS];
+export const isLeagueViewComp = (c: string | null | undefined): c is string => !!c && LEAGUE_VIEW_COMPS.includes(c);
+/** FK-45 / FK-46: the League view of competition `comp` on `day` (List mode unless the page was already in Calendar). */
+export const leagueViewPage = (p: Page, comp: string, day: string): Page => ({ ...p, view: 'league', team: undefined, lcomp: comp, day, lmode: p.view === 'league' ? p.lmode : undefined });
 export const isLeague = (x: unknown): x is LeagueSlug => LEAGUE_SLUGS.includes(x as LeagueSlug);
 
 /** The league a `whatif` page simulates, or undefined for the UCL's simulator. */
@@ -81,6 +92,7 @@ export function pageSearch(p: Page): string {
   if (p.view === 'table') { q.set('league', p.league ?? DEFAULT_LEAGUE); return `?${q}`; }
   if (p.view === 'cups') { q.set('cup', p.cup ?? DEFAULT_CUP); return `?${q}`; }
   if (p.view === 'trailing') { q.set('comp', p.comp ?? DEFAULT_TRAILING); return `?${q}`; }
+  if (p.view === 'league') { q.set('comp', p.lcomp ?? DEFAULT_LEAGUE); if (p.lmode === 'cal') q.set('mode', 'cal'); }
   q.set('date', p.view === 'cal' ? (p.span === 'month' ? p.month : p.week) : p.view === 'list' ? p.month : p.day);
   return `?${q}`;
 }
@@ -106,13 +118,14 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
   if (view === 'slate') return { ...p, view };
   if (view === 'cups') { const c = q.get('cup'); if (c === UCL_SLUG) return { ...p, view: 'ucl' }; return { ...p, view, cup: c && CUP_SLUGS.includes(c) ? c : DEFAULT_CUP }; }
   if (view === 'trailing') { const c = q.get('comp'); return { ...p, view, comp: c && TRAILING_COMPS.includes(c) ? c : DEFAULT_TRAILING }; }
+  if (view === 'league') { const c = q.get('comp'); return { ...p, view, lcomp: isLeagueViewComp(c) ? c : DEFAULT_LEAGUE, lmode: q.get('mode') === 'cal' ? 'cal' : undefined }; }
   if (view === 'table') { const l = q.get('league'); return { ...p, view, league: isLeague(l) ? l : DEFAULT_LEAGUE }; }
   return p;
 }
 
 export function isPage(x: unknown): x is Page {
   const p = x as Page;
-  return !!p && typeof p === 'object' && ['day', 'slate', 'cal', 'list', 'ucl', 'whatif', 'table', 'cups', 'trailing'].includes(p.view) && typeof p.day === 'string' && typeof p.week === 'string' && typeof p.month === 'string' && typeof p.listFrom === 'string';
+  return !!p && typeof p === 'object' && ['day', 'slate', 'cal', 'list', 'ucl', 'whatif', 'table', 'cups', 'trailing', 'league'].includes(p.view) && typeof p.day === 'string' && typeof p.week === 'string' && typeof p.month === 'string' && typeof p.listFrom === 'string';
 }
 
 /** "Nov 8 – 14", "Nov 29 – Dec 5" (calendarkit's pageTitle.ts) */
@@ -133,6 +146,7 @@ export function pagePart(p: Page, model: Model): string {
   if (p.view === 'table') return `${model.comp(p.league ?? DEFAULT_LEAGUE).name} table`;
   if (p.view === 'cups') return model.comp(p.cup ?? DEFAULT_CUP).name;
   if (p.view === 'trailing') return `${model.comp(p.comp ?? DEFAULT_TRAILING).name} goals while trailing`;
+  if (p.view === 'league') { const w = mondayOf(p.day); return `${model.comp(p.lcomp ?? DEFAULT_LEAGUE).name} · ${p.lmode === 'cal' ? dayRange(w, addDays(w, 6)) : shortDay(p.day)}`; }
   return `Day · ${shortDay(p.day)}`;
 }
 
@@ -143,6 +157,9 @@ export function stepPage(p: Page, dir: 1 | -1, model: Model): Page {
   if (p.view === 'ucl' || p.view === 'whatif' || p.view === 'table' || p.view === 'cups' || p.view === 'trailing') return p;
   if (p.view === 'cal') return p.span === 'month' ? { ...p, month: addMonths(p.month, dir) } : { ...p, week: addDays(p.week, 7 * dir * p.span) };
   if (p.view === 'list') return { ...p, month: addMonths(p.month, dir), listFrom: addMonths(p.month, dir) };
+  // FK-45: the League view steps a day (List) or a week (Calendar), "no games" days included; no season bounds (a cup's
+  // season isn't the followed clubs')
+  if (p.view === 'league') return { ...p, day: addDays(p.day, p.lmode === 'cal' ? 7 * dir : dir) };
   // day and slate: every day, "no matches" days included (never skipped), within the season
   const day = addDays(p.day, dir);
   if (day < addDays(model.firstDay, -7) || day > addDays(model.lastDay, 7)) return p;

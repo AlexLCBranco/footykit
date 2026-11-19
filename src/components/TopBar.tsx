@@ -6,7 +6,7 @@ import type { ReactNode } from 'react';
 import { addDays, dayLabel, mondayOf, monthLabel, shortDay } from '../data/model';
 import { useFooty } from './ctx';
 import { ClubPicker } from './ClubPicker';
-import { CUP_SLUGS, DEFAULT_CUP, DEFAULT_LEAGUE, LEAGUE_SLUGS, simLeague, UCL_SLUG, type Page, type Span, type View } from './page';
+import { CUP_SLUGS, DEFAULT_CUP, DEFAULT_LEAGUE, LEAGUE_SLUGS, LEAGUE_VIEW_COMPS, simLeague, UCL_SLUG, type LeagueMode, type Page, type Span, type View } from './page';
 import type { LeagueSlug } from '../../config/season';
 import { DEFAULT_TRAILING, TRAILING_COMPS } from '../data/trailing';
 
@@ -46,6 +46,19 @@ function CupPicker({ cup, onPick }: { cup: string; onPick: (c: string) => void }
   );
 }
 
+/** FK-45: the League view's competition: the six leagues, the Champions League, the cups. */
+function LeagueViewPicker({ comp, onPick }: { comp: string; onPick: (c: string) => void }) {
+  const { model } = useFooty();
+  return (
+    <label className="fk-scope" title="The competition shown">
+      <select value={comp} onChange={(e) => onPick(e.target.value)} aria-label="Competition" data-testid="league-view-picker">
+        <optgroup label="Leagues">{LEAGUE_SLUGS.map((c) => <option key={c} value={c}>{model.comp(c).name}</option>)}</optgroup>
+        <optgroup label="Cups">{LEAGUE_VIEW_COMPS.filter((c) => !LEAGUE_SLUGS.includes(c as LeagueSlug)).map((c) => <option key={c} value={c}>{model.comp(c).name}</option>)}</optgroup>
+      </select>
+    </label>
+  );
+}
+
 function CompPicker({ comp, onPick }: { comp: string; onPick: (c: string) => void }) {
   const { model } = useFooty();
   return (
@@ -61,10 +74,11 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
   page: Page; today: string; history: History; onPage: (p: Page) => void; onStep: (dir: 1 | -1) => void; onStandings: () => void; info: ReactNode; end?: ReactNode;
 }) {
   const team = page.view === 'cal' || page.view === 'list' ? page.team : undefined;
-  const dateText = page.view === 'cal'
+  const leagueWeek = page.view === 'league' && page.lmode === 'cal' ? mondayOf(page.day) : undefined;
+  const dateText = leagueWeek ? `${shortDay(leagueWeek)} – ${shortDay(addDays(leagueWeek, 6))}` : page.view === 'cal'
     ? page.span === 'month' ? monthLabel(page.month) : `${shortDay(page.week)} – ${shortDay(addDays(page.week, 7 * page.span - 1))}`
     : page.view === 'list' ? monthLabel(page.month) : dayLabel(page.day);
-  const isToday = page.view === 'cal' ? (page.span === 'month' ? page.month === today.slice(0, 7) : today >= page.week && today <= addDays(page.week, 7 * page.span - 1)) : page.view === 'list' ? page.month === today.slice(0, 7) : page.day === today;
+  const isToday = leagueWeek ? today >= leagueWeek && today <= addDays(leagueWeek, 6) : page.view === 'cal' ? (page.span === 'month' ? page.month === today.slice(0, 7) : today >= page.week && today <= addDays(page.week, 7 * page.span - 1)) : page.view === 'list' ? page.month === today.slice(0, 7) : page.day === today;
   const goToday = () => onPage({ ...page, day: today, week: mondayOf(today), month: today.slice(0, 7), listFrom: today.slice(0, 7) });
   return (
     <div className="fk-bar" data-testid="top-bar" data-capture-exclude="true">
@@ -84,9 +98,15 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
         )}
       </span>
       {/* the main views stay on the bar in team mode (none selected then); one leaves the club */}
-      <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (simLeague(page) ? 'table' : 'cups') : page.view === 'ucl' ? 'cups' : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['table', 'Tables'], ['cups', 'Cups'], ['trailing', 'Trailing']]} onChange={(v) => onPage({ ...page, view: v, team: undefined })} />
+      <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (simLeague(page) ? 'table' : 'cups') : page.view === 'ucl' ? 'cups' : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['table', 'Tables'], ['cups', 'Cups'], ['trailing', 'Trailing'], ['league', 'League']]} onChange={(v) => onPage({ ...page, view: v, team: undefined, ...(v === 'league' && page.view !== 'league' ? { day: today } : {}) })} />
       {team && page.view === 'cal' && <Tabs<Span> label="Span" testId="span" value={page.span} options={[[1, '1 week'], [2, '2 weeks'], ['month', 'Month']]} onChange={(s) => onPage({ ...page, span: s, week: page.span === 'month' && s !== 'month' ? mondayOf(today.slice(0, 7) === page.month ? today : `${page.month}-01`) : page.week, month: s === 'month' && page.span !== 'month' ? addDays(page.week, 3).slice(0, 7) : page.month })} />}
       {(page.view === 'table' || (page.view === 'whatif' && simLeague(page))) && <LeaguePicker league={page.league ?? DEFAULT_LEAGUE} onPick={(l) => onPage({ ...page, league: l })} />}
+      {page.view === 'league' && (
+        <>
+          <LeagueViewPicker comp={page.lcomp ?? DEFAULT_LEAGUE} onPick={(c) => onPage({ ...page, lcomp: c })} />
+          <Tabs<LeagueMode> label="League mode" testId="league-modes" value={page.lmode ?? 'list'} options={[['list', 'List'], ['cal', 'Calendar']]} onChange={(m) => onPage({ ...page, lmode: m === 'list' ? undefined : m })} />
+        </>
+      )}
       {page.view === 'trailing' && <CompPicker comp={page.comp ?? DEFAULT_TRAILING} onPick={(c) => onPage({ ...page, comp: c })} />}
       {/* FK-29: the UCL page (and its simulator) sits in the Cups section: the picker shows it and leads back to the other cups */}
       {(page.view === 'cups' || page.view === 'ucl' || (page.view === 'whatif' && !simLeague(page))) && <CupPicker cup={page.view === 'cups' ? page.cup ?? DEFAULT_CUP : UCL_SLUG}
@@ -96,7 +116,7 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
         <span className="fk-date-text" data-testid="date-text">{dateText}</span>
         <button type="button" className="fk-step" aria-label="Next" title="Next" onClick={() => onStep(1)}>›</button>
         {/* calendarkit's date block order: ‹ date › · date picker · Today (PeriodNav.tsx) */}
-        {(page.view === 'day' || page.view === 'slate') && (
+        {(page.view === 'day' || page.view === 'slate' || page.view === 'league') && (
           <input type="date" className="fk-date-input" value={page.day} aria-label="Pick a date" onChange={(e) => e.target.value && onPage({ ...page, day: e.target.value })} />
         )}
         <button type="button" className="fk-btn fk-today" disabled={isToday} onClick={goToday} data-testid="today" title={isToday ? 'Showing today' : 'Back to today'}>Today</button>
