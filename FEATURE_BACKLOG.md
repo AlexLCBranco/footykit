@@ -19,10 +19,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 Keep it clearly separate from the existing window streak tag (consecutive windows with a match): rename that tag's tooltip if needed so "streak" never means two things.
 **Tests:** unit: W/D/L sequences, a draw breaking a win streak, penalties counted as D, played vs next match; e2e: chip and popup on a Slate card and a List row.
 
-### FK-53 — Bigger last-games squares on Slate cards
-**What:** the last-games squares with the opponent's crest (FK-32) are too small to read the teams. Make them slightly bigger (about 20–25% larger, crest scaled with them), keep them aligned across cards, and widen the card only as much as needed. Must still respect FK-52 alignment.
-**Tests:** e2e: square size ≥ the new minimum; squares still line up across cards; card doesn't overflow.
-
 ### FK-54 — Cups page: knockout bracket fills the first screen
 **What:** on the cups pages (Libertadores, Sudamericana, every cup with a bracket) the knockout bracket cells are as big as possible so the bracket fills the default viewport (full-size desktop window) without scrolling; the group stage tables start right below it, visible as soon as the user scrolls down. Text and crests grow with the cells.
 **Tests:** e2e at 1920×1080 and 1366×768: bracket fits within the first viewport with no inner scroll; groups start just below the fold.

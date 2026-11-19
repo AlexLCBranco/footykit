@@ -460,13 +460,13 @@ test('FK-31 / FK-32: Slate card score beside the name; bigger last-games squares
     const sq = [...r.querySelectorAll('[data-testid="strip-slot"]')].map((s) => s.getBoundingClientRect());
     return { gap: score ? score.left - name.right : undefined, sqLefts: sq.map((s) => Math.round(s.left - r.getBoundingClientRect().left)), sqW: r.querySelector('[data-testid="form-game"]:not(.fk-fg-half)')?.getBoundingClientRect().width, prefixes: [...r.querySelectorAll('[data-testid="strip-slot"]:not(.fk-fg-empty) .fk-fg-at')].map((p) => p.textContent) };
   }));
-  // FK-31: every played card's score sits right after the name
-  for (const r of rows) { expect(r.gap).toBeGreaterThanOrEqual(0); expect(r.gap).toBeLessThan(12); }
-  // FK-32: squares (17 px since FK-47 / FK-48 fitted 5 window slots and the arrows into calendarkit's card), "vs" / "@" before each, slots at the same x on every row
+  // FK-31: every played card's score comes after the name (FK-52: in a column of its own, so the gap varies)
+  for (const r of rows) if (r.gap !== undefined) { expect(r.gap).toBeGreaterThanOrEqual(0); expect(r.gap).toBeLessThan(160); }
+  // FK-32: squares (21 px since FK-53, 20–25 % bigger than FK-47 / FK-48's 17), "vs" / "@" before each, slots at the same x on every row
   const withForm = rows.filter((r) => r.sqLefts.length);
   expect(withForm.length).toBeGreaterThan(5);
   for (const r of withForm) {
-    expect(r.sqW).toBe(17);
+    expect(r.sqW).toBe(21);
     expect(r.sqLefts).toEqual(withForm[0]!.sqLefts);
     for (const p of r.prefixes) expect(['vs', '@']).toContain(p);
   }
@@ -541,7 +541,7 @@ test('FK-47: the Slate strip shows 5 window slots per team, the middle one (this
     expect(r.now).toBe(2);
     expect(r.nowIcon).toContain('logos/c-'); // the competition's icon
     expect(r.beforeResults).toBe(true);
-    expect(r.width).toBeLessThanOrEqual(140);
+    expect(r.width).toBeLessThanOrEqual(160); // FK-53: 21 px squares
     for (const [text, title] of r.empty) { expect(text).toBe('–'); expect(title).toMatch(/^(No match|Nothing fixtured yet|Before the season) · (midweek|weekend) [0-9]/); }
   }
   expect(new Set(rows.map((r) => r.nowBg)).size).toBe(1);
@@ -558,17 +558,17 @@ test('FK-47: the Slate strip shows 5 window slots per team, the middle one (this
   expect([...byResult.get('W')!][0]).not.toBe([...byResult.get('L')!][0]);
   // the card keeps calendarkit's size
   const sizes = await page.getByTestId('slate-card').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
-  expect(new Set(sizes)).toEqual(new Set(['509x78']));
+  expect(new Set(sizes)).toEqual(new Set(['529x78']));
   expect(errors).toEqual([]);
 });
 
 test('FK-35: Slate cards are calendarkit\'s size, in a tight grid, under "SLATE · dd-mm · Football"', async ({ page }) => {
   const errors = await open(page, '?view=slate');
   await expect(page.getByTestId('slate-header')).toHaveText('SLATE · 21-11 · Football');
-  // calendarkit's info-only card, measured on its live Slate (src/slate/layout.ts there): 509 × 78
+  // calendarkit's info-only card, measured on its live Slate (src/slate/layout.ts there): 509 × 78; ours 20 px wider since FK-53
   const sizes = await page.getByTestId('slate-card').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
   expect(sizes.length).toBeGreaterThan(3);
-  expect(new Set(sizes)).toEqual(new Set(['509x78']));
+  expect(new Set(sizes)).toEqual(new Set(['529x78']));
   // nothing spills out of a row; neighbours share their 1 px border
   const spill = await page.locator('.fk-card-row').evaluateAll((els) => els.filter((r) => r.scrollWidth > r.clientWidth).length);
   expect(spill).toBe(0);
@@ -616,7 +616,7 @@ test('FK-40: the Slate game button opens a pop-up of links (injuries, odds and p
   await page.mouse.move(5, 5);
   await expect(pop).toHaveCount(0);
   // the card keeps calendarkit's size with the button in it
-  expect(await card.evaluate((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; })).toBe('509x78');
+  expect(await card.evaluate((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; })).toBe('529x78');
   expect(errors).toEqual([]);
 });
 
@@ -637,7 +637,7 @@ test('FK-39: the weather at kick-off — a sign on the Slate card, the forecast 
   await expect(lines).toContainText(/feels .+ · rain \d+% · wind \d+ km\/h/);
   await expect(lines.getByRole('link', { name: 'Weather data by Open-Meteo.com' })).toHaveAttribute('href', 'https://open-meteo.com/');
   // no extra width
-  expect(await card.evaluate((e) => e.getBoundingClientRect().width)).toBe(509);
+  expect(await card.evaluate((e) => e.getBoundingClientRect().width)).toBe(529);
   expect(errors).toEqual([]);
 });
 
@@ -822,7 +822,7 @@ test('FK-48: ◀ ▶ on the Slate strip move it one window earlier / later; a cl
   // the other team's strip didn't move; the card keeps calendarkit's size
   expect(await card.locator('.fk-card-row').nth(1).getByTestId('strip-slot').nth(2).getAttribute('data-window')).toBe('2026-11-20');
   const box = (await card.boundingBox())!;
-  expect([box.width, box.height]).toEqual([509, 78]);
+  expect([box.width, box.height]).toEqual([529, 78]);
   expect(errors).toEqual([]);
 });
 
@@ -849,7 +849,7 @@ test('FK-48 fix: the strip arrows show only on hover (moved or not) and sit besi
   await expect.poll(opacity).toEqual(['0', '0']);
   // the cards keep calendarkit's size, nothing spills out of a row
   const sizes = await cards.evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
-  expect(new Set(sizes)).toEqual(new Set(['509x78']));
+  expect(new Set(sizes)).toEqual(new Set(['529x78']));
   expect(await page.locator('.fk-card-row').evaluateAll((els) => els.filter((r) => r.scrollWidth > r.clientWidth).length)).toBe(0);
   expect(errors).toEqual([]);
 });
@@ -864,7 +864,7 @@ test('Slate strip: a window opens the club\'s Team Calendar with that window hig
     const sq = s.querySelector('.fk-fg-sq')!.getBoundingClientRect();
     return ['strip-prev', 'strip-next'].map((id) => { const b = s.querySelector(`[data-testid="${id}"]`)!; const a = b.getBoundingClientRect(); const tri = b.querySelector('svg')!.getBoundingClientRect(); return [Math.round(a.height), Math.round(mid(a) - mid(sq)) + Math.round(mid(tri) - mid(sq))]; }).concat([[Math.round(sq.height), 0]]);
   });
-  expect(geo).toEqual([[17, 0], [17, 0], [17, 0]]);
+  expect(geo).toEqual([[21, 0], [21, 0], [21, 0]]);
   // the first slot: the weekend of Nov 13–16
   const slot = strip.getByTestId('strip-slot').first();
   await expect(slot).toHaveAttribute('data-window', '2026-11-13');
@@ -944,19 +944,44 @@ test('FK-52: Slate scores sit in one column on every card of the day, on screen 
   const inCopy = await page.evaluate(() => (window as unknown as { __fkCapture?: number[] }).__fkCapture!);
   expect(inCopy.length).toBe(onScreen.length);
   expect(Math.max(...inCopy) - Math.min(...inCopy)).toBeLessThanOrEqual(1);
-  expect(errors.filter((e) => !/404|19288/.test(e))).toEqual([]); // 19288 has no logo file (see the fix test below)
+  expect(errors).toEqual([]);
 });
 
-test('fix: a copy with a team that has no logo file (a 404) still copies, the crest left blank', async ({ page, context }) => {
+test('fix: a copy with a team that has no logo file still copies, the crest left blank', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   const errors = await open(page, '?view=slate');
   await page.getByTestId('slate-card').first().waitFor();
   // Sun Nov 8: a strip shows CD Artistico Navalcarnero (19288), a Copa del Rey opponent ESPN has no logo for
   await page.getByLabel('Pick a date').fill('2026-11-08');
   await expect(page.getByTestId('date-text')).toContainText('Nov 8');
-  const missing = await page.request.get('/football/logos/19288.png');
-  expect(missing.status()).toBe(404);
+  // (the site answers a 404; vite preview answers index.html: neither is a picture, and either failed the whole copy)
+  expect(await page.request.get('/football/logos/19288.png').then((r) => r.headers()['content-type'])).not.toMatch(/^image/);
   await page.getByTestId('top-bar').getByTestId('copy').click();
   await expect(page.getByTestId('top-bar').getByTestId('copy')).toHaveText('✓');
-  expect(errors.filter((e) => !/404|19288/.test(e))).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test('FK-53: bigger last-games squares (21 px, crest scaled), lined up across cards, nothing overflows', async ({ page }) => {
+  const errors = await open(page, '?view=slate');
+  const cards = page.getByTestId('slate-card');
+  await expect(cards.first()).toBeVisible();
+  const rows = await page.locator('[data-testid="slate-card"] .fk-card-row').evaluateAll((els) => els.map((r) => {
+    const sq = r.querySelector('[data-testid="form-game"]:not(.fk-fg-half)');
+    const img = r.querySelector('[data-testid="form-game"]:not(.fk-fg-half) img');
+    const left = r.getBoundingClientRect().left;
+    return { w: sq?.getBoundingClientRect().width, h: sq?.getBoundingClientRect().height, img: img?.getBoundingClientRect().width, slots: [...r.querySelectorAll('[data-testid="strip-slot"]')].map((s) => Math.round(s.getBoundingClientRect().left - left)), spill: r.scrollWidth > r.clientWidth };
+  }));
+  const withStrip = rows.filter((r) => r.slots.length);
+  expect(withStrip.length).toBeGreaterThan(5);
+  for (const r of withStrip) {
+    expect(r.w).toBeGreaterThanOrEqual(21); // FK-47's 17 px + 20–25 %
+    expect(r.h).toBeGreaterThanOrEqual(21);
+    if (r.img) expect(r.img).toBeGreaterThanOrEqual(15); // the crest grew with it (was 12)
+    expect(r.slots).toEqual(withStrip[0]!.slots);
+  }
+  expect(rows.some((r) => r.spill)).toBe(false);
+  // the card widened only by the squares' growth: 509 + 5 × 4
+  const box = (await cards.first().boundingBox())!;
+  expect([box.width, box.height]).toEqual([529, 78]);
+  expect(errors).toEqual([]);
 });

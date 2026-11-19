@@ -2323,7 +2323,7 @@ button.fk-chip:hover {
 /* FK-32: the Slate card's last games: crest on the result colour, "vs" / "@" in a fixed slot */
 .fk-form-games {
   gap: 1px;
-  width: 140px; /* 5 window slots of 7 + 17 px, 1 apart, and the FK-48 arrows (layout.ts games track) */
+  width: 160px; /* 5 window slots of 7 + 21 px, 1 apart, and the FK-48 arrows (layout.ts games track) */
   justify-content: flex-end;
 }
 /* the result's colour over the square's grey (.fk-fg-sq comes later in this file, so the plain .fk-form-* lost) */
@@ -2360,13 +2360,13 @@ button.fk-chip:hover {
   gap: 1px;
 }
 .fk-fg-sq.fk-fg-half {
-  width: 8px;
+  width: 10px;
   border-radius: 3px;
   overflow: hidden;
 }
 .fk-fg-sq.fk-fg-half img {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 /* a match still to play: the crest on plain grey, outlined */
 .fk-fg-sq.fk-fg-next {
@@ -2396,14 +2396,14 @@ button.fk-chip:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 17px; /* 5 window slots and the FK-48 arrows fit calendarkit's card */
-  height: 17px;
+  width: 21px; /* FK-53: 17 → 21 px so the crests read; the card is 20 px wider for it (layout.ts) */
+  height: 21px;
   border-radius: 4px;
   background: var(--fk-border);
 }
 .fk-fg-sq img {
-  width: 12px;
-  height: 12px;
+  width: 15px;
+  height: 15px;
   object-fit: contain;
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
 }
@@ -2761,7 +2761,7 @@ a.fk-series-sq:hover {
   place-items: center;
   flex: none;
   width: 7px;
-  height: 17px; /* a square's height, centred on the same line as the slots */
+  height: 21px; /* a square's height, centred on the same line as the slots */
   align-self: center;
   border-radius: 3px;
   color: var(--fk-text);
