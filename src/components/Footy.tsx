@@ -11,7 +11,7 @@ import { Ctx, type FootyCtx } from './ctx';
 import { CopyButton } from './Copy';
 import { DayList } from './DayList';
 import { DayStrip } from './DayStrip';
-import { DEFAULT_CUP, DEFAULT_LEAGUE, leagueWhatIfPage, simLeague, stepPage, teamClickPage, uclWhatIfPage, type Page } from './page';
+import { DEFAULT_CUP, DEFAULT_LEAGUE, leagueViewPage, leagueWhatIfPage, simLeague, stepPage, teamClickPage, uclWhatIfPage, type Page } from './page';
 import { StandingsPopup, useSeriesPopup } from './Popups';
 import { Slate } from './Slate';
 import { createSelectionStore, useMarqueeSelection } from './selection';
@@ -111,6 +111,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const ctx: FootyCtx = useMemo(() => ({
     model, now, timeZone, live, tags, hiddenTags, gameMenu: true, weather: pageWeatherStore(),
     onTeam: (id, day) => onPage(teamClickPage(page, id, day, today)),
+    onLeague: (comp, day) => onPage(leagueViewPage(page, comp, day)),
     onSeries: series.onSeries,
     onSeriesLeave: series.onSeriesLeave,
     onStandings: (team) => setStandings({ team }),

@@ -87,7 +87,7 @@ export function SlateCard({ m, day, notes, wx }: { m: Match; day: string; notes?
             </span>
           </span>
           <span className="fk-card-chips">
-            <CompMark slug={m.c} round={[m.r, m.leg ? `leg ${m.leg}` : ''].filter(Boolean).join(' · ') || undefined} />
+            <CompMark m={m} />
             <MatchLink m={m} />
             <SeriesChip m={m} />
             <DerbyTag m={m} />

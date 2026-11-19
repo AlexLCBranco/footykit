@@ -11,6 +11,8 @@ import { leaguePosition } from '../data/position';
 import { ordinal } from '../data/tags';
 import { seasonSeries } from '../data/series';
 import { matchUrl, type Match } from '../data/snapshot';
+import { compLabel } from '../data/compLabel';
+import { isLeagueViewComp } from './page';
 import { useFooty } from './ctx';
 import { DerbyTag, TeamTags } from './Tags';
 
@@ -57,23 +59,32 @@ export function TeamLink({ id, day, label = 'abbr', logo = 'before', logoSize, c
 /** The competition's small logo; its code and full name on hover. A code badge when there is no logo file.
  * `showName`: the name spelled out after the logo, in a fixed-width cell (list rows, so the team columns line up;
  * a long name ends in "…", the tooltip keeps it whole). */
-export function CompMark({ slug, round, showName = false }: { slug: string; round?: string; showName?: boolean }) {
-  const { model } = useFooty();
+export function CompMark({ m, showName = false }: { m: Match; showName?: boolean }) {
+  const { model, onLeague } = useFooty();
+  const slug = m.c;
   const c = model.comp(slug);
   const [failed, setFailed] = useState(false);
-  const title = `${c.code} · ${c.name}${round ? ` · ${round}` : ''}`;
+  // FK-46: the competition and the match's round or stage ("Brasileirão · ~Round 35", "Copa do Brasil · Semi-final, 1st leg")
+  const label = compLabel(model.snap, m, c.name);
+  // FK-46: a click opens the League view on this competition and the match's day (competitions it has)
+  const open = onLeague && isLeagueViewComp(slug) ? (e: MouseEvent) => { e.stopPropagation(); onLeague(slug, model.dayOf(m)); } : undefined;
+  const title = open ? `${label}
+Click: ${c.name} in the League view` : label;
   const mark = (
-    <span className={`fk-comp fk-comp-${c.kind}`} title={showName ? undefined : title} data-comp={showName ? undefined : c.code}>
+    <span className={`fk-comp fk-comp-${c.kind}`} title={showName ? undefined : title} data-comp={showName ? undefined : c.code} data-testid={showName ? undefined : 'comp-mark'}>
       {failed ? <span className="fk-comp-code">{c.code}</span> : <img src={compLogoUrl(slug)} alt={c.code} width={16} height={16} loading="lazy" decoding="async" onError={() => setFailed(true)} />}
     </span>
   );
+  const inner = showName ? <>{mark}<span className="fk-comp-name" data-testid="comp-name">{c.name}</span></> : mark;
+  if (open) {
+    return (
+      <button type="button" className={`fk-comp-btn${showName ? ' fk-comp-named' : ''}`} title={title} aria-label={title} data-comp={c.code} data-testid="comp-link" onClick={open}>
+        {inner}
+      </button>
+    );
+  }
   if (!showName) return mark;
-  return (
-    <span className="fk-comp-named" title={title} data-comp={c.code}>
-      {mark}
-      <span className="fk-comp-name" data-testid="comp-name">{c.name}</span>
-    </span>
-  );
+  return <span className="fk-comp-named" title={title} data-comp={c.code}>{inner}</span>;
 }
 
 const RESULT_TEXT = { W: 'win', D: 'draw', L: 'defeat' } as const;

@@ -2684,3 +2684,29 @@ a.fk-series-sq:hover {
   gap: 4px 14px;
   font-size: 13px;
 }
+
+/* FK-46: a competition icon (and its name in list rows) opens the League view */
+/* only as wide as the logo and name: the cell's empty rest still starts a marquee selection */
+.fk-comp-btn {
+  all: unset;
+  justify-self: start;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.fk-comp-btn:hover .fk-comp {
+  outline: 1px solid var(--fk-link);
+}
+.fk-comp-btn:hover .fk-comp-name {
+  color: var(--fk-link);
+}
+.fk-comp-btn:focus-visible {
+  outline: 2px solid var(--fk-link);
+}
+.fk-comp-btn.fk-comp-named {
+  cursor: pointer;
+}

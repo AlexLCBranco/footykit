@@ -68,7 +68,7 @@ function CellMatch({ m, team, day }: { m: Match; team: string; day: string }) {
         <FormSquares line={formAt(model, team, m)} teamId={team} />
         <SeriesChip m={m} />
         <TeamTags m={m} side={home ? 'h' : 'a'} />
-        <span className={`fk-cell-comp fk-comp-pill-${c.kind}`} title={`${c.name}${m.r ? ` · ${m.r}` : ''}`} data-testid="cal-comp"><CompMark slug={m.c} round={m.r} />{c.code}</span>
+        <span className={`fk-cell-comp fk-comp-pill-${c.kind}`} title={`${c.name}${m.r ? ` · ${m.r}` : ''}`} data-testid="cal-comp"><CompMark m={m} />{c.code}</span>
         <DerbyTag m={m} />
       </div>
     </article>

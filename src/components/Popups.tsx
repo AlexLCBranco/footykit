@@ -90,7 +90,7 @@ export function SeriesPopup({ open, onClose, onEnter, onLeave }: { open: SeriesO
               {w && <span className="fk-series-win">{w === 'draw' ? 'Draw' : abbr(w)}</span>}
               {w && <span className="fk-series-score">{hi}–{lo}{pens}</span>}
               <span className="fk-series-date">{shortDay(day)}</span>
-              <span className="fk-series-comp"><CompMark slug={m.c} round={m.r} /></span>
+              <span className="fk-series-comp"><CompMark m={m} /></span>
             </a>
           );
         })}

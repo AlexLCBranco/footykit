@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-19
+- FK-46 — League icon hover: round + link to the League view (v0.58.0) — Hovering a match's competition icon now says the round ("Brasileirão · ~Round 35", ~ where rounds are a best guess) or a cup's stage ("Copa do Brasil · Semi-final, 1st leg"); clicking it (or the competition's name in list rows) opens the League view on that competition and day.
 - FK-45 — League view: one page per competition (like calendarkit's League view) (v0.57.0) — A League tab on the bar: pick a league, the Champions League or a cup and see every game of it (all its teams) a day at a time (List) or a week at a time (Calendar), with ‹ ›, a date picker and Today, its teams (followed clubs open their calendar) and its table or bracket underneath.
 - FK-44 — Slate: remove the draw odds (v0.56.0) — Slate cards no longer show the draw price ("X 3.40"); the home and away win prices stay.
 - FK-37 — Hover popup on the k/n chip like calendarkit (v0.55.0) — Hovering a "2/2" season-series chip now opens its season series popup (it stays while the pointer is in it and closes as soon as it leaves, as in calendarkit); a click keeps it open until Escape or a click elsewhere.

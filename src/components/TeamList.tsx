@@ -102,7 +102,7 @@ export function TeamList({ team, from, to, today, onEarlier, showRest = false, s
                 <div key={m.id} className={`fk-row fk-tl-row${r ? ` fk-res-${r}` : ''}${fifaWindowOn(day) ? ' fk-fifa' : ''}${day === today ? ' fk-is-today' : ''}`} data-testid="team-row" data-game-id={m.id} data-today={day === today || undefined} aria-current={day === today ? 'date' : undefined}>
                   <LineDate day={day} today={day === today} />
                   <MatchTime m={m} />
-                  <CompMark slug={m.c} round={m.r} showName />
+                  <CompMark m={m} showName />
                   <Scoreline m={m} day={day} label="short" form={false} />
                   <span className="fk-row-end">
                     <RunLabel m={m} team={team} />

@@ -11,10 +11,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 **Blocked:** (2026-11-19, step 1 done) The Odds API has no "team to score" key; the closest is `team_totals` (Over 0.5 goals = team scores), an additional market fetched one event at a time from `/events/{id}/odds`, costing 1 credit per event per region when it returns data. Followed clubs played 196 matches in Oct 2026 (max 18 in a day), so one region ≈ 200 credits a month of the free 500 (the event list call is free) — it fits on paper. Not verified: whether any EU/UK bookmaker prices `team_totals` for these leagues (The Odds API says additional markets are mostly US books; Brasileirão coverage unknown). Needs: you to create a free key at the-odds-api.com (an account I can't create for you), then one test call per league to confirm coverage before building.
 
 
-### FK-46 — League icon hover: round + link to the League view
-**What:** hovering a match's competition icon (today it says "BR · Brasileirão", image docs/backlog-img/FK-46-league-icon.png) also says the round: "Brasileirão · Round 35". Where FK-43's rounds are approximate (LaLiga, Brasileirão), write "~Round 35" rather than show a number that may be wrong. Cups give the stage instead ("Copa do Brasil · Semi-final, 1st leg"). Clicking the icon opens FK-45's League view on that competition and that match's day. Needs FK-45.
-**Tests:** unit: the label for a league match, an approximate-round league and a cup tie; e2e: clicking the icon opens the League view on that competition and day.
-
 ### FK-47 — Club form strip: window slots, empty windows shown, current match highlighted
 **What:** the strip next to each team on a Slate card (image docs/backlog-img/FK-47-strip.png) changes from "the last 2 / next 2 matches" to windows: each slot is one window, the same midweek (Tue–Thu) and weekend (Fri–Mon) windows as the Window strip tags. Five slots: 2 windows before, this match's window in the middle, 2 after.
 - A window with no match is an empty slot: dashed outline, a small "–", hover "No match · midweek 11–13 Nov". So rest is visible at a glance and slots line up across cards.

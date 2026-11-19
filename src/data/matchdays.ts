@@ -15,37 +15,9 @@ import type { LeagueSlug } from '../../config/season.ts';
 import { leagueMatches, rankTable, type LeagueRow } from './leagueTable.ts';
 import { isPlayed } from './model.ts';
 import type { Match, Snapshot } from './snapshot.ts';
+import { matchdays, type Matchdays } from './leagueRounds.ts';
 
-export interface Matchdays {
-  /** the rounds in order, each its matches (kick-off order) */
-  rounds: Match[][];
-  /** match id → its round, 1-based */
-  roundOf: Map<string, number>;
-  /** the last round with a played match (0 before the season starts): the table "now" */
-  latest: number;
-}
-
-/** Splits a league's matches into rounds of `members.length / 2` matches, each team once per round (see the top). */
-export function matchdays(members: readonly string[], matches: readonly Match[]): Matchdays {
-  const size = Math.max(1, Math.floor(members.length / 2));
-  const rounds: { matches: Match[]; teams: Set<string> }[] = [];
-  const roundOf = new Map<string, number>();
-  const list = matches.filter((m) => m.st !== 'can').sort((a, b) => (a.t < b.t ? -1 : a.t > b.t ? 1 : a.id < b.id ? -1 : 1));
-  let firstOpen = 0;
-  for (const m of list) {
-    let r = firstOpen;
-    while (r < rounds.length && (rounds[r]!.matches.length >= size || rounds[r]!.teams.has(m.h) || rounds[r]!.teams.has(m.a))) r++;
-    if (r === rounds.length) rounds.push({ matches: [], teams: new Set() });
-    const round = rounds[r]!;
-    round.matches.push(m);
-    round.teams.add(m.h).add(m.a);
-    roundOf.set(m.id, r + 1);
-    while (firstOpen < rounds.length && rounds[firstOpen]!.matches.length >= size) firstOpen++;
-  }
-  let latest = 0;
-  rounds.forEach((rd, i) => { if (rd.matches.some(isPlayed)) latest = i + 1; });
-  return { rounds: rounds.map((rd) => rd.matches), roundOf, latest };
-}
+export { matchdays, type Matchdays };
 
 const cache = new WeakMap<object, Map<LeagueSlug, { members: string[]; matches: Match[]; days: Matchdays }>>();
 

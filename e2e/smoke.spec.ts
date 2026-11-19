@@ -152,10 +152,12 @@ test('marquee selection: drag over two rows, copy only them; a click clears it',
 
   const rows = page.getByTestId('match-row');
   const a = (await rows.nth(1).boundingBox())!, b = (await rows.nth(2).boundingBox())!;
-  // from the empty space left of the teams in row 2 down into row 3
-  await page.mouse.move(a.x + 120, a.y + a.height / 2);
+  // from the empty space left of the teams in row 2 (past the competition's name, a link since FK-46) down into row 3
+  const x = (await rows.nth(1).getByTestId('comp-link').boundingBox())!;
+  const x0 = x.x + x.width + 6 - a.x;
+  await page.mouse.move(a.x + x0, a.y + a.height / 2);
   await page.mouse.down();
-  await page.mouse.move(a.x + 140, b.y + b.height / 2, { steps: 8 });
+  await page.mouse.move(a.x + x0 + 20, b.y + b.height / 2, { steps: 8 });
   await page.mouse.up();
   const bar = page.getByTestId('selection-bar');
   await expect(bar).toContainText('2 matches selected');

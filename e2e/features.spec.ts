@@ -142,7 +142,7 @@ test('FK-16: from a team page, one click on a main tab or the × lands on that m
   await expect(page).toHaveTitle(/^ARS /);
   // the main tabs stay, none selected; the club's own tabs sit in its group
   const main = page.getByTestId('views');
-  await expect(main.getByRole('tab')).toHaveText(['List', 'Slate', 'Tables', 'Cups', 'Trailing']);
+  await expect(main.getByRole('tab')).toHaveText(['List', 'Slate', 'Tables', 'Cups', 'Trailing', 'League']);
   await expect(main.locator('[aria-selected="true"]')).toHaveCount(0);
   await expect(page.getByTestId('club-group').getByTestId('team-views')).toBeVisible();
   await main.getByRole('tab', { name: 'Slate' }).click();
@@ -756,5 +756,24 @@ test('FK-45: the League view — a league\'s games for a day and its table; a cu
   await page.getByTestId('league-view-picker').selectOption('eng.1');
   await view.locator('[data-testid="league-team"][data-team="ARS"] button').click();
   await expect(page).toHaveURL(/view=cal&team=359/);
+  expect(errors).toEqual([]);
+});
+
+test('FK-46: a competition icon says the round on hover and opens the League view on its competition and day', async ({ page }) => {
+  const errors = await open(page, '?view=slate');
+  const icon = page.locator('[data-testid="slate-card"][data-match-id="401879233"]').getByTestId('comp-link'); // Man City v Fulham
+  await expect(icon).toHaveAttribute('title', /^Premier League · Round \d+\n/);
+  await icon.click();
+  await expect(page).toHaveURL(/view=league&comp=eng\.1/);
+  await expect(page.getByTestId('league-day')).toHaveAttribute('data-day', '2026-11-21');
+  await expect(page.getByTestId('league-view-picker')).toHaveValue('eng.1');
+  // a List row's competition (icon and name) does the same, without pinning the row
+  await page.goto('/football/');
+  const row = page.getByTestId('match-row').first();
+  const comp = await row.getAttribute('data-comp');
+  await row.getByTestId('comp-link').click();
+  await expect(page).toHaveURL(/view=league/);
+  await expect(page.getByTestId('league-view')).toBeVisible();
+  expect(comp).toBeTruthy();
   expect(errors).toEqual([]);
 });
