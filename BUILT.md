@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-19
+- FK-38 — Slate: home team on the first line (v0.50.0) — Every Slate card now lists the home team first and the away team second.
 - FK-35 — Slate in the same shape as calendarkit's (for a combined Slate) (v0.49.0) — Slate cards are now calendarkit's size and layout (509 × 78, kickoff strip, logo, name with place and score, tags, last / next games, odds) in a tight grid of shared borders under "SLATE · 19-11 · Football"; on the card the tags show their highlights (all of them on hover).
 - FK-36 — Club form strip: 2 before, 2 after (v0.48.0) — A Slate card's squares now show each club's last 2 played matches (crest on green / grey / red) and its next 2 (crest outlined), with a thin mark where this match sits.
 - Last-games squares show their win / draw / loss colours (fix) (v0.48.0) — The Slate squares were all grey since v0.44.0; the colours now show.

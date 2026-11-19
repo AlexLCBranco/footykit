@@ -135,7 +135,8 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - A postponed event that was rescheduled under a new id is dropped.
 - Friendlies and pre-season trophies are not shown; super cups, Copa do Nordeste and state championships are.
 - Match links: a Google search, never ESPN (Alex, backlog item 10).
-- Rows read AWAY 2 @ 1 HOME (calendarkit's layout); "v" instead of "@" at a neutral venue.
+- Rows read AWAY 2 @ 1 HOME (calendarkit's layout); "v" instead of "@" at a neutral venue. Slate cards are the exception
+  (FK-38, owner): the home team on the first line, the away team on the second, no "@".
 - Form (last 5) and streaks count every competition; the record is the league W-D-L.
 - Free windows: MIDWEEK Tue–Thu, WEEKEND Fri–Mon; a window without a match is tinted on the Team Calendar.
 - Travel map (calendarkit's travel view): Europe / South America by the venue; nothing focused = a dot per match with

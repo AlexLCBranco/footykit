@@ -1,6 +1,6 @@
 // Slate: the day's matches as cards in calendarkit's shape (FK-35, src/slate/layout.ts has the sizes): a tight grid
 // like a table (the cards touch and share one divider line), the header line "SLATE · 19-11 · Football" across its top.
-// Each card: a strip on the left (kickoff time, then a wrapping row of the competition, ↗, series chip, derby / neutral
+// Each card (the home team on the first line, FK-38): a strip on the left (kickoff time, then a wrapping row of the competition, ↗, series chip, derby / neutral
 // marks, the draw price and the copy button) beside the two team rows: "@" cell, logo, name with its league place and
 // the score right after it, the tags (highlights; every tag in the hover popup), the last 2 / next 2 games (FK-36), the
 // team's price. With notes shown, the note box sits under the rows across the card (5 lines, then its own scrollbar).
@@ -29,7 +29,8 @@ function SideRow({ m, side, day, odds }: { m: Match; side: 'a' | 'h'; day: strin
   const loss = isPlayed(m) && score !== undefined && other !== undefined && score < other;
   return (
     <div className={`fk-card-row${win ? ' fk-win' : ''}${loss ? ' fk-loss' : ''}`} data-side={side === 'h' ? 'home' : 'away'}>
-      <span className="fk-card-at">{side === 'h' ? (neutralVenue(m) ? 'v' : '@') : ''}</span>
+      {/* FK-38: the home team is the first line, so no "@": the order says it (a neutral venue has its N mark) */}
+      <span className="fk-card-at" />
       <TeamLink id={id} day={day} label="none" logoSize={28} className="fk-card-logo" />
       {/* FK-31: the score right after the name (and its league place, FK-28) */}
       <span className="fk-card-teamcell">
@@ -49,7 +50,7 @@ export function SlateCard({ m, day, notes }: { m: Match; day: string; notes?: Sl
   const o = live.odds.get(m.id);
   const tie = tieNote(m);
   const neutral = neutralVenue(m);
-  const label = `${model.team(m.a).name} at ${model.team(m.h).name}`;
+  const label = `${model.team(m.h).name} vs ${model.team(m.a).name}`;
   return (
     <article className={`fk-card${neutral ? ' fk-neutral' : ''}${m.st === 'in' ? ' fk-card-live' : ''}`} data-match-id={m.id} data-game-id={m.id} data-testid="slate-card" aria-label={label}>
       <div className="fk-card-main">
@@ -57,7 +58,7 @@ export function SlateCard({ m, day, notes }: { m: Match; day: string; notes?: Sl
           <span className="fk-card-time">
             <MatchTime m={m} />
             <span className="fk-card-copy" data-capture-exclude="true">
-              <CopyButton target={(b) => b.closest('.fk-card') as HTMLElement} label={`Copy ${model.team(m.a).abbr} @ ${model.team(m.h).abbr} as an image`} small />
+              <CopyButton target={(b) => b.closest('.fk-card') as HTMLElement} label={`Copy ${model.team(m.h).abbr} vs ${model.team(m.a).abbr} as an image`} small />
             </span>
           </span>
           <span className="fk-card-chips">
@@ -71,8 +72,9 @@ export function SlateCard({ m, day, notes }: { m: Match; day: string; notes?: Sl
           </span>
         </div>
         <div className="fk-card-rows">
-          <SideRow m={m} side="a" day={day} odds={o?.a} />
+          {/* FK-38: the home team first, the away team second */}
           <SideRow m={m} side="h" day={day} odds={o?.h} />
+          <SideRow m={m} side="a" day={day} odds={o?.a} />
         </div>
       </div>
       {notes && (

@@ -9,10 +9,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 **What:** the "2/2" chip (image `docs/backlog-img/FK-37-chip.png`) opens a popup on hover with the same layout and kind of content as calendarkit's chip popup (calendarkit `src/slate/Fatigue.tsx`: what the run is, previous/next match, rest days, day squares).
 **Tests:** e2e: hover opens the popup, it closes on leaving (like calendarkit CK-6).
 
-### FK-38 — Slate: home team on the first line
-**What:** on footykit's Slate cards the home team is always the first line and the away team the second.
-**Tests:** e2e on a known match.
-
 ### FK-39 — Weather on matches
 **What:** full weather for each match at kick-off (temperature, feels-like, rain chance, wind) from Open-Meteo (free, no key, non-commercial; attribution "Weather data by Open-Meteo.com" required, CC BY 4.0), using the coordinates already in `config/venues.json`. Show it in the match's popup and a small icon on the Slate card, no extra card width. Only forecasts (Open-Meteo forecasts up to 16 days ahead); cache per venue per hour.
 **Tests:** unit for building the request and reading the answer (fixture); one live check for one venue.

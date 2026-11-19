@@ -553,3 +553,20 @@ test('FK-35: Slate cards are calendarkit\'s size, in a tight grid, under "SLATE 
   expect(odds).toBe(1);
   expect(errors).toEqual([]);
 });
+
+test('FK-38: a Slate card has the home team on the first line, the away team on the second', async ({ page }) => {
+  const errors = await open(page, '?view=slate');
+  // Man City (home) v Fulham (away), Sat Nov 21 in the recorded snapshot
+  const card = page.locator('[data-testid="slate-card"][data-match-id="401879233"]');
+  const rows = card.locator('.fk-card-row');
+  await expect(rows).toHaveCount(2);
+  await expect(rows.nth(0)).toHaveAttribute('data-side', 'home');
+  await expect(rows.nth(0).locator('.fk-card-team')).toHaveText('Man City');
+  await expect(rows.nth(1)).toHaveAttribute('data-side', 'away');
+  await expect(rows.nth(1).locator('.fk-card-team')).toHaveText('Fulham');
+  await expect(card).toHaveAttribute('aria-label', 'Manchester City vs Fulham');
+  // every card: home first
+  const sides = await page.locator('[data-testid="slate-card"]').evaluateAll((els) => els.map((e) => [...e.querySelectorAll('.fk-card-row')].map((r) => r.getAttribute('data-side')).join(',')));
+  expect(new Set(sides)).toEqual(new Set(['home,away']));
+  expect(errors).toEqual([]);
+});
