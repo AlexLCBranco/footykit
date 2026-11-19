@@ -1,0 +1,20 @@
+// FK-35: footykit's Slate card is calendarkit's size (calendarkit src/slate/layout.ts: info 491, card 509 × 78), so a
+// combined Slate in the gauntlet lines both kits' cards up; the header line follows calendarkit's pattern.
+import { describe, expect, it } from 'vitest';
+import { CK_ROW_TOTAL, SLATE_CARD_HEIGHT, SLATE_CARD_WIDTH, SLATE_INFO_WIDTH, SLATE_ROW_TOTAL, slateHeaderLabel } from '../src/slate/layout';
+import { copyColumns } from '../src/components/Copy';
+
+describe('Slate card layout (FK-35)', () => {
+  it('the team rows add up to calendarkit\'s', () => expect(SLATE_ROW_TOTAL).toBe(CK_ROW_TOTAL));
+  it('calendarkit\'s card: 491 px info, 509 × 78 info-only', () => {
+    expect(SLATE_INFO_WIDTH).toBe(491);
+    expect([SLATE_CARD_WIDTH, SLATE_CARD_HEIGHT]).toEqual([509, 78]);
+  });
+  it('header line: "SLATE · 19-11 · Football", several sports joined', () => {
+    expect(slateHeaderLabel('2026-11-19')).toBe('SLATE · 19-11 · Football');
+    expect(slateHeaderLabel('2026-11-18', ['NBA', 'Football'])).toBe('SLATE · 18-11 · NBA + Football');
+  });
+  it('copies: calendarkit\'s rule on its own example (12 cards of 474 × 117 → 3 columns)', () => {
+    expect(copyColumns(12, { width: 474, height: 117 })).toBe(3);
+  });
+});

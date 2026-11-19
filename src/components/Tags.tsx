@@ -192,8 +192,9 @@ function Popup({ model, m, s, opp, at }: { model: Model; m: Match; s: SideTags; 
   );
 }
 
-/** One team's tags in the chosen variant, with the detailed popup on hover. */
-export function TeamTags({ m, side, align = 'start' }: { m: Match; side: 'a' | 'h'; align?: 'start' | 'end' }) {
+/** One team's tags in the chosen variant, with the detailed popup on hover. `compact` (the Slate card's narrow track,
+ * FK-35): All tags shows the highlights only; the popup still has everything. */
+export function TeamTags({ m, side, align = 'start', compact = false }: { m: Match; side: 'a' | 'h'; align?: 'start' | 'end'; compact?: boolean }) {
   const { model, tags: variant, hiddenTags: hidden = DEFAULT_HIDDEN } = useFooty();
   const [at, setAt] = useState<DOMRect>();
   if (!variant || variant === 'off') return null;
@@ -202,7 +203,7 @@ export function TeamTags({ m, side, align = 'start' }: { m: Match; side: 'a' | '
   let body: ReactNode;
   if (variant === 'rail') body = <Rail s={s} hidden={hidden} />;
   else {
-    const list = tokens(model, s).filter((t) => !hidden.has(t.key) && (variant === 'alerts' ? ALERT(t) : true));
+    const list = tokens(model, s).filter((t) => !hidden.has(t.key) && (variant === 'alerts' || compact ? ALERT(t) : true));
     if (!list.length) return null;
     body = list.map((t) => <span key={t.key} className={`fk-tag ${t.cls}`} data-tag={t.key}>{t.text}</span>);
   }

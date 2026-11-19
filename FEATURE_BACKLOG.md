@@ -5,10 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-35 — Slate in the same shape as calendarkit's (for a combined Slate)
-**What:** make footykit's Slate cards the same size and layout as calendarkit's Slate cards (columns, row height, card width, logos, score, odds), so the gauntlet can show a combined Slate (gauntlet GT-14). Add the same header line as calendarkit CK-10 ("SLATE · 18-11 · Football"). Design is open for this first version: match calendarkit's.
-**Tests:** e2e: a footykit card and a calendarkit card measure the same size; header shows.
-
 ### FK-37 — Hover popup on the k/n chip like calendarkit
 **What:** the "2/2" chip (image `docs/backlog-img/FK-37-chip.png`) opens a popup on hover with the same layout and kind of content as calendarkit's chip popup (calendarkit `src/slate/Fatigue.tsx`: what the run is, previous/next match, rest days, day squares).
 **Tests:** e2e: hover opens the popup, it closes on leaving (like calendarkit CK-6).

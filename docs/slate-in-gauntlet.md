@@ -33,8 +33,11 @@ key and saves on any change, footykit's tab included.
 **Must know**
 - At rest the part starts no timer and no animation frame (tested: tests/slate-part.test.tsx).
 - The part imports nothing from footykit's app shell (tested).
-- Copies: `copyColumns(n, cardSize)` is the largest-cards rule footykit's own Slate copy uses (page 1920 × 911,
-  `COPY_GAP` 24 px).
+- Copies: `copyColumns(n, cardSize)` is the largest-cards rule footykit's own Slate copy uses (page 1920 × 911;
+  `COPY_GAP` −1, a shared border, and `COPY_MARGIN` 12 px around, as calendarkit's).
+- Cards (FK-35) are calendarkit's size: `SLATE_CARD_WIDTH` × `SLATE_CARD_HEIGHT` (509 × 78 info-only), the grid tight
+  with shared 1 px borders, "SLATE · 19-11 · Football" across the top. `slateHeaderLabel(day, ['NBA', 'Football'])` gives
+  a combined Slate's header.
 
 **Differences from calendarkit's part**
 - Team links are a prop (`teamLink`), not a context provider.

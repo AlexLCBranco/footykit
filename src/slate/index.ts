@@ -23,4 +23,6 @@ export {
   type Slot,
   type SlateNotes,
 } from './notes';
-export { copyColumns, COPY_GAP, PAGE as COPY_PAGE } from '../components/Copy';
+export { copyColumns, COPY_GAP, COPY_MARGIN, PAGE as COPY_PAGE } from '../components/Copy';
+// FK-35: calendarkit's card sizes and header line, for a combined Slate
+export { slateHeaderLabel, SLATE_CARD_WIDTH, SLATE_CARD_HEIGHT, SLATE_INFO_WIDTH } from './layout';

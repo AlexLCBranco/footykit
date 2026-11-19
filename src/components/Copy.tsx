@@ -6,18 +6,21 @@
 import { useState } from 'react';
 import { COPY_PIXEL_RATIO, copyAsImage } from './copyAsImage';
 
-export const COPY_GAP = 24;
+/** FK-35: calendarkit's tight copy (CK-7): the cards share one 1 px divider line (a gap of -1, each card reaching 1 px
+ * into the next), with COPY_MARGIN of transparent page around them. */
+export const COPY_GAP = -1;
+export const COPY_MARGIN = 12;
 export const PAGE = { width: 1920, height: 911 };
 
 const fitScale = (img: { width: number; height: number }, page = PAGE) => Math.min(page.width / img.width, page.height / img.height);
 
-/** Columns for `n` cards of `card` size, `gap` apart and half a gap around: the count that shows them largest on the
- * page. Ties: fewer columns. */
-export function copyColumns(n: number, card: { width: number; height: number }, page = PAGE, gap = COPY_GAP): number {
+/** Columns for `n` cards of `card` size, `gap` apart (-1: a shared border) and `margin` around: the count that shows
+ * them largest on the page (calendarkit's slateCopyColumns). Ties: fewer columns. */
+export function copyColumns(n: number, card: { width: number; height: number }, page = PAGE, gap = COPY_GAP, margin = COPY_MARGIN): number {
   let best = 1, bestScale = 0;
   for (let cols = 1; cols <= Math.max(1, n); cols++) {
     const rows = Math.ceil(n / cols);
-    const s = fitScale({ width: cols * (card.width + gap), height: rows * (card.height + gap) }, page);
+    const s = fitScale({ width: cols * card.width + (cols - 1) * gap + 2 * margin, height: rows * card.height + (rows - 1) * gap + 2 * margin }, page);
     if (s > bestScale + 1e-9) { best = cols; bestScale = s; }
   }
   return best;
@@ -33,7 +36,8 @@ export async function copyNode(node: HTMLElement, only?: ReadonlySet<string>): P
     const r = cards[0]!.getBoundingClientRect();
     const cols = copyColumns(cards.length, { width: r.width, height: r.height });
     const old = node.getAttribute('style');
-    Object.assign(node.style, { display: 'grid', gridTemplateColumns: `repeat(${cols}, ${r.width}px)`, gap: `${COPY_GAP}px`, padding: `${COPY_GAP / 2}px`, width: 'max-content', background: 'transparent' });
+    // the cards keep their 1 px reach into the next one (margin -1), so the tracks are a pixel narrower than a card
+    Object.assign(node.style, { display: 'grid', gridTemplateColumns: `repeat(${cols}, ${r.width - 1}px)`, gap: '0', padding: `${COPY_MARGIN}px ${COPY_MARGIN + 1}px ${COPY_MARGIN + 1}px ${COPY_MARGIN}px`, width: 'max-content', background: 'transparent' });
     restore.push(() => (old === null ? node.removeAttribute('style') : node.setAttribute('style', old)));
   }
   try {

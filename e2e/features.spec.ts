@@ -450,11 +450,11 @@ test('FK-31 / FK-32: Slate card score beside the name; bigger last-games squares
   }));
   // FK-31: every played card's score sits right after the name
   for (const r of rows) { expect(r.gap).toBeGreaterThanOrEqual(0); expect(r.gap).toBeLessThan(12); }
-  // FK-32: 22 px squares, "vs" / "@" before each, at the same x on every row
+  // FK-32: squares (20 px since FK-35 fitted them into calendarkit's card), "vs" / "@" before each, at the same x on every row
   const withForm = rows.filter((r) => r.sqLefts.length);
   expect(withForm.length).toBeGreaterThan(5);
   for (const r of withForm) {
-    expect(r.sqW).toBe(22);
+    expect(r.sqW).toBe(20);
     expect(r.sqLefts).toEqual(withForm[0]!.sqLefts);
     for (const p of r.prefixes) expect(['vs', '@']).toContain(p);
   }
@@ -533,5 +533,23 @@ test('FK-36: the Slate strip shows the 2 played before and the next 2 after the 
   expect(byResult.get('W')?.size).toBe(1);
   expect(byResult.get('L')?.size).toBe(1);
   expect([...byResult.get('W')!][0]).not.toBe([...byResult.get('L')!][0]);
+  expect(errors).toEqual([]);
+});
+
+test('FK-35: Slate cards are calendarkit\'s size, in a tight grid, under "SLATE · dd-mm · Football"', async ({ page }) => {
+  const errors = await open(page, '?view=slate');
+  await expect(page.getByTestId('slate-header')).toHaveText('SLATE · 21-11 · Football');
+  // calendarkit's info-only card, measured on its live Slate (src/slate/layout.ts there): 509 × 78
+  const sizes = await page.getByTestId('slate-card').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
+  expect(sizes.length).toBeGreaterThan(3);
+  expect(new Set(sizes)).toEqual(new Set(['509x78']));
+  // nothing spills out of a row; neighbours share their 1 px border
+  const spill = await page.locator('.fk-card-row').evaluateAll((els) => els.filter((r) => r.scrollWidth > r.clientWidth).length);
+  expect(spill).toBe(0);
+  const [a, b] = await page.getByTestId('slate-card').evaluateAll((els) => els.slice(0, 2).map((e) => e.getBoundingClientRect()));
+  expect(b!.left - a!.right).toBe(-1);
+  // the row's tracks: "@", logo, name, tags, games, odds — the same x on every card
+  const odds = await page.getByTestId('card-odds').evaluateAll((els) => new Set(els.map((e) => Math.round(e.getBoundingClientRect().right - e.closest('.fk-card')!.getBoundingClientRect().left))).size);
+  expect(odds).toBe(1);
   expect(errors).toEqual([]);
 });
