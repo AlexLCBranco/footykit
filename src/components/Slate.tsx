@@ -1,7 +1,7 @@
 // Slate: the day's matches as cards in calendarkit's shape (FK-35, src/slate/layout.ts has the sizes): a tight grid
 // like a table (the cards touch and share one divider line), the header line "SLATE · 19-11 · Football" across its top.
 // Each card (the home team on the first line, FK-38): a strip on the left (kickoff time, then a wrapping row of the competition, ↗, series chip, derby / neutral
-// marks, the draw price and the copy button) beside the two team rows: "@" cell, logo, name with its league place and
+// marks and the copy button; no draw price, FK-44) beside the two team rows: "@" cell, logo, name with its league place and
 // the score right after it, the tags (highlights; every tag in the hover popup), the last 2 / next 2 games (FK-36), the
 // team's price. With notes shown, the note box sits under the rows across the card (5 lines, then its own scrollbar).
 // Weather (FK-39): the sky at kick-off in the second line's empty cell, the full forecast in the game pop-up.
@@ -93,7 +93,6 @@ export function SlateCard({ m, day, notes, wx }: { m: Match; day: string; notes?
             <DerbyTag m={m} />
             {neutral && <span className="fk-neutral-tag" title={`Neutral venue (${neutral.why})`}>N</span>}
             {tie && <span className="fk-chip fk-card-tie" title={tie}>{tie.split(' · ')[0]}</span>}
-            {o && <span className="fk-card-draw" title={`Draw (decimal${o.p ? `, ${o.p}` : ''})`}>X {o.d.toFixed(2)}</span>}
           </span>
         </div>
         <div className="fk-card-rows">

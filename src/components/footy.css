@@ -813,13 +813,6 @@ button.fk-chip:hover {
   padding: 0 4px;
   font-size: 10px;
 }
-.fk-card-draw {
-  color: var(--fk-muted);
-  font-size: 10px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
 /* the time, and the copy button at the strip's right edge (never in a copy) */
 .fk-card-time {
   display: flex;

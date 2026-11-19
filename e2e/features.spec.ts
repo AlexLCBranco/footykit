@@ -711,3 +711,14 @@ test('FK-37: hovering the k/n chip opens the season series popup, it stays while
   if (await slateChip.count()) { await slateChip.hover(); await expect(pop).toBeVisible(); }
   expect(errors).toEqual([]);
 });
+
+test('FK-44: a Slate card with odds shows the home and away prices and no draw price', async ({ page }) => {
+  // the day layer answers with odds for Man City v Fulham (preview's own day function answers an empty day)
+  await page.route(/\/api\/day\?/, (route) => route.fulfill({ json: { date: new URL(route.request().url()).searchParams.get('date'), fetchedAt: '2026-11-21T15:00:00Z', matches: [], odds: { '401879233': { h: 1.45, d: 4.6, a: 6.25, p: 'DraftKings' } } } }));
+  const errors = await open(page, '?view=slate');
+  const card = page.locator('[data-testid="slate-card"][data-match-id="401879233"]');
+  await expect(card.getByTestId('card-odds')).toHaveText(['1.45', '6.25']);
+  await expect(card).not.toContainText('4.60');
+  await expect(card.locator('.fk-card-draw')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
