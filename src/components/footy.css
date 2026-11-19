@@ -819,7 +819,7 @@ button.fk-chip:hover {
   font-variant-numeric: tabular-nums;
 }
 .fk-form-gap {
-  width: 190px; /* FK-32: the game squares' width, so the odds stay in one column */
+  width: 160px; /* the strip's width (FK-36), so the odds stay in one column */
 }
 .fk-card-sub {
   font-size: 11px;
@@ -2241,8 +2241,35 @@ button.fk-chip:hover {
 /* FK-32: the Slate card's last games: crest on the result colour, "vs" / "@" in a fixed slot */
 .fk-form-games {
   gap: 3px;
-  width: 190px;
+  width: 160px; /* FK-36: 2 + 2 squares and the gap where this match sits */
   justify-content: flex-end;
+}
+/* the result's colour over the square's grey (.fk-fg-sq comes later in this file, so the plain .fk-form-* lost) */
+.fk-fg-sq.fk-form-W {
+  background: var(--fk-win);
+}
+.fk-fg-sq.fk-form-D {
+  background: var(--fk-draw);
+}
+.fk-fg-sq.fk-form-L {
+  background: var(--fk-loss);
+}
+/* FK-36: where the card's own match sits between the 2 before and the 2 after */
+.fk-fg-now {
+  width: 2px;
+  height: 18px;
+  margin: 0 1px;
+  border-radius: 1px;
+  background: var(--fk-muted);
+  opacity: 0.5;
+}
+/* a match still to play: the crest on plain grey, outlined */
+.fk-fg-sq.fk-fg-next {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--fk-muted);
+}
+.fk-fg-sq.fk-fg-none {
+  background: transparent;
 }
 .fk-fg {
   display: inline-flex;

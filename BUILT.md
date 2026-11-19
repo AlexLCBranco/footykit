@@ -4,6 +4,10 @@ Shipped work only, newest first. Planned work is in `FEATURE_BACKLOG.md`, never 
 Entries dated before 2026-11-16 were backfilled from the git commit messages (data, docs, test-only, merge and
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-19
+- FK-36 — Club form strip: 2 before, 2 after (v0.48.0) — A Slate card's squares now show each club's last 2 played matches (crest on green / grey / red) and its next 2 (crest outlined), with a thin mark where this match sits.
+- Last-games squares show their win / draw / loss colours (fix) (v0.48.0) — The Slate squares were all grey since v0.44.0; the colours now show.
+
 ## 2026-11-16
 - FK-28 — Show a team's position in its domestic league (v0.47.0) — Each team's current league place shows small and muted beside its name ("Arsenal 1st 2 @ 1 12th Everton") on the List rows, a club's List rows and the Slate cards, in every competition; hover it for the league.
 - FK-34 — Make the Tags setting self-explanatory (v0.46.0) — The bar's Tags setting reads "Tags: All tags ▾" and opens four choices in plain words (All tags, Window strip, Highlights only, Hide tags), each with a one-line description; your saved choice carries over.

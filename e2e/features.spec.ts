@@ -507,3 +507,31 @@ test('FK-28: each team\'s domestic league place beside its name on list rows and
   await expect(page.getByTestId('slate-card').first().getByTestId('league-pos')).toHaveCount(2);
   expect(errors).toEqual([]);
 });
+
+test('FK-36: the Slate strip shows the 2 played before and the next 2 after the match', async ({ page }) => {
+  const errors = await open(page, '?view=slate');
+  await page.getByLabel('Pick a date').fill('2026-11-08');
+  const strips = page.locator('[data-testid="slate-card"] [data-testid="form"]');
+  await expect(strips.first()).toBeVisible();
+  const counts = await strips.evaluateAll((els) => els.map((e) => ({
+    slots: e.querySelectorAll('.fk-fg').length,
+    before: e.querySelectorAll('[data-testid="form-game"][data-side="before"]').length,
+    after: e.querySelectorAll('[data-testid="form-game"][data-side="after"]').length,
+    beforeResults: [...e.querySelectorAll('[data-testid="form-game"][data-side="before"]')].every((g) => !!g.getAttribute('data-result')),
+  })));
+  expect(counts.length).toBeGreaterThan(5);
+  for (const c of counts) {
+    expect(c.slots).toBe(4); // always 4 slots, so the squares line up
+    expect(c.beforeResults).toBe(true);
+  }
+  // mid-season: most clubs have 2 played before and 2 to come
+  expect(counts.filter((c) => c.before === 2 && c.after === 2).length).toBeGreaterThan(counts.length / 2);
+  // played squares carry their result's colour (was grey on every square: .fk-fg-sq's background won over .fk-form-*)
+  const bg = await page.locator('[data-testid="form-game"][data-result] .fk-fg-sq').evaluateAll((els) => els.map((e) => [e.parentElement!.getAttribute('data-result'), getComputedStyle(e).backgroundColor]));
+  const byResult = new Map<string, Set<string>>();
+  for (const [r, c] of bg) byResult.set(r!, (byResult.get(r!) ?? new Set()).add(c!));
+  expect(byResult.get('W')?.size).toBe(1);
+  expect(byResult.get('L')?.size).toBe(1);
+  expect([...byResult.get('W')!][0]).not.toBe([...byResult.get('L')!][0]);
+  expect(errors).toEqual([]);
+});

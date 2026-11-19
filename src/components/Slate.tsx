@@ -4,7 +4,6 @@
 // notes hidden. Odds: ESPN's DraftKings lines (decimal), free, Slate only.
 
 import { useEffect } from 'react';
-import { formAt } from '../data/form';
 import { isPlayed } from '../data/model';
 import { neutralVenue } from '../data/neutral';
 import type { Match } from '../data/snapshot';
@@ -33,7 +32,7 @@ function SideRow({ m, side, day, odds }: { m: Match; side: 'a' | 'h'; day: strin
         {shown && <span className="fk-card-score" data-testid="card-score">{score}</span>}
         <TeamTags m={m} side={side} />
       </span>
-      {model.followed.has(id) ? <FormGames line={formAt(model, id, m)} teamId={id} /> : <span className="fk-form-gap" />}
+      {model.followed.has(id) ? <FormGames m={m} teamId={id} /> : <span className="fk-form-gap" />}
       <span className="fk-card-odds" title={odds ? `${model.team(id).name} to win (decimal)` : undefined}>{odds?.toFixed(2) ?? ''}</span>
     </div>
   );

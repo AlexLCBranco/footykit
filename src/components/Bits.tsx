@@ -4,7 +4,7 @@
 
 import { useState, type MouseEvent, type ReactNode } from 'react';
 import { compLogoUrl, teamLogoUrl } from '../address';
-import { formAt, recordText, type FormLine } from '../data/form';
+import { formAt, recordText, stripAround, STRIP_SIDE, type FormLine, type StripGame } from '../data/form';
 import { kickoffTime, isPlayed, shortDay } from '../data/model';
 import { neutralVenue } from '../data/neutral';
 import { leaguePosition } from '../data/position';
@@ -101,25 +101,36 @@ export function FormSquares({ line, teamId }: { line: FormLine; teamId: string }
   );
 }
 
-/** FK-32: the Slate card's last games: one square per match (oldest first), the opponent's crest (its short name if the
- * crest fails) on the result's colour, after "vs" (home) or "@" (away) in a slot of one width so the squares line up. */
-export function FormGames({ line, teamId }: { line: FormLine; teamId: string }) {
+/** FK-32 / FK-36: the Slate card's strip around its match — the last 2 played (crest on the result's colour) and the
+ * next 2 (crest on plain grey until played), each after "vs" (home) or "@" (away) in a slot of one width so the squares
+ * line up; a thin gap where this match sits. Empty slots at the start or end of the season. */
+export function FormGames({ m, teamId }: { m: Match; teamId: string }) {
   const { model, onStandings } = useFooty();
   const t = model.team(teamId);
+  const line = formAt(model, teamId, m);
+  const { before, after } = stripAround(model, teamId, m);
+  const text = (g: StripGame) => `${g.r ? `${g.r} ${g.gf}-${g.ga}` : 'next'} ${g.home ? 'vs' : '@'} ${model.team(g.opp).name} (${shortDay(g.day)})`;
   const tip = [
-    `${t.name}: last ${line.games.length}`,
-    ...line.games.map((g) => `${g.r} ${g.gf}-${g.ga} ${g.home ? 'vs' : '@'} ${model.team(g.opp).name} (${shortDay(g.day)})`),
+    `${t.name}: last ${before.length} before this match, next ${after.length} after it`,
+    ...before.map(text),
+    '— this match —',
+    ...after.map(text),
     `League record ${recordText(line.record)} (W-D-L)`,
     line.streak && `Streak ${line.streak}`,
     onStandings && 'Click: standings',
   ].filter(Boolean).join('\n');
-  const empty = Array.from({ length: 5 - line.games.length }, (_, i) => <span key={`e${i}`} className="fk-fg"><span className="fk-fg-at" /><span className="fk-fg-sq" /></span>);
-  const squares = [...empty, ...line.games.map((g) => (
-    <span key={g.id} className="fk-fg" data-testid="form-game" data-result={g.r} data-home={g.home || undefined}>
+  const slot = (g: StripGame | undefined, key: string, side: 'before' | 'after') => g ? (
+    <span key={g.id} className="fk-fg" data-testid="form-game" data-side={side} data-result={g.r} data-home={g.home || undefined}>
       <span className="fk-fg-at">{g.home ? 'vs' : '@'}</span>
-      <span className={`fk-fg-sq fk-form-${g.r}`}><GameCrest id={g.opp} /></span>
+      <span className={`fk-fg-sq${g.r ? ` fk-form-${g.r}` : ' fk-fg-next'}`}><GameCrest id={g.opp} /></span>
     </span>
-  ))];
+  ) : <span key={key} className="fk-fg" data-side={side}><span className="fk-fg-at" /><span className="fk-fg-sq fk-fg-none" /></span>;
+  const pad = STRIP_SIDE - before.length;
+  const squares = [
+    ...Array.from({ length: STRIP_SIDE }, (_, i) => slot(before[i - pad], `b${i}`, 'before')),
+    <span key="now" className="fk-fg-now" aria-hidden="true" />,
+    ...Array.from({ length: STRIP_SIDE }, (_, i) => slot(after[i], `a${i}`, 'after')),
+  ];
   if (!onStandings) return <span className="fk-form fk-form-games fk-form-plain" title={tip} data-testid="form">{squares}</span>;
   return (
     <button type="button" className="fk-form fk-form-games" title={tip} data-testid="form" onClick={(e) => { e.stopPropagation(); onStandings(teamId); }}>
