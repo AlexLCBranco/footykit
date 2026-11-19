@@ -886,3 +886,26 @@ test('Slate strip: a window opens the club\'s Team Calendar with that window hig
   await expect(page.getByTestId('team-calendar').locator('[data-hl]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('FK-51: no copy button inside Slate cards; the day copy and the marquee copy still work', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  const errors = await open(page, '?view=slate');
+  const cards = page.getByTestId('slate-card');
+  await expect(cards.first()).toBeVisible();
+  await expect(cards.getByTestId('copy')).toHaveCount(0);
+  await expect(page.locator('.fk-card button[aria-label^="Copy"]')).toHaveCount(0);
+  // the day copy
+  await page.getByTestId('top-bar').getByTestId('copy').click();
+  await expect(page.getByTestId('top-bar').getByTestId('copy')).toHaveText('✓');
+  // the marquee copy: drag over two cards from the empty space below the grid's left side
+  const a = (await cards.nth(0).boundingBox())!, b = (await cards.nth(2).boundingBox())!;
+  await page.mouse.move(a.x + 60, a.y + a.height - 4);
+  await page.mouse.down();
+  await page.mouse.move(b.x + 80, b.y + 20, { steps: 8 });
+  await page.mouse.up();
+  const bar = page.getByTestId('selection-bar');
+  await expect(bar).toContainText('selected');
+  await bar.getByTestId('copy').click();
+  await expect(bar.getByTestId('copy')).toHaveText('✓');
+  expect(errors).toEqual([]);
+});

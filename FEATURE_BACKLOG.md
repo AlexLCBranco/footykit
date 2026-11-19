@@ -19,10 +19,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 Keep it clearly separate from the existing window streak tag (consecutive windows with a match): rename that tag's tooltip if needed so "streak" never means two things.
 **Tests:** unit: W/D/L sequences, a draw breaking a win streak, penalties counted as D, played vs next match; e2e: chip and popup on a Slate card and a List row.
 
-### FK-51 — No copy button inside Slate cards
-**What:** remove the per-card copy button from Slate cards (`Slate.tsx`, the small `CopyButton` per match). The day copy and marquee copy stay.
-**Tests:** e2e: no copy button inside any Slate card; day copy and marquee copy still work.
-
 ### FK-52 — Slate scores always aligned
 **What:** on Slate cards the two scores must sit in the same column on every card of the day, whatever the team name length, league position or crest: give names a fixed width (truncate with ellipsis + full name on hover) so scores line up vertically across cards, in the app and in the copied image.
 **Tests:** e2e: on a Slate day with long and short names, every card's score elements share the same x position (±1 px), on screen and in the capture.
@@ -45,4 +41,3 @@ Keep it clearly separate from the existing window streak tag (consecutive window
 2. The knockout phase play-offs (the round before the round of 16, only teams 9th–24th, 9th–16th seeded with the 2nd leg at home; 1st–8th wait in the round of 16) appear in the simulator bracket, using `UCL_PLAYOFF_PAIRS` from `config/ucl`. Pick a winner per tie (click again to clear), winners move into the round of 16 slots they feed, then the R16 onwards as in the other cup simulators (FK-30).
 Table and bracket visible together (the owner runs many simulations to check which side of the bracket is harder).
 **Tests:** unit: positions 9–24 pair as `UCL_PLAYOFF_PAIRS`; winners land in the right R16 slots; "start from current standings" uses the current table order. e2e: button fills the bracket, picking play-off winners fills the R16.
-

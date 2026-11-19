@@ -1,7 +1,7 @@
 // Slate: the day's matches as cards in calendarkit's shape (FK-35, src/slate/layout.ts has the sizes): a tight grid
 // like a table (the cards touch and share one divider line), the header line "SLATE · 19-11 · Football" across its top.
 // Each card (the home team on the first line, FK-38): a strip on the left (kickoff time, then a wrapping row of the competition, ↗, series chip, derby / neutral
-// marks and the copy button; no draw price, FK-44) beside the two team rows: "@" cell, logo, name with its league place and
+// marks; no copy button, FK-51; no draw price, FK-44) beside the two team rows: "@" cell, logo, name with its league place and
 // the score right after it, the tags (highlights; every tag in the hover popup), the strip of 5 windows around the match (FK-47), the
 // team's price. With notes shown, the note box sits under the rows across the card (5 lines, then its own scrollbar).
 // Weather (FK-39): the sky at kick-off in the second line's empty cell, the full forecast in the game pop-up.
@@ -18,7 +18,6 @@ import { CompMark, FormGames, LeaguePos, MatchLink, MatchTime, SeriesChip, TeamL
 import { DerbyTag, TeamTags } from './Tags';
 import { useFooty } from './ctx';
 import { dayMatches } from './DayList';
-import { CopyButton } from './Copy';
 import { GameMenu } from './GameLinks';
 import { useMatchWeather } from '../slate/weather';
 import { matchVenue, WEATHER_ATTRIBUTION, WEATHER_ATTRIBUTION_URL, weatherIcon, weatherLine, type Weather } from '../data/weather';
@@ -80,12 +79,8 @@ export function SlateCard({ m, day, notes, wx }: { m: Match; day: string; notes?
     <article className={`fk-card${neutral ? ' fk-neutral' : ''}${m.st === 'in' ? ' fk-card-live' : ''}`} data-match-id={m.id} data-game-id={m.id} data-testid="slate-card" aria-label={label}>
       <div className="fk-card-main">
         <div className="fk-card-strip">
-          <span className="fk-card-time">
-            <MatchTime m={m} />
-            <span className="fk-card-copy" data-capture-exclude="true">
-              <CopyButton target={(b) => b.closest('.fk-card') as HTMLElement} label={`Copy ${model.team(m.h).abbr} vs ${model.team(m.a).abbr} as an image`} small />
-            </span>
-          </span>
+          {/* FK-51: no per-card copy button; the day's copy and the marquee copy cover it */}
+          <span className="fk-card-time"><MatchTime m={m} /></span>
           <span className="fk-card-chips">
             <CompMark m={m} />
             <MatchLink m={m} />

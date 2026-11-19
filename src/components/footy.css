@@ -816,16 +816,13 @@ button.fk-chip:hover {
   padding: 0 4px;
   font-size: 10px;
 }
-/* the time, and the copy button at the strip's right edge (never in a copy) */
+/* the time */
 .fk-card-time {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 2px;
   white-space: nowrap;
-}
-.fk-card-copy {
-  display: inline-flex;
 }
 .fk-card-rows {
   display: flex;
