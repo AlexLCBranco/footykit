@@ -2,7 +2,7 @@
 // (`model`), its size, optional `now` / `timeZone`, the page to show, and raises page changes; it never touches the
 // URL or history (App.tsx does).
 
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { dayLabel } from '../data/model';
 import { DEFAULT_TRAILING } from '../data/trailing';
 import { localNotesStore } from '../slate/notes';
@@ -12,7 +12,7 @@ import { CopyButton } from './Copy';
 import { DayList } from './DayList';
 import { DayStrip } from './DayStrip';
 import { DEFAULT_CUP, DEFAULT_LEAGUE, leagueWhatIfPage, simLeague, stepPage, teamClickPage, uclWhatIfPage, type Page } from './page';
-import { SeriesPopup, StandingsPopup, type SeriesOpen } from './Popups';
+import { StandingsPopup, useSeriesPopup } from './Popups';
 import { Slate } from './Slate';
 import { createSelectionStore, useMarqueeSelection } from './selection';
 import { SelectionBar, SelectionStyle } from './SelectionBar';
@@ -62,7 +62,7 @@ function Info({ model, timeZone, calendarKey }: { model: Model; timeZone?: strin
           <span className="fk-pop-head">Key</span>
           <span><span className="fk-form-sq fk-form-W" /> <span className="fk-form-sq fk-form-D" /> <span className="fk-form-sq fk-form-L" /> last 5 results, all competitions (after a played match, going into one to come). Click: standings.</span>
           <span><span className="fk-neutral-tag">N</span> neutral venue ("v" instead of "@").</span>
-          <span><span className="fk-chip">2/3</span> meeting k of n this season — click for the season series.</span>
+          <span><span className="fk-chip">2/3</span> meeting k of n this season — hover for the season series (click keeps it open).</span>
           <span><span className="fk-chip fk-fifa-chip">FIFA</span> inside a FIFA window (Brasileirão matches flagged).</span>
           <span>Odds: DraftKings via ESPN, decimal, Slate only.</span>
           {calendarKey && (
@@ -86,7 +86,7 @@ function Info({ model, timeZone, calendarKey }: { model: Model; timeZone?: strin
 export function Footy({ model, page, today, now, timeZone, width, history, onPage, live: liveOn = true }: FootyProps) {
   const dayView = page.view === 'day' || page.view === 'slate';
   const live = useLive(page.day, timeZone, liveOn && dayView);
-  const [series, setSeries] = useState<SeriesOpen | null>(null);
+  const series = useSeriesPopup();
   const [standings, setStandings] = useState<{ team?: string } | null>(null);
   const [showNotes, setShowNotes] = useState(false);
   // Team List rest rows: on at every load, unchecking lasts until a reload (calendarkit's rule; not in the address)
@@ -110,11 +110,11 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const ctx: FootyCtx = useMemo(() => ({
     model, now, timeZone, live, tags, hiddenTags, gameMenu: true, weather: pageWeatherStore(),
     onTeam: (id, day) => onPage(teamClickPage(page, id, day, today)),
-    onSeries: (a, b, el, current) => { const r = el.getBoundingClientRect(); setSeries({ a, b, x: r.left, y: r.bottom, current }); },
+    onSeries: series.onSeries,
+    onSeriesLeave: series.onSeriesLeave,
     onStandings: (team) => setStandings({ team }),
-  }), [model, now, timeZone, live, tags, hiddenTags, page, onPage, today]);
+  }), [model, now, timeZone, live, tags, hiddenTags, page, onPage, today, series.onSeries, series.onSeriesLeave]);
 
-  const closeSeries = useCallback(() => setSeries(null), []);
   let view: ReactNode;
   if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} />;
   else if (page.view === 'list' && page.team) view = <TeamList team={page.team} today={today} from={page.listFrom} to={page.month} showRest={showRest} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
@@ -149,7 +149,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
         <div ref={marquee} className="fk-marquee" aria-hidden="true" data-testid="marquee" />
         <SelectionStyle store={selection} />
         <SelectionBar store={selection} target={captureTarget} />
-        {series && <SeriesPopup open={series} onClose={closeSeries} />}
+        {series.node}
         {standings && <StandingsPopup team={standings.team} onClose={() => setStandings(null)} />}
       </div>
     </Ctx.Provider>

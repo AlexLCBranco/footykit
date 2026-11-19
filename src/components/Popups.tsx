@@ -2,7 +2,7 @@
 // two-leg tie) and the quick standings (movable by its header, resizable by its edges and corners, place remembered
 // in localStorage `fk:stpop:v1`, "↺" resets; like calendarkit's).
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { shortDay } from '../data/model';
 import { neutralVenue } from '../data/neutral';
 import { meetingWinner, seasonSeries, seriesStatus } from '../data/series';
@@ -13,12 +13,44 @@ import { EDGES, useFloatBox } from './floatBox';
 import { SplitTable } from './SplitTable';
 
 /** The season series popup: where, the chip that opened it (its match outlined). */
-export interface SeriesOpen { a: string; b: string; x: number; y: number; current?: string }
+export interface SeriesOpen { a: string; b: string; x: number; y: number; current?: string; /** opened by hovering the chip (FK-37): closes when the pointer leaves */ hover?: boolean }
+
+/** FK-37: how long the series popup stays after the pointer leaves the chip and the popup (calendarkit CK-6). */
+export const SERIES_CLOSE_MS = 100;
+
+/**
+ * The season series popup's state for a widget (the app, the Slate part): `onSeries` opens it — on hover (FK-37,
+ * calendarkit's chip popup: it stays while the pointer is on the chip or in the popup, closes SERIES_CLOSE_MS after
+ * it leaves both) or pinned by a click (stays until Escape or a click outside); `onSeriesLeave` is the chip's leave.
+ * No timer at rest: only the short close delay after the pointer leaves.
+ */
+export function useSeriesPopup(): { onSeries: (a: string, b: string, el: HTMLElement, current?: string, hover?: boolean) => void; onSeriesLeave: () => void; node: ReactNode } {
+  const [open, setOpen] = useState<SeriesOpen | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const hover = useRef(false);
+  const close = useCallback(() => { clearTimeout(timer.current); hover.current = false; setOpen(null); }, []);
+  const stay = useCallback(() => clearTimeout(timer.current), []);
+  const leave = useCallback(() => {
+    clearTimeout(timer.current);
+    if (hover.current) timer.current = setTimeout(close, SERIES_CLOSE_MS);
+  }, [close]);
+  const onSeries = useCallback((a: string, b: string, el: HTMLElement, current?: string, byHover = false) => {
+    clearTimeout(timer.current);
+    // a click pins the popup a hover opened; a hover never unpins a clicked one
+    if (byHover && open && !hover.current && open.a === a && open.b === b && open.current === current) return;
+    hover.current = byHover;
+    const r = el.getBoundingClientRect();
+    setOpen({ a, b, x: r.left, y: r.bottom, current, hover: byHover });
+  }, [open]);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const node = useMemo(() => open && <SeriesPopup open={open} onClose={close} onEnter={stay} onLeave={leave} />, [open, close, stay, leave]);
+  return { onSeries, onSeriesLeave: leave, node };
+}
 
 /** FK-33: calendarkit's season series popup ("G2/4"): a header "A – B · N meetings" with the series' state on the
  * right, one card per meeting across all competitions, oldest first (where: the home crest and "AWAY @ HOME"; played:
  * the winner and score; the date; the match that opened it outlined). A card searches the match on Google. */
-export function SeriesPopup({ open, onClose }: { open: SeriesOpen; onClose: () => void }) {
+export function SeriesPopup({ open, onClose, onEnter, onLeave }: { open: SeriesOpen; onClose: () => void; onEnter?: () => void; onLeave?: () => void }) {
   const { model, onTeam } = useFooty();
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -36,7 +68,7 @@ export function SeriesPopup({ open, onClose }: { open: SeriesOpen; onClose: () =
     ? <button type="button" className="fk-series-team" onClick={() => { onTeam(id, model.dayOf(meetings[0]!.m)); onClose(); }} title={`${model.team(id).name}: open its calendar`}>{abbr(id)}</button>
     : <span title={model.team(id).name}>{abbr(id)}</span>);
   return (
-    <div ref={ref} className="fk-pop fk-series-pop" role="dialog" aria-label={`${ta.abbr} – ${tb.abbr} this season`} data-testid="series-popup" style={{ left: Math.max(8, Math.min(open.x, innerWidth - width - 8)), top: open.y + 6 }}>
+    <div ref={ref} className="fk-pop fk-series-pop" role="dialog" aria-label={`${ta.abbr} – ${tb.abbr} this season`} data-testid="series-popup" data-hover={open.hover || undefined} onMouseEnter={onEnter} onMouseLeave={onLeave} style={{ left: Math.max(8, Math.min(open.x, innerWidth - width - 8)), top: open.y + 6 }}>
       <div className="fk-series-head">
         <span className="fk-series-title">{name(open.a)} – {name(open.b)} · {meetings.length} meeting{meetings.length === 1 ? '' : 's'}</span>
         <span className="fk-series-status" data-testid="series-status">{seriesStatus(meetings, open.a, open.b, abbr)}</span>

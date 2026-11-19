@@ -680,3 +680,34 @@ test('FK-43: ◀ ▶ step a league table back through the rounds and return to t
   expect(await pts()).toEqual(now);
   expect(errors).toEqual([]);
 });
+
+test('FK-37: hovering the k/n chip opens the season series popup, it stays while the pointer is in it and closes on leaving; a click keeps it open', async ({ page }) => {
+  const errors = await open(page);
+  const chip = page.getByTestId('series-chip').first();
+  await expect(chip).toHaveText(/^\d+\/\d+$/);
+  const pop = page.getByTestId('series-popup');
+  await chip.hover();
+  await expect(pop).toBeVisible();
+  await expect(pop).toHaveAttribute('data-hover', 'true');
+  await expect(pop.getByTestId('series-square').first()).toBeVisible();
+  // the pointer can travel into the popup (its cards are links)
+  await pop.hover();
+  await page.waitForTimeout(250);
+  await expect(pop).toBeVisible();
+  // leaving both closes it within ~100 ms (calendarkit CK-6)
+  await page.mouse.move(2, 2);
+  await expect(pop).toHaveCount(0, { timeout: 1000 });
+  // a click keeps it open after the pointer leaves; Escape closes it
+  await chip.hover();
+  await chip.click();
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(300);
+  await expect(pop).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(pop).toHaveCount(0);
+  // the Slate cards' chips too
+  await page.goto('/football/?view=slate');
+  const slateChip = page.locator('[data-testid="slate-card"] [data-testid="series-chip"]').first();
+  if (await slateChip.count()) { await slateChip.hover(); await expect(pop).toBeVisible(); }
+  expect(errors).toEqual([]);
+});

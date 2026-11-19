@@ -218,14 +218,18 @@ export function Scoreline({ m, day, label = 'abbr', form = true, logoSize = 20, 
 
 /** "2nd meeting" style chip when the two teams meet more than once this season; opens the season series. */
 export function SeriesChip({ m }: { m: Match }) {
-  const { model, onSeries } = useFooty();
+  const { model, onSeries, onSeriesLeave } = useFooty();
   const a = model.followed.has(m.a) ? m.a : m.h;
   const b = a === m.a ? m.h : m.a;
   const meetings = seasonSeries(model, a, b);
   if (meetings.length < 2) return null;
   const k = meetings.findIndex((x) => x.m.id === m.id) + 1;
+  // FK-37: hovering (or focusing) the chip opens the season series, like calendarkit's chip; a click pins it
+  const open = (el: HTMLElement, hover: boolean) => onSeries(a, b, el, m.id, hover);
   return (
-    <button type="button" className="fk-chip fk-series-chip" title={`Meeting ${k} of ${meetings.length} this season — click for all of them`} onClick={(e) => { e.stopPropagation(); onSeries(a, b, e.currentTarget, m.id); }}>
+    <button type="button" className="fk-chip fk-series-chip" data-testid="series-chip" title={`Meeting ${k} of ${meetings.length} this season — hover for all of them, click to keep it open`}
+      onMouseEnter={(e) => open(e.currentTarget, true)} onMouseLeave={() => onSeriesLeave?.()} onFocus={(e) => open(e.currentTarget, true)} onBlur={() => onSeriesLeave?.()}
+      onClick={(e) => { e.stopPropagation(); open(e.currentTarget, false); }}>
       {k}/{meetings.length}
     </button>
   );

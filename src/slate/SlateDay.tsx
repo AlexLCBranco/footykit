@@ -4,9 +4,9 @@
 // live scores and odds). Nothing from footykit's app shell: no URL, no history, no bar.
 // At rest it starts no timer and no animation frame; with `live` off (the default) it makes no request at all.
 
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Ctx, type FootyCtx } from '../components/ctx';
-import { SeriesPopup, type SeriesOpen } from '../components/Popups';
+import { useSeriesPopup } from '../components/Popups';
 import { Slate } from '../components/Slate';
 import { useLive } from '../components/useLive';
 import { EMPTY_LIVE } from '../data/live';
@@ -40,8 +40,7 @@ export interface SlateDayProps {
 
 export function SlateDay({ data, day, timeZone, notes, width = 1840, teamLink, live: liveOn = false, now, gameMenu = false, weather = false }: SlateDayProps) {
   const live = useLive(day, timeZone, liveOn);
-  const [series, setSeries] = useState<SeriesOpen | null>(null);
-  const closeSeries = useCallback(() => setSeries(null), []);
+  const series = useSeriesPopup();
   const ctx: FootyCtx = useMemo(() => ({
     model: data,
     now: now ?? Date.now(),
@@ -50,13 +49,14 @@ export function SlateDay({ data, day, timeZone, notes, width = 1840, teamLink, l
     teamHref: teamLink,
     gameMenu,
     weather: weather ? pageWeatherStore() : undefined,
-    onSeries: (a, b, el, current) => { const r = el.getBoundingClientRect(); setSeries({ a, b, x: r.left, y: r.bottom, current }); },
-  }), [data, now, timeZone, live, liveOn, teamLink, gameMenu, weather]);
+    onSeries: series.onSeries,
+    onSeriesLeave: series.onSeriesLeave,
+  }), [data, now, timeZone, live, liveOn, teamLink, gameMenu, weather, series.onSeries, series.onSeriesLeave]);
   return (
     <Ctx.Provider value={ctx}>
       <div className="fk-root fk-slate-widget" style={{ width }} data-testid="slate-day">
         <Slate day={day} notes={notes ?? NO_NOTES} showNotes={!!notes} />
-        {series && <SeriesPopup open={series} onClose={closeSeries} />}
+        {series.node}
       </div>
     </Ctx.Provider>
   );

@@ -18,7 +18,9 @@ export interface FootyCtx {
    *  Neither: team names are plain text. */
   teamHref?: (teamId: string, day: string) => string;
   /** open the season series popup of two teams */
-  onSeries: (a: string, b: string, anchor: HTMLElement, current?: string) => void;
+  onSeries: (a: string, b: string, anchor: HTMLElement, current?: string, hover?: boolean) => void;
+  /** FK-37: the pointer left the chip (a hover-opened popup closes shortly unless the pointer is in it) */
+  onSeriesLeave?: () => void;
   /** open the quick standings popup on a team's league */
   onStandings?: (teamId: string) => void;
   /** how the context tags are drawn; none (a host like the gauntlet's Slate part) = no tags */

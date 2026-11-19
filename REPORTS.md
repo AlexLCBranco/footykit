@@ -2,6 +2,12 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-19 (later) — FK-37
+
+**Built:** v0.55.0 FK-37 — your answer: the series popup, on hover. Hovering a k/n chip (List, Team views, Slate) opens the season series popup; it stays while the pointer is in it, closes about 100 ms after it leaves both; a click keeps it open until Escape or a click outside.
+**Blocked:** FK-41 (unchanged: needs a free The Odds API key to check coverage).
+**Ideas added:** none. **For you to check by hand:** nothing new.
+
 ## 2026-11-19 — FK-35 … FK-43
 
 **Built** (each its own commit, pushed to main):
