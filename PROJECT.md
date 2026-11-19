@@ -16,7 +16,7 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - localStorage keys start with `fk:` (same origin as calendarkit's `ck:` keys).
 - Tests never call live ESPN (it refuses headless Chromium); they use recorded fixtures.
 
-## Current state (2026-11-15)
+## Current state (2026-11-19)
 - Phase 1 (data check) done (docs/phase1-report.md).
 - **Phase 2 (calendar core) in progress** — v0.2.0: snapshot job, day function, app shell with the packed bar, Day
   List, Slate (cards, notes, 3-way odds), Team Calendar (1 / 2 weeks / month, free windows, FIFA windows), Team List,
@@ -93,6 +93,11 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   in calendarkit's shape (`src/slate/layout.ts`, 509 × 78, header `slateHeaderLabel`). v0.50.0 FK-38 home team first on cards.
   v0.51.0 FK-40 game button (`GameLinks.tsx`, `config/injuryLinks.ts`). v0.52.0 FK-39 weather (Open-Meteo). v0.53.0 FK-42 Pts
   first. v0.54.0 FK-43 table after round N (`src/data/matchdays.ts`, rounds worked out from the schedule). FK-37, FK-41 blocked.
+- **Backlog FK-44 … FK-48 (2026-11-19)**: v0.56.0 FK-44 no draw price on Slate cards. v0.57.0 FK-45 League view
+  (`?view=league&comp=…[&mode=cal]`, lazy `LeagueView.tsx`, data `src/data/leagueView.ts`; reuses the table / UCL / cups pages).
+  v0.58.0 FK-46 competition icon label (`src/data/compLabel.ts`; rounds algorithm moved to `src/data/leagueRounds.ts` so
+  the main chunk can use it) and click → League view (`onLeague` in ctx). v0.59.0 FK-47 strip by window
+  (`src/data/strip.ts`, replaces `stripAround`). v0.60.0 FK-48 strip ◀ ▶ (`shift` state in `FormGames`, not kept).
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
