@@ -16,6 +16,8 @@ import { Scenarios } from './WhatIfScenarios';
 import './ucl.css';
 import './whatif.css';
 import { SplitTable } from './SplitTable';
+import { UclKoBracket } from './UclKoSim';
+import type { KoSim } from '../data/uclKoSim';
 
 export default function WhatIfPage({ today, onBack }: { today: string; onBack: () => void }) {
   const { model } = useFooty();
@@ -74,6 +76,10 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
     </span>
   );
   const placeOf = useCallback((s: Sim, t: string) => uclTable({ matches: simMatches(lp, s), teams: model.snap.teams }, names).rows.findIndex((r) => r.team === t) + 1, [lp, model, names]);
+  // FK-56: the knockouts from the table as it stands now (results left to play ignored): the real table's order, frozen
+  const startKo = () => change((x) => ({ ...x, ko: { order: real.rows.map((r) => r.team) } }));
+  const stopKo = () => change(({ ko: _, ...x }) => x);
+  const changeKo = (f: (k: KoSim) => KoSim) => change((x) => (x.ko ? { ...x, ko: f(x.ko) } : x));
   const teams = [...real.rows].sort((x, y) => names(x.team).localeCompare(names(y.team)));
 
   return (
@@ -130,8 +136,14 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
               })} />
           <div className="fk-ucl-key fk-wi-key">{UCL_ZONES.map((z) => <span key={z.id} className={`fk-ucl-zone-key fk-zone-${z.id}`}>{z.from}–{z.to}</span>)}</div>
         </section>
+        {sim.ko ? (
+        <section className="fk-wi-col fk-wi-bracket" aria-label="Knockouts" data-testid="wi-bracket">
+          <UclKoBracket ko={sim.ko} change={changeKo} onRestart={startKo} onStop={stopKo} />
+        </section>
+        ) : (
         <section className="fk-wi-col fk-wi-bracket" aria-label="Knockout places" data-testid="wi-bracket">
           <div className="fk-wi-group-title">Knockout places <span className="fk-muted">· {table.complete ? 'from this table' : 'if it ended here'}</span></div>
+          <button type="button" className="fk-btn fk-ko-sim-start" onClick={startKo} data-testid="wi-ko-start" title="Fill the play-offs and the round of 16 from the table as it stands now (results left to play ignored), then pick each tie's winner">Start knockouts from current standings</button>
           {focus && focusPos && (
             <p className="fk-wi-path" data-testid="wi-path">
               <b>{model.team(focus).short}</b> {ord(focusPos)}
@@ -158,6 +170,7 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
           ))}
           <p className="fk-muted fk-wi-note">⇅ = the two go to opposite halves (each half has one tie of each letter; which half is drawn). Quarter-finals: A v D and B v C in each half. Pick a team (table or filter) or hover a match to see its path: <span className="fk-wi-meets-key">can meet</span> <span className="fk-wi-other-key">other half</span>.</p>
         </section>
+        )}
       </div>
     </div>
   );

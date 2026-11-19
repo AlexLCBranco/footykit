@@ -11,6 +11,7 @@
 import { isPlayed } from './model.ts';
 import type { Match } from './snapshot.ts';
 import { windowEnd, windowOf, type WindowKind } from './windows.ts';
+import { readKo, type KoSim } from './uclKoSim.ts';
 
 export interface Score { h: number; a: number }
 export interface Sim {
@@ -21,6 +22,8 @@ export interface Sim {
   /** a final's picked winner, by the final's key (the Brasileirão's: 'cup' | 'lib' | 'sula'): a final is picked by its
    * winner, not a score, since a shootout can decide it. Absent when none is picked. */
   winners?: Record<string, string>;
+  /** FK-56: the UCL knockout phase, once started from the standings (src/data/uclKoSim.ts) */
+  ko?: KoSim;
 }
 export const EMPTY: Sim = { picks: {}, locked: {} };
 
@@ -70,7 +73,7 @@ export function prune(sim: Sim, matches: Match[], finals: Record<string, FinalSt
   const winners = Object.fromEntries(Object.entries(sim.winners ?? {}).filter(([k, t]) => { const f = finals[k]; return !!f && !f.winner && f.finalists.includes(t); }));
   const same = Object.keys(picks).length === Object.keys(sim.picks).length && Object.keys(locked).length === Object.keys(sim.locked).length
     && Object.keys(winners).length === Object.keys(sim.winners ?? {}).length;
-  return same ? sim : { picks, locked, ...(Object.keys(winners).length ? { winners } : {}) };
+  return same ? sim : { picks, locked, ...(Object.keys(winners).length ? { winners } : {}), ...(sim.ko ? { ko: sim.ko } : {}) };
 }
 
 /** Pick (or with `undefined` clear) a final's winner. */
@@ -322,7 +325,8 @@ function readOne(x: unknown): Sim | undefined {
   const picks = Object.fromEntries(Object.entries(s.picks).filter(([, v]) => isScore(v)).map(([k, v]) => [k, { h: v.h, a: v.a }]));
   const locked = Object.fromEntries(Object.entries(s.locked ?? {}).filter(([id, v]) => v === true && id in picks)) as Record<string, true>;
   const winners = Object.fromEntries(Object.entries(s.winners && typeof s.winners === 'object' ? s.winners : {}).filter(([, t]) => typeof t === 'string' && t));
-  return { picks, locked, ...(Object.keys(winners).length ? { winners } : {}) };
+  const ko = readKo(s.ko);
+  return { picks, locked, ...(Object.keys(winners).length ? { winners } : {}), ...(ko ? { ko } : {}) };
 }
 
 function readStoreOne(v: StoredOne | null | undefined): Store | undefined {
@@ -338,7 +342,7 @@ function readStoreOne(v: StoredOne | null | undefined): Store | undefined {
   return { current, saved, ...(active ? { active } : {}) };
 }
 
-const isEmpty = (s: Store) => !Object.keys(s.current.picks).length && !Object.keys(s.current.winners ?? {}).length && !s.saved.length;
+const isEmpty = (s: Store) => !Object.keys(s.current.picks).length && !Object.keys(s.current.winners ?? {}).length && !s.current.ko && !s.saved.length;
 
 /** Every competition's store as kept (those with picks or saved scenarios). Bad entries are dropped. */
 export function readBook(text: string | null): Book {

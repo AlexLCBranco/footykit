@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-19
+- FK-56 — UCL simulator: start the knockouts from the current table + knockout play-off round (v0.69.0) — In the Champions League simulator, "Start knockouts from current standings" fills the play-offs (9th–24th) and the round of 16 from today's table beside it; click a side to send it through (again to clear) up to the final, and ⇄ buttons per section set what UEFA draws: the play-off pairings, which seed each winner meets, and which half.
 - FK-55 — Competition switcher in the cup page title (v0.68.0) — The cup's name at the top of a cup page (and the Champions League page) is now a dropdown in the bar picker's style, same size as the old title; picking a competition opens its page.
 - FK-54 — Cups page: knockout bracket fills the first screen (v0.67.0) — On every cup page the bracket grows (text and crests too) to fill the window without scrolling, and the group tables start right below it.
 - FK-50 — Result streak (W / D / L) like calendarkit (v0.66.0) — Each followed club's current run of wins, draws or defeats ("W3", "D2", "L1", all competitions, a shootout counts as a draw) shows after the name on Slate cards (cards 32 px wider), beside the form squares on List rows and on a club's List rows; hover it for the games with scores, "(pens)" and Google links. The window tag is now "Windows in a row".
