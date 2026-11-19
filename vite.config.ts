@@ -51,6 +51,14 @@ const localData: Plugin = {
       const date = new URL(req.url ?? '', 'http://localhost').searchParams.get('date');
       res.end(JSON.stringify({ date, fetchedAt: new Date(0).toISOString(), matches: [], odds: {} }));
     });
+    // A logo file that doesn't exist is a 404, as on Vercel. Preview's SPA fallback would answer index.html with a 200,
+    // and a copy as image then failed drawing that page as a PNG (a team ESPN has no logo for, in the fixture: 19288).
+    server.middlewares.use(`${FOOTYKIT_BASE}logos`, (req, res, next) => {
+      const file = `dist/logos${decodeURIComponent((req.url ?? '').split('?')[0]!)}`;
+      if (existsSync(file)) return next();
+      res.statusCode = 404;
+      res.end('Not found');
+    });
   },
 };
 

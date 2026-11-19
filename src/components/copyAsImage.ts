@@ -11,6 +11,9 @@ import { toSvg } from 'html-to-image';
  */
 export const MAX_CANVAS_SIDE = 16000;
 
+/** A transparent 1 × 1 GIF: what a copy draws for a picture it couldn't load. */
+export const BLANK_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 /** Pixel density of every copy. */
 export const COPY_PIXEL_RATIO = 4;
 
@@ -90,6 +93,9 @@ export async function renderToCanvas(node: HTMLElement, options: RenderOptions):
       height,
       filter: keepInCapture,
       includeStyleProperties: captureStyleProperties(),
+      // a picture that can't be fetched (a crest ESPN has none for: 404) is left blank instead of failing the whole copy
+      imagePlaceholder: BLANK_IMAGE,
+      onImageErrorHandler: () => undefined,
       ...(box ? { style: { zoom: String(zoom), width: `${box.width / zoom}px`, height: `${box.height / zoom}px` } } : options.zoom !== undefined ? { style: { zoom: String(options.zoom) } } : {}),
     });
     const img = await loadImage(svg);

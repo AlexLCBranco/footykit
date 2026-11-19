@@ -909,3 +909,17 @@ test('FK-51: no copy button inside Slate cards; the day copy and the marquee cop
   await expect(bar.getByTestId('copy')).toHaveText('✓');
   expect(errors).toEqual([]);
 });
+
+test('fix: a copy with a team that has no logo file (a 404) still copies, the crest left blank', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  const errors = await open(page, '?view=slate');
+  await page.getByTestId('slate-card').first().waitFor();
+  // Sun Nov 8: a strip shows CD Artistico Navalcarnero (19288), a Copa del Rey opponent ESPN has no logo for
+  await page.getByLabel('Pick a date').fill('2026-11-08');
+  await expect(page.getByTestId('date-text')).toContainText('Nov 8');
+  const missing = await page.request.get('/football/logos/19288.png');
+  expect(missing.status()).toBe(404);
+  await page.getByTestId('top-bar').getByTestId('copy').click();
+  await expect(page.getByTestId('top-bar').getByTestId('copy')).toHaveText('✓');
+  expect(errors.filter((e) => !/404|19288/.test(e))).toEqual([]);
+});
