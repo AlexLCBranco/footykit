@@ -985,3 +985,46 @@ test('FK-53: bigger last-games squares (21 px, crest scaled), lined up across ca
   expect([box.width, box.height]).toEqual([529, 78]);
   expect(errors).toEqual([]);
 });
+
+test('FK-49: month arrows beside the calendar: a month each, as the bar\'s arrows; disabled at the ends; never in a copy', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  const errors = await open(page, '?view=cal&team=382&span=month'); // Man City, Nov 2026
+  const prev = page.getByTestId('side-prev'), next = page.getByTestId('side-next');
+  await expect(prev).toHaveAttribute('title', 'Back a month');
+  await expect(next).toHaveAttribute('title', 'Forward a month');
+  // in the page margin beside the grid, covering no day cell
+  const grid = (await page.locator('.fk-cal-grid').boundingBox())!;
+  const [p, n] = [(await prev.boundingBox())!, (await next.boundingBox())!];
+  expect(p.x + p.width).toBeLessThanOrEqual(grid.x + 0.5);
+  expect(n.x).toBeGreaterThanOrEqual(grid.x + grid.width - 0.5);
+  expect(p.width).toBeGreaterThanOrEqual(14);
+  const shown = () => page.getByTestId('date-text').textContent();
+  const start = await shown();
+  await next.click();
+  const viaSide = await shown();
+  expect(viaSide).not.toBe(start);
+  await prev.click();
+  expect(await shown()).toBe(start);
+  // the bar's › goes to the same month
+  await page.getByTestId('top-bar').getByLabel('Next').click();
+  expect(await shown()).toBe(viaSide);
+  // back to the data's first month (Jan 2026): ‹ disabled there
+  for (let i = 0; i < 11 && await prev.isEnabled(); i++) await prev.click();
+  await expect(prev).toBeDisabled();
+  await expect(page.locator('.fk-cal-cell[data-day="2026-01-15"]')).toHaveCount(1);
+  await expect(next).toBeEnabled();
+  // never in a copy
+  await expect(prev).toHaveAttribute('data-capture-exclude', 'true');
+  await expect(next).toHaveAttribute('data-capture-exclude', 'true');
+  await page.getByTestId('top-bar').getByTestId('copy').click();
+  await expect(page.getByTestId('top-bar').getByTestId('copy')).toHaveText('✓');
+  // the League view's Calendar has them too
+  await page.goto('/football/?view=league&comp=eng.1&mode=cal');
+  const week = () => page.getByTestId('league-week').getAttribute('data-week');
+  await expect(page.getByTestId('league-week')).toHaveAttribute('data-week', '2026-11-16');
+  await page.getByTestId('side-next').click();
+  expect(await week()).toBe('2026-12-21');
+  await page.getByTestId('side-prev').click();
+  expect(await week()).toBe('2026-11-16');
+  expect(errors).toEqual([]);
+});

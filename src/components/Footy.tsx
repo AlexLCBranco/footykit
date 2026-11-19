@@ -11,9 +11,10 @@ import { Ctx, type FootyCtx } from './ctx';
 import { CopyButton } from './Copy';
 import { DayList } from './DayList';
 import { DayStrip } from './DayStrip';
-import { DEFAULT_CUP, DEFAULT_LEAGUE, windowClickPage, leagueViewPage, leagueWhatIfPage, simLeague, stepPage, teamClickPage, uclWhatIfPage, type Page } from './page';
+import { DEFAULT_CUP, DEFAULT_LEAGUE, windowClickPage, leagueViewPage, leagueWhatIfPage, monthStep, simLeague, stepPage, teamClickPage, uclWhatIfPage, type Page } from './page';
 import { StandingsPopup, useSeriesPopup } from './Popups';
 import { Slate } from './Slate';
+import { SideArrows } from './SideArrows';
 import { createSelectionStore, useMarqueeSelection } from './selection';
 import { SelectionBar, SelectionStyle } from './SelectionBar';
 import { TeamCalendar } from './TeamCalendar';
@@ -118,8 +119,11 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
     onStandings: (team) => setStandings({ team }),
   }), [model, now, timeZone, live, tags, hiddenTags, page, onPage, today, series.onSeries, series.onSeriesLeave]);
 
+  // FK-49: a month back / forward beside every calendar view (disabled at the data's first / last month)
+  const monthNav = (dir: 1 | -1) => { const p = monthStep(page, dir, model); return p && (() => onPage(p)); };
+  const side = (page.view === 'cal' && page.team) || (page.view === 'league' && page.lmode === 'cal') ? <SideArrows onPrev={monthNav(-1)} onNext={monthNav(1)} /> : undefined;
   let view: ReactNode;
-  if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} highlight={page.hl?.team === page.team ? page.hl.start : undefined} />;
+  if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} highlight={page.hl?.team === page.team ? page.hl.start : undefined} side={side} />;
   else if (page.view === 'list' && page.team) view = <TeamList team={page.team} today={today} from={page.listFrom} to={page.month} showRest={showRest} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
   else if (page.view === 'ucl') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><UclPage today={today} tab={page.uclTab ?? 'table'} onTab={(t) => onPage({ ...page, uclTab: t })} onWhatIf={() => onPage(uclWhatIfPage(page))} /></Suspense>;
   else if (page.view === 'whatif' && simLeague(page)) view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueWhatIfPage key={simLeague(page)} league={simLeague(page)!} today={today} onBack={() => onPage({ ...page, view: 'table' })} /></Suspense>;
@@ -127,7 +131,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   else if (page.view === 'table') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueTablePage league={page.league ?? DEFAULT_LEAGUE} today={today} onWhatIf={() => onPage(leagueWhatIfPage(page))} /></Suspense>;
   else if (page.view === 'cups') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><CupsPage cup={page.cup ?? DEFAULT_CUP} today={today} /></Suspense>;
   else if (page.view === 'trailing') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><TrailingPage comp={page.comp ?? DEFAULT_TRAILING} today={today} /></Suspense>;
-  else if (page.view === 'league') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueView comp={page.lcomp ?? DEFAULT_LEAGUE} mode={page.lmode ?? 'list'} day={page.day} today={today} onList={(d) => onPage({ ...page, day: d, lmode: undefined })} /></Suspense>;
+  else if (page.view === 'league') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueView comp={page.lcomp ?? DEFAULT_LEAGUE} mode={page.lmode ?? 'list'} day={page.day} today={today} onList={(d) => onPage({ ...page, day: d, lmode: undefined })} side={side} /></Suspense>;
   else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} />;
   else view = <DayList key={page.day} day={page.day} width={width} />;
 

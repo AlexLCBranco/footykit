@@ -173,3 +173,30 @@ export function stepPage(p: Page, dir: 1 | -1, model: Model): Page {
   if (day < addDays(model.firstDay, -7) || day > addDays(model.lastDay, 7)) return p;
   return { ...p, day };
 }
+
+/** `day` moved by `n` calendar months, the day of the month kept (the 31st → the month's last day). */
+export function shiftMonthDay(day: string, n: number): string {
+  const m = addMonths(monthOf(day), n);
+  const last = Number(addDays(`${addMonths(m, 1)}-01`, -1).slice(8, 10));
+  return `${m}-${String(Math.min(Number(day.slice(8, 10)), last)).padStart(2, '0')}`;
+}
+
+/** The month a calendar view shows (a week view: its Monday's month). */
+const shownMonth = (p: Page) => (p.view === 'cal' ? (p.span === 'month' ? p.month : monthOf(p.week)) : monthOf(p.day));
+
+/**
+ * FK-49: the side arrows beside a calendar (calendarkit's SideArrows): a month back or forward in every calendar view —
+ * the Team Calendar (a month: the bar's ‹ › step; a week view: the same weekday a month away) and the League view's
+ * Calendar. Undefined (the arrow disabled) once the shown month is the snapshot's first / last month.
+ */
+export function monthStep(p: Page, dir: 1 | -1, model: Model): Page | undefined {
+  const m = shownMonth(p);
+  if (dir < 0 ? m <= monthOf(model.firstDay) : m >= monthOf(model.lastDay)) return undefined;
+  if (p.view === 'cal') {
+    if (p.span === 'month') return { ...p, month: addMonths(p.month, dir) };
+    const week = mondayOf(shiftMonthDay(p.week, dir));
+    return { ...p, week, month: monthOf(week) };
+  }
+  if (p.view === 'league') return { ...p, day: shiftMonthDay(p.day, dir) };
+  return undefined;
+}

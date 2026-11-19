@@ -14,7 +14,8 @@ import { DerbyTag, TeamTags } from './Tags';
 import { RunLabel } from './Runs';
 import { fmtRange, TeamHeader } from './TeamHeader';
 import type { Span } from './page';
-import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { SideHost } from './SideArrows';
 
 export function calendarDays(span: Span, week: string, month: string): { days: string[]; month?: string } {
   if (span !== 'month') return { days: Array.from({ length: 7 * span }, (_, i) => addDays(week, i)) };
@@ -143,7 +144,7 @@ function useCellScale(grid: React.RefObject<HTMLDivElement | null>, height: numb
 }
 
 /** `highlight`: the first day of a window picked on a Slate strip; its days get their own colour (today keeps its own). */
-export function TeamCalendar({ team, span, week, month, today, showFree = true, highlight }: { team: string; span: Span; week: string; month: string; today: string; showFree?: boolean; highlight?: string }) {
+export function TeamCalendar({ team, span, week, month, today, showFree = true, highlight, side }: { team: string; span: Span; week: string; month: string; today: string; showFree?: boolean; highlight?: string; /** FK-49: the side arrows */ side?: ReactNode }) {
   const { model, live, now, tags, hiddenTags } = useFooty();
   const { days, month: m } = calendarDays(span, week, month);
   const weeks = days.length / 7;
@@ -153,7 +154,7 @@ export function TeamCalendar({ team, span, week, month, today, showFree = true, 
   return (
     <section className={`fk-cal fk-cal-${span}`} data-testid="team-calendar">
       <TeamHeader team={team} period={span === 'month' ? monthLabel(month) : fmtRange(days[0]!, days[days.length - 1]!)} />
-      <div className="fk-cal-grid" ref={fill.ref} data-weeks={weeks} data-scale={scale}
+      <SideHost side={side}><div className="fk-cal-grid" ref={fill.ref} data-weeks={weeks} data-scale={scale}
         style={{ ...(fill.height ? { minHeight: fill.height } : {}), gridTemplateRows: `auto repeat(${weeks}, minmax(${TEAM_CELL_MIN_HEIGHT}px, 1fr))`, '--fk-cal-scale': scale } as CSSProperties}>
         {days.slice(0, 7).map((d) => <div key={`h${d}`} className="fk-cal-wd" role="columnheader">{weekdayShort(d)}</div>)}
         {days.map((d) => {
@@ -177,7 +178,7 @@ export function TeamCalendar({ team, span, week, month, today, showFree = true, 
             </div>
           );
         })}
-      </div>
+      </div></SideHost>
     </section>
   );
 }

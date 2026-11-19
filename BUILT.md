@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-19
+- FK-49 — Month arrows beside the calendar (like calendarkit) (v0.65.0) — Large ‹ › chevrons in the margin left and right of the Team Calendar and the League view's Calendar move a month back / forward ("Back a month" / "Forward a month"), greyed out at the first / last month with data, never in copies; the bar's arrows stay.
 - FK-53 — Bigger last-games squares on Slate cards (v0.64.0) — The strip squares are 21 px (were 17) with crests 15 px (were 12), still lined up across cards; the card is 20 px wider (529) to fit them.
 - FK-52 — Slate scores always aligned (v0.63.0) — On the Slate every card's scores sit in one column whatever the team name or league place; a long name ends in "…" with the full name on hover, on screen and in copies.
 - Copy as image no longer fails when a team has no crest (fix) (v0.62.1) — A copy that included a team without a crest file (some cup opponents) showed "!" and copied nothing; the crest is now left blank and the copy works.

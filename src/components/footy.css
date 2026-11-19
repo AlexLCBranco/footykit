@@ -2804,3 +2804,49 @@ a.fk-series-sq:hover {
   color: var(--fk-hl-window);
   font-weight: 700;
 }
+
+/* FK-49: calendarkit's side arrows (period-nav.css .ck-side-arrow): a large chevron on the page background, no box, in
+   the page margin beside the calendar (SideArrows sizes them to it), so they cover no day cell; brighter on hover */
+.fk-side-host {
+  position: relative;
+}
+.fk-side-arrow {
+  position: absolute;
+  top: calc(50% - 90px);
+  z-index: 2;
+  width: var(--fk-side-w, 16px);
+  height: 180px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fk-muted);
+  opacity: 0.75;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.12s, opacity 0.12s, background-color 0.12s;
+}
+.fk-side-arrow svg {
+  display: block;
+  width: clamp(12px, calc(var(--fk-side-w, 16px) * 0.55), 20px);
+  height: clamp(40px, calc(var(--fk-side-w, 16px) * 1.7), 60px);
+}
+.fk-side-prev {
+  left: calc(-1 * var(--fk-side-w, 16px));
+}
+.fk-side-next {
+  right: calc(-1 * var(--fk-side-w, 16px));
+}
+.fk-side-arrow:hover:not(:disabled),
+.fk-side-arrow:focus-visible {
+  color: var(--fk-text);
+  opacity: 1;
+  background: rgb(255 255 255 / 0.04);
+  outline: none;
+}
+.fk-side-arrow:disabled {
+  opacity: 0.2;
+  cursor: default;
+}

@@ -5,7 +5,8 @@
 // FK-43's step-through), the UCL's page or a cup's bracket / groups (the Cups tab's own pages, reused as they are).
 // A first version (the owner redesigns it by using it live). Its own chunk, like the other competition pages.
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
+import { SideHost } from './SideArrows';
 import { addDays, dayLabel, isPlayed, kickoffTime, mondayOf, shortDay } from '../data/model';
 import { matchUrl, type Match } from '../data/snapshot';
 import { compDays, compTeams } from '../data/leagueView';
@@ -68,7 +69,7 @@ function WeekGames({ day, today, byDay, onDay }: { day: string; today: string; b
 }
 
 /** `onList`: a Calendar day header opens that day in List mode. */
-export default function LeagueView({ comp, mode, day, today, onList }: { comp: string; mode: LeagueMode; day: string; today: string; onList: (d: string) => void }) {
+export default function LeagueView({ comp, mode, day, today, onList, side }: { comp: string; mode: LeagueMode; day: string; today: string; onList: (d: string) => void; /** FK-49: the side arrows (Calendar mode) */ side?: ReactNode }) {
   const { model } = useFooty();
   const byDay = useMemo(() => compDays(model.snap.matches, comp, model.dayOf), [model, comp]);
   const teams = useMemo(() => compTeams(model.snap.matches, comp, (id) => model.team(id).short), [model, comp]);
@@ -76,7 +77,7 @@ export default function LeagueView({ comp, mode, day, today, onList }: { comp: s
   const [uclTab, setUclTab] = useState<'table' | 'pots'>('table');
   return (
     <div className="fk-lv" data-testid="league-view" data-comp={comp}>
-      {mode === 'cal' ? <WeekGames day={day} today={today} byDay={byDay} onDay={onList} /> : <DayGames day={day} list={byDay.get(day) ?? []} />}
+      {mode === 'cal' ? <SideHost side={side}><WeekGames day={day} today={today} byDay={byDay} onDay={onList} /></SideHost> : <DayGames day={day} list={byDay.get(day) ?? []} />}
       <section className="fk-lv-teams-box" data-testid="league-teams" aria-label="Teams">
         <h3>Teams <span className="fk-muted">{teams.length}</span></h3>
         <div className="fk-lv-team-list">
