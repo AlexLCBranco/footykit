@@ -2311,8 +2311,8 @@ button.fk-chip:hover {
 
 /* FK-32: the Slate card's last games: crest on the result colour, "vs" / "@" in a fixed slot */
 .fk-form-games {
-  gap: 3px;
-  width: 140px; /* FK-36: 2 + 2 squares and the mark where this match sits (layout.ts games track) */
+  gap: 1px;
+  width: 140px; /* FK-47: 5 window slots of 8 + 1 + 18 px, 1 apart (layout.ts games track) */
   justify-content: flex-end;
 }
 /* the result's colour over the square's grey (.fk-fg-sq comes later in this file, so the plain .fk-form-* lost) */
@@ -2325,14 +2325,37 @@ button.fk-chip:hover {
 .fk-fg-sq.fk-form-L {
   background: var(--fk-loss);
 }
-/* FK-36: where the card's own match sits between the 2 before and the 2 after */
-.fk-fg-now {
-  width: 2px;
-  height: 18px;
-  margin: 0 1px;
-  border-radius: 1px;
-  background: var(--fk-muted);
-  opacity: 0.5;
+/* FK-47: the middle slot, this match: the accent colour with the competition's icon */
+.fk-fg-sq.fk-fg-this {
+  background: var(--fk-accent);
+  box-shadow: 0 0 0 1px var(--fk-accent);
+}
+.fk-fg-now .fk-fg-at {
+  color: var(--fk-text);
+}
+/* FK-47: a window without a match: dashed outline and a "–" */
+.fk-fg-sq.fk-fg-free {
+  background: transparent;
+  box-shadow: none;
+  outline: 1px dashed var(--fk-muted);
+  outline-offset: -1px;
+  color: var(--fk-muted);
+  font-size: 10px;
+  line-height: 1;
+}
+/* FK-47: two matches in one window share the slot */
+.fk-fg-split {
+  display: inline-flex;
+  gap: 1px;
+}
+.fk-fg-sq.fk-fg-half {
+  width: 8.5px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.fk-fg-sq.fk-fg-half img {
+  width: 8px;
+  height: 8px;
 }
 /* a match still to play: the crest on plain grey, outlined */
 .fk-fg-sq.fk-fg-next {
@@ -2349,9 +2372,10 @@ button.fk-chip:hover {
 }
 .fk-fg-at {
   display: inline-block;
-  width: 10px;
+  width: 8px;
   text-align: right;
-  font-size: 9px;
+  font-size: 8px;
+  letter-spacing: -0.3px;
   color: var(--fk-muted);
   line-height: 1;
 }
@@ -2359,14 +2383,14 @@ button.fk-chip:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px; /* FK-35: 4 squares fit calendarkit's card */
-  height: 20px;
+  width: 18px; /* FK-47: 5 window slots fit calendarkit's card */
+  height: 18px;
   border-radius: 4px;
   background: var(--fk-border);
 }
 .fk-fg-sq img {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   object-fit: contain;
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
 }

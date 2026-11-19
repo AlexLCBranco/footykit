@@ -4,7 +4,8 @@
 
 import { useState, type MouseEvent, type ReactNode } from 'react';
 import { compLogoUrl, teamLogoUrl } from '../address';
-import { formAt, recordText, stripAround, STRIP_SIDE, type FormLine, type StripGame } from '../data/form';
+import { formAt, recordText, type FormLine } from '../data/form';
+import { emptyWindowText, stripWindows, windowLabel, type StripGame, type StripWindow } from '../data/strip';
 import { kickoffTime, isPlayed, shortDay } from '../data/model';
 import { neutralVenue } from '../data/neutral';
 import { leaguePosition } from '../data/position';
@@ -112,42 +113,63 @@ export function FormSquares({ line, teamId }: { line: FormLine; teamId: string }
   );
 }
 
-/** FK-32 / FK-36: the Slate card's strip around its match — the last 2 played (crest on the result's colour) and the
- * next 2 (crest on plain grey until played), each after "vs" (home) or "@" (away) in a slot of one width so the squares
- * line up; a thin gap where this match sits. Empty slots at the start or end of the season. */
+/**
+ * FK-47: the Slate card's strip by window — five slots, one window each (midweek Tue–Thu, weekend Fri–Mon): 2 windows
+ * before, this match's window in the middle (accent colour, the competition's icon), 2 after. Played: the opponent's
+ * crest on green / grey / red; to come: outlined; "vs" / "@" before it. A window without a match: a dashed "–" slot.
+ * A window with two matches splits its slot. Hover a slot for its window; a click opens the standings.
+ */
 export function FormGames({ m, teamId }: { m: Match; teamId: string }) {
   const { model, onStandings } = useFooty();
   const t = model.team(teamId);
   const line = formAt(model, teamId, m);
-  const { before, after } = stripAround(model, teamId, m);
-  const text = (g: StripGame) => `${g.r ? `${g.r} ${g.gf}-${g.ga}` : 'next'} ${g.home ? 'vs' : '@'} ${model.team(g.opp).name} (${shortDay(g.day)})`;
+  const windows = stripWindows(model, teamId, m);
+  const text = (g: StripGame) => `${g.now ? 'this match' : g.r ? `${g.r} ${g.gf}-${g.ga}` : 'next'} ${g.home ? 'vs' : '@'} ${model.team(g.opp).name} (${shortDay(g.day)})`;
+  const windowText = (w: StripWindow) => (w.games.length ? `${windowLabel(w)}: ${w.games.map(text).join(', ')}` : emptyWindowText(w));
   const tip = [
-    `${t.name}: last ${before.length} before this match, next ${after.length} after it`,
-    ...before.map(text),
-    '— this match —',
-    ...after.map(text),
+    `${t.name}: the 2 windows before this match's, its own, the 2 after`,
+    ...windows.map(windowText),
     `League record ${recordText(line.record)} (W-D-L)`,
     line.streak && `Streak ${line.streak}`,
     onStandings && 'Click: standings',
   ].filter(Boolean).join('\n');
-  const slot = (g: StripGame | undefined, key: string, side: 'before' | 'after') => g ? (
-    <span key={g.id} className="fk-fg" data-testid="form-game" data-side={side} data-result={g.r} data-home={g.home || undefined}>
-      <span className="fk-fg-at">{g.home ? 'vs' : '@'}</span>
-      <span className={`fk-fg-sq${g.r ? ` fk-form-${g.r}` : ' fk-fg-next'}`}><GameCrest id={g.opp} /></span>
+  const square = (g: StripGame, half: boolean) => (
+    <span key={g.id} className={`fk-fg-sq${half ? ' fk-fg-half' : ''}${g.now ? ' fk-fg-this' : g.r ? ` fk-form-${g.r}` : ' fk-fg-next'}`} data-testid="form-game" data-result={g.r} data-home={g.home || undefined} data-now={g.now || undefined}>
+      {g.now ? <StripCompIcon slug={g.c} /> : <GameCrest id={g.opp} />}
     </span>
-  ) : <span key={key} className="fk-fg" data-side={side}><span className="fk-fg-at" /><span className="fk-fg-sq fk-fg-none" /></span>;
-  const pad = STRIP_SIDE - before.length;
-  const squares = [
-    ...Array.from({ length: STRIP_SIDE }, (_, i) => slot(before[i - pad], `b${i}`, 'before')),
-    <span key="now" className="fk-fg-now" aria-hidden="true" />,
-    ...Array.from({ length: STRIP_SIDE }, (_, i) => slot(after[i], `a${i}`, 'after')),
-  ];
-  if (!onStandings) return <span className="fk-form fk-form-games fk-form-plain" title={tip} data-testid="form">{squares}</span>;
+  );
+  const slots = windows.map((w) => {
+    const now = w.games.some((g) => g.now);
+    const side = w.offset < 0 ? 'before' : w.offset > 0 ? 'after' : 'now';
+    if (!w.games.length) {
+      return (
+        <span key={w.start} className="fk-fg fk-fg-empty" data-testid="strip-slot" data-side={side} data-state={w.state} title={emptyWindowText(w)}>
+          <span className="fk-fg-at" /><span className="fk-fg-sq fk-fg-free">–</span>
+        </span>
+      );
+    }
+    const games = w.games.slice(0, 2);
+    return (
+      <span key={w.start} className={`fk-fg${now ? ' fk-fg-now' : ''}`} data-testid="strip-slot" data-side={side} data-count={w.games.length} title={windowText(w)}>
+        <span className="fk-fg-at">{games[0]!.home ? 'vs' : '@'}</span>
+        {games.length === 1 ? square(games[0]!, false) : <span className="fk-fg-split">{games.map((g) => square(g, true))}</span>}
+      </span>
+    );
+  });
+  if (!onStandings) return <span className="fk-form fk-form-games fk-form-plain" title={tip} data-testid="form">{slots}</span>;
   return (
     <button type="button" className="fk-form fk-form-games" title={tip} data-testid="form" onClick={(e) => { e.stopPropagation(); onStandings(teamId); }}>
-      {squares}
+      {slots}
     </button>
   );
+}
+
+/** FK-47: the competition's icon in the middle slot (its code when there is no logo file). */
+function StripCompIcon({ slug }: { slug: string }) {
+  const { model } = useFooty();
+  const [failed, setFailed] = useState(false);
+  if (failed) return <span className="fk-fg-name">{model.comp(slug).code}</span>;
+  return <img src={compLogoUrl(slug)} alt={model.comp(slug).code} width={14} height={14} loading="lazy" decoding="async" onError={() => setFailed(true)} />;
 }
 
 function GameCrest({ id }: { id: string }) {

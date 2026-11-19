@@ -11,15 +11,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 **Blocked:** (2026-11-19, step 1 done) The Odds API has no "team to score" key; the closest is `team_totals` (Over 0.5 goals = team scores), an additional market fetched one event at a time from `/events/{id}/odds`, costing 1 credit per event per region when it returns data. Followed clubs played 196 matches in Oct 2026 (max 18 in a day), so one region ≈ 200 credits a month of the free 500 (the event list call is free) — it fits on paper. Not verified: whether any EU/UK bookmaker prices `team_totals` for these leagues (The Odds API says additional markets are mostly US books; Brasileirão coverage unknown). Needs: you to create a free key at the-odds-api.com (an account I can't create for you), then one test call per league to confirm coverage before building.
 
 
-### FK-47 — Club form strip: window slots, empty windows shown, current match highlighted
-**What:** the strip next to each team on a Slate card (image docs/backlog-img/FK-47-strip.png) changes from "the last 2 / next 2 matches" to windows: each slot is one window, the same midweek (Tue–Thu) and weekend (Fri–Mon) windows as the Window strip tags. Five slots: 2 windows before, this match's window in the middle, 2 after.
-- A window with no match is an empty slot: dashed outline, a small "–", hover "No match · midweek 11–13 Nov". So rest is visible at a glance and slots line up across cards.
-- A window with two matches (rare) splits its slot in two.
-- The middle slot replaces FK-36's thin mark: this match, filled with the accent colour and showing the competition icon, so the current game stands out.
-- Played and upcoming slots keep FK-32 / FK-36's look (crest on green / grey / red, crest outlined, "vs" / "@").
-- The card stays 509 × 78 (same shape as calendarkit's for the combined Slate, gauntlet GT-14): shrink the slots to fit; don't widen the card.
-**Tests:** unit: windows built from a club's matches (empty window, two-match window); e2e: a card shows 5 slots per team with the middle one highlighted.
-
 ### FK-48 — Arrows on the club form strip to move to earlier / later windows
 From I-10
 **What:** small ◀ ▶ arrows at the ends of the strip (image docs/backlog-img/I-10-strip.png) move that strip one window earlier / later (FK-47's windows), so you can look further back or ahead without leaving the Slate. The highlighted current match scrolls out of view when you move away; a click on it (or reloading) brings the strip back to centred. Arrows fit inside the 509 × 78 card. Needs FK-47.

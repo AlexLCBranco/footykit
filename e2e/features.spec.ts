@@ -457,20 +457,20 @@ test('FK-31 / FK-32: Slate card score beside the name; bigger last-games squares
     // the name, or its league place right after it (FK-28: "Arsenal 1st 2")
     const name = (r.querySelector('.fk-pos') ?? r.querySelector('.fk-team-name'))!.getBoundingClientRect();
     const score = r.querySelector('[data-testid="card-score"]')?.getBoundingClientRect();
-    const sq = [...r.querySelectorAll('.fk-fg-sq')].map((s) => s.getBoundingClientRect());
-    return { gap: score ? score.left - name.right : undefined, sqLefts: sq.map((s) => Math.round(s.left - r.getBoundingClientRect().left)), sqW: sq[0]?.width, prefixes: [...r.querySelectorAll('[data-testid="form-game"] .fk-fg-at')].map((p) => p.textContent) };
+    const sq = [...r.querySelectorAll('[data-testid="strip-slot"]')].map((s) => s.getBoundingClientRect());
+    return { gap: score ? score.left - name.right : undefined, sqLefts: sq.map((s) => Math.round(s.left - r.getBoundingClientRect().left)), sqW: r.querySelector('[data-testid="form-game"]:not(.fk-fg-half)')?.getBoundingClientRect().width, prefixes: [...r.querySelectorAll('[data-testid="strip-slot"]:not(.fk-fg-empty) .fk-fg-at')].map((p) => p.textContent) };
   }));
   // FK-31: every played card's score sits right after the name
   for (const r of rows) { expect(r.gap).toBeGreaterThanOrEqual(0); expect(r.gap).toBeLessThan(12); }
-  // FK-32: squares (20 px since FK-35 fitted them into calendarkit's card), "vs" / "@" before each, at the same x on every row
+  // FK-32: squares (18 px since FK-47 fitted 5 window slots into calendarkit's card), "vs" / "@" before each, slots at the same x on every row
   const withForm = rows.filter((r) => r.sqLefts.length);
   expect(withForm.length).toBeGreaterThan(5);
   for (const r of withForm) {
-    expect(r.sqW).toBe(20);
+    expect(r.sqW).toBe(18);
     expect(r.sqLefts).toEqual(withForm[0]!.sqLefts);
     for (const p of r.prefixes) expect(['vs', '@']).toContain(p);
   }
-  const game = card.getByTestId('form-game').first();
+  const game = card.locator('[data-testid="form-game"][data-result]').first();
   await expect(game.locator('img')).toHaveCount(1); // the opponent's crest
   expect(['W', 'D', 'L']).toContain(await game.getAttribute('data-result'));
   expect(errors).toEqual([]);
@@ -520,31 +520,45 @@ test('FK-28: each team\'s domestic league place beside its name on list rows and
   expect(errors).toEqual([]);
 });
 
-test('FK-36: the Slate strip shows the 2 played before and the next 2 after the match', async ({ page }) => {
+test('FK-47: the Slate strip shows 5 window slots per team, the middle one (this match) highlighted', async ({ page }) => {
   const errors = await open(page, '?view=slate');
   await page.getByLabel('Pick a date').fill('2026-11-08');
   const strips = page.locator('[data-testid="slate-card"] [data-testid="form"]');
   await expect(strips.first()).toBeVisible();
-  const counts = await strips.evaluateAll((els) => els.map((e) => ({
-    slots: e.querySelectorAll('.fk-fg').length,
-    before: e.querySelectorAll('[data-testid="form-game"][data-side="before"]').length,
-    after: e.querySelectorAll('[data-testid="form-game"][data-side="after"]').length,
-    beforeResults: [...e.querySelectorAll('[data-testid="form-game"][data-side="before"]')].every((g) => !!g.getAttribute('data-result')),
+  const rows = await strips.evaluateAll((els) => els.map((e) => ({
+    slots: [...e.querySelectorAll('[data-testid="strip-slot"]')].map((s) => s.getAttribute('data-side')),
+    now: [...e.querySelectorAll('[data-testid="strip-slot"]')].findIndex((s) => !!s.querySelector('[data-now]')),
+    nowBg: getComputedStyle(e.querySelector('[data-now]')!).backgroundColor,
+    nowIcon: e.querySelector('[data-now] img')?.getAttribute('src'),
+    empty: [...e.querySelectorAll('.fk-fg-empty')].map((s) => [s.textContent, s.getAttribute('title')]),
+    beforeResults: [...e.querySelectorAll('[data-testid="strip-slot"][data-side="before"] [data-testid="form-game"]')].every((g) => !!g.getAttribute('data-result')),
+    width: e.getBoundingClientRect().width,
   })));
-  expect(counts.length).toBeGreaterThan(5);
-  for (const c of counts) {
-    expect(c.slots).toBe(4); // always 4 slots, so the squares line up
-    expect(c.beforeResults).toBe(true);
+  expect(rows.length).toBeGreaterThan(5);
+  const accent = await page.evaluate(() => getComputedStyle(document.querySelector('.fk-root')!).getPropertyValue('--fk-accent').trim());
+  for (const r of rows) {
+    expect(r.slots).toEqual(['before', 'before', 'now', 'after', 'after']); // always 5 slots, so they line up
+    expect(r.now).toBe(2);
+    expect(r.nowIcon).toContain('logos/c-'); // the competition's icon
+    expect(r.beforeResults).toBe(true);
+    expect(r.width).toBeLessThanOrEqual(140);
+    for (const [text, title] of r.empty) { expect(text).toBe('–'); expect(title).toMatch(/^(No match|Nothing fixtured yet|Before the season) · (midweek|weekend) [0-9]/); }
   }
-  // mid-season: most clubs have 2 played before and 2 to come
-  expect(counts.filter((c) => c.before === 2 && c.after === 2).length).toBeGreaterThan(counts.length / 2);
+  expect(new Set(rows.map((r) => r.nowBg)).size).toBe(1);
+  expect(accent).toBe('#4ea1ff');
+  expect(rows[0]!.nowBg).toBe('rgb(78, 161, 255)');
+  // rest is visible: some club has an empty window around this date
+  expect(rows.some((r) => r.empty.length > 0)).toBe(true);
   // played squares carry their result's colour (was grey on every square: .fk-fg-sq's background won over .fk-form-*)
-  const bg = await page.locator('[data-testid="form-game"][data-result] .fk-fg-sq').evaluateAll((els) => els.map((e) => [e.parentElement!.getAttribute('data-result'), getComputedStyle(e).backgroundColor]));
+  const bg = await page.locator('[data-testid="form-game"][data-result]:not([data-now])').evaluateAll((els) => els.map((e) => [e.getAttribute('data-result'), getComputedStyle(e).backgroundColor]));
   const byResult = new Map<string, Set<string>>();
   for (const [r, c] of bg) byResult.set(r!, (byResult.get(r!) ?? new Set()).add(c!));
   expect(byResult.get('W')?.size).toBe(1);
   expect(byResult.get('L')?.size).toBe(1);
   expect([...byResult.get('W')!][0]).not.toBe([...byResult.get('L')!][0]);
+  // the card keeps calendarkit's size
+  const sizes = await page.getByTestId('slate-card').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
+  expect(new Set(sizes)).toEqual(new Set(['509x78']));
   expect(errors).toEqual([]);
 });
 
