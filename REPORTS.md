@@ -2,6 +2,22 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-20 — FK-66
+
+**Built:** v0.79.0 FK-66 — World Cup quality pass (NAV_PATTERN.md §5 on history, brackets, simulator and team history). FK-61 and FK-63 skipped: both still blocked.
+**Fixed:**
+- Fast: an edition already seen or preloaded now shows in the same frame (it used to go through a "Loading…" frame every time, even cached); the two editions either side are fetched and their tables worked out ahead while idle. Measured on 2026: edition switch 49 ms (was 75 ms before the precompute), Groups 43 ms, Bracket 36 ms, a simulator pick 17 ms.
+- No jumps: while an edition arrives the last one stays on screen dimmed instead of the page emptying; the first visit keeps the page's room; a new edition or view fades in over 120 ms. Stepping 2002 → 1930 → 2026 through the strip: the heading never moves, no loading frame. Layout shift on load 0.000–0.002 for 1930, 1950, 2002, 2026 in every view.
+- Plain words: hovers on every short column header (#, Pts, P, W, D, L, GD, GF, Goals), on every stage title (Round of 32 … Final, Third place, Group stage, Second group stage, Final round), on the vs / @ squares, bracket scores and penalty numbers, the 1 X 2 / Detailed switch; "Grp" → "Group", simulator "M74" → "Match 74", "a.e.t." / "pens" inputs → "extra time" / "penalties"; the simulator's third-placed table got its missing header row.
+- Clickable: team names now look like links (dotted underline); a click anywhere on a table row opens that team's World Cup history (groups, third-placed, simulator tables); the bracket scores open the match search; "won by …" opens the champion; every team name in the simulator (tables, matches, Detailed bracket, champion) opens its history; the simulator's match numbers open the real match search.
+**Couldn't fully meet the bar:**
+- 1938's walkover slot (Sweden through without playing) does nothing on click: there was no match to open; the hover says so.
+- "Brackets of different sizes animate" is a 120 ms fade, not a size morph: each edition's bracket is zoomed to fit the screen and CSS zoom can't be animated smoothly.
+- In the simulator's Fast mode a bracket team click picks the winner (that's the tool), so it doesn't open the team's history there; it does in Detailed mode and everywhere else.
+**Checked automatically (e2e/wc-quality.spec.ts):** the timings above (<100 ms), neighbours preloaded, no loading frame and no heading move across all 23 editions, layout shift ≈ 0, every team name / match square / score / table row in 2002 and 2026 (Groups, Bracket, Simulator Fast and Detailed) clickable and every abbreviation explained, a row / score / champion / simulator team each open what they say. 103/103 e2e, 468 unit tests.
+**Screenshots:** Groups, Bracket and Simulator for 1930, 2002 and 2026 in `test-output/fk66/` (local, made by the e2e run).
+**Test by hand:** only the look and feel: do the dotted underlines and the fade feel right.
+
 ## 2026-11-20 — FK-65
 
 **Built:** v0.78.0 FK-65 — the shared layout from backlogkit's NAV_PATTERN.md. A header pinned at the top of every page (same 92 px everywhere): ← →, a breadcrumb (e.g. Cups › World Cup › 2002 › Bracket; each part opens its neighbours), "Go anywhere" (Ctrl+K: clubs, competitions in each view, World Cup editions, "brazil 2002" → Brazil's 2002 World Cup), the Tags / copy / standings / info buttons, and the five places Today · Clubs · Leagues · Cups · Tools. Under it, scrolling away: What chips (leagues, cups, the World Cup's 1930 … 2026 strip with the chosen year scrolled into view, Trailing's competitions) and the How switch. No `<select>` is left for a What choice (the cup title, League, Cup, Competition, edition, history competition and season, and the quick standings popup's competition are all chips now). Every old address still opens its page; three new forms: `?view=clubs`, `?view=cups&cup=…&sim=1`, `?view=wc&year=…&how=groups`.

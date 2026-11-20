@@ -5,17 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-66 — World Cup quality pass
-**In short:** Everything in the World Cup section (history, brackets, simulator, team pages) is checked against the quality bar and fixed: fast, no jumps, plain words, everything clickable, good-looking.
-**What:**
-- Build after FK-65. Apply NAV_PATTERN.md section 5 to every World Cup screen (FK-59, FK-60, v0.77.0 bracket, team World Cup history).
-- Fast: switching edition, Groups/Bracket/Simulator, or changing a simulator result updates in under 100 ms. If an edition's data loads on demand, preload the neighbouring editions so stepping through the strip never waits.
-- No layout jumps when switching editions (brackets of different sizes animate, the page doesn't jump).
-- Plain words: every abbreviation and term (R16, QF, GD, Pts, AET, pens, third-placed table, second group stage, final round 1950) has a plain label or hover explanation; hovers say what something is, not just numbers.
-- Clickable: every team name, match square, score, bracket cell and table row does something (team → its World Cup history; match → detail/hover; edition in a team's history → that edition). Nothing clickable looks like plain text.
-- Report lists anything fixed and anything that couldn't meet the bar, with why.
-**Tests:** e2e timing (<100 ms) for edition switch, view switch and a simulator change on 2026 (biggest edition); layout-shift ≈ 0 across editions; e2e that every team name and match square in 2002 and 2026 is clickable; screenshots of Groups, Bracket and Simulator for 1930, 2002 and 2026 in the report.
-
 ### FK-61 — Countdown to the Slate's first match (halftime-timer)
 **In short:** The Slate gets a "⏱ Countdown" button that opens halftime-timer with a timer counting down to the day's first match.
 **What:**

@@ -270,3 +270,63 @@
   font-size: 16px;
   margin: 14px 0 6px;
 }
+
+/* ---------- FK-66: the quality pass ---------- */
+/* a team name is a link: a quiet dotted underline says so before the hover */
+.fk-wc-name {
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-underline-offset: 3px;
+}
+.fk-wc-name:hover {
+  text-decoration-style: solid;
+  text-decoration-color: currentColor;
+}
+.fk-cupsim-pick .fk-wc-name {
+  text-decoration: none;
+}
+.fk-wc-sim-h.fk-wc-team {
+  display: flex;
+  justify-content: flex-end;
+}
+.fk-wc-sim-a.fk-wc-team {
+  display: flex;
+}
+/* a whole table row opens its team */
+.fk-wc-rowlink {
+  cursor: pointer;
+}
+.fk-wc-rowlink:hover > td {
+  background: color-mix(in srgb, var(--fk-accent) 8%, transparent);
+}
+/* a bracket score opens the match */
+a.fk-wc-score {
+  color: inherit;
+  text-decoration: none;
+}
+a.fk-wc-score:hover {
+  color: var(--fk-accent);
+  text-decoration: underline;
+}
+.fk-wc-tie .fk-ko-legs a.fk-muted:hover {
+  color: var(--fk-accent);
+}
+/* a new edition or view fades in briefly instead of snapping; while an edition arrives the last one stays, dimmed */
+.fk-wc-body {
+  animation: fk-wc-in 120ms ease-out;
+}
+@keyframes fk-wc-in {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
+}
+.fk-wc-waiting .fk-wc-body {
+  opacity: 0.5;
+  transition: opacity 80ms;
+}
+/* the very first visit: the page's room kept, so the footer and scroll don't jump when it arrives */
+.fk-wc-first {
+  min-height: 100vh;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fk-wc-body { animation: none; }
+}

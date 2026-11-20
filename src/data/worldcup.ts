@@ -279,10 +279,27 @@ export function scoreText(r: Result, sep = '–'): string {
 
 const BASE = `${import.meta.env?.BASE_URL ?? '/'}worldcup/`;
 const cache = new Map<string, Promise<unknown>>();
+/** FK-66: what has arrived, readable in the same render (a loaded edition never goes through a "loading" frame). */
+const arrived = new Map<string, unknown>();
 const load = <T,>(file: string): Promise<T> => {
   let p = cache.get(file);
-  if (!p) { p = fetch(BASE + file).then((r) => { if (!r.ok) throw new Error(`${r.status} ${file}`); return r.json(); }); cache.set(file, p); p.catch(() => cache.delete(file)); }
+  if (!p) {
+    p = fetch(BASE + file).then((r) => { if (!r.ok) throw new Error(`${r.status} ${file}`); return r.json(); }).then((x: unknown) => { arrived.set(file, x); return x; });
+    cache.set(file, p);
+    p.catch(() => cache.delete(file));
+  }
   return p as Promise<T>;
 };
 export const loadEdition = (year: number) => load<WcEdition>(`${year}.json`);
 export const loadIndex = () => load<WcIndexEntry[]>('index.json');
+/** FK-66: the edition if it has already arrived, else undefined (no fetch). */
+export const peekEdition = (year: number) => arrived.get(`${year}.json`) as WcEdition | undefined;
+export const peekIndex = () => arrived.get('index.json') as WcIndexEntry[] | undefined;
+/** FK-66: the editions either side of `year` (two each way), fetched ahead so stepping through the strip never waits. */
+export function neighbours(years: number[], year: number, reach = 2): number[] {
+  const i = years.indexOf(year);
+  if (i < 0) return [];
+  const out: number[] = [];
+  for (let d = 1; d <= reach; d++) for (const j of [i - d, i + d]) if (j >= 0 && j < years.length) out.push(years[j]!);
+  return out;
+}

@@ -115,6 +115,7 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   sibling menus, Go anywhere on Ctrl+K, icon buttons, Where tabs Today · Clubs · Leagues · Cups · Tools), page rows `PageRows.tsx` (What chips /
   strips, How switch, date controls); the logic is pure in `nav.ts` (tests/nav.test.ts, e2e/nav.spec.ts). TopBar.tsx and every What `<select>` are
   gone; new address forms `?view=clubs`, `?view=cups&cup=…&sim=1`, `?view=wc&…&how=groups`; every old form still opens its page.
+- **FK-66 (2026-11-20)**: v0.79.0 World Cup quality pass: editions read in the same render once arrived (`peekEdition`), two either side preloaded and their tables precomputed (`editionView`, WeakMap), the last edition kept dimmed while a new one loads, plain-word hovers (`Th`, `STAGE_TIP` in WorldCupPage.tsx), rows / scores / champion / simulator teams clickable (e2e/wc-quality.spec.ts).
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
