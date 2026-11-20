@@ -4,7 +4,7 @@
 // Data: public/worldcup/ (scripts/make-worldcup.ts), loaded per edition. Its own chunk.
 
 import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
-import { advancing, bracket, groupTables, loadEdition, loadIndex, neighbours, peekEdition, peekIndex, reachedRank, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, THIRDS_THROUGH, twoSided, wcMatchUrl, winSide, type GroupTable, type KoTie, type Result, type WcEdition, type WcIndexEntry, type WcMatch } from '../data/worldcup';
+import { advancing, bracket, groupTables, loadEdition, loadIndex, neighbours, peekEdition, peekIndex, peekVideos, reachedRank, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, THIRDS_THROUGH, twoSided, wcMatchUrl, wcVideoUrl, winSide, type GroupTable, type KoTie, type Result, type WcEdition, type WcIndexEntry, type WcMatch } from '../data/worldcup';
 import { WC_NO_BRACKET, WC_YEARS, type WcHow } from './page';
 import { useFitBracket } from './fitBracket';
 import { simulable } from '../data/wcSim';
@@ -52,7 +52,21 @@ export function matchTip(ed: WcEdition, m: WcMatch, r: Result = m, link = true):
     else if (r.s[0] + r.s[1] + (r.et ? r.et[0] + r.et[1] : 0) > 0) lines.push('', 'Scorers not in the data');
   }
   if (link) lines.push('', 'Click: search the match on Google');
+  if (link && peekVideos(ed.year)?.[m.n]) lines.push('▶ beside it: the full match on CazéTV (YouTube)');
   return lines.join('\n');
+}
+
+/** FK-67: the ▶ link's hover (the owner's words). */
+export const VIDEO_TIP = 'Full match on CazéTV (YouTube)';
+/**
+ * FK-67: ▶ beside a match that has a full replay on CazéTV's YouTube channel (2026 only, from the edition's videos
+ * file); nothing for a match without one. An extra link: the match's Google link stays as it is.
+ */
+export function Play({ ed, m, className }: { ed: WcEdition; m: WcMatch; className?: string }) {
+  const id = peekVideos(ed.year)?.[m.n];
+  if (!id) return null;
+  const n = (c: string) => ed.teams[c] ?? c;
+  return <a className={`fk-wc-play${className ? ` ${className}` : ''}`} href={wcVideoUrl(id)} target="_blank" rel="noopener noreferrer" draggable={false} title={VIDEO_TIP} aria-label={`${n(m.h)} v ${n(m.a)}: ${VIDEO_TIP}`} data-testid="wc-video" data-n={m.n}>▶</a>;
 }
 
 /** A team's name: a click opens its World Cup history; the ↗ beside it its squad for the edition (Wikipedia). */
@@ -93,7 +107,7 @@ function Tie({ ed, t, onTeam, res, pick }: { ed: WcEdition; t: KoTie; onTeam: (c
       <div className="fk-ko-legs">
         {t.matches.map((m) => {
           const mr = res ? res(m) : m;
-          return mr ? <a key={m.n} href={wcMatchUrl(ed, m)} target="_blank" rel="noopener noreferrer" title={matchTip(ed, m, mr)} data-testid="wc-match"><span>{m.replay ? 'Replay ' : ''}{dateText(m.date)}</span><span className="fk-wc-leg-sep"> · </span><span className="fk-wc-leg-score">{scoreText(mr)}</span></a> : null;
+          return mr ? <span key={m.n} className="fk-wc-leg"><a href={wcMatchUrl(ed, m)} target="_blank" rel="noopener noreferrer" title={matchTip(ed, m, mr)} data-testid="wc-match"><span>{m.replay ? 'Replay ' : ''}{dateText(m.date)}</span><span className="fk-wc-leg-sep"> · </span><span className="fk-wc-leg-score">{scoreText(mr)}</span></a><Play ed={ed} m={m} /></span> : null;
         })}
         {pick}
       </div>
@@ -108,11 +122,15 @@ function Square({ ed, m, team, res }: { ed: WcEdition; m: WcMatch; team: string;
   const gf = r.s[home ? 0 : 1], ga = r.s[home ? 1 : 0];
   const k = gf > ga ? 'W' : gf < ga ? 'L' : 'D';
   const opp = home ? m.a : m.h;
+  // the square is a link itself, so its ▶ sits over its corner (a link can't hold another link)
   return (
+    <span className="fk-wc-sq">
     <a className={`fk-usq fk-usq-${k}`} href={wcMatchUrl(ed, m)} target="_blank" rel="noopener noreferrer" draggable={false} title={`${{ W: 'Won', D: 'Drawn', L: 'Lost' }[k]} ${gf}–${ga} against ${ed.teams[opp] ?? opp} ("vs": named first, "@": named second; most World Cup matches are on neutral ground)\n\n${matchTip(ed, m, r)}`} data-testid="wc-square">
       <span className="fk-usq-opp"><span className="fk-usq-at">{home ? 'vs' : '@'}</span>{ed.fifa?.[opp] ?? opp}</span>
       <span className="fk-usq-res">{gf}-{ga}</span>
     </a>
+    <Play ed={ed} m={m} className="fk-wc-play-sq" />
+    </span>
   );
 }
 
@@ -315,7 +333,7 @@ export default function WorldCupPage({ year, team, sim = false, how, onPage }: {
             <section>
               <h3>Sources</h3>
               <ul>{ed.source.map((s) => { const url = /https?:\/\/\S+/.exec(s)?.[0]; return <li key={s}>{url ? <a href={url} target="_blank" rel="noopener noreferrer">{s.replace(url, '').trim()}</a> : s}</li>; })}</ul>
-              <p className="fk-ucl-src">Squads link to Wikipedia's "{ed.year} FIFA World Cup squads". Match links search Google.</p>
+              <p className="fk-ucl-src">Squads link to Wikipedia's "{ed.year} FIFA World Cup squads". Match links search Google.{Object.keys(peekVideos(ed.year) ?? {}).length ? ' ▶ opens the full match on CazéTV\'s YouTube channel (its "Jogos Completos" playlist); a match with no full replay there has no ▶.' : ''}</p>
             </section>
           </div>
         </>

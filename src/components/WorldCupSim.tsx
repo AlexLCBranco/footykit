@@ -4,9 +4,9 @@
 // Starts from the real results; "Reset to real results" and "Clear all". Picks per edition in `fk:wcsim:v1`.
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { scoreText, wcMatchUrl, type Result, type WcEdition, type WcMatch } from '../data/worldcup';
+import { peekVideos, scoreText, wcMatchUrl, type Result, type WcEdition, type WcMatch } from '../data/worldcup';
 import { clearAll, fastOf, fastResult, koSlots, loadPicks, savePicks, simulate, sourceText, type Picks, type SimTie } from '../data/wcSim';
-import { matchTip, rowClick, STAGE_TIP, Team, Th } from './WorldCupPage';
+import { matchTip, Play, rowClick, STAGE_TIP, Team, Th } from './WorldCupPage';
 
 export type SimMode = 'fast' | 'detail';
 
@@ -51,8 +51,10 @@ function ScoreInputs({ r, ko, onSet, names }: { r?: Result; ko: boolean; onSet: 
 function GroupMatch({ ed, m, r, mode, changed, onSet, onTeam }: { ed: WcEdition; m: WcMatch; r?: Result; mode: SimMode; changed: boolean; onSet: (r: Result | null) => void; onTeam: (c: string) => void }) {
   const k = fastOf(r);
   const n = (c: string) => ed.teams[c] ?? c;
+  // FK-67: the real match's full replay; its column is there only for an edition with videos
+  const hasVideos = !!Object.keys(peekVideos(ed.year) ?? {}).length;
   return (
-    <div className={`fk-wc-sim-match${changed ? ' fk-wc-changed' : ''}`} data-testid="wc-sim-match" data-n={m.n} data-changed={changed || undefined} title={`Really: ${matchTip(ed, m, m, false)}`}>
+    <div className={`fk-wc-sim-match${hasVideos ? ' fk-wc-sim-match-v' : ''}${changed ? ' fk-wc-changed' : ''}`} data-testid="wc-sim-match" data-n={m.n} data-changed={changed || undefined} title={`Really: ${matchTip(ed, m, m, false)}`}>
       <Team ed={ed} code={m.h} onTeam={onTeam} squad={false} className="fk-wc-sim-h" />
       {mode === 'fast' ? (
         <span className="fk-wc-fast" role="group" aria-label={`${n(m.h)} v ${n(m.a)}`}>
@@ -66,6 +68,7 @@ function GroupMatch({ ed, m, r, mode, changed, onSet, onTeam }: { ed: WcEdition;
         <ScoreInputs r={r} ko={false} onSet={onSet} names={[n(m.h), n(m.a)]} />
       )}
       <Team ed={ed} code={m.a} onTeam={onTeam} squad={false} className="fk-wc-sim-a" />
+      {hasVideos && <span className="fk-wc-sim-play"><Play ed={ed} m={m} /></span>}
     </div>
   );
 }
@@ -98,6 +101,7 @@ function SimTieCard({ ed, t, mode, onSet, onTeam }: { ed: WcEdition; t: SimTie; 
           : <a className="fk-muted" href={wcMatchUrl(ed, t.slot.real)} target="_blank" rel="noopener noreferrer" title={`Match ${t.slot.n} of the tournament${t.r ? ` · this pick: ${scoreText(t.r)}` : ''}
 
 Really: ${matchTip(ed, t.slot.real)}`} data-testid="wc-match">Match {t.slot.n}{t.r ? ` · ${scoreText(t.r)}` : ''}</a>}
+        <Play ed={ed} m={t.slot.real} />
       </div>
     </div>
   );

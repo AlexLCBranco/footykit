@@ -29,17 +29,6 @@ Blocked: waits for halftime-timer HT-1 (its link format and live URL); the owner
 Blocked: no publishable source of bookmaker odds found (checked 2026-11-20). Footiqo's export (kept locally in data/odds/, git-ignored) is personal, non-commercial use only. Hugging Face's World Cup odds set: licence "other", free sample 7 matches. SharpAPI (CC BY 4.0): one 2026 snapshot from semi-final week only. Usable instead: FiveThirtyEight's forecasts (CC BY 4.0, via the Wayback Machine) for 2018 and 2022: every match's win / draw / loss chances before kick-off and each team's pre-tournament chance to win the cup. These are model chances, not bookmaker odds; they'd show as decimal "fair odds" (1 ÷ chance), labelled as 538's. Nothing open found for 2026. Waits for a publishable source of bookmaker odds.
 **Tests:** unit: odds → probabilities (margin removed, sum 1); random resim with a fixed seed gives a fixed bracket; editions without odds hide the button; e2e: hover a 2022 match shows odds; resimulate changes the bracket.
 
-### FK-67 — CazéTV full-match links on 2026 World Cup matches
-**In short:** Every 2026 World Cup match with a full replay on CazéTV's YouTube channel gets a ▶ link that opens that video.
-**What:**
-- World Cup section, 2026 edition only: a ▶ beside each match (group squares' hover/detail, bracket ties, match rows). Opens the CazéTV full-match video in a new tab. Title: "Full match on CazéTV (YouTube)".
-- The Google link on the score stays as it is (owner's rule); ▶ is an extra link, not a replacement.
-- Data: `public/worldcup/2026-videos.json`, match number → YouTube video ID, built by a new `scripts/make-wc-videos.ts` that lists CazéTV's "Jogos Completos" playlist (yt-dlp `--flat-playlist`, no API key) and pairs videos to matches by the two team names and the date.
-- Only real videos: a match with no full replay in the playlist gets no ▶. Never a guessed or search URL. The script prints which of the 104 matches have none.
-- Not checked from chat: whether all 104 full matches are still on the channel (many were pulled in late June 2026 over betting ads and re-uploaded edited; no source confirms all came back).
-- If the playlist can't be listed or fewer than half the matches pair up: stop, add a `Blocked:` note with what was found, and report.
-**Tests:** unit: title + date → match pairing (accents, "x" vs "vs", both team orders); a match with no video renders no ▶; e2e: a 2026 match with a video has a ▶ whose href is a youtube.com/watch link; a pre-2026 edition shows no ▶.
-
 ### FK-68 — FIFA+ full-match links on 2022 World Cup matches
 **In short:** Every 2022 World Cup match with a free full replay on FIFA's own site gets a ▶ link that opens it.
 **What:**

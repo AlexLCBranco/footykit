@@ -2,6 +2,18 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-20 — FK-67
+
+**Built:** v0.80.0 FK-67 — CazéTV full-match links on 2026 World Cup matches. A ▶ ("Full match on CazéTV (YouTube)", opens in a new tab) on the corner of every group square, beside every bracket tie's date, and on the simulator's group rows and bracket ties. The Google link on each match is unchanged. Editions before 2026 show no ▶ and load no videos file.
+**Data:** `npm run make-wc-videos` lists CazéTV's playlist "Jogos Completos | Copa do Mundo FIFA™ 2026" with yt-dlp (no API key, nothing downloaded) and writes `public/worldcup/2026-videos.json`. Result on 2026-11-20: 104 videos in the playlist, 104 of 104 matches paired, none missing, none unpaired, no duplicates. Every video is at least 2 h 15 min long, so these are full broadcasts, not highlights.
+**How the pairing reads the spec:** by the two teams in the title (Portuguese names in `config/wcNamesPt.ts`, either order, "x" / "vs" / "v", accents ignored). The date: a playlist listing only gives a rough date ("5 months ago"), so it is used as a guard (a video can't be older than its match) and to pick the match when two teams met twice (none did in 2026), not as an exact-day match.
+**Not checked:** whether each video is the unedited broadcast (some were re-uploaded edited after June 2026); only that it is in the playlist, titled as that match and of full length. Links are as of the run: if CazéTV removes a video, its ▶ opens YouTube's "unavailable" page until the script is run again.
+**Installed on this PC (owner said yes):** yt-dlp 2026.10.26 with winget, which also installed its FFmpeg package.
+**Checked automatically:** 13 unit tests (tests/wc-videos.test.tsx: titles → teams, the pairing rules, the file's shape, ▶ only where there is a video) and 3 browser tests (e2e/wc-videos.spec.ts: groups, bracket, simulator, an older edition). 481 unit tests, 106/106 e2e; layout shift on 2026 still 0.000–0.002, edition switch 68 ms.
+**Blocked:** nothing in FK-67. FK-61 and FK-63 stay blocked (not part of this run).
+**Ideas added:** none.
+**Test by hand:** only the look: is the ▶ on a group square's corner big enough to hit comfortably.
+
 ## 2026-11-20 — FK-66
 
 **Built:** v0.79.0 FK-66 — World Cup quality pass (NAV_PATTERN.md §5 on history, brackets, simulator and team history). FK-61 and FK-63 skipped: both still blocked.

@@ -290,10 +290,28 @@ const load = <T,>(file: string): Promise<T> => {
   }
   return p as Promise<T>;
 };
-export const loadEdition = (year: number) => load<WcEdition>(`${year}.json`);
+/** FK-67: the editions with full-match videos (public/worldcup/<year>-videos.json, scripts/make-wc-videos.ts). */
+export const WC_VIDEO_YEARS = [2026];
+/** Match number → YouTube video id. */
+export type WcVideos = Record<number, string>;
+/** The edition's videos; never fails (a missing or broken file is no videos: the page works without the ▶ links). */
+export function loadVideos(year: number): Promise<WcVideos> {
+  const file = `${year}-videos.json`;
+  let p = cache.get(file) as Promise<WcVideos> | undefined;
+  if (!p) {
+    p = fetch(BASE + file).then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((x: WcVideos) => { arrived.set(file, x); return x; });
+    cache.set(file, p);
+  }
+  return p;
+}
+export const peekVideos = (year: number) => arrived.get(`${year}-videos.json`) as WcVideos | undefined;
+export const wcVideoUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
+/** An edition with videos arrives together with them, so its ▶ links are there from the first frame (no late shift). */
+export const loadEdition = (year: number): Promise<WcEdition> =>
+  (WC_VIDEO_YEARS.includes(year) ? Promise.all([load<WcEdition>(`${year}.json`), loadVideos(year)]).then(([ed]) => ed) : load<WcEdition>(`${year}.json`));
 export const loadIndex = () => load<WcIndexEntry[]>('index.json');
 /** FK-66: the edition if it has already arrived, else undefined (no fetch). */
-export const peekEdition = (year: number) => arrived.get(`${year}.json`) as WcEdition | undefined;
+export const peekEdition = (year: number) => (WC_VIDEO_YEARS.includes(year) && !peekVideos(year) ? undefined : arrived.get(`${year}.json`) as WcEdition | undefined);
 export const peekIndex = () => arrived.get('index.json') as WcIndexEntry[] | undefined;
 /** FK-66: the editions either side of `year` (two each way), fetched ahead so stepping through the strip never waits. */
 export function neighbours(years: number[], year: number, reach = 2): number[] {

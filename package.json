@@ -1,7 +1,7 @@
 {
   "name": "footykit",
   "private": true,
-  "version": "0.79.0",
+  "version": "0.80.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,6 +22,7 @@
     "check-rivalries": "tsx scripts/check-rivalries.ts",
     "check-weather": "tsx scripts/check-weather.ts",
     "make-worldcup": "tsx scripts/make-worldcup.ts",
+    "make-wc-videos": "tsx scripts/make-wc-videos.ts",
     "make-history": "tsx scripts/make-history.ts"
   },
   "devDependencies": {
