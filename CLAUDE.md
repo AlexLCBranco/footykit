@@ -62,3 +62,11 @@ backlogkit (the owner's site that shows every repo's lists) reads these lines; k
   `[why: decision]` needs the owner to decide something, `[why: too-big]` needs splitting first, `[why: later]` not
   important yet, `[why: never]` probably never. Tag only from what the owner said; if he gave no reason, leave the tag
   off (backlogkit shows it under "No reason yet"). The owner can also set it from backlogkit.
+
+## Rules a 5-year-old can read (owner's rule, 2026-11-20)
+
+Whenever a feature shows or depends on a competition's rules (who goes through, tie-breakers, how pairings are set,
+away goals, anything), the app explains them so a 5-year-old understands in one read: short sentences, everyday words,
+no jargon or abbreviations left unexplained, one rule per line, and a worked example with real teams where it helps.
+The owner follows football closely and still could not find the 2026 World Cup's third-place rules explained anywhere:
+if he has to look a rule up outside the app, the feature is not done. Applies to every feature and every competition.
