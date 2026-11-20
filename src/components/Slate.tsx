@@ -123,7 +123,7 @@ export function Slate({ day, notes, showNotes, popout }: { day: string; notes: S
   if (!list.length) return <p className="fk-empty" data-testid="no-matches">No matches today for the followed clubs.</p>;
   return (
     <div className={`fk-slate${showNotes ? ' fk-slate-notes' : ''}`} data-testid="slate" style={VARS}>
-      <div className="fk-slate-header" data-testid="slate-header">{slateHeaderLabel(day)}<PopoutButton ctl={popout} /></div>
+      <div className="fk-slate-header"><span data-testid="slate-header">{slateHeaderLabel(day)}</span><PopoutButton ctl={popout} /></div>
       {list.map((m) => <SlateCard key={m.id} m={m} day={day} notes={showNotes ? notes : undefined} wx={wx.get(m.id)} />)}
     </div>
   );

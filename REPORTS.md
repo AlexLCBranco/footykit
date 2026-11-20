@@ -12,6 +12,8 @@ Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built lis
 - v0.75.0 FK-62 — "Pop out live scores" on the Slate header (Chrome / Edge): countdown to the first match, then one line per match by itself at kick-off; stays open while you browse; keeps polling while the tab is hidden.
 - v0.76.0 FK-64 — "History" on every league table, cup page and the Champions League page: past seasons (final table + last 5, or groups + bracket), champions by season, who goes far. First season covered (ESPN's free data): Premier League, LaLiga, Serie A, Bundesliga, Ligue 1 2002-03 (2000-02 present but without standings, marked incomplete); Brasileirão 2006; Champions League 2001-02; Libertadores 2002 (2002–03 only the final rounds); Sudamericana 2006; Copa do Brasil 2013; FA Cup and League Cup 2001-02; Copa del Rey, Coppa Italia, DFB-Pokal 2006-07; Coupe de France 2007-08. Leagues checked against football-data.co.uk for 2005-06, 2015-16, 2023-24: all equal except one wrong Empoli–Messina score on football-data.co.uk's side (ESPN agrees with Wikipedia). Seasons ESPN has only in part (e.g. Ligue 1 2019-20, stopped by COVID; one Ligue 1 2025-26 match missing) show no champion.
 
+- v0.76.1 fix — The full e2e run caught that v0.75.0 put the pop-out button inside the Slate header's label element (its text read "…FootballPop out live scores"); the label now has its own element. FK-35's test failed on the old code and passes now.
+
 **Blocked:**
 - FK-61 — unchanged: waits for halftime-timer HT-1.
 - FK-63 — no free odds source usable without you: Footiqo has World Cup 1X2 odds but forbids scripted extraction (manual exports allowed); OddsPapi's free tier needs an account key; FootyStats' samples need a sign-up. The Blocked note lists the three options.
