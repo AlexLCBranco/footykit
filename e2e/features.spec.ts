@@ -1246,3 +1246,69 @@ test('FK-58: Trailing moves from the tabs into the Extra tools menu; old links s
   await expect(btn).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });
+
+test('FK-59: World Cup history: pick 2014 from the Cups picker, group tables, a match hover, a squad link, a team history', async ({ page }) => {
+  const errors = await open(page);
+  await page.getByTestId('views').getByRole('tab', { name: 'Cups' }).click();
+  await page.getByTestId('cup-picker').selectOption('fifa.world');
+  await expect(page.getByTestId('wc-page')).toHaveAttribute('data-year', '2026');
+  await expect(page).toHaveTitle('World Cup 2026 — footykit');
+  // 2026: 12 groups, the thirds table with 8 through, a round of 32
+  await expect(page.getByTestId('wc-group')).toHaveCount(12);
+  await expect(page.getByTestId('wc-third')).toHaveCount(12);
+  await expect(page.getByTestId('wc-bracket').locator('.fk-ko-col-title').first()).toHaveText('Round of 32');
+  // the edition picker: newest first
+  const years = await page.getByTestId('wc-edition').locator('option').allTextContents();
+  expect(years[0]).toBe('2026');
+  expect(years[years.length - 1]).toBe('1930');
+  await page.getByTestId('wc-edition').selectOption('2014');
+  await expect(page).toHaveTitle('World Cup 2014 — footykit');
+  await expect(page).toHaveURL(/view=wc&year=2014/);
+  const groupA = page.locator('[data-testid="wc-group"][data-group="Group A"]');
+  await expect(groupA.getByTestId('wc-row')).toHaveCount(4);
+  await expect(groupA.getByTestId('wc-row').first().getByTestId('wc-team')).toHaveText('Brazil');
+  await expect(groupA.getByTestId('wc-row').first().locator('.fk-pts')).toHaveText('7');
+  await expect(groupA.locator('[data-through]')).toHaveCount(2);
+  // a match square: hover shows date, venue, 90' score, scorers; it links to a Google search
+  const sq = groupA.getByTestId('wc-row').first().getByTestId('wc-square').first();
+  await sq.hover();
+  const tip = (await sq.getAttribute('title'))!;
+  expect(tip).toContain('Brazil 3–1 Croatia');
+  expect(tip).toContain('12 Jun 2014');
+  expect(tip).toContain('São Paulo');
+  expect(tip).toContain('90 minutes: 3–1');
+  expect(tip).toContain('Neymar');
+  expect(await sq.getAttribute('href')).toBe('https://www.google.com/search?q=Brazil%20vs%20Croatia%20Jun%2012%202014');
+  // the final: 1-0 after extra time
+  const final = page.getByTestId('wc-bracket').locator('.fk-ko-col').last().getByTestId('wc-match').first();
+  await expect(final).toContainText('0–0 (a.e.t. 1–0)');
+  expect(await final.getAttribute('title')).toContain('Mario Götze');
+  // a squad link, opened
+  const squad = groupA.getByTestId('wc-row').first().getByTestId('wc-squad');
+  expect(await squad.getAttribute('href')).toBe('https://en.wikipedia.org/wiki/2014_FIFA_World_Cup_squads#Brazil');
+  await page.route('https://en.wikipedia.org/**', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<title>squads</title>' }));
+  const [popup] = await Promise.all([page.waitForEvent('popup'), squad.click()]);
+  expect(popup.url()).toBe('https://en.wikipedia.org/wiki/2014_FIFA_World_Cup_squads#Brazil');
+  await popup.close();
+  // a team name: its World Cup history; a year in it opens that edition
+  await groupA.getByTestId('wc-row').first().getByTestId('wc-team').click();
+  const hist = page.getByTestId('wc-history');
+  await expect(hist).toContainText('Brazil at the World Cup');
+  await expect(hist.locator('[data-year="2002"]')).toContainText('Winner');
+  await expect(hist.locator('[data-year="1950"]')).toContainText('Runner-up');
+  await hist.locator('[data-year="1970"]').click();
+  await expect(page.getByTestId('wc-page')).toHaveAttribute('data-year', '1970');
+  await expect(page).toHaveURL(/year=1970&team=BRA/);
+  await page.getByTestId('wc-history-close').click();
+  await expect(hist).toHaveCount(0);
+  // a second group stage (1982) and a final round (1950)
+  await page.getByTestId('wc-edition').selectOption('1982');
+  await expect(page.locator('[data-testid="wc-stage"][data-stage="Second group stage"]').getByTestId('wc-group')).toHaveCount(4);
+  await page.getByTestId('wc-edition').selectOption('1950');
+  await expect(page.locator('[data-testid="wc-stage"][data-stage="Final round"]')).toBeVisible();
+  await expect(page.getByTestId('wc-bracket')).toHaveCount(0);
+  // an old-style address works too
+  await page.goto('/football/?view=cups&cup=fifa.world');
+  await expect(page.getByTestId('wc-page')).toBeVisible();
+  expect(errors).toEqual([]);
+});

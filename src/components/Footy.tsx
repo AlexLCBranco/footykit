@@ -11,7 +11,7 @@ import { Ctx, type FootyCtx } from './ctx';
 import { CopyButton } from './Copy';
 import { DayList } from './DayList';
 import { DayStrip } from './DayStrip';
-import { DEFAULT_CUP, DEFAULT_LEAGUE, windowClickPage, leagueViewPage, leagueWhatIfPage, cupPage, monthStep, simLeague, stepPage, teamClickPage, uclWhatIfPage, type Page } from './page';
+import { WC_LATEST, DEFAULT_CUP, DEFAULT_LEAGUE, windowClickPage, leagueViewPage, leagueWhatIfPage, cupPage, monthStep, simLeague, stepPage, teamClickPage, uclWhatIfPage, type Page } from './page';
 import { StandingsPopup, useSeriesPopup } from './Popups';
 import { Slate } from './Slate';
 import { SideArrows } from './SideArrows';
@@ -34,6 +34,7 @@ const LeagueTablePage = lazy(() => import('./LeagueTablePage'));
 const LeagueWhatIfPage = lazy(() => import('./LeagueWhatIfPage'));
 const CupsPage = lazy(() => import('./CupsPage'));
 const TrailingPage = lazy(() => import('./TrailingPage'));
+const WorldCupPage = lazy(() => import('./WorldCupPage'));
 const LeagueView = lazy(() => import('./LeagueView'));
 
 export interface FootyProps {
@@ -102,7 +103,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const [selection] = useState(createSelectionStore);
   const marquee = useRef<HTMLDivElement>(null);
   const onMarquee = useMarqueeSelection(selection, marquee);
-  const viewKey = `${page.view}|${page.lcomp}|${page.lmode}|${page.league}|${page.cup}|${page.comp}|${page.uclTab}|${page.day}|${page.team}|${page.span}|${page.week}|${page.month}`;
+  const viewKey = `${page.view}|${page.lcomp}|${page.lmode}|${page.league}|${page.cup}|${page.comp}|${page.uclTab}|${page.wcYear}|${page.wcTeam}|${page.day}|${page.team}|${page.span}|${page.week}|${page.month}`;
   useEffect(() => selection.clear(), [viewKey, selection]);
   // What a copy takes: the Slate's cards, the day's list (not the map column beside it: the map is never in a copy, and
   // its space shouldn't be either), else the whole view.
@@ -132,6 +133,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   else if (page.view === 'whatif') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WhatIfPage today={today} onBack={() => onPage({ ...page, view: 'ucl' })} /></Suspense>;
   else if (page.view === 'table') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueTablePage league={page.league ?? DEFAULT_LEAGUE} today={today} onWhatIf={() => onPage(leagueWhatIfPage(page))} /></Suspense>;
   else if (page.view === 'cups') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><CupsPage cup={page.cup ?? DEFAULT_CUP} today={today} fit onPick={(c) => onPage(cupPage(page, c))} /></Suspense>;
+  else if (page.view === 'wc') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WorldCupPage year={page.wcYear ?? WC_LATEST} team={page.wcTeam} onPage={(year, team) => onPage({ ...page, view: 'wc', wcYear: year, wcTeam: team })} onPick={(c) => onPage(cupPage(page, c))} /></Suspense>;
   else if (page.view === 'trailing') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><TrailingPage comp={page.comp ?? DEFAULT_TRAILING} today={today} /></Suspense>;
   else if (page.view === 'league') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueView comp={page.lcomp ?? DEFAULT_LEAGUE} mode={page.lmode ?? 'list'} day={page.day} today={today} onList={(d) => onPage({ ...page, day: d, lmode: undefined })} side={side} /></Suspense>;
   else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} />;

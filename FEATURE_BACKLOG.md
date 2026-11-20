@@ -5,18 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-59 — World Cup: every edition's groups, brackets and history
-**In short:** A World Cup section under Cups where you pick any edition (1930–2026) and see how every group ended and the full bracket, with hovers on matches and links to each team's squad.
-**What:**
-- Place: Cups view, "World Cup" entry with an edition picker (newest first, opens on 2026).
-- Groups: final tables of every group (P, W, D, L, goals, GD, Pts with that edition's points rule: 2 per win before 1994), qualified teams marked, plus the squares of each team's group matches (opponent, result) like the UCL / NBA Cup tables. Editions with second group stages (1950, 1974, 1978, 1982) show those groups too.
-- 2026 (48 teams): the third-placed teams table that decided who went through.
-- Bracket: full knockout bracket of the edition, with extra time and penalties shown on the score.
-- Hover on any match: date, venue/city, score at 90', ET and penalties, goal scorers if the data has them. Click a match: Google search for it (owner's rule: Google, not ESPN).
-- Teams: every team links to its squad for that edition (Wikipedia "<year> FIFA World Cup squads" page, that team's section). Click a team name elsewhere in the section: that team's World Cup history (every edition, how far it went).
-- Data: a free source only (e.g. openfootball's World Cup data on GitHub; verify coverage per edition). Check the data against a second source for a few editions. If a part (scorers, venues, an edition) is missing from free sources, show it as missing and say so in the report; never fill it by hand from memory.
-**Tests:** unit: group tables from the data equal the real final tables for at least 1982, 1994, 2014, 2022, 2026 (checked against a second source); 2026 third-place ranking; e2e: pick 2014, open a group, hover a match, follow a squad link.
-
 ### FK-60 — World Cup what-if simulator (resimulate any edition)
 **In short:** In any World Cup edition you can change match results and see the group tables and the bracket update side by side, starting from what really happened.
 **What:**

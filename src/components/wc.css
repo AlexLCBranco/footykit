@@ -1,0 +1,100 @@
+/* FK-59 / FK-60: the World Cup section (WorldCupPage.tsx, WorldCupSim.tsx) */
+.fk-wc-team {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  min-width: 0;
+}
+.fk-wc-name {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fk-wc-name:hover {
+  color: var(--fk-accent);
+  text-decoration: underline;
+}
+.fk-wc-squad {
+  font-size: 10px;
+  color: var(--fk-muted);
+  text-decoration: none;
+  opacity: 0.6;
+}
+.fk-wc-squad:hover {
+  opacity: 1;
+  color: var(--fk-accent);
+}
+.fk-wc-squares {
+  display: inline-grid;
+  gap: 2px;
+}
+.fk-wc-groups {
+  grid-template-columns: repeat(auto-fill, minmax(560px, 1fr));
+}
+.fk-wc-group caption {
+  text-align: left;
+  font-weight: 700;
+  padding: 4px 0;
+}
+.fk-wc-thirds caption {
+  font-weight: 700;
+}
+.fk-wc-tie .fk-ko-legs a {
+  white-space: nowrap;
+}
+.fk-wc-third {
+  margin-top: 14px;
+}
+.fk-wc-history {
+  border: 1px solid var(--fk-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 6px 0 12px;
+  background: var(--fk-surface);
+}
+.fk-wc-history h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.fk-wc-history h3 .fk-club-clear {
+  margin-left: auto;
+}
+.fk-wc-history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.fk-wc-hist-item {
+  border: 1px solid var(--fk-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fk-text);
+  font: inherit;
+  font-size: 12px;
+  padding: 3px 7px;
+  cursor: pointer;
+  border-left-width: 3px;
+}
+.fk-wc-hist-item:hover {
+  border-color: var(--fk-accent);
+}
+.fk-wc-hist-on {
+  outline: 1px solid var(--fk-accent);
+}
+/* how far it went: gold, silver, bronze, then fading greens */
+.fk-wc-reach-10 { border-left-color: #e3b341; }
+.fk-wc-reach-9 { border-left-color: #b8c0cc; }
+.fk-wc-reach-8 { border-left-color: #c58a4b; }
+.fk-wc-reach-7, .fk-wc-reach-6 { border-left-color: #4caf6a; }
+.fk-wc-reach-5 { border-left-color: #3d8a56; }
+.fk-wc-reach-4, .fk-wc-reach-3 { border-left-color: #2f6b45; }
