@@ -59,4 +59,24 @@ Blocked: waits for halftime-timer HT-1 (its link format and live URL); the owner
 - Same technique as halftime-timer's pop-out (Document Picture-in-Picture, works in Chrome/Edge on desktop; in other browsers the button is hidden).
 - Button in the Slate header. Window: one compact line per match of today (or of the Slate's day): time or live minute, teams, score; red LIVE label for matches in play; finished ones show the final. Updates with the same live data the Slate uses; no extra polling when nothing is live.
 - Window is small and resizable; content fits without a scrollbar for a normal day, scrolls if very many matches.
+- Before the first game starts (owner, 2026-11-19): the window opens as a countdown to the first match of the Slate's day (like halftime-timer's), and turns into the live scores list by itself at kickoff/tip-off. One click on the pop-out button, one window for the whole night.
 **Tests:** unit: the window's list (order, live/final/upcoming); e2e: the pop-out content renders from mocked live data (the real window needs a click, so check the component the window shows).
+
+### FK-63 — Pregame odds on past World Cup matches, and random resimulation
+**In short:** Past World Cup matches show the pregame odds (decimal), and the simulator gets a "Resimulate randomly" button that plays matches using those odds.
+**What:**
+- From I-13. Odds: 1X2 pregame (closing if that's what the source has), decimal, shown on the match square hover and in the match detail; never on the copy-as-image unless there already is an odds spot.
+- Source: free only. Check what free sources really cover (e.g. FootyStats' World Cup downloads, OddsPapi's free tier, openly published odds datasets); The Odds API's history is paid, so not that. Odds likely exist only for recent editions (roughly 2002 on); editions without them show no odds, never made-up ones.
+- Resimulate randomly: in FK-60's simulator, plays every match (or only the ones not fixed by hand) with win/draw/loss chances from the pregame odds (margin removed). Knockout draws go to a 50/50 shoot-out. Button stays hidden for editions without odds (equal odds would be meaningless). "Run again" re-rolls; "Reset to real results" as in FK-60.
+- If no free source covers any edition: stop, add a `Blocked:` note with what was checked, and report.
+**Tests:** unit: odds → probabilities (margin removed, sum 1); random resim with a fixed seed gives a fixed bracket; editions without odds hide the button; e2e: hover a 2022 match shows odds; resimulate changes the bracket.
+
+### FK-64 — History for every competition
+**In short:** Every competition in footykit (leagues, Champions League, Libertadores, domestic cups) gets a history view: pick a past season and see its final table and/or bracket, like the World Cup history.
+**What:**
+- For each competition, a season picker (newest first). Leagues: final table with the same columns and result squares as now. Cups and UCL/Libertadores: final group/league-phase tables and the knockout bracket, with two-legged ties and aggregate shown.
+- Per competition, a small summary like the NBA Cup history in calendarkit: champions by season and who usually goes far (top 4, relegated / knocked out early).
+- Clicks follow the app's rules (matches → Google search, teams → team page).
+- Free sources only (ESPN past seasons, openfootball, etc.). Go back as far as free data is reliable; check a few seasons against a second source. Report, per competition, the first season covered; never fill gaps by hand.
+- Shares the code with FK-59 where possible (World Cup history is one case of this).
+**Tests:** unit: past final tables equal the real ones for a few seasons per competition (checked against a second source); e2e: pick an old Premier League season and an old UCL season, table and bracket render.
