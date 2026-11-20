@@ -5,7 +5,9 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { peekVideos, scoreText, wcMatchUrl, type Result, type WcEdition, type WcMatch } from '../data/worldcup';
-import { clearAll, fastOf, fastResult, koSlots, loadPicks, savePicks, simulate, sourceText, type Picks, type SimTie } from '../data/wcSim';
+import { clearAll, fastOf, fastResult, hasPicks, koSlots, loadPicks, savePicks, simulate, sourceText, type Picks, type SimTie } from '../data/wcSim';
+import { matchdays, picksFrom, race, raceEdition } from '../data/wcRace';
+import { MatchupsPanel, StatusChip, WhoButton } from './WcRace';
 import { matchTip, Play, rowClick, STAGE_TIP, Team, Th } from './WorldCupPage';
 
 export type SimMode = 'fast' | 'detail';
@@ -107,11 +109,16 @@ Really: ${matchTip(ed, t.slot.real)}`} data-testid="wc-match">Match {t.slot.n}{t
   );
 }
 
-export default function WorldCupSim({ ed, mode, extra, onTeam }: { ed: WcEdition; mode: SimMode; onTeam: (c: string) => void; extra?: (ctx: { picks: Picks; setPicks: (p: Picks) => void; slots: ReturnType<typeof koSlots> }) => ReactNode }) {
+export default function WorldCupSim({ ed, mode, extra, onTeam, at }: { ed: WcEdition; mode: SimMode; onTeam: (c: string) => void; /** FK-71: start from after this matchday (later matchdays and the knockouts empty) */ at?: number; extra?: (ctx: { picks: Picks; setPicks: (p: Picks) => void; slots: ReturnType<typeof koSlots> }) => ReactNode }) {
   const slots = useMemo(() => koSlots(ed), [ed]);
-  const [picks, setPicksState] = useState<Picks>(() => loadPicks(ed.year));
-  const setPicks = (p: Picks) => { setPicksState(p); savePicks(ed.year, p); };
-  const v = useMemo(() => simulate(ed, picks, slots), [ed, picks, slots]);
+  // FK-71: a simulation from a matchday keeps its own picks ("2026@2"), first opened with the later matches empty
+  const store = at ? `${ed.year}@${at}` : ed.year;
+  const fromPoint = () => picksFrom(ed, matchdays(ed), at!, slots);
+  const [picks, setPicksState] = useState<Picks>(() => (at && !hasPicks(store) ? fromPoint() : loadPicks(store)));
+  const setPicks = (p: Picks) => { setPicksState(p); savePicks(store, p); };
+  const v = useMemo(() => simulate(ed, picks, slots, !!at), [ed, picks, slots, at]);
+  const rc = useMemo(() => (at && raceEdition(ed) ? race(ed, v.res) : undefined), [ed, at, v]);
+  const [who, setWho] = useState<string>();
   const setGroup = (m: WcMatch) => (r: Result | null) => {
     const p = { ...picks };
     // back to the real result: no pick
@@ -132,10 +139,12 @@ export default function WorldCupSim({ ed, mode, extra, onTeam }: { ed: WcEdition
       <div className="fk-wc-sim-bar">
         <button type="button" className="fk-btn" onClick={() => setPicks({})} disabled={!Object.keys(picks).length} title="Every match back to what really happened" data-testid="wc-sim-reset">Reset to real results</button>
         <button type="button" className="fk-btn" onClick={() => setPicks(clearAll(ed, slots))} title="Every match without a result" data-testid="wc-sim-clear">Clear all</button>
+        {at && <button type="button" className="fk-btn" onClick={() => setPicks(fromPoint())} title={`Matchdays 1 to ${at} as they were played, every later match empty again`} data-testid="wc-sim-restart">Start again from after matchday {at}</button>}
         {extra?.({ picks, setPicks, slots })}
         <span className="fk-muted" data-testid="wc-sim-changed">{changedCount ? `${changedCount} match${changedCount > 1 ? 'es' : ''} differ from the real results` : 'The real results'}</span>
         <span className="fk-wc-champ" data-testid="wc-sim-champion">{v.champion ? <>Champion: <b><Team ed={ed} code={v.champion} onTeam={onTeam} squad={false} /></b>{v.champion !== ed.champion ? <span className="fk-muted"> (really <Team ed={ed} code={ed.champion} onTeam={onTeam} squad={false} />)</span> : null}</> : <span className="fk-muted">No champion yet</span>}</span>
       </div>
+      {rc && who && <MatchupsPanel ed={ed} r={rc} slots={slots} team={who} onClose={() => setWho(undefined)} />}
       <div className="fk-wc-sim-grid">
         <div className="fk-wc-sim-groups">
           {stages.map((st) => v.tables.filter((t) => t.group.stage === st).map((t) => {
@@ -145,7 +154,7 @@ export default function WorldCupSim({ ed, mode, extra, onTeam }: { ed: WcEdition
               <section key={t.group.name} className="fk-wc-sim-group" data-testid="wc-sim-group" data-group={t.group.name}>
                 <table className="fk-table fk-ucl-table fk-wc-sim-table">
                   <caption title={STAGE_TIP[t.group.stage]}>{t.group.name}{!done && <span className="fk-muted"> · places once every match has a result</span>}</caption>
-                  <thead><tr><Th k="#" /><th className="fk-tl">Team</th><Th k="Pts" /><Th k="P" /><Th k="GD" /><Th k="GF" /></tr></thead>
+                  <thead><tr><Th k="#" /><th className="fk-tl">Team</th><Th k="Pts" /><Th k="P" /><Th k="GD" /><Th k="GF" />{rc && <><th className="fk-tl" title="Through or Out is shown only when nothing in the matches left can change it">For sure?</th><th /></>}</tr></thead>
                   <tbody>
                     {t.rows.map((r, i) => {
                       const through = done && (i < 2 || (thirdsIn?.has(r.team) ?? false));
@@ -153,6 +162,7 @@ export default function WorldCupSim({ ed, mode, extra, onTeam }: { ed: WcEdition
                         <tr key={r.team} className={`fk-wc-rowlink${through ? (i < 2 ? ' fk-lz-ucl' : ' fk-lz-uclq') : ''}`} onClick={rowClick(() => onTeam(r.team))} data-testid="wc-sim-row" data-team={r.team}>
                           <td className="fk-rank" title={r.level ? 'Level on every rule the data has: fair play / lots decide (shown as it really ended)' : undefined}>{r.rank}{r.level && <span className="fk-ucl-eq">=</span>}</td>
                           <td className="fk-tl"><Team ed={ed} code={r.team} onTeam={onTeam} squad={false} /></td><td className="fk-pts">{r.pts}</td><td>{r.p}</td><td>{r.gd > 0 ? `+${r.gd}` : r.gd}</td><td>{r.gf}</td>
+                          {rc && <><td className="fk-tl"><StatusChip s={rc.status.get(r.team) ?? 'open'} /></td><td><WhoButton ed={ed} team={r.team} onMatchups={setWho} /></td></>}
                         </tr>
                       );
                     })}
@@ -170,8 +180,8 @@ export default function WorldCupSim({ ed, mode, extra, onTeam }: { ed: WcEdition
                 <caption>Third-placed teams <span className="fk-muted">(best 8 through)</span>{v.done.size < v.tables.length && <span className="fk-muted"> · decided once every group is</span>}</caption>
                 <thead><tr><Th k="#" /><th>Group</th><th className="fk-tl">Team</th><Th k="Pts" /><Th k="GD" /><Th k="GF" /><th /></tr></thead>
                 <tbody>{v.thirds.rows.map((r, i) => (
-                  <tr key={r.team} className={`fk-wc-rowlink${v.thirds!.through.has(r.team) ? ' fk-lz-uclq' : ''}`} onClick={rowClick(() => onTeam(r.team))} data-testid="wc-sim-third" data-team={r.team}>
-                    <td className="fk-rank" title={r.level ? 'Level on points, goal difference and goals: fair play decides (not in the data)' : undefined}>{r.rank}{r.level && <span className="fk-ucl-eq">=</span>}</td><td title={r.group}>{r.group.replace('Group ', '')}</td><td className="fk-tl"><Team ed={ed} code={r.team} onTeam={onTeam} squad={false} /></td><td className="fk-pts">{r.pts}</td><td>{r.gd > 0 ? `+${r.gd}` : r.gd}</td><td>{r.gf}</td><td className="fk-muted">{i === 7 ? 'last through' : ''}</td>
+                  <tr key={r.team} className={`fk-wc-rowlink${v.thirds!.through.has(r.team) || (rc && i < 8) ? ' fk-lz-uclq' : ''}${rc && i === 7 ? ' fk-race-cut' : ''}`} onClick={rowClick(() => onTeam(r.team))} data-testid="wc-sim-third" data-team={r.team} data-in={(rc && i < 8) || undefined}>
+                    <td className="fk-rank" title={r.level ? 'Level on points, goal difference and goals: fair play decides (not in the data)' : undefined}>{r.rank}{r.level && <span className="fk-ucl-eq">=</span>}</td><td title={r.group}>{r.group.replace('Group ', '')}</td><td className="fk-tl"><Team ed={ed} code={r.team} onTeam={onTeam} squad={false} /></td><td className="fk-pts">{r.pts}</td><td>{r.gd > 0 ? `+${r.gd}` : r.gd}</td><td>{r.gf}</td><td className="fk-muted">{rc ? <StatusChip s={rc.status.get(r.team) ?? 'open'} /> : i === 7 ? 'last through' : ''}</td>
                   </tr>
                 ))}</tbody>
               </table>
@@ -179,6 +189,7 @@ export default function WorldCupSim({ ed, mode, extra, onTeam }: { ed: WcEdition
           )}
         </div>
         <div className="fk-wc-sim-bracket" data-testid="wc-sim-bracket">
+          {rc && !rc.complete && <p className="fk-race-note" data-testid="wc-sim-stands">As it stands: the first round below is filled from the tables as they are right now. It changes as you pick results.</p>}
           <div className="fk-ko-grid fk-cups-like" style={{ gridTemplateColumns: `repeat(${rounds.length}, minmax(150px, 1fr))` }}>
             {rounds.map((st) => (
               <div key={st} className="fk-ko-col">

@@ -118,7 +118,7 @@ export function cupHowPage(p: Page, cup: string, how: CupHow, today: string): Pa
   return { ...cupPage(base, cup), cupSim: h === 'sim' || undefined };
 }
 /** Another World Cup edition, the How kept. */
-export const wcEditionPage = (p: Page, year: number): Page => ({ ...p, view: 'wc', cup: WC_SLUG, wcYear: year });
+export const wcEditionPage = (p: Page, year: number): Page => ({ ...p, view: 'wc', cup: WC_SLUG, wcYear: year, wcAt: undefined });
 
 // ---------- Today, Clubs, Tools ----------
 export type TodayHow = 'day' | 'slate';

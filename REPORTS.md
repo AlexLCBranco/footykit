@@ -2,6 +2,24 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-20 — FK-71
+
+**Built:** v0.82.0 FK-71 — World Cup thirds race (2026; any later edition with a pairing table for thirds gets it by itself).
+- A switch beside the edition's title: "After matchday 1 / After matchday 2 / Final" (in the address as `&at=1` / `&at=2`). Final is the default and is today's view. Picked from the Bracket, it opens the Groups.
+- Groups at a past point: every table as it stood (the later matches show as "–"), a "For sure?" column with Through / Out / Open, the two or four matches still to play under each group (teams, date, time, city), the third-placed teams ranked with a thick line under the 8th and a status each, and "Round of 32 as it stands" (16 pairings, each side labelled "1st of Group A", "3rd of Group C", marked as not real fixtures).
+- "Who next?" on every row: for each place the team can still finish, who it would play (the slot, and who that is right now), which side of the bracket, and for 3rd place whether that 3rd is in the best eight right now and which group winners it could meet. Places it can't reach are not shown.
+- Simulator from a point: opened at "After matchday 2" it has matchdays 1–2 as played and matchday 3 and the knockouts empty; picks re-rank the thirds, update the statuses, the first round "as it stands" and the matchups. Its picks are kept apart from the ordinary simulator's. "Start again from after matchday N" empties the later matches again; "Reset to real results" fills everything.
+- "Rules" button beside the switch: who goes on, teams level on points, how thirds are ranked, who plays who (the 495-row table), what Through / Out / Open mean. One short sentence per line, with examples worked out from the edition's own results (2026: Senegal 8th best third and through, Iran 9th and out, on goal difference; Canada above Bosnia and Herzegovina after a 1–1 draw, on goal difference).
+**How "certain" is worked out:** every win / draw / loss of a group's matches left is tried. A status counts only on what points alone settle, plus the match between two teams level on points (2026's first tie-breaker). Anything goal difference could still decide stays Open, because any score is possible. So Through and Out are never wrong (checked against 500 random sets of results), but a case only an exact goal count would settle shows Open a little longer than a full proof would. After matchday 2 of 2026: 7 teams Through, 5 Out, 36 Open; no third place was certain yet.
+**Not done, and why:**
+- "A running edition defaults to now": no edition in the data has unplayed matches, so there is nothing to default to; Final is always the default.
+- Editions before 2026 are left alone (no switch, no Rules button): the spec made them optional, and their tables are shown in the official final order, which can't be rewound without ranking rules for each era.
+- The per-team matchups open from the "Who next?" button, not from a click on the team's name: the name keeps opening the team's World Cup history, as before.
+**Blocked:** nothing in FK-71. FK-61, FK-63 and FK-68 stay blocked.
+**Ideas added:** none.
+**Checked automatically:** 23 unit tests (tests/wc-race.test.tsx: matchdays per group, 2026's tables and thirds after matchday 1 and 2 against standings worked out by hand, Through / Out / Open cases, the random-results check, the pairing-table row behind "as it stands", matchups limited to reachable places and still-possible opponents, the simulator from matchday 2 filling to the real bracket, the rules box's sentences and examples) and 3 browser tests (e2e/wc-race.spec.ts: the whole flow on 2026, the simulator from matchday 2 with a pick that changes the best eight, reload, restart, reset; the switch from the Bracket; no switch on 2022).
+**Test by hand:** read the Rules box and the "Who next?" sentences once and say if anything needs a second read (whether it reads easily can't be automated).
+
 ## 2026-11-20 — FK-69, FK-70 (FK-68 blocked)
 
 **Built:** v0.81.0.

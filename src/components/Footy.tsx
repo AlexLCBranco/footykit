@@ -115,7 +115,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   const [selection] = useState(createSelectionStore);
   const marquee = useRef<HTMLDivElement>(null);
   const onMarquee = useMarqueeSelection(selection, marquee);
-  const viewKey = `${page.view}|${page.lcomp}|${page.lmode}|${page.league}|${page.cup}|${page.comp}|${page.uclTab}|${page.wcYear}|${page.wcTeam}|${page.wcSim}|${page.hcomp}|${page.hseason}|${page.day}|${page.team}|${page.span}|${page.week}|${page.month}`;
+  const viewKey = `${page.view}|${page.lcomp}|${page.lmode}|${page.league}|${page.cup}|${page.comp}|${page.uclTab}|${page.wcYear}|${page.wcTeam}|${page.wcSim}|${page.wcAt}|${page.hcomp}|${page.hseason}|${page.day}|${page.team}|${page.span}|${page.week}|${page.month}`;
   useEffect(() => selection.clear(), [viewKey, selection]);
   // What a copy takes: the Slate's cards, the day's list (not the map column beside it: the map is never in a copy, and
   // its space shouldn't be either), else the whole view.
@@ -146,7 +146,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   else if (page.view === 'table') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueTablePage league={page.league ?? DEFAULT_LEAGUE} today={today} /></Suspense>;
   else if (page.view === 'cups') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><CupsPage cup={page.cup ?? DEFAULT_CUP} today={today} fit simOn={!!page.cupSim} /></Suspense>;
   else if (page.view === 'history') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><HistoryPage comp={page.hcomp ?? DEFAULT_LEAGUE} season={page.hseason} onPage={(c, y) => onPage(historyPage(page, c, y))} /></Suspense>;
-  else if (page.view === 'wc') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WorldCupPage year={page.wcYear ?? WC_LATEST} team={page.wcTeam} sim={!!page.wcSim} how={page.wcHow} onPage={(year, team) => onPage({ ...page, view: 'wc', wcYear: year, wcTeam: team })} /></Suspense>;
+  else if (page.view === 'wc') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WorldCupPage year={page.wcYear ?? WC_LATEST} team={page.wcTeam} sim={!!page.wcSim} how={page.wcHow} at={page.wcAt} onAt={(at, how) => onPage({ ...page, view: 'wc', wcAt: at, ...(how ? { wcSim: undefined, wcHow: how } : {}) })} onPage={(year, team) => onPage({ ...page, view: 'wc', wcYear: year, wcTeam: team })} /></Suspense>;
   else if (page.view === 'trailing') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><TrailingPage comp={page.comp ?? DEFAULT_TRAILING} today={today} /></Suspense>;
   else if (page.view === 'league') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueView comp={page.lcomp ?? DEFAULT_LEAGUE} mode={page.lmode ?? 'list'} day={page.day} today={today} onList={(d) => onPage({ ...page, day: d, lmode: undefined })} side={side} /></Suspense>;
   else if (page.view === 'clubs') view = <ClubsPage onClub={(id) => onPage(teamClickPage(page, id, today, today))} />;

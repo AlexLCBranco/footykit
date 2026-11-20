@@ -66,7 +66,7 @@ const same = (x: Result, y: Result) => JSON.stringify([x.s, x.et ?? null, x.p ??
 const flip = (r: Result): Result => ({ s: [r.s[1], r.s[0]], ...(r.et ? { et: [r.et[1], r.et[0]] } : {}), ...(r.p ? { p: [r.p[1], r.p[0]] } : {}) });
 
 /** The simulator's state from the picks: group tables, thirds, every knockout tie, the champion. */
-export function simulate(ed: WcEdition, picks: Picks, slots = koSlots(ed)): SimView {
+export function simulate(ed: WcEdition, picks: Picks, slots = koSlots(ed), asStands = false): SimView {
   const changed = new Set<number>();
   const groupRes = (m: WcMatch): Result | undefined => {
     if (!(m.n in picks)) return m;
@@ -76,7 +76,8 @@ export function simulate(ed: WcEdition, picks: Picks, slots = koSlots(ed)): SimV
   };
   const tables = groupTables(ed, groupRes);
   const done = new Set(tables.filter((t) => t.matches.every((m) => groupRes(m))).map((t) => letter(t.group.name)));
-  const place = (pos: number, g: string) => (done.has(g) ? tables.find((t) => letter(t.group.name) === g)?.rows[pos - 1]?.team : undefined);
+  // FK-71 `asStands`: the first knockout round is filled from the tables as they are now, groups not finished included
+  const place = (pos: number, g: string) => (asStands || done.has(g) ? tables.find((t) => letter(t.group.name) === g)?.rows[pos - 1]?.team : undefined);
   let thirds: SimView['thirds'];
   if (ed.year >= 2026) {
     const realThirds = thirdsRanking(groupTables(ed)).map((r) => r.team);
@@ -84,7 +85,7 @@ export function simulate(ed: WcEdition, picks: Picks, slots = koSlots(ed)): SimV
     const allDone = done.size === tables.length;
     const top = rows.slice(0, THIRDS_THROUGH);
     const key = top.map((r) => letter(r.group)).sort().join('');
-    thirds = { rows, through: allDone ? new Set(top.map((r) => r.team)) : new Set(), vs: allDone ? ed.thirdsTable?.find((x) => x.groups === key)?.vs : undefined };
+    thirds = { rows, through: allDone ? new Set(top.map((r) => r.team)) : new Set(), vs: allDone || asStands ? ed.thirdsTable?.find((x) => x.groups === key)?.vs : undefined };
   }
   const ties: SimTie[] = [];
   const byN = new Map<number, SimTie>();
@@ -127,14 +128,19 @@ export function clearAll(ed: WcEdition, slots = koSlots(ed)): Picks {
 }
 
 const KEY = 'fk:wcsim:v1';
+/** FK-71: whether picks were ever saved under this key. */
+export function hasPicks(year: number | string): boolean {
+  try { return year in (JSON.parse(localStorage.getItem(KEY) ?? '{}') as Record<string, Picks>); } catch { return false; }
+}
 /** The picks per edition, kept in this browser (`fk:wcsim:v1`). */
-export function loadPicks(year: number): Picks {
+export function loadPicks(year: number | string): Picks {
   try { return (JSON.parse(localStorage.getItem(KEY) ?? '{}') as Record<string, Picks>)[year] ?? {}; } catch { return {}; }
 }
-export function savePicks(year: number, picks: Picks) {
+export function savePicks(year: number | string, picks: Picks) {
   try {
     const all = JSON.parse(localStorage.getItem(KEY) ?? '{}') as Record<string, Picks>;
-    if (Object.keys(picks).length) all[year] = picks; else delete all[year];
+    // FK-71: a simulation started from a matchday ("2026@2") is kept even when empty: empty there means "reset to the real results", not "never opened"
+    if (Object.keys(picks).length || typeof year === 'string') all[year] = picks; else delete all[year];
     localStorage.setItem(KEY, JSON.stringify(all));
   } catch { /* storage off: picks last until a reload */ }
 }

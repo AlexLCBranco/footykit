@@ -3,11 +3,13 @@
 // each match's details, Google links on matches, squad links on teams, and a team's World Cup history on a name click.
 // Data: public/worldcup/ (scripts/make-worldcup.ts), loaded per edition. Its own chunk.
 
-import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from 'react';
 import { advancing, bracket, groupTables, loadEdition, loadIndex, neighbours, peekEdition, peekIndex, peekVenues, peekVideos, reachedRank, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, THIRDS_THROUGH, twoSided, wcMatchUrl, wcVideoUrl, winSide, type GroupTable, type KoTie, type Result, type WcEdition, type WcIndexEntry, type WcMatch } from '../data/worldcup';
 import { WC_NO_BRACKET, WC_YEARS, type WcHow } from './page';
 import { BracketTools, CardBracket, Poster } from './WcBracket';
-import { simulable } from '../data/wcSim';
+import { koSlots, simulable } from '../data/wcSim';
+import { lastMatchday, matchdays, race, raceEdition, resAt, standing, type Certain } from '../data/wcRace';
+import { MatchupsPanel, PointSwitch, RaceThirds, RulesBox, StandingBracket, StatusChip, StillToPlay, WhoButton } from './WcRace';
 import WorldCupSim, { type SimMode } from './WorldCupSim';
 import './ucl.css';
 import './wc.css';
@@ -139,12 +141,12 @@ function Square({ ed, m, team, res }: { ed: WcEdition; m: WcMatch; team: string;
 /** FK-66: a click anywhere on a table row (not on a link or button in it) opens the row's team. */
 export const rowClick = (go: () => void) => (e: MouseEvent) => { if (!(e.target as Element).closest('a, button, input')) go(); };
 
-export function GroupBox({ ed, t, adv, onTeam, res, thirdsIn }: { ed: WcEdition; t: GroupTable; adv: Set<string>; onTeam: (c: string) => void; res?: (m: WcMatch) => Result | undefined; thirdsIn?: Set<string> }) {
+export function GroupBox({ ed, t, adv, onTeam, res, thirdsIn, status, onMatchups }: { ed: WcEdition; t: GroupTable; adv: Set<string>; onTeam: (c: string) => void; res?: (m: WcMatch) => Result | undefined; thirdsIn?: Set<string>; /** FK-71: at a past point, each team's certain status and a "Who next?" button */ status?: Map<string, Certain>; onMatchups?: (c: string) => void }) {
   const n = Math.max(...t.rows.map((r) => t.matches.filter((m) => m.h === r.team || m.a === r.team).length));
   return (
     <table className="fk-table fk-ucl-table fk-wc-group" data-testid="wc-group" data-group={t.group.name}>
       <caption title={STAGE_TIP[t.group.stage]}>{t.group.name}</caption>
-      <thead><tr><Th k="#" /><th className="fk-tl">Team</th><Th k="Pts" /><Th k="P" /><Th k="W" /><Th k="D" /><Th k="L" /><Th k="Goals" /><th className="fk-tl" title="Each match: the opponent and the score; hover one for its details, click it to search it">Matches</th></tr></thead>
+      <thead><tr><Th k="#" /><th className="fk-tl">Team</th><Th k="Pts" /><Th k="P" /><Th k="W" /><Th k="D" /><Th k="L" /><Th k="Goals" /><th className="fk-tl" title="Each match: the opponent and the score; hover one for its details, click it to search it">Matches</th>{status && <th className="fk-tl" title="Through or Out is shown only when nothing in the matches left can change it">For sure?</th>}{onMatchups && <th />}</tr></thead>
       <tbody>
         {t.rows.map((r) => {
           const through = adv.has(r.team);
@@ -155,7 +157,9 @@ export function GroupBox({ ed, t, adv, onTeam, res, thirdsIn }: { ed: WcEdition;
               <td className="fk-rank" title={[through ? (third ? 'Through as one of the best third-placed teams' : 'Through') : '', r.level ? 'Level on every rule the data has (fair play / lots decided)' : ''].filter(Boolean).join('\n') || undefined}>{r.rank}{r.level && <span className="fk-ucl-eq">=</span>}</td>
               <td className="fk-tl fk-ucl-team"><Team ed={ed} code={r.team} onTeam={onTeam} /></td>
               <td className="fk-pts">{r.pts}</td><td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}–{r.ga}</td>
-              <td className="fk-tl"><span className="fk-wc-squares" style={{ gridTemplateColumns: `repeat(${n}, 56px)` }}>{mine.map((m) => { const x = res ? res(m) : m; return x ? <Square key={m.n} ed={ed} m={m} team={r.team} res={x} /> : <span key={m.n} className="fk-usq fk-usq-next" title="No result picked">–</span>; })}</span></td>
+              <td className="fk-tl"><span className="fk-wc-squares" style={{ gridTemplateColumns: `repeat(${n}, 56px)` }}>{mine.map((m) => { const x = res ? res(m) : m; return x ? <Square key={m.n} ed={ed} m={m} team={r.team} res={x} /> : <span key={m.n} className="fk-usq fk-usq-next" title={status ? 'Not played yet at this point' : 'No result picked'}>–</span>; })}</span></td>
+              {status && <td className="fk-tl"><StatusChip s={status.get(r.team) ?? 'open'} /></td>}
+              {onMatchups && <td><WhoButton ed={ed} team={r.team} onMatchups={onMatchups} /></td>}
             </tr>
           );
         })}
@@ -253,7 +257,7 @@ export function useIndex() {
 }
 
 /** FK-65: the edition is picked on the What strip and Groups / Bracket / Simulator on the How switch (page rows). */
-export default function WorldCupPage({ year, team, sim = false, how, onPage }: { year: number; team?: string; sim?: boolean; how?: WcHow; onPage: (year: number, team?: string) => void }) {
+export default function WorldCupPage({ year, team, sim = false, how, at, onAt, onPage }: { year: number; team?: string; sim?: boolean; how?: WcHow; /** FK-71: the matchday the page is rewound to */ at?: number; onAt?: (at?: number, how?: WcHow) => void; onPage: (year: number, team?: string) => void }) {
   const [mode, setMode] = useState<SimMode>('fast');
   // FK-70: the bracket as a poster of flags; kept while stepping through editions, not in the address
   const [poster, setPoster] = useState(false);
@@ -270,6 +274,14 @@ export default function WorldCupPage({ year, team, sim = false, how, onPage }: {
   const info = index?.find((x) => x.year === year);
   const stages = view ? [...new Set(view.tables.map((t) => t.group.stage))] : [];
   const thirdsIn = view?.thirdsIn;
+  // FK-71: the thirds race (editions with a pairing table for third-placed teams): the page rewound to a matchday
+  const raceOn = !!ed && raceEdition(ed);
+  const md = useMemo(() => (ed && raceOn ? matchdays(ed) : undefined), [ed, raceOn]);
+  const point = md && at && at < lastMatchday(md) ? at : undefined;
+  const rc = useMemo(() => (ed && md && point ? race(ed, resAt(md, point)) : undefined), [ed, md, point]);
+  const slots = useMemo(() => (ed && rc ? koSlots(ed) : undefined), [ed, rc]);
+  const [rules, setRules] = useState(false);
+  const [who, setWho] = useState<string>();
   const venues = ed && Object.keys(peekVenues(ed.year)?.stadiums ?? {}).length ? peekVenues(ed.year) : undefined;
   return (
     <div className={`fk-ucl fk-lt fk-cups fk-wc${ready ? '' : ' fk-wc-waiting'}`} data-testid="wc-page" data-year={year} data-ready={ready || undefined} aria-busy={!ready}>
@@ -280,6 +292,8 @@ export default function WorldCupPage({ year, team, sim = false, how, onPage }: {
             <button type="button" className="fk-wc-name" title={`${info.championName}: World Cup history`} onClick={() => onTeam(info.champion)} data-testid="wc-champion">{info.championName}</button>
           </span>
         ) : <span className="fk-muted">&nbsp;</span>}
+        {raceOn && md && onAt && <PointSwitch last={lastMatchday(md)} at={point} onAt={(p) => { setWho(undefined); onAt(p, p && !sim && shown === 'bracket' ? 'groups' : undefined); }} />}
+        {raceOn && <button type="button" className={`fk-tab${rules ? ' fk-tab-on' : ''}`} aria-pressed={rules} onClick={() => setRules(!rules)} title="How teams go on, how ties are broken and who plays who, in plain words" data-testid="wc-rules-btn">Rules</button>}
         {simOn && (
           <div className="fk-tabs" role="tablist" aria-label="Simulator mode" data-testid="wc-sim-mode">
             {(['fast', 'detail'] as const).map((m) => <button key={m} type="button" role="tab" aria-selected={mode === m} className={`fk-tab${mode === m ? ' fk-tab-on' : ''}`} onClick={() => setMode(m)}
@@ -288,12 +302,13 @@ export default function WorldCupPage({ year, team, sim = false, how, onPage }: {
         )}
       </div>
       {sim && !canSim && <p className="fk-wc-none" data-testid="wc-sim-none">The simulator is not ready for the {year} World Cup yet. It covers the World Cups with 32 teams (1998 to 2022) and 2026. Pick one of those years above, or look at the Groups or the Bracket.</p>}
+      {ed && raceOn && rules && <RulesBox ed={ed} onClose={() => setRules(false)} />}
       {team && index && <TeamHistory code={team} index={index} year={year} onYear={(y) => onPage(y, team)} onClose={() => onPage(year)} />}
       {error && <p className="fk-muted">The {year} data couldn't be loaded ({error}).</p>}
       {/* the first visit only (nothing to keep on screen yet): an empty block of the page's height, no text flashing */}
       {!ed && !error && <div className="fk-wc-first" data-testid="wc-loading" />}
       <div key={`${ed?.year}-${simOn ? 'sim' : shown}`} className="fk-wc-body">
-      {ed && simOn && <WorldCupSim key={ed.year} ed={ed} mode={mode} onTeam={onTeam} />}
+      {ed && simOn && <WorldCupSim key={`${ed.year}-${point ?? 'final'}`} ed={ed} mode={mode} onTeam={onTeam} at={point} />}
       {ed && view && !sim && shown === 'bracket' && !view.ko.length && <p className="fk-wc-none" data-testid="wc-no-bracket">The {year} World Cup had no knockout bracket: a final group of four decided the title. See it under Groups.</p>}
       {ed && view && !sim && (
         <>
@@ -305,7 +320,25 @@ export default function WorldCupPage({ year, team, sim = false, how, onPage }: {
             </section>
           )}
           {shown === 'groups' && !stages.length && <p className="fk-wc-none" data-testid="wc-no-groups">The {year} World Cup had no groups: every round was a knockout. See it under Bracket.</p>}
-          {shown === 'groups' && stages.map((st) => (
+          {shown === 'groups' && rc && md && slots && (
+            <div data-testid="wc-race" data-point={point}>
+              <p className="fk-race-note" data-testid="wc-race-note">You went back in time: this is how things stood after matchday {point}. Later matches are not counted. Through or Out is shown only when nothing in the matches left can change it.</p>
+              {who && <MatchupsPanel ed={ed} r={rc} slots={slots} team={who} onClose={() => setWho(undefined)} />}
+              <section className="fk-cup-groups-wrap" data-testid="wc-stage" data-stage="Group stage">
+                <div className="fk-cup-groups fk-wc-groups fk-race-groups">
+                  {rc.tables.map((t) => (
+                    <div key={t.group.name} className="fk-race-group">
+                      <GroupBox ed={ed} t={t} adv={new Set([...t.rows.slice(0, 2).map((r) => r.team), ...(rc.thirdsIn.includes(t.group.name.replace('Group ', '')) ? [t.rows[2]!.team] : [])])} thirdsIn={new Set(rc.thirds.slice(0, 8).map((r) => r.team))} onTeam={onTeam} res={resAt(md, point!)} status={rc.status} onMatchups={setWho} />
+                      <StillToPlay ed={ed} matches={t.matches.filter((m) => (md.get(m.n) ?? 0) > point!)} />
+                    </div>
+                  ))}
+                  <RaceThirds ed={ed} r={rc} onTeam={onTeam} onMatchups={setWho} />
+                </div>
+              </section>
+              <StandingBracket ed={ed} r={rc} st={standing(ed, rc, slots)} onTeam={onTeam} />
+            </div>
+          )}
+          {shown === 'groups' && !rc && stages.map((st) => (
             <section key={st} className="fk-cup-groups-wrap" data-testid="wc-stage" data-stage={st}>
               <h3 title={STAGE_TIP[st]}>{st}{st === 'Final round' ? <span className="fk-muted"> (no final: the group decided the title)</span> : null}</h3>
               <div className="fk-cup-groups fk-wc-groups">

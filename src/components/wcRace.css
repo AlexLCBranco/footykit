@@ -1,0 +1,135 @@
+/* ---------- FK-71: the World Cup thirds race (WcRace.tsx) ---------- */
+.fk-race-note {
+  margin: 4px 0 10px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--fk-accent);
+  background: color-mix(in srgb, var(--fk-accent) 8%, transparent);
+  border-radius: 0 6px 6px 0;
+  font-size: 13px;
+}
+/* Through / Out / Open: shown only when certain */
+.fk-race-status {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.fk-race-through {
+  background: color-mix(in srgb, #4caf6a 22%, transparent);
+  border-color: #4caf6a;
+}
+.fk-race-out {
+  background: color-mix(in srgb, #d9534f 20%, transparent);
+  border-color: #d9534f;
+}
+.fk-race-open {
+  color: var(--fk-muted);
+  border-color: var(--fk-border);
+  font-weight: 400;
+}
+.fk-race-who {
+  background: transparent;
+  border: 1px solid var(--fk-border);
+  border-radius: 6px;
+  color: var(--fk-text);
+  font: inherit;
+  font-size: 12px;
+  padding: 1px 7px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.fk-race-who:hover {
+  border-color: var(--fk-accent);
+  color: var(--fk-accent);
+}
+.fk-race-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fk-race-left {
+  font-size: 12px;
+  padding: 0 4px 6px;
+}
+.fk-race-left-title {
+  color: var(--fk-muted);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+/* the cut: the best eight thirds above the line, the rest below */
+.fk-race-cut > td {
+  border-bottom: 3px solid var(--fk-accent) !important;
+}
+.fk-race-now h3 {
+  font-size: 15px;
+  margin: 18px 0 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+}
+.fk-race-now h3 .fk-muted {
+  font-size: 12px;
+  font-weight: 400;
+}
+.fk-race-pairs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 8px;
+}
+.fk-race-pair {
+  border: 1px dashed var(--fk-border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+.fk-race-pair-side {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+}
+.fk-race-pair-from {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.fk-race-matchups p,
+.fk-race-rules p {
+  margin: 4px 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.fk-race-rules-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 28px;
+}
+.fk-race-rules h4 {
+  margin: 10px 0 4px;
+  font-size: 14px;
+}
+.fk-race-rules h4:first-child {
+  margin-top: 0;
+}
+.fk-race-example {
+  border-left: 3px solid var(--fk-accent);
+  padding: 4px 8px;
+  background: color-mix(in srgb, var(--fk-accent) 8%, transparent);
+  border-radius: 0 6px 6px 0;
+}
+/* the rewound tables carry two more columns (status, Who next?): wider cells so no table reaches into its neighbour */
+.fk-wc-groups.fk-race-groups {
+  grid-template-columns: repeat(auto-fill, minmax(760px, 1fr));
+}
+/* full names in the "as it stands" pairs: wrap, never cut */
+.fk-race-pair .fk-wc-name {
+  white-space: normal;
+  overflow: visible;
+}

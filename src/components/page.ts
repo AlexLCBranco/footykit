@@ -47,6 +47,8 @@ export interface Page {
   wcTeam?: string;
   /** FK-60: the World Cup simulator is open on the edition */
   wcSim?: boolean;
+  /** FK-71: the point of the group stage shown (after matchday 1 or 2); unset = the final results */
+  wcAt?: number;
   /** FK-64: the competition whose history is shown (view `history`) and the season (the latest when unset) */
   hcomp?: string;
   hseason?: number;
@@ -121,7 +123,7 @@ export function pageSearch(p: Page): string {
   if (p.view === 'clubs') return `?${q}`;
   if (p.view === 'cups') { q.set('cup', p.cup ?? DEFAULT_CUP); if (p.cupSim) q.set('sim', '1'); return `?${q}`; }
   if (p.view === 'trailing') { q.set('comp', p.comp ?? DEFAULT_TRAILING); return `?${q}`; }
-  if (p.view === 'wc') { q.set('year', String(p.wcYear ?? WC_LATEST)); if (p.wcTeam) q.set('team', p.wcTeam); if (p.wcSim) q.set('sim', '1'); else if (p.wcHow) q.set('how', p.wcHow); return `?${q}`; }
+  if (p.view === 'wc') { q.set('year', String(p.wcYear ?? WC_LATEST)); if (p.wcTeam) q.set('team', p.wcTeam); if (p.wcSim) q.set('sim', '1'); else if (p.wcHow) q.set('how', p.wcHow); if (p.wcAt) q.set('at', String(p.wcAt)); return `?${q}`; }
   if (p.view === 'history') { q.set('comp', p.hcomp ?? DEFAULT_LEAGUE); if (p.hseason) q.set('season', String(p.hseason)); return `?${q}`; }
   if (p.view === 'league') { q.set('comp', p.lcomp ?? DEFAULT_LEAGUE); if (p.lmode === 'cal') q.set('mode', 'cal'); }
   q.set('date', p.view === 'cal' ? (p.span === 'month' ? p.month : p.week) : p.view === 'list' ? p.month : p.day);
@@ -149,7 +151,7 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
   if (view === 'slate' || view === 'clubs') return { ...p, view };
   if (view === 'wc' || (view === 'cups' && q.get('cup') === WC_SLUG)) {
     const y = Number(q.get('year')); const t = q.get('team');
-    return { ...p, view: 'wc', cup: WC_SLUG, wcYear: WC_YEARS.includes(y) ? y : WC_LATEST, ...(t && /^[A-Z]{3}$/.test(t) ? { wcTeam: t } : {}), ...(q.get('sim') === '1' ? { wcSim: true } : {}), ...(q.get('how') === 'groups' || q.get('how') === 'bracket' ? { wcHow: q.get('how') as WcHow } : {}) };
+    return { ...p, view: 'wc', cup: WC_SLUG, wcYear: WC_YEARS.includes(y) ? y : WC_LATEST, ...(t && /^[A-Z]{3}$/.test(t) ? { wcTeam: t } : {}), ...(q.get('sim') === '1' ? { wcSim: true } : {}), ...(q.get('how') === 'groups' || q.get('how') === 'bracket' ? { wcHow: q.get('how') as WcHow } : {}), ...(q.get('at') === '1' || q.get('at') === '2' ? { wcAt: Number(q.get('at')) } : {}) };
   }
   if (view === 'history') { const c = q.get('comp'); const y = Number(q.get('season')); return { ...p, view, hcomp: c && /^[a-z]+.[a-z_]+$/.test(c) ? c : DEFAULT_LEAGUE, ...(y > 1900 ? { hseason: y } : {}) }; }
   if (view === 'cups') { const c = q.get('cup'); if (c === UCL_SLUG) return { ...p, view: 'ucl', cup: UCL_SLUG }; return { ...p, view, cup: c && CUP_SLUGS.includes(c) ? c : DEFAULT_CUP, ...(q.get('sim') === '1' ? { cupSim: true } : {}) }; }
@@ -184,7 +186,7 @@ export function pagePart(p: Page, model: Model): string {
   if (p.view === 'cups') return `${model.comp(p.cup ?? DEFAULT_CUP).name}${p.cupSim ? ' simulator' : ''}`;
   if (p.view === 'trailing') return `${model.comp(p.comp ?? DEFAULT_TRAILING).name} goals while trailing`;
   if (p.view === 'history') return `${model.comp(p.hcomp ?? DEFAULT_LEAGUE).name} history${p.hseason ? ` · ${p.hseason}` : ''}`;
-  if (p.view === 'wc') return `World Cup ${p.wcYear ?? WC_LATEST}${p.wcSim ? ' simulator' : p.wcHow ? ` ${p.wcHow}` : ''}`;
+  if (p.view === 'wc') return `World Cup ${p.wcYear ?? WC_LATEST}${p.wcSim ? ' simulator' : p.wcHow ? ` ${p.wcHow}` : ''}${p.wcAt ? ` after matchday ${p.wcAt}` : ''}`;
   if (p.view === 'league') { const w = mondayOf(p.day); return `${model.comp(p.lcomp ?? DEFAULT_LEAGUE).name} · ${p.lmode === 'cal' ? dayRange(w, addDays(w, 6)) : shortDay(p.day)}`; }
   return `Day · ${shortDay(p.day)}`;
 }
