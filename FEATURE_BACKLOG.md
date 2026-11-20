@@ -5,15 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-60 — World Cup what-if simulator (resimulate any edition)
-**In short:** In any World Cup edition you can change match results and see the group tables and the bracket update side by side, starting from what really happened.
-**What:**
-- Same simulator as the league/UCL what-if, with fast mode (pick the winner/draw) and detailed mode (enter scores), tables and bracket visible at the same time (owner checks "side of death" across several simulations).
-- Starts from the real results; any match can be changed; "Reset to real results" and "Clear all" buttons.
-- Uses each edition's rules (points per win, tiebreakers, best thirds for 1986–1994 and 2026, who meets whom in the bracket).
-- v1 covers the 32-team editions (1998–2022) and 2026. Older formats: history only (FK-59), with a short note that the simulator doesn't cover that edition yet.
-**Tests:** unit: entering the real results reproduces the real tables and bracket for 2002, 2018, 2022, 2026; changing one 2022 group match changes the bracket as the rules say; e2e: change a result, see table and bracket update together, reset.
-
 ### FK-61 — Countdown to the Slate's first match (halftime-timer)
 **In short:** The Slate gets a "⏱ Countdown" button that opens halftime-timer with a timer counting down to the day's first match.
 **What:**

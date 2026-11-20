@@ -8,6 +8,8 @@ import { advancing, bracket, groupTables, loadEdition, loadIndex, reachedRank, r
 import { WC_SLUG, WC_YEARS } from './page';
 import { CupPicker } from './TopBar';
 import { useFitBracket } from './fitBracket';
+import { simulable } from '../data/wcSim';
+import WorldCupSim, { type SimMode } from './WorldCupSim';
 import './ucl.css';
 import './wc.css';
 
@@ -186,7 +188,10 @@ export function EditionPicker({ year, onYear, years = WC_YEARS }: { year: number
   );
 }
 
-export default function WorldCupPage({ year, team, onPage, onPick, extra }: { year: number; team?: string; onPage: (year: number, team?: string) => void; onPick?: (c: string) => void; extra?: ReactNode }) {
+export default function WorldCupPage({ year, team, sim = false, onSim, onPage, onPick }: { year: number; team?: string; sim?: boolean; onSim?: (on: boolean) => void; onPage: (year: number, team?: string) => void; onPick?: (c: string) => void }) {
+  const [mode, setMode] = useState<SimMode>('fast');
+  const canSim = simulable(year);
+  const simOn = sim && canSim;
   const { ed, error } = useEdition(year);
   const index = useIndex();
   const onTeam = (c: string) => onPage(year, c === team ? undefined : c);
@@ -206,12 +211,22 @@ export default function WorldCupPage({ year, team, onPage, onPick, extra }: { ye
         <h2>{onPick ? <CupPicker cup={WC_SLUG} onPick={onPick} title /> : 'World Cup'}</h2>
         <EditionPicker year={year} onYear={(y) => onPage(y, team)} />
         {info && <span className="fk-muted" data-testid="wc-summary">{info.host} · {info.teams} teams · won by {info.championName}</span>}
-        {extra}
+        {onSim && (canSim ? (
+          <>
+            <button type="button" className={`fk-btn${simOn ? ' fk-btn-on' : ''}`} aria-pressed={simOn} onClick={() => onSim(!simOn)} title={simOn ? 'Back to what happened' : 'Change results and see the tables and bracket update'} data-testid="wc-sim-toggle">{simOn ? 'History' : 'Simulator'}</button>
+            {simOn && (
+              <div className="fk-tabs" role="tablist" aria-label="Simulator mode" data-testid="wc-sim-mode">
+                {(['fast', 'detail'] as const).map((m) => <button key={m} type="button" role="tab" aria-selected={mode === m} className={`fk-tab${mode === m ? ' fk-tab-on' : ''}`} onClick={() => setMode(m)}>{m === 'fast' ? 'Fast (1 X 2)' : 'Detailed (scores)'}</button>)}
+              </div>
+            )}
+          </>
+        ) : <span className="fk-muted" data-testid="wc-sim-none" title="v1 covers the 32-team editions (1998–2022) and 2026">The simulator doesn't cover {year} yet</span>)}
       </div>
       {team && index && <TeamHistory code={team} index={index} year={year} onYear={(y) => onPage(y, team)} onClose={() => onPage(year)} />}
       {error && <p className="fk-muted">The {year} data couldn't be loaded ({error}).</p>}
       {!ed && !error && <p className="fk-muted">Loading…</p>}
-      {ed && view && (
+      {ed && simOn && <WorldCupSim key={year} ed={ed} mode={mode} />}
+      {ed && view && !simOn && (
         <>
           {view.ko.length > 0 && (
             <section className="fk-ko" data-testid="wc-knockout">

@@ -37,6 +37,8 @@ export interface Page {
   /** FK-59: the World Cup edition shown (view `wc`; the latest when unset) and the team whose World Cup history is open */
   wcYear?: number;
   wcTeam?: string;
+  /** FK-60: the World Cup simulator is open on the edition */
+  wcSim?: boolean;
   /** the Champions League page's tab (view `ucl`); the table when unset */
   uclTab?: 'table' | 'pots';
   span: Span;
@@ -107,7 +109,7 @@ export function pageSearch(p: Page): string {
   if (p.view === 'table') { q.set('league', p.league ?? DEFAULT_LEAGUE); return `?${q}`; }
   if (p.view === 'cups') { q.set('cup', p.cup ?? DEFAULT_CUP); return `?${q}`; }
   if (p.view === 'trailing') { q.set('comp', p.comp ?? DEFAULT_TRAILING); return `?${q}`; }
-  if (p.view === 'wc') { q.set('year', String(p.wcYear ?? WC_LATEST)); if (p.wcTeam) q.set('team', p.wcTeam); return `?${q}`; }
+  if (p.view === 'wc') { q.set('year', String(p.wcYear ?? WC_LATEST)); if (p.wcTeam) q.set('team', p.wcTeam); if (p.wcSim) q.set('sim', '1'); return `?${q}`; }
   if (p.view === 'league') { q.set('comp', p.lcomp ?? DEFAULT_LEAGUE); if (p.lmode === 'cal') q.set('mode', 'cal'); }
   q.set('date', p.view === 'cal' ? (p.span === 'month' ? p.month : p.week) : p.view === 'list' ? p.month : p.day);
   return `?${q}`;
@@ -134,7 +136,7 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
   if (view === 'slate') return { ...p, view };
   if (view === 'wc' || (view === 'cups' && q.get('cup') === WC_SLUG)) {
     const y = Number(q.get('year')); const t = q.get('team');
-    return { ...p, view: 'wc', wcYear: WC_YEARS.includes(y) ? y : WC_LATEST, ...(t && /^[A-Z]{3}$/.test(t) ? { wcTeam: t } : {}) };
+    return { ...p, view: 'wc', wcYear: WC_YEARS.includes(y) ? y : WC_LATEST, ...(t && /^[A-Z]{3}$/.test(t) ? { wcTeam: t } : {}), ...(q.get('sim') === '1' ? { wcSim: true } : {}) };
   }
   if (view === 'cups') { const c = q.get('cup'); if (c === UCL_SLUG) return { ...p, view: 'ucl' }; return { ...p, view, cup: c && CUP_SLUGS.includes(c) ? c : DEFAULT_CUP }; }
   if (view === 'trailing') { const c = q.get('comp'); return { ...p, view, comp: c && TRAILING_COMPS.includes(c) ? c : DEFAULT_TRAILING }; }
@@ -166,7 +168,7 @@ export function pagePart(p: Page, model: Model): string {
   if (p.view === 'table') return `${model.comp(p.league ?? DEFAULT_LEAGUE).name} table`;
   if (p.view === 'cups') return model.comp(p.cup ?? DEFAULT_CUP).name;
   if (p.view === 'trailing') return `${model.comp(p.comp ?? DEFAULT_TRAILING).name} goals while trailing`;
-  if (p.view === 'wc') return `World Cup ${p.wcYear ?? WC_LATEST}`;
+  if (p.view === 'wc') return `World Cup ${p.wcYear ?? WC_LATEST}${p.wcSim ? ' simulator' : ''}`;
   if (p.view === 'league') { const w = mondayOf(p.day); return `${model.comp(p.lcomp ?? DEFAULT_LEAGUE).name} · ${p.lmode === 'cal' ? dayRange(w, addDays(w, 6)) : shortDay(p.day)}`; }
   return `Day · ${shortDay(p.day)}`;
 }

@@ -1312,3 +1312,60 @@ test('FK-59: World Cup history: pick 2014 from the Cups picker, group tables, a 
   await expect(page.getByTestId('wc-page')).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('FK-60: World Cup simulator — change a result, the table and the bracket update together, reset', async ({ page }) => {
+  const errors = await open(page, '?view=wc&year=2022');
+  await page.getByTestId('wc-sim-toggle').click();
+  await expect(page).toHaveURL(/year=2022&sim=1/);
+  await expect(page).toHaveTitle('World Cup 2022 simulator — footykit');
+  const sim = page.getByTestId('wc-sim');
+  await expect(page.getByTestId('wc-sim-champion')).toContainText('Champion: Argentina');
+  await expect(page.getByTestId('wc-sim-changed')).toHaveText('The real results');
+  // both visible at once: the groups and the bracket side by side
+  const groupsBox = (await sim.locator('.fk-wc-sim-groups').boundingBox())!;
+  const bracketBox = (await page.getByTestId('wc-sim-bracket').boundingBox())!;
+  expect(bracketBox.x).toBeGreaterThan(groupsBox.x + groupsBox.width - 1);
+  const groupC = page.locator('[data-testid="wc-sim-group"][data-group="Group C"]');
+  const tableC = async () => groupC.getByTestId('wc-sim-row').evaluateAll((rs) => rs.map((r) => r.children[1]!.textContent));
+  expect(await tableC()).toEqual(['Argentina', 'Poland', 'Mexico', 'Saudi Arabia']);
+  // Poland beat Argentina
+  const match = groupC.getByTestId('wc-sim-match').filter({ hasText: 'Poland' }).filter({ hasText: 'Argentina' });
+  const polandHome = (await match.locator('.fk-wc-sim-h').textContent()) === 'Poland';
+  await match.getByTestId(polandHome ? 'wc-fast-1' : 'wc-fast-2').click();
+  await expect(match).toHaveAttribute('data-changed', 'true');
+  expect(await tableC()).toEqual(['Poland', 'Mexico', 'Argentina', 'Saudi Arabia']);
+  const r16 = page.locator('[data-testid="wc-sim-tie"][data-stage="Round of 16"]');
+  await expect(r16.filter({ hasText: 'Poland' })).toContainText('Australia');
+  await expect(r16.filter({ hasText: 'Mexico' })).toContainText('France');
+  await expect(r16.filter({ hasText: 'Argentina' })).toHaveCount(0);
+  await expect(page.getByTestId('wc-sim-champion')).toContainText('No champion yet');
+  // send Poland through: they appear in the quarter-final
+  await r16.filter({ hasText: 'Poland' }).locator('[data-testid="wc-sim-side"][data-team="POL"]').click();
+  await expect(page.locator('[data-testid="wc-sim-tie"][data-stage="Quarter-finals"]').filter({ hasText: 'Poland' })).toHaveCount(1);
+  // detailed mode: a typed score
+  await page.getByTestId('wc-sim-mode').getByRole('tab', { name: /Detailed/ }).click();
+  const groupA = page.locator('[data-testid="wc-sim-group"][data-group="Group A"]');
+  const first = groupA.getByTestId('wc-sim-match').first();
+  const inputs = first.getByTestId('wc-sim-num');
+  await inputs.nth(0).fill('5');
+  await inputs.nth(1).fill('0');
+  await expect(first).toHaveAttribute('data-changed', 'true');
+  // reset: everything back to what happened
+  await page.getByTestId('wc-sim-reset').click();
+  expect(await tableC()).toEqual(['Argentina', 'Poland', 'Mexico', 'Saudi Arabia']);
+  await expect(page.getByTestId('wc-sim-champion')).toContainText('Champion: Argentina');
+  await expect(page.getByTestId('wc-sim-changed')).toHaveText('The real results');
+  // clear all: no results
+  await page.getByTestId('wc-sim-clear').click();
+  await expect(groupC.getByTestId('wc-sim-row').first().locator('td').nth(3)).toHaveText('0');
+  await expect(page.getByTestId('wc-sim-champion')).toContainText('No champion yet');
+  // an edition the simulator doesn't cover
+  await page.getByTestId('wc-edition').selectOption('1994');
+  await expect(page.getByTestId('wc-sim-none')).toContainText("doesn't cover 1994");
+  await expect(page.getByTestId('wc-sim')).toHaveCount(0);
+  // 2026: 48 teams, the thirds table in the simulator
+  await page.getByTestId('wc-edition').selectOption('2026');
+  await expect(page.getByTestId('wc-sim-third')).toHaveCount(12);
+  await expect(page.locator('[data-testid="wc-sim-tie"][data-stage="Round of 32"]')).toHaveCount(16);
+  expect(errors).toEqual([]);
+});
