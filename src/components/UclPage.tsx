@@ -11,8 +11,6 @@ import { stakeChips } from '../data/uclStakes';
 import { TeamLink } from './Bits';
 import { useFooty } from './ctx';
 import { UclKnockout } from './UclKnockout';
-import { CupPicker } from './TopBar';
-import { UCL_SLUG } from './page';
 import './ucl.css';
 import { SplitTable } from './SplitTable';
 
@@ -77,7 +75,9 @@ function Pots({ today }: { today: string }) {
 
 export type UclTab = 'table' | 'pots';
 
-export default function UclPage({ today, onWhatIf, tab = 'table', onTab, onPick, onHistory }: { today: string; onWhatIf?: () => void; /** FK-64 */ onHistory?: () => void; tab?: UclTab; onTab?: (t: UclTab) => void; /** FK-55: the title switches competition */ onPick?: (c: string) => void }) {
+/** FK-65: the main page's How row switches the tab and opens the simulator and history; the League view's copy passes
+ * `onTab` and keeps its own tabs. */
+export default function UclPage({ today, tab = 'table', onTab }: { today: string; tab?: UclTab; onTab?: (t: UclTab) => void }) {
   const { model } = useFooty();
   const table = useMemo(() => uclTable(model.snap, (id) => model.team(id).name), [model]);
   const [hover, setHover] = useState<number | null>(null);
@@ -89,15 +89,13 @@ export default function UclPage({ today, onWhatIf, tab = 'table', onTab, onPick,
   return (
     <div className="fk-ucl" data-testid="ucl-page">
       <div className="fk-ucl-head">
-        <h2>{onPick ? <CupPicker cup={UCL_SLUG} onPick={onPick} title /> : 'Champions League'} <span className="fk-muted">· league phase</span></h2>
+        <h2>Champions League <span className="fk-muted">· {tab === 'pots' ? 'pots' : 'league phase'}</span></h2>
         <span className="fk-muted" data-testid="ucl-matchday">{table.complete ? 'final table' : `after matchday ${table.matchday} of 8`}</span>
-        {onWhatIf && !table.complete && <button type="button" className="fk-btn" onClick={onWhatIf} title="Pick the results left to play and see the table and the knockout places change" data-testid="ucl-whatif">Simulator</button>}
-        {onHistory && <button type="button" className="fk-btn" onClick={() => onHistory()} title="Past seasons: final tables, brackets, champions" data-testid="history-button">History</button>}
-        <span className="fk-tabs fk-ucl-tabs" role="tablist" aria-label="Champions League page" data-testid="ucl-tabs">
+        {onTab && <span className="fk-tabs fk-ucl-tabs" role="tablist" aria-label="Champions League page" data-testid="ucl-tabs">
           {([['table', 'League phase'], ['pots', 'Pots']] as const).map(([t, text]) => (
             <button key={t} type="button" role="tab" aria-selected={tab === t} className={`fk-tab${tab === t ? ' fk-tab-on' : ''}`} data-text={text} onClick={() => onTab?.(t)}>{text}</button>
           ))}
-        </span>
+        </span>}
         {tab === 'table' && <span className="fk-ucl-key">
           {UCL_ZONES.map((z) => <span key={z.id} className={`fk-ucl-zone-key fk-zone-${z.id}`}>{z.from}–{z.to} {z.label}</span>)}
         </span>}

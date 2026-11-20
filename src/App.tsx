@@ -82,8 +82,8 @@ function Loaded({ model }: { model: Model }) {
     if (scrollTo.current !== undefined) { window.scrollTo(0, scrollTo.current); scrollTo.current = undefined; }
   }, []);
 
-  // the browser's back / forward
-  useEffect(() => {
+  // the browser's back / forward; attached before the first paint, so a back pressed right after a reload is never missed
+  useLayoutEffect(() => {
     const pop = (e: PopStateEvent) => { if (isEntry(e.state)) { setEntry(e.state); scrollTo.current = e.state.scroll; } };
     window.addEventListener('popstate', pop);
     return () => window.removeEventListener('popstate', pop);

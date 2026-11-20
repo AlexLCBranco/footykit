@@ -2,6 +2,26 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-20 — FK-65
+
+**Built:** v0.78.0 FK-65 — the shared layout from backlogkit's NAV_PATTERN.md. A header pinned at the top of every page (same 92 px everywhere): ← →, a breadcrumb (e.g. Cups › World Cup › 2002 › Bracket; each part opens its neighbours), "Go anywhere" (Ctrl+K: clubs, competitions in each view, World Cup editions, "brazil 2002" → Brazil's 2002 World Cup), the Tags / copy / standings / info buttons, and the five places Today · Clubs · Leagues · Cups · Tools. Under it, scrolling away: What chips (leagues, cups, the World Cup's 1930 … 2026 strip with the chosen year scrolled into view, Trailing's competitions) and the How switch. No `<select>` is left for a What choice (the cup title, League, Cup, Competition, edition, history competition and season, and the quick standings popup's competition are all chips now). Every old address still opens its page; three new forms: `?view=clubs`, `?view=cups&cup=…&sim=1`, `?view=wc&year=…&how=groups`.
+Checked automatically: header on every main page, same height, still on screen after scrolling; every Where tab, What chip, How option and breadcrumb part navigates, reload gives the same screen, back / forward work; click-to-screen 23–47 ms (World Cup 2026 Groups ↔ Bracket, a league chip, List → Slate); layout shift 0.000–0.001 on all 18 main pages; 390 px: header fits, all five places visible, no sideways scroll; World Cup 2026 bracket whole on a 1920×1080 screen under the header. 96/96 e2e, 468 unit tests.
+
+**Where today's pages went (flagged where the mapping needed a choice):**
+- Leagues: How = Table / Calendar (the old League view; its List / Calendar became Day / Week) / Simulator / History.
+- Cups: Champions League = League phase / Pots / Calendar / Simulator / History; other cups = Bracket / Calendar / Simulator / History; World Cup = Groups / Bracket / Simulator. Groups and Bracket are now separate views (they were one long page); 1950 opens on Groups and its Bracket says it had none; 1934 / 1938 Groups say they had no groups; Simulator on 1930–1994 says in words it isn't ready for that year.
+- Clubs: a new "Pick a club" page (every followed club by league) when no club is open; the club's × now goes back there (it used to go to Today's List).
+- Tools: Trailing (its old Extra tools menu is gone).
+- History: the season is picked from the champions list on the page (the season dropdown is gone).
+- Kept as they were: the simulators' "one team's matches" filter is still a dropdown (a filter, not a What); the cup and UCL copies shown inside a Calendar page keep their own small Simulator / Pots toggles.
+- Trade-off: on a 1366×768 window the World Cup 2026 bracket still fits but is drawn at 63% (it was 80%+), because the header and rows take height. At 1920×1080 it stays full size.
+
+**Blocked:** FK-61 and FK-63 unchanged (waiting on you).
+
+**Ideas added:** none.
+
+**For you to check by hand** (looks and feel can't be automated): open a few places and the World Cup strip at your window size; screenshots of all 18 main pages are in test-output/fk65/ on this machine.
+
 ## 2026-11-19 (late night) — FK-57 … FK-64
 
 **Built** (each its own commit, pushed to main):

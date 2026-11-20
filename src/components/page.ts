@@ -9,7 +9,11 @@ import { addDays, addMonths, monthLabel, monthOf, mondayOf, shortDay, type Model
  * League page, whatif = a what-if simulator (the UCL's, or with `league` a league's), table = a league table, cups = the
  * cups pages, trailing = goals while trailing per competition, league = one competition's games, teams and standings
  * (FK-45), wc = the World Cup's editions (FK-59) */
-export type View = 'day' | 'slate' | 'cal' | 'list' | 'ucl' | 'whatif' | 'table' | 'cups' | 'trailing' | 'league' | 'wc' | 'history';
+export type View = 'day' | 'slate' | 'clubs' | 'cal' | 'list' | 'ucl' | 'whatif' | 'table' | 'cups' | 'trailing' | 'league' | 'wc' | 'history';
+/** FK-65: the World Cup page's How (the simulator is `wcSim`); unset = Bracket, or Groups for an edition with no bracket */
+export type WcHow = 'groups' | 'bracket';
+/** FK-65: the one World Cup with no knockout bracket (a final group decided the title); tests/nav.test.ts checks the data */
+export const WC_NO_BRACKET = [1950];
 /** FK-45: the League view's modes, calendarkit's List (one day) and Calendar (a week of days) */
 export type LeagueMode = 'list' | 'cal';
 export type Span = 1 | 2 | 'month';
@@ -25,8 +29,12 @@ export interface Page {
   /** view `whatif` shows the UCL's simulator. Its own flag, so opening it keeps `league` for the Tables page; a page
    * with no `league` is the UCL's too (an address without one, or history from before the flag). */
   uclSim?: boolean;
-  /** the cup shown (view `cups`) */
+  /** the cup shown (view `cups`); FK-65: also the last cup picked anywhere (the Cups tab goes back to it) */
   cup?: string;
+  /** FK-65: a cup page (view `cups`) shows its simulator */
+  cupSim?: boolean;
+  /** FK-65: the World Cup page's Groups or Bracket */
+  wcHow?: WcHow;
   /** the competition shown (view `trailing`) */
   comp?: string;
   /** FK-45: the competition the League view shows, and its mode (List when unset); its day is `day` */
@@ -110,9 +118,10 @@ export function pageSearch(p: Page): string {
   if (p.view === 'ucl' && p.uclTab === 'pots') q.set('tab', 'pots');
   if (p.view === 'ucl' || p.view === 'whatif') return `?${q}`;
   if (p.view === 'table') { q.set('league', p.league ?? DEFAULT_LEAGUE); return `?${q}`; }
-  if (p.view === 'cups') { q.set('cup', p.cup ?? DEFAULT_CUP); return `?${q}`; }
+  if (p.view === 'clubs') return `?${q}`;
+  if (p.view === 'cups') { q.set('cup', p.cup ?? DEFAULT_CUP); if (p.cupSim) q.set('sim', '1'); return `?${q}`; }
   if (p.view === 'trailing') { q.set('comp', p.comp ?? DEFAULT_TRAILING); return `?${q}`; }
-  if (p.view === 'wc') { q.set('year', String(p.wcYear ?? WC_LATEST)); if (p.wcTeam) q.set('team', p.wcTeam); if (p.wcSim) q.set('sim', '1'); return `?${q}`; }
+  if (p.view === 'wc') { q.set('year', String(p.wcYear ?? WC_LATEST)); if (p.wcTeam) q.set('team', p.wcTeam); if (p.wcSim) q.set('sim', '1'); else if (p.wcHow) q.set('how', p.wcHow); return `?${q}`; }
   if (p.view === 'history') { q.set('comp', p.hcomp ?? DEFAULT_LEAGUE); if (p.hseason) q.set('season', String(p.hseason)); return `?${q}`; }
   if (p.view === 'league') { q.set('comp', p.lcomp ?? DEFAULT_LEAGUE); if (p.lmode === 'cal') q.set('mode', 'cal'); }
   q.set('date', p.view === 'cal' ? (p.span === 'month' ? p.month : p.week) : p.view === 'list' ? p.month : p.day);
@@ -136,14 +145,14 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
     return { ...p, view, team };
   }
   if (view === 'whatif') { const l = q.get('league'); return isLeague(l) ? { ...p, view, league: l } : { ...p, view }; }
-  if (view === 'ucl') return q.get('tab') === 'pots' ? { ...p, view, uclTab: 'pots' } : { ...p, view };
-  if (view === 'slate') return { ...p, view };
+  if (view === 'ucl') return q.get('tab') === 'pots' ? { ...p, view, cup: UCL_SLUG, uclTab: 'pots' } : { ...p, view, cup: UCL_SLUG };
+  if (view === 'slate' || view === 'clubs') return { ...p, view };
   if (view === 'wc' || (view === 'cups' && q.get('cup') === WC_SLUG)) {
     const y = Number(q.get('year')); const t = q.get('team');
-    return { ...p, view: 'wc', wcYear: WC_YEARS.includes(y) ? y : WC_LATEST, ...(t && /^[A-Z]{3}$/.test(t) ? { wcTeam: t } : {}), ...(q.get('sim') === '1' ? { wcSim: true } : {}) };
+    return { ...p, view: 'wc', cup: WC_SLUG, wcYear: WC_YEARS.includes(y) ? y : WC_LATEST, ...(t && /^[A-Z]{3}$/.test(t) ? { wcTeam: t } : {}), ...(q.get('sim') === '1' ? { wcSim: true } : {}), ...(q.get('how') === 'groups' || q.get('how') === 'bracket' ? { wcHow: q.get('how') as WcHow } : {}) };
   }
   if (view === 'history') { const c = q.get('comp'); const y = Number(q.get('season')); return { ...p, view, hcomp: c && /^[a-z]+.[a-z_]+$/.test(c) ? c : DEFAULT_LEAGUE, ...(y > 1900 ? { hseason: y } : {}) }; }
-  if (view === 'cups') { const c = q.get('cup'); if (c === UCL_SLUG) return { ...p, view: 'ucl' }; return { ...p, view, cup: c && CUP_SLUGS.includes(c) ? c : DEFAULT_CUP }; }
+  if (view === 'cups') { const c = q.get('cup'); if (c === UCL_SLUG) return { ...p, view: 'ucl', cup: UCL_SLUG }; return { ...p, view, cup: c && CUP_SLUGS.includes(c) ? c : DEFAULT_CUP, ...(q.get('sim') === '1' ? { cupSim: true } : {}) }; }
   if (view === 'trailing') { const c = q.get('comp'); return { ...p, view, comp: c && TRAILING_COMPS.includes(c) ? c : DEFAULT_TRAILING }; }
   if (view === 'league') { const c = q.get('comp'); return { ...p, view, lcomp: isLeagueViewComp(c) ? c : DEFAULT_LEAGUE, lmode: q.get('mode') === 'cal' ? 'cal' : undefined }; }
   if (view === 'table') { const l = q.get('league'); return { ...p, view, league: isLeague(l) ? l : DEFAULT_LEAGUE }; }
@@ -152,7 +161,7 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
 
 export function isPage(x: unknown): x is Page {
   const p = x as Page;
-  return !!p && typeof p === 'object' && ['day', 'slate', 'cal', 'list', 'ucl', 'whatif', 'table', 'cups', 'trailing', 'league', 'wc', 'history'].includes(p.view) && typeof p.day === 'string' && typeof p.week === 'string' && typeof p.month === 'string' && typeof p.listFrom === 'string';
+  return !!p && typeof p === 'object' && ['day', 'slate', 'clubs', 'cal', 'list', 'ucl', 'whatif', 'table', 'cups', 'trailing', 'league', 'wc', 'history'].includes(p.view) && typeof p.day === 'string' && typeof p.week === 'string' && typeof p.month === 'string' && typeof p.listFrom === 'string';
 }
 
 /** "Nov 8 – 14", "Nov 29 – Dec 5" (calendarkit's pageTitle.ts) */
@@ -168,13 +177,14 @@ export function pagePart(p: Page, model: Model): string {
   if (p.view === 'cal') return `${abbr} schedule · ${p.span === 'month' ? monthLabel(p.month, false) : dayRange(p.week, addDays(p.week, 7 * p.span - 1))}`;
   if (p.view === 'list') return `${abbr} list · ${monthRange(p.listFrom, p.month)}`;
   if (p.view === 'slate') return `Slate · ${shortDay(p.day)}`;
+  if (p.view === 'clubs') return 'Clubs';
   if (p.view === 'ucl') return p.uclTab === 'pots' ? 'Champions League pots' : 'Champions League';
   if (p.view === 'whatif') { const l = simLeague(p); return `${l ? model.comp(l).name : 'UCL'} simulator`; }
   if (p.view === 'table') return `${model.comp(p.league ?? DEFAULT_LEAGUE).name} table`;
-  if (p.view === 'cups') return model.comp(p.cup ?? DEFAULT_CUP).name;
+  if (p.view === 'cups') return `${model.comp(p.cup ?? DEFAULT_CUP).name}${p.cupSim ? ' simulator' : ''}`;
   if (p.view === 'trailing') return `${model.comp(p.comp ?? DEFAULT_TRAILING).name} goals while trailing`;
   if (p.view === 'history') return `${model.comp(p.hcomp ?? DEFAULT_LEAGUE).name} history${p.hseason ? ` · ${p.hseason}` : ''}`;
-  if (p.view === 'wc') return `World Cup ${p.wcYear ?? WC_LATEST}${p.wcSim ? ' simulator' : ''}`;
+  if (p.view === 'wc') return `World Cup ${p.wcYear ?? WC_LATEST}${p.wcSim ? ' simulator' : p.wcHow ? ` ${p.wcHow}` : ''}`;
   if (p.view === 'league') { const w = mondayOf(p.day); return `${model.comp(p.lcomp ?? DEFAULT_LEAGUE).name} · ${p.lmode === 'cal' ? dayRange(w, addDays(w, 6)) : shortDay(p.day)}`; }
   return `Day · ${shortDay(p.day)}`;
 }
@@ -183,7 +193,7 @@ export const pageTitle = (p: Page, model: Model) => `${pagePart(p, model)} — $
 
 /** One step of the bar's ‹ › in the current view. */
 export function stepPage(p: Page, dir: 1 | -1, model: Model): Page {
-  if (p.view === 'ucl' || p.view === 'whatif' || p.view === 'table' || p.view === 'cups' || p.view === 'trailing' || p.view === 'wc' || p.view === 'history') return p;
+  if (p.view === 'clubs' || p.view === 'ucl' || p.view === 'whatif' || p.view === 'table' || p.view === 'cups' || p.view === 'trailing' || p.view === 'wc' || p.view === 'history') return p;
   if (p.view === 'cal') return p.span === 'month' ? { ...p, month: addMonths(p.month, dir) } : { ...p, week: addDays(p.week, 7 * dir * p.span) };
   if (p.view === 'list') return { ...p, month: addMonths(p.month, dir), listFrom: addMonths(p.month, dir) };
   // FK-45: the League view steps a day (List) or a week (Calendar), "no games" days included; no season bounds (a cup's
@@ -229,4 +239,4 @@ export function liveCompPage(p: Page, comp: string): Page {
   return cupPage(p, comp);
 }
 /** A cup picked (the bar's picker, a cup page's title): the Champions League's page or the cup's. */
-export const cupPage = (p: Page, cup: string): Page => (cup === UCL_SLUG ? { ...p, view: 'ucl' } : cup === WC_SLUG ? { ...p, view: 'wc', wcTeam: undefined } : { ...p, view: 'cups', cup });
+export const cupPage = (p: Page, cup: string): Page => (cup === UCL_SLUG ? { ...p, view: 'ucl', cup } : cup === WC_SLUG ? { ...p, view: 'wc', wcTeam: undefined, cup } : { ...p, view: 'cups', cup });

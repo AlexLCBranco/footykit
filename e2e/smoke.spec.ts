@@ -15,6 +15,11 @@ async function stubWeather(page: Page) {
 
 const NOW = '2026-11-21T15:00:00Z';
 
+/** FK-65: the header's Where tabs, the page rows' What chips and How switch. */
+const where = (page: Page, w: 'today' | 'clubs' | 'leagues' | 'cups' | 'tools') => page.getByTestId(`where-${w}`).click();
+const what = (page: Page, row: string, v: string | number) => page.getByTestId(row).locator(`[data-value="${v}"]`).click();
+const how = (page: Page, name: string) => page.getByTestId('how').getByRole('tab', { name, exact: true }).click();
+
 async function open(page: Page, search = '') {
   const errors: string[] = [];
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
@@ -208,7 +213,7 @@ test('context tags: hovering a team\'s tags opens the detailed popup; the Slate 
   await expect(pop).toContainText('Relegation race');
   await page.mouse.move(5, 5);
   await expect(pop).toHaveCount(0);
-  await page.getByTestId('views').getByText('Slate').click();
+  await how(page, 'Slate');
   await expect(page.getByTestId('slate-card').first().getByTestId('team-tags').first()).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -224,17 +229,17 @@ test('Champions League page: 36 rows, 8 squares each, zones and paths', async ({
   await expect(page.getByTestId('ucl-square')).toHaveCount(288);
   await expect(rows.nth(8).getByTestId('ucl-rank')).toHaveAttribute('title', /knockout play-off, seeded/);
   await expect(page.getByTestId('ucl-knockout')).toContainText('if the league phase ended now');
-  // reached from the bar too, and back
-  await page.getByTestId('views').getByText('List').click();
+  // reached from the header too, and back
+  await where(page, 'today');
   await expect(page).toHaveTitle('Day · Nov 21 — footykit');
-  await page.getByTestId('views').getByText('Cups').click(); await page.getByTestId('cup-picker').selectOption('uefa.champions');
+  await where(page, 'cups');
   await expect(rows).toHaveCount(36);
   expect(errors).toEqual([]);
 });
 
 test('UCL what-if: picks move the table, keys move on, bulk fill, undo, filter, kept in fk:whatif:v1', async ({ page }) => {
   const errors = await open(page, '?view=ucl');
-  await page.getByTestId('ucl-whatif').click();
+  await how(page, 'Simulator');
   await expect(page).toHaveTitle('UCL simulator — footykit');
   const matches = page.getByTestId('wi-match');
   // one matchday on screen at a time; the counts and fills cover every match left
@@ -310,20 +315,20 @@ test('league tables: the picker switches leagues; rows, squares, zones, Brasilei
   await expect(page).toHaveTitle('Premier League table — footykit');
   await expect(page.getByTestId('league-row')).toHaveCount(20);
   await expect(page.getByTestId('league-row').first().getByTestId('league-square')).toHaveCount(8);
-  await page.getByTestId('league-picker').selectOption('bra.1');
+  await what(page, 'what-league', 'bra.1');
   await expect(page.getByTestId('league-page')).toHaveAttribute('data-league', 'bra.1');
   await expect(page.getByTestId('league-row').first()).toHaveAttribute('data-team', 'FLA');
   await expect(page.getByTestId('bra-extras')).toContainText('Copa do Brasil final');
   // 7th (Atlético-MG): a place that depends on the finals, hatched
   await expect(page.getByTestId('league-row').nth(6)).toHaveClass(/fk-lz-maybe/);
-  await page.getByTestId('league-picker').selectOption('ger.1');
+  await what(page, 'what-league', 'ger.1');
   await expect(page.getByTestId('league-row')).toHaveCount(18);
   expect(errors).toEqual([]);
 });
 
 test('league what-if: from the Tables page, windows, picks move the table, kept apart from the UCL\'s', async ({ page }) => {
   const errors = await open(page, '?view=table&league=eng.1');
-  await page.getByTestId('league-whatif').click();
+  await how(page, 'Simulator');
   await expect(page).toHaveTitle('Premier League simulator — footykit');
   await expect(page.getByTestId('whatif-page')).toHaveAttribute('data-league', 'eng.1');
   const matches = page.getByTestId('wi-match');
@@ -343,8 +348,8 @@ test('league what-if: from the Tables page, windows, picks move the table, kept 
   const kept = JSON.parse((await page.evaluate(() => localStorage.getItem('fk:whatif:v1')))!);
   expect(Object.keys(kept.current.picks)).toHaveLength(0);
   expect(Object.keys(kept.comps['eng.1'].current.picks)).toHaveLength(280);
-  // the picker switches the simulated league
-  await page.getByTestId('league-picker').selectOption('bra.1');
+  // the What chips switch the simulated league
+  await what(page, 'what-league', 'bra.1');
   await expect(page.getByTestId('whatif-page')).toHaveAttribute('data-league', 'bra.1');
   await expect(page.getByTestId('wi-count')).toHaveText('0 of 41 picked');
   expect(errors).toEqual([]);
@@ -352,11 +357,11 @@ test('league what-if: from the Tables page, windows, picks move the table, kept 
 
 test('Tables keeps its league across a trip to the UCL what-if', async ({ page }) => {
   const errors = await open(page, '?view=table&league=bra.1');
-  await page.getByTestId('views').getByText('Cups').click(); await page.getByTestId('cup-picker').selectOption('uefa.champions');
-  await page.getByTestId('ucl-whatif').click();
+  await where(page, 'cups');
+  await how(page, 'Simulator');
   await expect(page).toHaveTitle('UCL simulator — footykit');
-  await page.getByRole('button', { name: '← UCL' }).click();
-  await page.getByTestId('views').getByText('Tables').click();
+  await how(page, 'League phase');
+  await where(page, 'leagues');
   await expect(page.getByTestId('league-page')).toHaveAttribute('data-league', 'bra.1');
   // and the bar's ← back to the UCL what-if still opens the UCL's, not the league's
   await page.goBack();
@@ -390,7 +395,7 @@ test('cups: Libertadores and Sudamericana — bracket, 8 groups, qualifying', as
   await expect(page.getByTestId('cup-group').first().getByTestId('cup-square')).toHaveCount(4 * 6);
   // round of 16 to the final, then 3 + 8 + 4 qualifying ties
   await expect(page.getByTestId('cup-tie')).toHaveCount(8 + 4 + 2 + 1 + 3 + 8 + 4);
-  await page.getByTestId('cup-picker').selectOption('conmebol.sudamericana');
+  await what(page, 'what-cup', 'conmebol.sudamericana');
   await expect(page.getByTestId('cups-page')).toHaveAttribute('data-cup', 'conmebol.sudamericana');
   await expect(page.getByTestId('cup-tie')).toHaveCount(8 + 8 + 4 + 2 + 1 + 16);
   expect(errors).toEqual([]);
@@ -401,25 +406,24 @@ test('domestic cups: Copa do Brasil bracket to the final, earlier rounds folded;
   await expect(page.getByTestId('cups-page')).toHaveAttribute('data-cup', 'bra.copa_do_brazil');
   // fifth round (16) to the final (1)
   await expect(page.getByTestId('cup-knockout').getByTestId('cup-tie')).toHaveCount(16 + 8 + 4 + 2 + 1);
-  await page.getByTestId('cup-picker').selectOption('ita.coppa_italia');
+  await what(page, 'what-cup', 'ita.coppa_italia');
   // quarter-finals, semi-finals and the final: drawn in advance, teams not known yet
   await expect(page.getByTestId('cup-open')).toHaveCount(3);
   expect(errors).toEqual([]);
 });
 
-test('goals while trailing: from the bar, per competition, sorted, the missing-goals note', async ({ page }) => {
+test('goals while trailing: from the Tools place, per competition, sorted, the missing-goals note', async ({ page }) => {
   const errors = await open(page);
-  await page.getByTestId('extra-tools').click();
-  await page.getByTestId('extra-trailing').click();
+  await where(page, 'tools');
   await expect(page).toHaveTitle('Premier League goals while trailing — footykit');
   await expect(page.getByTestId('trailing-row')).toHaveCount(20);
-  await page.getByTestId('comp-picker').selectOption('uefa.champions');
+  await what(page, 'what-comp', 'uefa.champions');
   await expect(page.getByTestId('trailing-page')).toHaveAttribute('data-comp', 'uefa.champions');
   await expect(page.getByTestId('trailing-row')).toHaveCount(36);
   const goals = (await page.getByTestId('trailing-row').locator('td:nth-child(4)').allTextContents()).map(Number);
   expect(goals).toEqual([...goals].sort((a, b) => b - a));
   await expect(page.getByTestId('trailing-missing')).toHaveCount(0);
-  await page.getByTestId('comp-picker').selectOption('conmebol.libertadores');
+  await what(page, 'what-comp', 'conmebol.libertadores');
   await expect(page.getByTestId('trailing-missing')).toContainText('one played match');
   await page.reload();
   await expect(page.getByTestId('trailing-page')).toHaveAttribute('data-comp', 'conmebol.libertadores');
@@ -428,13 +432,13 @@ test('goals while trailing: from the bar, per competition, sorted, the missing-g
 
 test('the simulator is called "Simulator" everywhere it shows; old ?view=whatif links still open it', async ({ page }) => {
   const errors = await open(page, '?view=ucl');
-  await expect(page.getByTestId('ucl-whatif')).toHaveText('Simulator');
-  await page.getByTestId('ucl-whatif').click();
+  await expect(page.getByTestId('how').getByRole('tab', { name: 'Simulator' })).toBeVisible();
+  await how(page, 'Simulator');
   await expect(page.getByRole('heading', { level: 2 })).toContainText('Simulator');
   await expect(page.locator('body')).not.toContainText(/what-if/i);
-  await page.getByTestId('views').getByRole('tab', { name: 'Tables' }).click();
-  await expect(page.getByTestId('league-whatif')).toHaveText('Simulator');
-  await page.getByTestId('league-whatif').click();
+  await where(page, 'leagues');
+  await expect(page.getByTestId('how').getByRole('tab', { name: 'Simulator' })).toBeVisible();
+  await how(page, 'Simulator');
   await expect(page.locator('body')).not.toContainText(/what-if/i);
   await expect(page.getByLabel('Back')).toHaveAttribute('title', 'Back to Premier League table');
   await open(page, '?view=whatif&league=bra.1');
@@ -536,7 +540,7 @@ for (const [width, height] of [[1920, 911], [1280, 800], [1024, 768]] as const) 
     await page.waitForTimeout(150);
     expect(await tableScrollers(page), 'standings popup').toEqual([]);
     // the 36-team table in the popup: no box scrolls, and its end can always be reached (page scroll if needed)
-    await page.getByTestId('standings-popup').getByLabel('Competition').selectOption('uefa.champions');
+    await page.getByTestId('standings-comps').locator('[data-value="uefa.champions"]').click();
     await page.waitForTimeout(150);
     expect(await tableScrollers(page), 'standings popup, UCL').toEqual([]);
     const reach = await page.getByTestId('standings-popup').evaluate((el) => {
@@ -606,7 +610,7 @@ test('pots: no pot badges on the UCL page or the simulator (kept in tooltips); t
   await expect(page.getByTestId('ucl-square').first()).toHaveAttribute('title', /pot \d/);
   await expect(page.getByTestId('ucl-row').first().locator('.fk-ucl-team')).toHaveAttribute('title', /pot \d/);
   // the Pots tab
-  await page.getByTestId('ucl-tabs').getByRole('tab', { name: 'Pots' }).click();
+  await how(page, 'Pots');
   await expect(page).toHaveTitle('Champions League pots — footykit');
   await expect(page.getByTestId('ucl-pot')).toHaveCount(4);
   for (let i = 0; i < 4; i++) await expect(page.getByTestId('ucl-pot').nth(i).getByTestId('ucl-pot-team')).toHaveCount(9);
@@ -614,7 +618,7 @@ test('pots: no pot badges on the UCL page or the simulator (kept in tooltips); t
   await expect(page.getByTestId('ucl-pot').first().locator('img').first()).toBeVisible();
   await page.reload();
   await expect(page.getByTestId('ucl-pot')).toHaveCount(4);
-  await page.getByTestId('ucl-tabs').getByRole('tab', { name: 'League phase' }).click();
+  await how(page, 'League phase');
   await expect(page.getByTestId('ucl-row')).toHaveCount(36);
   // the simulator
   await open(page, '?view=whatif');

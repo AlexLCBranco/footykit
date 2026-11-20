@@ -1,0 +1,438 @@
+/* FK-65: the shared layout (backlogkit's NAV_PATTERN.md): the pinned header, the page rows, the Clubs place. */
+
+/* ---------- the pinned header ---------- */
+/* One fixed height on every page, so nothing under it ever jumps; it spans the page's side padding so rows scrolling
+   under it don't show at its edges. */
+.fk-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-sizing: border-box;
+  height: var(--fk-header-h, 92px);
+  margin: 0 -16px 8px;
+  padding: 6px 16px 0;
+  background: var(--fk-bg);
+  border-bottom: 1px solid var(--fk-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fk-head-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 36px;
+  min-width: 0;
+}
+.fk-head-end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+.fk-crumbs {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  white-space: nowrap;
+}
+.fk-crumb {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+.fk-crumb:first-child .fk-crumb-sep {
+  display: none;
+}
+.fk-crumb-sep {
+  color: var(--fk-muted);
+  padding: 0 4px;
+}
+.fk-crumb-btn {
+  border: 1px solid transparent;
+  background: none;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 15px;
+  color: var(--fk-link) !important;
+  cursor: pointer;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color 0.12s, border-color 0.12s;
+}
+.fk-crumb-btn:hover:not(:disabled) {
+  border-color: var(--fk-border);
+  background: var(--fk-surface);
+}
+.fk-crumb-last {
+  color: var(--fk-text) !important;
+  font-weight: 600;
+}
+.fk-crumb-btn:disabled {
+  cursor: default;
+  color: var(--fk-text) !important;
+}
+.fk-crumb-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 12px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--fk-surface);
+  border: 1px solid var(--fk-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.45);
+}
+.fk-crumb-item {
+  text-align: left;
+  border: 0;
+  background: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.fk-crumb-item:hover {
+  background: var(--fk-surface-2);
+}
+.fk-crumb-item-on {
+  color: var(--fk-accent) !important;
+  font-weight: 600;
+}
+.fk-where {
+  display: flex;
+  gap: 4px;
+  height: 38px;
+}
+.fk-where-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--fk-muted) !important;
+  cursor: pointer;
+  font-size: 15px;
+  transition: color 0.12s, border-color 0.12s;
+}
+.fk-where-tab:hover {
+  color: var(--fk-text) !important;
+}
+.fk-where-on {
+  color: var(--fk-text) !important;
+  border-bottom-color: var(--fk-accent);
+  font-weight: 600;
+}
+.fk-where-on svg {
+  color: var(--fk-accent);
+}
+.fk-go-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 8px 0 10px;
+  border: 1px solid var(--fk-border);
+  border-radius: 8px;
+  background: var(--fk-surface);
+  color: var(--fk-muted) !important;
+  cursor: pointer;
+  min-width: 200px;
+}
+.fk-go-btn:hover {
+  border-color: var(--fk-accent);
+}
+.fk-go-kbd {
+  margin-left: auto;
+  font: inherit;
+  font-size: 11px;
+  border: 1px solid var(--fk-border);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.fk-go-shade {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgb(0 0 0 / 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 12vh;
+}
+.fk-go {
+  width: min(560px, calc(100vw - 32px));
+  background: var(--fk-surface);
+  border: 1px solid var(--fk-border);
+  border-radius: 10px;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.6);
+  overflow: hidden;
+}
+.fk-go-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 46px;
+  padding: 0 14px;
+  border: 0;
+  border-bottom: 1px solid var(--fk-border);
+  background: transparent;
+  color: var(--fk-text);
+  font: inherit;
+  font-size: 16px;
+  outline: none;
+}
+.fk-go-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 4px;
+}
+.fk-go-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.fk-go-on {
+  background: rgb(78 161 255 / 0.16);
+}
+.fk-go-none {
+  padding: 10px;
+}
+
+/* ---------- the page rows (What chips, How switch), scrolling away with the page ---------- */
+.fk-prows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.fk-prows-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  min-height: 36px;
+}
+.fk-prow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.fk-prow-wide {
+  flex: 1 1 100%;
+}
+.fk-prow-label {
+  font-size: 12px;
+  color: var(--fk-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex: none;
+}
+.fk-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.fk-chips-strip {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding-bottom: 2px;
+}
+.fk-chip-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  box-sizing: border-box;
+  padding: 0 11px;
+  border: 1px solid var(--fk-border);
+  border-radius: 15px;
+  background: var(--fk-surface);
+  color: var(--fk-muted) !important;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: none;
+  transition: background-color 0.12s, color 0.12s, border-color 0.12s;
+}
+/* each chip as wide as its bold text, so picking one never shifts its neighbours */
+.fk-chip-btn::after {
+  content: attr(data-text);
+  font-weight: 600;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+.fk-chip-btn:hover:not(.fk-chip-on) {
+  color: var(--fk-text) !important;
+  border-color: var(--fk-muted);
+}
+.fk-chip-on {
+  background: var(--fk-accent);
+  border-color: var(--fk-accent);
+  color: #06121f !important;
+  font-weight: 600;
+}
+.fk-tab {
+  transition: background-color 0.12s, color 0.12s;
+}
+
+/* ---------- the Clubs place without a club ---------- */
+.fk-clubs h2 {
+  font-size: 18px;
+  margin: 4px 0 12px;
+}
+.fk-clubs h3 {
+  font-size: 14px;
+  color: var(--fk-muted);
+  margin: 14px 0 8px;
+}
+.fk-clubs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 6px;
+}
+.fk-clubs-club {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--fk-border);
+  border-radius: 8px;
+  background: var(--fk-surface);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.12s;
+}
+.fk-clubs-club:hover {
+  border-color: var(--fk-accent);
+}
+.fk-wc-none {
+  color: var(--fk-text);
+  background: var(--fk-surface);
+  border: 1px solid var(--fk-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  max-width: 720px;
+}
+
+/* a tag sign on narrow windows, drawn by CSS so the button's text stays "Tags: …" */
+.fk-tag-variant-icon {
+  display: none;
+}
+.fk-tag-variant-icon::before {
+  content: "\1F3F7";
+}
+
+/* ---------- narrow windows (phones): every place still visible, nothing in a hamburger ---------- */
+@media (max-width: 700px) {
+  /* three lines: back / forward and the icon buttons, the breadcrumb, the places */
+  .fk-header {
+    --fk-header-h: 134px;
+    gap: 4px;
+  }
+  .fk-head-row {
+    flex-wrap: wrap;
+    height: auto;
+    row-gap: 4px;
+  }
+  .fk-crumbs {
+    order: 3;
+    flex: 1 1 100%;
+    height: 28px;
+  }
+  /* wide content (brackets, calendars, the day strip) scrolls inside its box, never the page sideways */
+  .fk-capture,
+  .fk-strip {
+    overflow-x: auto;
+  }
+  /* a How with five options scrolls inside its own row on a phone */
+  .fk-prows .fk-prow {
+    max-width: 100%;
+  }
+  .fk-prows .fk-tabs {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .fk-prows .fk-tab {
+    flex: none;
+  }
+  .fk-prows .fk-date-block {
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .fk-where {
+    height: 52px;
+    gap: 0;
+  }
+  .fk-where-tab {
+    flex: 1 1 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 0 2px;
+    font-size: 11px;
+  }
+  /* the breadcrumb's last two parts */
+  .fk-crumb:not(:nth-last-child(-n + 2)) {
+    display: none;
+  }
+  .fk-crumb:nth-last-child(2) .fk-crumb-sep {
+    display: none;
+  }
+  .fk-crumb-btn {
+    max-width: 170px;
+    font-size: 14px;
+  }
+  .fk-go-btn {
+    min-width: 0;
+    width: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+  .fk-go-text,
+  .fk-go-kbd {
+    display: none;
+  }
+  .fk-head-row {
+    gap: 6px;
+  }
+  .fk-head-end {
+    gap: 4px;
+  }
+  .fk-tag-variant-text {
+    display: none;
+  }
+  .fk-tag-variant-icon {
+    display: inline;
+  }
+}
+
+/* the quick standings popup: its competitions as chips */
+.fk-st-chips {
+  margin-bottom: 8px;
+}
+.fk-st-chips .fk-chip-btn {
+  height: 26px;
+  font-size: 12px;
+}

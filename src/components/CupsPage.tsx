@@ -10,7 +10,6 @@ import { dayLabel, isPlayed, kickoffTime, shortDay } from '../data/model';
 import { matchUrl, type Match } from '../data/snapshot';
 import { bracketColumns, cupGroups, cupRounds, stageTies, type CupGroup, type CupTie } from '../data/cups';
 import { TeamLink } from './Bits';
-import { CupPicker } from './TopBar';
 import { CupSimBar, CupSimCtx, CupSimWaiting, simTieOf, useCupSim, useCupSimState } from './CupSim';
 import type { SimRound } from '../data/cupSim';
 import { useFooty } from './ctx';
@@ -101,7 +100,7 @@ function GroupTable({ g, cfg, today }: { g: CupGroup; cfg: CupConfig; today: str
 }
 
 /** A domestic cup: the last rounds (16 ties or fewer) as a bracket, the earlier ones folded, the rules and source. */
-function DomesticCupPage({ cfg, today, fit, onPick, onHistory }: { cfg: DomesticCup; today: string; fit: boolean; onPick?: (c: string) => void; onHistory?: (c: string) => void }) {
+function DomesticCupPage({ cfg, today, fit, simOn }: { cfg: DomesticCup; today: string; fit: boolean; simOn?: boolean }) {
   const { model } = useFooty();
   const rounds = useMemo(() => {
     const rs = cupRounds(model.snap.matches.filter((m) => m.c === cfg.slug), cfg.twoLeg, (id) => model.snap.teams[id]?.name);
@@ -118,18 +117,17 @@ function DomesticCupPage({ cfg, today, fit, onPick, onHistory }: { cfg: Domestic
   const earlier = rounds.slice(0, from);
   const current = earlier.length && earlier[earlier.length - 1]!.ties.some((t) => !t.winner) ? earlier[earlier.length - 1] : undefined;
   const simRounds = useMemo<SimRound[]>(() => rounds.map((r, i) => ({ round: r.round, ties: i >= from ? cols[i - from]! : r.ties, open: r.open })), [rounds, from, cols]);
-  const { state: sim, setOn, clear, empty } = useCupSim(cfg.slug, simRounds);
+  const { state: sim, setOn, clear, empty } = useCupSim(cfg.slug, simRounds, simOn);
   const waiting = (round: string) => (sim.on ? sim.view.rounds.find((x) => x.round === round)?.waiting ?? [] : []);
   const fitRef = useFitBracket(fit, sim.view);
   return (
     <CupSimCtx.Provider value={sim}>
     <div className="fk-ucl fk-lt fk-cups" data-testid="cups-page" data-cup={cfg.slug} data-sim={sim.on || undefined}>
       <div className="fk-ucl-head">
-        <h2>{onPick ? <CupPicker cup={cfg.slug} onPick={onPick} title /> : model.comp(cfg.slug).name}</h2>
+        <h2>{model.comp(cfg.slug).name}</h2>
         <span className="fk-muted">Final {shortDay(cfg.final.day)} {cfg.final.day.slice(0, 4)}{cfg.final.venue ? `, ${cfg.final.venue}` : ''}</span>
-        <CupSimBar on={sim.on} onToggle={() => setOn(!sim.on)} onClear={clear} empty={empty} view={sim.view} />
-        {onHistory && <button type="button" className="fk-btn" onClick={() => onHistory(cfg.slug)} title="Past seasons: final tables, brackets, champions" data-testid="history-button">History</button>}
-      </div>
+        <CupSimBar on={sim.on} onToggle={simOn === undefined ? () => setOn(!sim.on) : undefined} onClear={clear} empty={empty} view={sim.view} />
+              </div>
       <section className="fk-ko" data-testid="cup-knockout">
         <div className="fk-ko-grid fk-ko-fit" ref={fitRef} data-testid="cup-bracket" style={{ gridTemplateColumns: `repeat(${bracket.length}, minmax(160px, 210px))` }}>
           {bracket.map((r, i) => (
@@ -169,14 +167,16 @@ function DomesticCupPage({ cfg, today, fit, onPick, onHistory }: { cfg: Domestic
 }
 
 /** `fit`: the bracket fills the first screen (FK-54) — the Cups page itself, not where the League view shows it. */
-export default function CupsPage({ cup, today, fit = false, onPick, onHistory }: { cup: string; today: string; fit?: boolean; /** FK-55: the title switches competition */ onPick?: (c: string) => void; /** FK-64 */ onHistory?: (c: string) => void }) {
+/** FK-65: `simOn` given = the page's How says whether the simulator shows (no toggle on the page); left out (the League
+ * view's copy), the page keeps its own toggle. */
+export default function CupsPage({ cup, today, fit = false, simOn }: { cup: string; today: string; fit?: boolean; simOn?: boolean }) {
   const domestic = DOMESTIC_CUPS.find((c) => c.slug === cup);
   // keyed by cup: each cup has its own simulator state and picks
-  if (domestic) return <DomesticCupPage key={cup} cfg={domestic} today={today} fit={fit} onPick={onPick} onHistory={onHistory} />;
-  return <ContinentalCupPage key={cup} cup={cup} today={today} fit={fit} onPick={onPick} onHistory={onHistory} />;
+  if (domestic) return <DomesticCupPage key={cup} cfg={domestic} today={today} fit={fit} simOn={simOn} />;
+  return <ContinentalCupPage key={cup} cup={cup} today={today} fit={fit} simOn={simOn} />;
 }
 
-function ContinentalCupPage({ cup, today, fit, onPick, onHistory }: { cup: string; today: string; fit: boolean; onPick?: (c: string) => void; onHistory?: (c: string) => void }) {
+function ContinentalCupPage({ cup, today, fit, simOn }: { cup: string; today: string; fit: boolean; simOn?: boolean }) {
   const { model } = useFooty();
   const cfg = CUPS.find((c) => c.slug === cup) ?? CUPS[0]!;
   const { groups, qualifying, knockout } = useMemo(() => {
@@ -189,17 +189,16 @@ function ContinentalCupPage({ cup, today, fit, onPick, onHistory }: { cup: strin
   }, [model, cfg]);
   const legend = cfg.groupZones.filter((z, i, a) => a.findIndex((x) => x.kind === z.kind) === i);
   const simRounds = useMemo<SimRound[]>(() => cfg.knockout.map((r, i) => ({ round: r, ties: knockout[i]!, open: 0 })), [cfg, knockout]);
-  const { state: sim, setOn, clear, empty } = useCupSim(cfg.slug, simRounds);
+  const { state: sim, setOn, clear, empty } = useCupSim(cfg.slug, simRounds, simOn);
   const fitRef = useFitBracket(fit, sim.view);
   return (
     <CupSimCtx.Provider value={sim}>
     <div className="fk-ucl fk-lt fk-cups" data-testid="cups-page" data-cup={cfg.slug} data-sim={sim.on || undefined}>
       <div className="fk-ucl-head">
-        <h2>{onPick ? <CupPicker cup={cfg.slug} onPick={onPick} title /> : model.comp(cfg.slug).name}</h2>
+        <h2>{model.comp(cfg.slug).name}</h2>
         <span className="fk-muted">Final {shortDay(cfg.final.day)}, {cfg.final.venue}</span>
-        <CupSimBar on={sim.on} onToggle={() => setOn(!sim.on)} onClear={clear} empty={empty} view={sim.view} />
-        {onHistory && <button type="button" className="fk-btn" onClick={() => onHistory(cfg.slug)} title="Past seasons: final tables, brackets, champions" data-testid="history-button">History</button>}
-      </div>
+        <CupSimBar on={sim.on} onToggle={simOn === undefined ? () => setOn(!sim.on) : undefined} onClear={clear} empty={empty} view={sim.view} />
+              </div>
       <section className="fk-ko" data-testid="cup-knockout">
         <h3>Knockout stages</h3>
         <div className="fk-ko-grid fk-ko-fit" ref={fitRef} data-testid="cup-bracket" style={{ gridTemplateColumns: `repeat(${cfg.knockout.length}, minmax(160px, 210px))` }}>

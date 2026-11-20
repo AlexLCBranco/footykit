@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { LEAGUES } from '../../config/leagues';
 import type { LeagueSlug } from '../../config/season';
 import { rankTable } from '../data/leagueTable';
-import { HISTORY_COMPS, histBracket, loadHistIndex, loadHistSeason, records, type HistIndex, type HistSeason, type HistSummary } from '../data/history';
+import { histBracket, loadHistIndex, loadHistSeason, records, type HistIndex, type HistSeason, type HistSummary } from '../data/history';
 import type { CupTie } from '../data/cups';
 import type { Match } from '../data/snapshot';
 import { useFooty } from './ctx';
@@ -142,7 +142,7 @@ function CupSeason({ s }: { s: HistSeason }) {
   );
 }
 
-function Summary({ comp, idx, onSeason }: { comp: string; idx: HistIndex; onSeason: (y: number) => void }) {
+function Summary({ comp, idx, year, onSeason }: { comp: string; idx: HistIndex; year?: number; onSeason: (y: number) => void }) {
   const c = idx[comp]!;
   const done = c.seasons.filter((s) => s.complete);
   const played = useMemo(() => new Map<string, number>(), []);
@@ -155,7 +155,7 @@ function Summary({ comp, idx, onSeason }: { comp: string; idx: HistIndex; onSeas
       <div className="fk-histpage-sum">
         <div className="fk-wc-history-list" data-testid="hist-champions">
           {[...c.seasons].reverse().map((s: HistSummary) => (
-            <button key={s.year} type="button" className={`fk-wc-hist-item ${s.complete ? 'fk-wc-reach-10' : ''}`} onClick={() => onSeason(s.year)} title={s.complete ? `${s.label}: ${nm(s.champion)} won${s.runnerUp ? `, ${nm(s.runnerUp)} ${league ? '2nd' : 'runner-up'}` : ''}` : `${s.label}: not complete in ESPN's data (matches missing, or the season was stopped early)`} data-testid="hist-season-chip" data-year={s.year}>
+            <button key={s.year} type="button" className={`fk-wc-hist-item ${s.complete ? 'fk-wc-reach-10' : ''}${s.year === year ? ' fk-wc-hist-on' : ''}`} aria-pressed={s.year === year} onClick={() => onSeason(s.year)} title={s.complete ? `${s.label}: ${nm(s.champion)} won${s.runnerUp ? `, ${nm(s.runnerUp)} ${league ? '2nd' : 'runner-up'}` : ''}` : `${s.label}: not complete in ESPN's data (matches missing, or the season was stopped early)`} data-testid="hist-season-chip" data-year={s.year}>
               <b>{s.label}</b> {s.complete ? nm(s.champion) : <span className="fk-muted">incomplete</span>}
             </button>
           ))}
@@ -170,7 +170,8 @@ function Summary({ comp, idx, onSeason }: { comp: string; idx: HistIndex; onSeas
   );
 }
 
-export default function HistoryPage({ comp, season, onPage, onBack }: { comp: string; season?: number; onPage: (comp: string, season?: number) => void; onBack?: () => void }) {
+/** FK-65: the competition is picked on the What row, the season from the champions list (no <select>). */
+export default function HistoryPage({ comp, season, onPage }: { comp: string; season?: number; onPage: (comp: string, season?: number) => void }) {
   const idx = useLoad('index', loadHistIndex);
   const c = idx.v?.[comp];
   const years = c?.seasons.map((s) => s.year) ?? [];
@@ -179,26 +180,12 @@ export default function HistoryPage({ comp, season, onPage, onBack }: { comp: st
   return (
     <div className="fk-ucl fk-lt fk-cups fk-histpage" data-testid="hist-page" data-comp={comp} data-year={year}>
       <div className="fk-ucl-head">
-        <h2>
-          <label className="fk-scope fk-scope-title" title="Switch competition">
-            <select value={comp} onChange={(e) => onPage(e.target.value)} aria-label="Competition" data-testid="hist-comp">
-              {HISTORY_COMPS.map((x) => <option key={x} value={x}>{idx.v?.[x]?.name ?? x}</option>)}
-            </select>
-          </label>
-        </h2>
-        <span className="fk-muted">history</span>
-        {c && (
-          <label className="fk-scope" title="The season shown">
-            <select value={year} onChange={(e) => onPage(comp, Number(e.target.value))} aria-label="Season" data-testid="hist-season">
-              {[...c.seasons].reverse().map((x) => <option key={x.year} value={x.year}>{x.label}{x.complete ? '' : ' (part)'}</option>)}
-            </select>
-          </label>
-        )}
-        {onBack && <button type="button" className="fk-btn" onClick={onBack} data-testid="hist-back" title="Back to this season's page">This season</button>}
+        <h2>{c?.name ?? comp} <span className="fk-muted">· history</span></h2>
+        <span className="fk-muted">pick a season below</span>
       </div>
       {idx.err && <p className="fk-muted">The history couldn't be loaded ({idx.err}).</p>}
       {idx.v && !c && <p className="fk-muted">No history for this competition.</p>}
-      {idx.v && c && <Summary comp={comp} idx={idx.v} onSeason={(y) => onPage(comp, y)} />}
+      {idx.v && c && <Summary comp={comp} idx={idx.v} year={year} onSeason={(y) => onPage(comp, y)} />}
       {s.err && <p className="fk-muted">The season couldn't be loaded ({s.err}).</p>}
       {s.v && (
         <>

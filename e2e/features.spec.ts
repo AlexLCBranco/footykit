@@ -15,6 +15,11 @@ async function stubWeather(page: Page) {
 
 const NOW = '2026-11-21T15:00:00Z';
 
+/** FK-65: the header's Where tabs, the page rows' What chips and How switch. */
+const where = (page: Page, w: 'today' | 'clubs' | 'leagues' | 'cups' | 'tools') => page.getByTestId(`where-${w}`).click();
+const what = (page: Page, row: string, v: string | number) => page.getByTestId(row).locator(`[data-value="${v}"]`).click();
+const how = (page: Page, name: string) => page.getByTestId('how').getByRole('tab', { name, exact: true }).click();
+
 async function open(page: Page, search = '') {
   const errors: string[] = [];
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
@@ -40,7 +45,7 @@ test('FK-11: a Day List row spells out its competition, in a column of one width
 });
 
 test('FK-12: the club picker takes typing, accentless, and Enter picks the club', async ({ page }) => {
-  const errors = await open(page);
+  const errors = await open(page, '?view=clubs');
   const picker = page.getByTestId('scope-picker');
   await expect(picker).toHaveAttribute('placeholder', /type a club/i);
   await picker.click();
@@ -63,7 +68,7 @@ test('FK-12: the club picker takes typing, accentless, and Enter picks the club'
   await picker.press('ArrowDown');
   await picker.press('ArrowUp');
   await picker.press('Enter');
-  await expect(page).toHaveTitle(/^Day · Nov 21/);
+  await expect(page).toHaveTitle("Clubs — footykit");
   expect(errors).toEqual([]);
 });
 
@@ -137,28 +142,29 @@ test('FK-15: Z4R and 1C/2C/3C are off by default; turned on they show and surviv
   expect(errors).toEqual([]);
 });
 
-test('FK-16: from a team page, one click on a main tab or the × lands on that main view', async ({ page }) => {
+test('FK-16 / FK-65: from a team page, one click on a Where tab or the × leaves the club', async ({ page }) => {
   const errors = await open(page, '?view=cal&team=359&span=month');
   await expect(page).toHaveTitle(/^ARS /);
-  // the main tabs stay, none selected; the club's own tabs sit in its group
-  const main = page.getByTestId('views');
-  await expect(main.getByRole('tab')).toHaveText(['List', 'Slate', 'Tables', 'Cups', 'League']);
-  await expect(main.locator('[aria-selected="true"]')).toHaveCount(0);
-  await expect(page.getByTestId('club-group').getByTestId('team-views')).toBeVisible();
-  await main.getByRole('tab', { name: 'Slate' }).click();
+  // the five places stay, Clubs is the current one; the club's Calendar / List is its How
+  const tabs = page.getByTestId('where-tabs');
+  await expect(tabs.getByRole('button')).toHaveText(['Today', 'Clubs', 'Leagues', 'Cups', 'Tools']);
+  await expect(tabs.locator('[aria-current="page"]')).toHaveText('Clubs');
+  await expect(page.getByTestId('team-views')).toBeVisible();
+  await where(page, 'today'); await how(page, 'Slate');
   await expect(page).toHaveTitle(/^Slate · /);
-  await expect(page.getByTestId('scope-picker')).toHaveValue('');
   await expect(page.getByTestId('club-clear')).toHaveCount(0);
-  // the × goes to the main List on today
+  // the × goes back to every club; a club there opens its calendar
   await page.goto('/football/?view=list&team=359');
   await page.getByTestId('club-clear').click();
-  await expect(page).toHaveTitle('Day · Nov 21 — footykit');
-  await expect(page.getByTestId('day-list')).toBeVisible();
+  await expect(page).toHaveTitle('Clubs — footykit');
+  await expect(page.getByTestId('clubs-page')).toBeVisible();
+  await page.getByTestId('club-chip').filter({ hasText: /^Arsenal$/ }).click();
+  await expect(page).toHaveTitle(/^ARS schedule/);
   expect(errors).toEqual([]);
 });
 
 test('FK-17: the picked club is highlighted like calendarkit (blue border, bold name, 36 px, × beside); All clubs stays plain', async ({ page }) => {
-  const errors = await open(page);
+  const errors = await open(page, '?view=clubs');
   const box = page.locator('.fk-club-pick');
   const look = () => box.evaluate((el) => {
     const s = getComputedStyle(el), i = getComputedStyle(el.querySelector('input')!);
@@ -206,9 +212,10 @@ test('FK-19: the tab title follows every navigation, worded like calendarkit', a
   await page.getByLabel('Next').click(); await title('Day · Nov 22');
   await page.getByTestId('today').click(); await title('Day · Nov 21');
   await page.getByLabel('Pick a date').fill('2026-11-25'); await title('Day · Nov 25');
-  await page.getByTestId('views').getByRole('tab', { name: 'Slate' }).click(); await title('Slate · Nov 25');
+  await how(page, 'Slate'); await title('Slate · Nov 25');
   await page.getByLabel('Previous').click(); await title('Slate · Nov 24');
   // club pick → its calendar, span changes, steps, its list, unpick
+  await where(page, 'clubs'); await title('Clubs');
   const picker = page.getByTestId('scope-picker');
   await picker.click(); await picker.pressSequentially('arsenal'); await picker.press('Enter');
   await expect(page).toHaveTitle(/^ARS schedule · Nov 16 – 29 /);
@@ -220,14 +227,14 @@ test('FK-19: the tab title follows every navigation, worded like calendarkit', a
   await page.getByLabel('Next').click(); await title('ARS schedule · Nov 30 – Dec 6');
   await page.getByTestId('team-views').getByRole('tab', { name: 'List' }).click(); await expect(page).toHaveTitle(/^ARS list · /);
   await page.getByText(/Load earlier/).click(); await expect(page).toHaveTitle(/^ARS list · \w{3} – \w{3} 2026 — footykit$/);
-  await page.getByTestId('club-clear').click(); await title('Day · Nov 21');
-  // other views and their pickers
-  await page.getByTestId('views').getByRole('tab', { name: 'Cups' }).click(); await page.getByTestId('cup-picker').selectOption('uefa.champions'); await title('Champions League');
-  await page.getByTestId('views').getByRole('tab', { name: 'Tables' }).click(); await title('Premier League table');
-  await page.getByTestId('league-picker').selectOption('bra.1'); await title('Brasileirão table');
-  await page.getByTestId('views').getByRole('tab', { name: 'Cups' }).click(); await title('Libertadores');
-  await page.getByTestId('cup-picker').selectOption('eng.fa'); await title('FA Cup');
-  await page.getByTestId('extra-tools').click(); await page.getByTestId('extra-trailing').click(); await expect(page).toHaveTitle(/goals while trailing — footykit$/);
+  await page.getByTestId('club-clear').click(); await title('Clubs');
+  // the other places and their What chips
+  await where(page, 'cups'); await title('Champions League');
+  await where(page, 'leagues'); await title('Premier League table');
+  await what(page, 'what-league', 'bra.1'); await title('Brasileirão table');
+  await where(page, 'cups'); await title('Champions League');
+  await what(page, 'what-cup', 'eng.fa'); await title('FA Cup');
+  await where(page, 'tools'); await expect(page).toHaveTitle(/goals while trailing — footykit$/);
   // back / forward and a direct load
   await page.goBack(); await title('FA Cup');
   await page.goForward(); await expect(page).toHaveTitle(/goals while trailing/);
@@ -273,14 +280,14 @@ test('FK-21: road trip and homestand labels on the team Calendar and List, count
   expect(errors).toEqual([]);
 });
 
-test('FK-22: the bar has calendarkit\'s metrics and blue accent', async ({ page }) => {
+test('FK-22 / FK-65: the header and rows keep calendarkit\'s metrics and blue accent', async ({ page }) => {
   const errors = await open(page);
-  const bar = await page.getByTestId('top-bar').evaluate((el) => {
-    const h = (s: string) => Math.round(el.querySelector(s)!.getBoundingClientRect().height);
-    const on = getComputedStyle(el.querySelector('.fk-tab-on')!);
-    return { row: Math.round(el.getBoundingClientRect().height), gap: getComputedStyle(el).columnGap, tabs: h('.fk-tabs'), hist: h('.fk-hist'), step: h('.fk-step'), today: h('[data-testid="today"]'), icon: h('.fk-icon-btn'), onBg: on.backgroundColor, onFont: `${on.fontSize} ${on.fontWeight}` };
+  const bar = await page.evaluate(() => {
+    const h = (s: string) => Math.round(document.querySelector(s)!.getBoundingClientRect().height);
+    const on = getComputedStyle(document.querySelector('[data-testid="how"] .fk-tab-on')!);
+    return { header: h('[data-testid="top-bar"]'), tabs: h('[data-testid="how"]'), hist: h('.fk-hist'), step: h('.fk-step'), today: h('[data-testid="today"]'), icon: h('.fk-icon-btn'), onBg: on.backgroundColor, onFont: `${on.fontSize} ${on.fontWeight}` };
   });
-  expect(bar).toEqual({ row: 44, gap: '14px', tabs: 32, hist: 32, step: 32, today: 32, icon: 32, onBg: 'rgb(78, 161, 255)', onFont: '13px 600' });
+  expect(bar).toEqual({ header: 92, tabs: 32, hist: 32, step: 32, today: 32, icon: 32, onBg: 'rgb(78, 161, 255)', onFont: '13px 600' });
   // green stays for meaning: a win square
   await expect(page.locator('.fk-form-W').first()).toHaveCSS('background-color', 'rgb(55, 196, 122)');
   expect(errors).toEqual([]);
@@ -370,31 +377,31 @@ test('FK-25: calendarkit\'s surfaces: card rows, table panels, the Quick standin
   await expect(pop.locator('table.fk-table').first()).toHaveCSS('border-top-left-radius', '10px');
   await expect(pop.locator('table.fk-table th').first()).toHaveCSS('font-size', '11px');
   await page.goto('/football/?view=table&league=eng.1');
-  const head = await page.locator('.fk-ucl-head h2').boundingBox(), bar = await page.getByTestId('top-bar').boundingBox();
-  expect(Math.abs(head!.x - bar!.x)).toBeLessThan(2); // the page starts at the bar's left edge
+  const head = await page.locator('.fk-ucl-head h2').boundingBox(), bar = await page.getByTestId('page-rows').boundingBox();
+  expect(Math.abs(head!.x - bar!.x)).toBeLessThan(2); // the page starts at the rows' left edge
   await page.goto('/football/?view=list&team=359');
   await expect(page.locator('.fk-tl-month h3').first()).toHaveCSS('text-transform', 'uppercase');
   expect(errors).toEqual([]);
 });
 
-test('FK-29: the UCL is in the Cups section, not a tab of its own', async ({ page }) => {
+test('FK-29 / FK-65: the UCL is in the Cups place, the first of its competitions', async ({ page }) => {
   const errors = await open(page, '?view=cups');
   const title = (t: string) => expect(page).toHaveTitle(`${t} — footykit`);
-  const views = page.getByTestId('views');
-  await expect(views.getByRole('tab', { name: 'UCL' })).toHaveCount(0);
-  const picker = page.getByTestId('cup-picker');
-  await expect(picker.locator('option').first()).toHaveText('Champions League');
-  await picker.selectOption('uefa.champions');
+  const current = page.getByTestId('where-tabs').locator('[aria-current="page"]');
+  await expect(current).toHaveText('Cups');
+  const chips = page.getByTestId('what-cup');
+  await expect(chips.getByRole('radio').first()).toHaveText('Champions League');
+  await what(page, 'what-cup', 'uefa.champions');
   await title('Champions League');
   await expect(page.getByTestId('ucl-knockout')).toBeVisible();
-  await expect(views.locator('[aria-selected="true"]')).toHaveText('Cups');
-  await expect(picker).toHaveValue('uefa.champions');
-  // its simulator stays in the section; another cup leads back to the cups page
-  await page.getByTestId('ucl-whatif').click();
+  await expect(chips.locator('[aria-checked="true"]')).toHaveText('Champions League');
+  // its simulator stays in the place; another cup keeps the How
+  await how(page, 'Simulator');
   await expect(page).toHaveTitle('UCL simulator — footykit');
-  await expect(views.locator('[aria-selected="true"]')).toHaveText('Cups');
-  await page.getByTestId('cup-picker').selectOption('eng.fa');
+  await expect(current).toHaveText('Cups');
+  await what(page, 'what-cup', 'eng.fa');
   await expect(page.getByTestId('cups-page')).toHaveAttribute('data-cup', 'eng.fa');
+  await expect(page.getByTestId('cups-page')).toHaveAttribute('data-sim', 'true');
   // old addresses still work
   await page.goto('/football/?view=ucl'); await title('Champions League');
   await page.goto('/football/?view=cups&cup=uefa.champions'); await title('Champions League');
@@ -404,7 +411,8 @@ test('FK-29: the UCL is in the Cups section, not a tab of its own', async ({ pag
 test('FK-30: every cup has a simulator — pick ties, the bracket follows, kept, cleared', async ({ page }) => {
   const errors = await open(page, '?view=cups&cup=conmebol.libertadores');
   await expect(page.getByTestId('cup-sim-pick')).toHaveCount(0); // off until asked
-  await page.getByTestId('cup-sim-toggle').click();
+  await how(page, 'Simulator');
+  await expect(page).toHaveURL(/cup=conmebol\.libertadores&sim=1/);
   const picks = page.getByTestId('cup-sim-pick');
   await expect(picks).toHaveCount(2); // the final, the only tie left
   await picks.first().click();
@@ -413,10 +421,8 @@ test('FK-30: every cup has a simulator — pick ties, the bracket follows, kept,
   await expect(page.getByTestId('cup-sim-count')).toHaveText('1 picked · 0 to pick');
   // kept across a reload, and per cup
   await page.reload();
-  await page.getByTestId('cup-sim-toggle').click();
   await expect(page.getByTestId('cup-sim-champion')).toContainText('(picked)');
-  await page.getByTestId('cup-picker').selectOption('ger.dfb_pokal');
-  await page.getByTestId('cup-sim-toggle').click();
+  await what(page, 'what-cup', 'ger.dfb_pokal'); // the How (Simulator) is kept
   await expect(page.getByTestId('cup-sim-champion')).toHaveCount(0);
   await expect(page.getByTestId('cup-sim-count')).toHaveText('0 picked · 8 to pick');
   // a round not drawn yet: the clubs through are listed, not paired
@@ -425,22 +431,21 @@ test('FK-30: every cup has a simulator — pick ties, the bracket follows, kept,
   // a second click clears that pick
   await page.getByTestId('cup-sim-pick').first().click();
   await expect(page.getByTestId('cup-sim-count')).toHaveText('0 picked · 8 to pick');
-  // another domestic cup starts off, with its own picks
+  // another domestic cup has its own picks; Bracket turns the simulator off
   await page.getByTestId('cup-sim-pick').first().click();
-  await page.getByTestId('cup-picker').selectOption('eng.league_cup');
-  await expect(page.getByTestId('cup-sim-pick')).toHaveCount(0);
-  await page.getByTestId('cup-sim-toggle').click();
+  await what(page, 'what-cup', 'eng.league_cup');
   await expect(page.getByTestId('cup-sim-count')).toHaveText('0 picked · 4 to pick');
-  await page.getByTestId('cup-picker').selectOption('ger.dfb_pokal');
-  await page.getByTestId('cup-sim-toggle').click();
+  await how(page, 'Bracket');
+  await expect(page.getByTestId('cup-sim-pick')).toHaveCount(0);
+  await what(page, 'what-cup', 'ger.dfb_pokal');
+  await how(page, 'Simulator');
   await page.getByTestId('cup-sim-clear').click();
-  // every cup on the Cups page has it
+  // every cup on the Cups place has it
   for (const c of ['conmebol.sudamericana', 'bra.copa_do_brazil', 'eng.fa', 'eng.league_cup', 'esp.copa_del_rey', 'ita.coppa_italia', 'fra.coupe_de_france']) {
-    await page.getByTestId('cup-picker').selectOption(c);
-    await expect(page.getByTestId('cup-sim-toggle')).toBeVisible();
+    await what(page, 'what-cup', c);
+    await expect(page.getByTestId('cup-sim-bar')).toBeVisible();
   }
-  await page.getByTestId('cup-picker').selectOption('conmebol.libertadores');
-  await page.getByTestId('cup-sim-toggle').click();
+  await what(page, 'what-cup', 'conmebol.libertadores');
   await page.getByTestId('cup-sim-clear').click();
   await expect(page.getByTestId('cup-sim-champion')).toHaveCount(0);
   expect(await page.evaluate(() => localStorage.getItem('fk:whatif:v1'))).toBeNull();
@@ -515,7 +520,7 @@ test('FK-28: each team\'s domestic league place beside its name on list rows and
   await page.goto('/football/?view=list&team=359');
   await expect(page.getByTestId('team-row').first().locator('[data-testid="league-pos"]').first()).toBeVisible();
   // Slate cards: both teams
-  await page.getByTestId('views').getByRole('tab', { name: 'Slate' }).click();
+  await where(page, 'today'); await how(page, 'Slate');
   await expect(page.getByTestId('slate-card').first().getByTestId('league-pos')).toHaveCount(2);
   expect(errors).toEqual([]);
 });
@@ -739,7 +744,7 @@ test('FK-44: a Slate card with odds shows the home and away prices and no draw p
 
 test('FK-45: the League view — a league\'s games for a day and its table; a cup\'s games and bracket; a team opens its calendar', async ({ page }) => {
   const errors = await open(page);
-  await page.getByTestId('views').getByRole('tab', { name: 'League' }).click();
+  await where(page, 'leagues'); await how(page, 'Calendar');
   await expect(page).toHaveURL(/view=league&comp=eng\.1/);
   const view = page.getByTestId('league-view');
   // Sat Nov 21: every Premier League game of the day (all its teams, not only the followed clubs' feeds)
@@ -754,20 +759,20 @@ test('FK-45: the League view — a league\'s games for a day and its table; a cu
   await page.getByTestId('today').click();
   await expect(view.getByTestId('league-day')).toHaveAttribute('data-day', '2026-11-21');
   // Calendar: the week's 7 days; a day's header opens it in the List
-  await page.getByTestId('league-modes').getByRole('tab', { name: 'Calendar' }).click();
+  await page.getByTestId('league-modes').getByRole('tab', { name: 'Week' }).click();
   await expect(view.getByTestId('league-cal-day')).toHaveCount(7);
   await expect(view.locator('[data-testid="league-cal-day"][data-day="2026-11-21"] [data-testid="league-cal-game"]')).toHaveCount(7);
   await view.locator('[data-testid="league-cal-day"][data-day="2026-11-22"] button').click();
   await expect(view.getByTestId('league-day')).toHaveAttribute('data-day', '2026-11-22');
   // a cup: its games (non-followed clubs too) and its bracket
-  await page.getByTestId('league-view-picker').selectOption('eng.league_cup');
+  await where(page, 'cups'); await what(page, 'what-cup', 'eng.league_cup'); await how(page, 'Calendar');
   await page.getByLabel('Pick a date').fill('2026-12-16');
   await expect(view.getByTestId('match-row')).toHaveCount(2);
   await expect(view.getByTestId('cup-tie').first()).toBeVisible();
   await expect(view.getByTestId('league-team')).toHaveCount(92);
   await expect(view.getByTestId('league-team').filter({ hasText: 'Tranmere' })).toHaveCount(1);
   // a followed club's name opens its Team Calendar
-  await page.getByTestId('league-view-picker').selectOption('eng.1');
+  await where(page, 'leagues'); await how(page, 'Calendar');
   await view.locator('[data-testid="league-team"][data-team="ARS"] button').click();
   await expect(page).toHaveURL(/view=cal&team=359/);
   expect(errors).toEqual([]);
@@ -780,7 +785,7 @@ test('FK-46: a competition icon says the round on hover and opens the League vie
   await icon.click();
   await expect(page).toHaveURL(/view=league&comp=eng\.1/);
   await expect(page.getByTestId('league-day')).toHaveAttribute('data-day', '2026-11-21');
-  await expect(page.getByTestId('league-view-picker')).toHaveValue('eng.1');
+  await expect(page.getByTestId('what-league').locator('[aria-checked="true"]')).toHaveAttribute('data-value', 'eng.1');
   // a List row's competition (icon and name) does the same, without pinning the row
   await page.goto('/football/');
   const row = page.getByTestId('match-row').first();
@@ -1006,7 +1011,7 @@ test('FK-49: month arrows beside the calendar: a month each, as the bar\'s arrow
   await prev.click();
   expect(await shown()).toBe(start);
   // the bar's › goes to the same month
-  await page.getByTestId('top-bar').getByLabel('Next').click();
+  await page.getByTestId('page-rows').getByLabel('Next').click();
   expect(await shown()).toBe(viaSide);
   // back to the data's first month (Jan 2026): ‹ disabled there
   for (let i = 0; i < 11 && await prev.isEnabled(); i++) await prev.click();
@@ -1086,7 +1091,9 @@ for (const [w, h] of [[1920, 1080], [1366, 768]] as const) {
     const geo = await bracket.evaluate((b) => ({ r: b.getBoundingClientRect().toJSON(), zoom: Number((b as HTMLElement).dataset.zoom), vh: innerHeight, vw: innerWidth }));
     expect(geo.r.bottom).toBeLessThanOrEqual(geo.vh);
     expect(geo.r.right).toBeLessThanOrEqual(geo.vw);
-    expect(geo.zoom).toBeGreaterThanOrEqual(0.8);
+    // FK-65: the pinned header and the page rows take their height from the bracket's room: full size on a 1080p screen,
+    // smaller (still whole) at 1366×768
+    expect(geo.zoom).toBeGreaterThanOrEqual(h >= 1080 ? 0.8 : 0.6);
     expect(errors).toEqual([]);
   });
   test(`FK-54: the cup bracket fills the first screen at ${w}×${h}, no inner scroll; the groups start just below`, async ({ page }) => {
@@ -1114,27 +1121,19 @@ for (const [w, h] of [[1920, 1080], [1366, 768]] as const) {
   });
 }
 
-test('FK-55: the cup page title is the competition switcher (the bar picker\'s look, the heading\'s size)', async ({ page }) => {
+test('FK-55 / FK-65: a cup page switches competition from the What chips (no <select>); its title is plain', async ({ page }) => {
   const errors = await open(page, '?view=cups&cup=conmebol.libertadores');
-  const title = page.getByTestId('cups-page').getByTestId('cup-title-picker');
-  await expect(title).toHaveValue('conmebol.libertadores');
-  // the heading's size (18 px, as the plain title was), in the bar picker's outlined box
-  expect(await title.evaluate((e) => getComputedStyle(e).fontSize)).toBe('18px');
-  const box = await title.evaluate((e) => getComputedStyle(e.parentElement!).borderTopStyle);
-  expect(box).toBe('solid');
-  // beside the final's line, as before
+  await expect(page.getByTestId('cups-page').locator('.fk-ucl-head h2')).toHaveText('Libertadores');
   await expect(page.getByTestId('cups-page').locator('.fk-ucl-head')).toContainText('Final Nov 28');
-  await title.selectOption('conmebol.sudamericana');
+  await what(page, 'what-cup', 'conmebol.sudamericana');
   await expect(page).toHaveURL(/view=cups&cup=conmebol\.sudamericana/);
   await expect(page.getByTestId('cups-page')).toHaveAttribute('data-cup', 'conmebol.sudamericana');
-  await expect(page.getByTestId('cup-picker')).toHaveValue('conmebol.sudamericana'); // the bar follows
-  // a domestic cup, then the Champions League (its page has the switcher too)
-  await page.getByTestId('cup-title-picker').selectOption('eng.fa');
+  await what(page, 'what-cup', 'eng.fa');
   await expect(page).toHaveURL(/cup=eng\.fa/);
-  await page.getByTestId('cup-title-picker').selectOption('uefa.champions');
+  await what(page, 'what-cup', 'uefa.champions');
   await expect(page.getByTestId('ucl-page')).toBeVisible();
-  await expect(page.getByTestId('cup-title-picker')).toHaveValue('uefa.champions');
-  await page.getByTestId('cup-title-picker').selectOption('conmebol.libertadores');
+  await expect(page.getByTestId('what-cup').locator('[aria-checked="true"]')).toHaveAttribute('data-value', 'uefa.champions');
+  await what(page, 'what-cup', 'conmebol.libertadores');
   await expect(page.getByTestId('cups-page')).toHaveAttribute('data-cup', 'conmebol.libertadores');
   expect(errors).toEqual([]);
 });
@@ -1238,48 +1237,43 @@ test('FK-57: position arrows show each team\'s move since the round before and f
   expect(errors).toEqual([]);
 });
 
-test('FK-58: Trailing moves from the tabs into the Extra tools menu; old links still open it', async ({ page }) => {
+test('FK-58 / FK-65: Trailing lives in the Tools place; old links still open it', async ({ page }) => {
   const errors = await open(page);
-  await expect(page.getByTestId('views').getByRole('tab')).toHaveText(['List', 'Slate', 'Tables', 'Cups', 'League']);
-  const btn = page.getByTestId('extra-tools');
-  await expect(btn).toHaveAttribute('title', 'Extra tools');
-  await expect(btn).toHaveAttribute('aria-pressed', 'false');
-  await btn.click();
-  await expect(page.getByTestId('extra-tools-menu').getByRole('menuitem')).toHaveText(['Trailing']);
-  await page.getByTestId('extra-trailing').click();
-  await expect(page.getByTestId('extra-tools-menu')).toHaveCount(0);
+  await where(page, 'tools');
   await expect(page.getByTestId('trailing-page')).toBeVisible();
   await expect(page).toHaveTitle('Premier League goals while trailing — footykit');
-  await expect(page.getByTestId('comp-picker')).toBeVisible();
-  await expect(btn).toHaveAttribute('aria-pressed', 'true');
-  // Escape and an outside click close the menu
-  await btn.click(); await page.keyboard.press('Escape'); await expect(page.getByTestId('extra-tools-menu')).toHaveCount(0);
-  await btn.click(); await page.getByTestId('trailing-page').click({ position: { x: 5, y: 5 } }); await expect(page.getByTestId('extra-tools-menu')).toHaveCount(0);
-  // an old Trailing link
-  await page.goto('/football/?view=trailing&comp=uefa.champions');
+  await expect(page.getByTestId('what-tool').getByRole('radio')).toHaveText(['Trailing']);
+  await what(page, 'what-comp', 'uefa.champions');
   await expect(page.getByTestId('trailing-page')).toHaveAttribute('data-comp', 'uefa.champions');
-  await expect(page).toHaveTitle('Champions League goals while trailing — footykit');
-  await expect(btn).toHaveAttribute('aria-pressed', 'true');
+  // an old Trailing link
+  await page.goto('/football/?view=trailing&comp=conmebol.libertadores');
+  await expect(page.getByTestId('trailing-page')).toHaveAttribute('data-comp', 'conmebol.libertadores');
+  await expect(page.getByTestId('where-tabs').locator('[aria-current="page"]')).toHaveText('Tools');
   expect(errors).toEqual([]);
 });
 
-test('FK-59: World Cup history: pick 2014 from the Cups picker, group tables, a match hover, a squad link, a team history', async ({ page }) => {
+test('FK-59: World Cup history: pick 2014 from the edition strip, group tables, a match hover, a squad link, a team history', async ({ page }) => {
   const errors = await open(page);
-  await page.getByTestId('views').getByRole('tab', { name: 'Cups' }).click();
-  await page.getByTestId('cup-picker').selectOption('fifa.world');
+  await where(page, 'cups');
+  await what(page, 'what-cup', 'fifa.world');
   await expect(page.getByTestId('wc-page')).toHaveAttribute('data-year', '2026');
   await expect(page).toHaveTitle('World Cup 2026 — footykit');
-  // 2026: 12 groups, the thirds table with 8 through, a round of 32
+  // 2026: a round of 32 (the Bracket first); Groups: 12 groups, the thirds table with 8 through
+  await expect(page.getByTestId('wc-bracket').locator('.fk-ko-col-title').first()).toHaveText('Round of 32');
+  await expect(page.getByTestId('wc-group')).toHaveCount(0);
+  await how(page, 'Groups');
   await expect(page.getByTestId('wc-group')).toHaveCount(12);
   await expect(page.getByTestId('wc-third')).toHaveCount(12);
-  await expect(page.getByTestId('wc-bracket').locator('.fk-ko-col-title').first()).toHaveText('Round of 32');
-  // the edition picker: newest first
-  const years = await page.getByTestId('wc-edition').locator('option').allTextContents();
-  expect(years[0]).toBe('2026');
-  expect(years[years.length - 1]).toBe('1930');
-  await page.getByTestId('wc-edition').selectOption('2014');
-  await expect(page).toHaveTitle('World Cup 2014 — footykit');
-  await expect(page).toHaveURL(/view=wc&year=2014/);
+  await expect(page.getByTestId('wc-bracket')).toHaveCount(0);
+  await expect(page).toHaveTitle('World Cup 2026 groups — footykit');
+  // the edition strip: oldest to newest, the chosen one highlighted
+  const years = await page.getByTestId('what-edition').getByRole('radio').allTextContents();
+  expect(years[0]).toBe('1930');
+  expect(years[years.length - 1]).toBe('2026');
+  await what(page, 'what-edition', 2014);
+  await expect(page).toHaveTitle('World Cup 2014 groups — footykit');
+  await expect(page).toHaveURL(/view=wc&year=2014&how=groups/);
+  await expect(page.getByTestId('what-edition').locator('[aria-checked="true"]')).toHaveText('2014');
   const groupA = page.locator('[data-testid="wc-group"][data-group="Group A"]');
   await expect(groupA.getByTestId('wc-row')).toHaveCount(4);
   await expect(groupA.getByTestId('wc-row').first().getByTestId('wc-team')).toHaveText('Brazil');
@@ -1295,11 +1289,13 @@ test('FK-59: World Cup history: pick 2014 from the Cups picker, group tables, a 
   expect(tip).toContain('90 minutes: 3–1');
   expect(tip).toContain('Neymar');
   expect(await sq.getAttribute('href')).toBe('https://www.google.com/search?q=Brazil%20vs%20Croatia%20Jun%2012%202014');
-  // the final: 1-0 after extra time
+  // the final: 1-0 after extra time (the Bracket)
+  await how(page, 'Bracket');
   const final = page.locator('[data-testid="wc-ko-col"][data-side="final"]').getByTestId('wc-match').first();
   await expect(final).toContainText('0–0 (a.e.t. 1–0)');
   expect(await final.getAttribute('title')).toContain('Mario Götze');
   // a squad link, opened
+  await how(page, 'Groups');
   const squad = groupA.getByTestId('wc-row').first().getByTestId('wc-squad');
   expect(await squad.getAttribute('href')).toBe('https://en.wikipedia.org/wiki/2014_FIFA_World_Cup_squads#Brazil');
   await page.route('https://en.wikipedia.org/**', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<title>squads</title>' }));
@@ -1307,6 +1303,7 @@ test('FK-59: World Cup history: pick 2014 from the Cups picker, group tables, a 
   expect(popup.url()).toBe('https://en.wikipedia.org/wiki/2014_FIFA_World_Cup_squads#Brazil');
   await popup.close();
   // a team name: its World Cup history; a year in it opens that edition
+  await how(page, 'Groups');
   await groupA.getByTestId('wc-row').first().getByTestId('wc-team').click();
   const hist = page.getByTestId('wc-history');
   await expect(hist).toContainText('Brazil at the World Cup');
@@ -1317,12 +1314,18 @@ test('FK-59: World Cup history: pick 2014 from the Cups picker, group tables, a 
   await expect(page).toHaveURL(/year=1970&team=BRA/);
   await page.getByTestId('wc-history-close').click();
   await expect(hist).toHaveCount(0);
-  // a second group stage (1982) and a final round (1950)
-  await page.getByTestId('wc-edition').selectOption('1982');
+  // a second group stage (1982) and a final round (1950); 1950's Bracket says in words that it had none
+  await what(page, 'what-edition', 1982);
   await expect(page.locator('[data-testid="wc-stage"][data-stage="Second group stage"]').getByTestId('wc-group')).toHaveCount(4);
-  await page.getByTestId('wc-edition').selectOption('1950');
+  await what(page, 'what-edition', 1950);
   await expect(page.locator('[data-testid="wc-stage"][data-stage="Final round"]')).toBeVisible();
   await expect(page.getByTestId('wc-bracket')).toHaveCount(0);
+  await how(page, 'Bracket');
+  await expect(page.getByTestId('wc-no-bracket')).toContainText('no knockout bracket');
+  // 1934 had no groups: its Groups say so
+  await what(page, 'what-edition', 1934);
+  await how(page, 'Groups');
+  await expect(page.getByTestId('wc-no-groups')).toContainText('no groups');
   // an old-style address works too
   await page.goto('/football/?view=cups&cup=fifa.world');
   await expect(page.getByTestId('wc-page')).toBeVisible();
@@ -1331,7 +1334,7 @@ test('FK-59: World Cup history: pick 2014 from the Cups picker, group tables, a 
 
 test('FK-60: World Cup simulator — change a result, the table and the bracket update together, reset', async ({ page }) => {
   const errors = await open(page, '?view=wc&year=2022');
-  await page.getByTestId('wc-sim-toggle').click();
+  await how(page, 'Simulator');
   await expect(page).toHaveURL(/year=2022&sim=1/);
   await expect(page).toHaveTitle('World Cup 2022 simulator — footykit');
   const sim = page.getByTestId('wc-sim');
@@ -1376,11 +1379,12 @@ test('FK-60: World Cup simulator — change a result, the table and the bracket 
   await expect(groupC.getByTestId('wc-sim-row').first().locator('td').nth(3)).toHaveText('0');
   await expect(page.getByTestId('wc-sim-champion')).toContainText('No champion yet');
   // an edition the simulator doesn't cover
-  await page.getByTestId('wc-edition').selectOption('1994');
-  await expect(page.getByTestId('wc-sim-none')).toContainText("doesn't cover 1994");
+  await what(page, 'what-edition', 1994);
+  await expect(page.getByTestId('how').getByRole('tab', { name: 'Simulator' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByTestId('wc-sim-none')).toContainText('not ready for the 1994 World Cup yet');
   await expect(page.getByTestId('wc-sim')).toHaveCount(0);
   // 2026: 48 teams, the thirds table in the simulator
-  await page.getByTestId('wc-edition').selectOption('2026');
+  await what(page, 'what-edition', 2026);
   await expect(page.getByTestId('wc-sim-third')).toHaveCount(12);
   await expect(page.locator('[data-testid="wc-sim-tie"][data-stage="Round of 32"]')).toHaveCount(16);
   expect(errors).toEqual([]);
@@ -1410,9 +1414,9 @@ test('FK-62: the live scores pop-out: one line per match from the live data, LIV
   await expect(live).toContainText('1–0');
   await expect(pop.locator('[data-kind="upcoming"]').first()).toContainText('–');
   // the window stays open while you browse elsewhere
-  await page.getByTestId('views').getByRole('tab', { name: 'Tables' }).click();
+  await where(page, 'leagues');
   await expect(pop.getByTestId('popout-line')).toHaveCount(slateCards);
-  await page.getByTestId('views').getByRole('tab', { name: 'Slate' }).click();
+  await where(page, 'today'); await how(page, 'Slate');
   await expect(page.getByTestId('popout-button')).toHaveText('Close live scores');
   await page.getByTestId('popout-button').click();
   await expect(pop).toHaveCount(0);
@@ -1440,13 +1444,14 @@ test('FK-62: before the first kick-off the pop-out counts down to it, then turns
 
 test('FK-64: competition history — an old Premier League season\'s table and an old Champions League bracket', async ({ page }) => {
   const errors = await open(page, '?view=table&league=eng.1');
-  await page.getByTestId('history-button').click();
+  await how(page, 'History');
   await expect(page).toHaveURL(/view=history&comp=eng\.1/);
   const hist = page.getByTestId('hist-page');
   await expect(page.getByTestId('hist-summary')).toBeVisible();
   await expect(page.getByTestId('hist-records').locator('tbody tr').first()).toBeVisible();
-  await page.getByTestId('hist-season').selectOption('2004');
+  await page.locator('[data-testid="hist-season-chip"][data-year="2004"]').click();
   await expect(hist).toHaveAttribute('data-year', '2004');
+  await expect(page.locator('[data-testid="hist-season-chip"][data-year="2004"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByTestId('hist-season-title')).toContainText('2004-05');
   await expect(page.getByTestId('hist-row')).toHaveCount(20);
   await expect(page.getByTestId('hist-row').first().getByTestId('hist-team')).toContainText('Chelsea');
@@ -1457,15 +1462,16 @@ test('FK-64: competition history — an old Premier League season\'s table and a
   await page.locator('[data-testid="hist-season-chip"][data-year="2010"]').click();
   await expect(page.getByTestId('hist-season-title')).toContainText('2010-11');
   // the Champions League, 2004-05: the bracket and the groups
-  await page.getByTestId('hist-comp').selectOption('uefa.champions');
-  await page.getByTestId('hist-season').selectOption('2004');
+  await where(page, 'cups'); await what(page, 'what-cup', 'uefa.champions'); await how(page, 'History');
+  await expect(page).toHaveURL(/view=history&comp=uefa\.champions/);
+  await page.locator('[data-testid="hist-season-chip"][data-year="2004"]').click();
   await expect(page.getByTestId('hist-season-title')).toContainText('2004-05');
   const bracket = page.getByTestId('hist-bracket');
   await expect(bracket.locator('.fk-ko-col')).toHaveCount(4);
   await expect(bracket.locator('.fk-ko-col').last().getByTestId('hist-tie')).toContainText('Liverpool');
   await expect(page.getByTestId('hist-group')).toHaveCount(8);
   // back to this season's page
-  await page.getByTestId('hist-back').click();
-  await expect(page.getByTestId('ucl-page').or(page.getByTestId('cups-page'))).toBeVisible();
+  await how(page, 'League phase');
+  await expect(page.getByTestId('ucl-page')).toBeVisible();
   expect(errors).toEqual([]);
 });

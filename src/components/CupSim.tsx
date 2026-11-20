@@ -28,8 +28,9 @@ export interface CupSimState {
 export const CupSimCtx = createContext<CupSimState | null>(null);
 
 /** The simulator of one cup: whether it is on, the picks (kept), the bracket they give. */
-export function useCupSim(cup: string, rounds: SimRound[]) {
-  const [on, setOn] = useState(false);
+export function useCupSim(cup: string, rounds: SimRound[], forced?: boolean) {
+  const [own, setOn] = useState(false);
+  const on = forced ?? own;
   const [store, setStore] = useState<Store>(() => readStore(load(), cup));
   const picks = useMemo(() => prunePicks(rounds, store.current.winners ?? {}), [rounds, store]);
   // a real result replaces a pick: drop the stale ones from what is kept
@@ -60,12 +61,12 @@ export function simTieOf(sim: CupSimState | null, t: CupTie): SimTie | undefined
 }
 
 /** The button on a cup's header, and with the simulator on: the count, Clear and the champion. */
-export function CupSimBar({ on, onToggle, onClear, empty, view }: { on: boolean; onToggle: () => void; onClear: () => void; empty: boolean; view: CupSimView }) {
+export function CupSimBar({ on, onToggle, onClear, empty, view }: { on: boolean; onToggle?: () => void; onClear: () => void; empty: boolean; view: CupSimView }) {
   const { model } = useFooty();
   return (
     <span className="fk-cupsim-bar" data-testid="cup-sim-bar">
-      <button type="button" className={`fk-btn${on ? ' fk-btn-on' : ''}`} aria-pressed={on} onClick={onToggle} data-testid="cup-sim-toggle"
-        title={on ? 'Back to the real bracket (picks are kept)' : 'Pick the winner of each tie still to play and see how the bracket ends up'}>Simulator</button>
+      {onToggle && <button type="button" className={`fk-btn${on ? ' fk-btn-on' : ''}`} aria-pressed={on} onClick={onToggle} data-testid="cup-sim-toggle"
+        title={on ? 'Back to the real bracket (picks are kept)' : 'Pick the winner of each tie still to play and see how the bracket ends up'}>Simulator</button>}
       {on && (
         <>
           <span className="fk-muted" data-testid="cup-sim-count">{view.used} picked · {view.left} to pick</span>

@@ -31,8 +31,8 @@ export function TagVariantPicker({ value, onChange }: { value: TagVariant; onCha
     <span className="fk-pop-wrap" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpen(false); }}
       onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false); }}>
       <button type="button" className="fk-btn fk-tag-variant-btn" aria-haspopup="listbox" aria-expanded={open} data-testid="tag-variant" data-value={value}
-        title={`Tags: ${current[2]}`} onClick={() => setOpen(!open)}>
-        Tags: {current[1]} ▾
+        aria-label={`Tags: ${current[1]}`} title={`Tags: ${current[2]}`} onClick={() => setOpen(!open)}>
+        <span className="fk-tag-variant-icon" aria-hidden="true" /><span className="fk-tag-variant-text">Tags: {current[1]}</span> ▾
       </button>
       {open && (
         <div className="fk-pop fk-tag-variant-pop" role="listbox" aria-label="How tags show" data-testid="tag-variant-pop">

@@ -5,18 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-65 — Shared layout: pinned header menu, chips instead of dropdowns
-**In short:** footykit gets the shared layout every app will use: a header that is always at the top (back/forward, breadcrumb, main places, "Go anywhere" search), and under it the "What" chips and "How" switch, so nothing is hidden in dropdowns.
-**What:**
-- Follow [NAV_PATTERN.md](https://github.com/AlexLCBranco/backlogkit/blob/main/NAV_PATTERN.md) exactly (read it first; it is the spec, this item only says how it maps to footykit).
-- Where tabs: Today · Clubs · Leagues · Cups · Tools. Proposed mapping of today's pages (keep every page; flag in the report anything that doesn't fit): Today = List and Slate (How switch); Clubs = club picker, club Calendar / List; Leagues = Tables, League view, league what-if, league History (How: Table / Calendar / What-if / History); Cups = Champions League, Libertadores, World Cup, other cups, cup History; Tools = what's in "Extra tools" now (Trailing). Copy-as-image, quick standings and info stay as icon buttons in the header's right side.
-- Replace every `<select>` picker (League, Cup, Competition, cup title) with What chips/strips.
-- World Cup: What = World Cup chip + an edition strip 1930 … 2026 (chosen one highlighted and scrolled into view); How = Groups / Bracket / Simulator (Simulator only on editions it covers; others show it but say "not yet for this edition" in plain words).
-- Ctrl+K "Go anywhere": clubs, competitions, World Cup editions ("brazil 2002" → Brazil's 2002 World Cup), pages.
-- Old URLs keep working (redirect to the new place).
-- The World Cup bracket must still fit on one screen with the header (v0.77.0 behaviour); the header's height counts against it.
-**Tests:** as in NAV_PATTERN.md section 6, plus: every old URL form still lands on the right page; World Cup 2026 bracket fits one 1080p screen under the header.
-
 ### FK-66 — World Cup quality pass
 **In short:** Everything in the World Cup section (history, brackets, simulator, team pages) is checked against the quality bar and fixed: fast, no jumps, plain words, everything clickable, good-looking.
 **What:**

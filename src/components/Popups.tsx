@@ -135,15 +135,16 @@ export function StandingsPopup({ team, onClose }: { team?: string; onClose: () =
     <div ref={ref} className={`fk-float fk-standings${tall !== undefined ? ' fk-float-tall' : ''}`} style={tall !== undefined ? { ...style, marginTop: tall } : style} role="dialog" aria-label="Quick standings" data-testid="standings-popup" data-no-marquee="true" data-capture-exclude="true">
       <div className="fk-float-head" {...dragProps}>
         <span className="fk-float-title">Standings</span>
-        <select value={slug} onChange={(e) => setSlug(e.target.value)} aria-label="Competition">
-          {order.map((s) => <option key={s} value={s}>{model.comp(s).name}</option>)}
-        </select>
         <span className="fk-float-tools">
           <button type="button" className="fk-icon" title="Reset place and size" onClick={reset}>↺</button>
           <button type="button" className="fk-icon fk-float-close" title="Close" aria-label="Close" onClick={onClose}>×</button>
         </span>
       </div>
       <div className="fk-float-body">
+        {/* FK-65: every competition visible as a chip, not a <select> */}
+        <div className="fk-chips fk-st-chips" role="radiogroup" aria-label="Competition" data-testid="standings-comps">
+          {order.map((c) => <button key={c} type="button" role="radio" aria-checked={c === slug} className={c === slug ? 'fk-chip-btn fk-chip-on' : 'fk-chip-btn'} data-value={c} data-text={model.comp(c).name} onClick={() => setSlug(c)}>{model.comp(c).name}</button>)}
+        </div>
         {shown.map((t) => (
           <SplitTable key={t.name} className="fk-table" bound="parent" testId="standings-split" caption={shown.length > 1 || tables.length > 1 ? t.name : undefined}
             head={<tr><th>#</th><th className="fk-tl">Team</th><th title="Points">Pts</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th></tr>}

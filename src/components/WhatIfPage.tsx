@@ -19,7 +19,7 @@ import { SplitTable } from './SplitTable';
 import { UclKoBracket } from './UclKoSim';
 import type { KoSim } from '../data/uclKoSim';
 
-export default function WhatIfPage({ today, onBack }: { today: string; onBack: () => void }) {
+export default function WhatIfPage({ today }: { today: string }) {
   const { model } = useFooty();
   const names = useCallback((id: string) => model.team(id).name, [model]);
   const lp = useMemo(() => leaguePhaseMatches(model.snap), [model]);
@@ -85,7 +85,6 @@ export default function WhatIfPage({ today, onBack }: { today: string; onBack: (
   return (
     <div className="fk-ucl fk-wi" data-testid="whatif-page" data-no-marquee>
       <div className="fk-wi-head">
-        <button type="button" className="fk-btn" onClick={onBack} title="The real table">← UCL</button>
         <h2>Simulator <span className="fk-muted">· league phase</span></h2>
         <span className="fk-muted" data-testid="wi-count">{picked} of {all.length} picked</span>
         <select className="fk-wi-team" value={team ?? ''} onChange={(e) => setTeam(e.target.value || undefined)} aria-label="Show one team's matches" data-testid="wi-team">

@@ -111,6 +111,10 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   scores pop-out (Document PiP, `LivePopout.tsx`, `src/data/popout.ts`; state in Footy so it survives navigation). v0.76.0 FK-64 competition history
   (`?view=history&comp=…&season=…`, lazy `HistoryPage.tsx`, `src/data/history.ts`, data `public/history/` from `npm run make-history`, ESPN
   `scoreboard?dates=YYYY` + `standings?season=`; leagues checked against football-data.co.uk). FK-61, FK-63 blocked.
+- **FK-65 (2026-11-20)**: v0.78.0 shared layout (backlogkit's NAV_PATTERN.md): pinned header `Header.tsx` (back / forward, breadcrumb with
+  sibling menus, Go anywhere on Ctrl+K, icon buttons, Where tabs Today · Clubs · Leagues · Cups · Tools), page rows `PageRows.tsx` (What chips /
+  strips, How switch, date controls); the logic is pure in `nav.ts` (tests/nav.test.ts, e2e/nav.spec.ts). TopBar.tsx and every What `<select>` are
+  gone; new address forms `?view=clubs`, `?view=cups&cup=…&sim=1`, `?view=wc&…&how=groups`; every old form still opens its page.
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site
@@ -134,7 +138,7 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
 - `src/data/` — model (days in the viewer's zone), form, series, windows, neutral, live (day-layer merge); Phase 3
   tags: `tags.ts` (one match's tags), `windows.ts` (windows around a match, streak, advantage), `alive.ts`,
   `z4r.ts`, `rivalry.ts`; drawn by `src/components/Tags.tsx`.
-- `src/components/` — `Footy.tsx` (the widget: bar + view), `TopBar.tsx` (packed bar), one file per view (`DayList`,
+- `src/components/` — `Footy.tsx` (the widget: header + rows + view), `Header.tsx` / `PageRows.tsx` / `nav.ts` (FK-65 layout), one file per view (`DayList`,
   `Slate`, `TeamCalendar`, `TeamList`), `Bits.tsx` (shared parts), `Popups.tsx`, `Copy.tsx`, `page.ts` (page state,
   title, address). `src/App.tsx` — URL, history, title, today. `src/slate/` — notes store and note box.
 - `api/day.ts` — Vercel function: one ESPN date's scores and odds (CDN 60 s hot / 10 min / 1 day).

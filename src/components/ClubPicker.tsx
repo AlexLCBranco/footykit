@@ -6,8 +6,8 @@ import { useId, useMemo, useRef, useState } from 'react';
 import { useFooty } from './ctx';
 import { TeamLogo } from './Bits';
 
-/** Lower case without accents, for matching typed text against names. */
-export const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+import { fold } from '../data/fold';
+export { fold };
 
 interface Option { id: string | undefined; name: string; league?: string }
 

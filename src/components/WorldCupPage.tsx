@@ -5,8 +5,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { advancing, bracket, groupTables, loadEdition, loadIndex, reachedRank, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, THIRDS_THROUGH, twoSided, wcMatchUrl, winSide, type GroupTable, type KoTie, type Result, type WcEdition, type WcIndexEntry, type WcMatch } from '../data/worldcup';
-import { WC_SLUG, WC_YEARS } from './page';
-import { CupPicker } from './TopBar';
+import { WC_NO_BRACKET, type WcHow } from './page';
 import { useFitBracket } from './fitBracket';
 import { simulable } from '../data/wcSim';
 import WorldCupSim, { type SimMode } from './WorldCupSim';
@@ -178,20 +177,12 @@ export function useIndex() {
   return index;
 }
 
-export function EditionPicker({ year, onYear, years = WC_YEARS }: { year: number; onYear: (y: number) => void; years?: number[] }) {
-  return (
-    <label className="fk-scope" title="The edition shown">
-      <select value={year} onChange={(e) => onYear(Number(e.target.value))} aria-label="Edition" data-testid="wc-edition">
-        {[...years].reverse().map((y) => <option key={y} value={y}>{y}</option>)}
-      </select>
-    </label>
-  );
-}
-
-export default function WorldCupPage({ year, team, sim = false, onSim, onPage, onPick }: { year: number; team?: string; sim?: boolean; onSim?: (on: boolean) => void; onPage: (year: number, team?: string) => void; onPick?: (c: string) => void }) {
+/** FK-65: the edition is picked on the What strip and Groups / Bracket / Simulator on the How switch (page rows). */
+export default function WorldCupPage({ year, team, sim = false, how, onPage }: { year: number; team?: string; sim?: boolean; how?: WcHow; onPage: (year: number, team?: string) => void }) {
   const [mode, setMode] = useState<SimMode>('fast');
   const canSim = simulable(year);
   const simOn = sim && canSim;
+  const shown: WcHow = how ?? (WC_NO_BRACKET.includes(year) ? 'groups' : 'bracket');
   const { ed, error } = useEdition(year);
   const index = useIndex();
   const onTeam = (c: string) => onPage(year, c === team ? undefined : c);
@@ -201,34 +192,30 @@ export default function WorldCupPage({ year, team, sim = false, onSim, onPage, o
     return { tables, adv: advancing(ed, tables), ko: bracket(ed), third: thirdPlace(ed) };
   }, [ed]);
   // fills the first screen (FK-54); drawn from both sides, even 2026's round of 32 is only 8 ties tall
-  const fitRef = useFitBracket(!!view?.ko.length, view);
+  const fitRef = useFitBracket(!sim && shown === 'bracket' && !!view?.ko.length, view);
   const info = index?.find((x) => x.year === year);
   const stages = view ? [...new Set(view.tables.map((t) => t.group.stage))] : [];
   const thirdsIn = useMemo(() => (ed && view && ed.year >= 2026 ? new Set(thirdsRanking(view.tables).slice(0, THIRDS_THROUGH).map((r) => r.team)) : undefined), [ed, view]);
   return (
     <div className="fk-ucl fk-lt fk-cups fk-wc" data-testid="wc-page" data-year={year}>
       <div className="fk-ucl-head">
-        <h2>{onPick ? <CupPicker cup={WC_SLUG} onPick={onPick} title /> : 'World Cup'}</h2>
-        <EditionPicker year={year} onYear={(y) => onPage(y, team)} />
-        {info && <span className="fk-muted" data-testid="wc-summary">{info.host} · {info.teams} teams · won by {info.championName}</span>}
-        {onSim && (canSim ? (
-          <>
-            <button type="button" className={`fk-btn${simOn ? ' fk-btn-on' : ''}`} aria-pressed={simOn} onClick={() => onSim(!simOn)} title={simOn ? 'Back to what happened' : 'Change results and see the tables and bracket update'} data-testid="wc-sim-toggle">{simOn ? 'History' : 'Simulator'}</button>
-            {simOn && (
-              <div className="fk-tabs" role="tablist" aria-label="Simulator mode" data-testid="wc-sim-mode">
-                {(['fast', 'detail'] as const).map((m) => <button key={m} type="button" role="tab" aria-selected={mode === m} className={`fk-tab${mode === m ? ' fk-tab-on' : ''}`} onClick={() => setMode(m)}>{m === 'fast' ? 'Fast (1 X 2)' : 'Detailed (scores)'}</button>)}
-              </div>
-            )}
-          </>
-        ) : <span className="fk-muted" data-testid="wc-sim-none" title="v1 covers the 32-team editions (1998–2022) and 2026">The simulator doesn't cover {year} yet</span>)}
+        <h2>World Cup {year}</h2>
+        {info ? <span className="fk-muted" data-testid="wc-summary">{info.host} · {info.teams} teams · won by {info.championName}</span> : <span className="fk-muted">&nbsp;</span>}
+        {simOn && (
+          <div className="fk-tabs" role="tablist" aria-label="Simulator mode" data-testid="wc-sim-mode">
+            {(['fast', 'detail'] as const).map((m) => <button key={m} type="button" role="tab" aria-selected={mode === m} className={`fk-tab${mode === m ? ' fk-tab-on' : ''}`} onClick={() => setMode(m)}>{m === 'fast' ? 'Fast (1 X 2)' : 'Detailed (scores)'}</button>)}
+          </div>
+        )}
       </div>
+      {sim && !canSim && <p className="fk-wc-none" data-testid="wc-sim-none">The simulator is not ready for the {year} World Cup yet. It covers the World Cups with 32 teams (1998 to 2022) and 2026. Pick one of those years above, or look at the Groups or the Bracket.</p>}
       {team && index && <TeamHistory code={team} index={index} year={year} onYear={(y) => onPage(y, team)} onClose={() => onPage(year)} />}
       {error && <p className="fk-muted">The {year} data couldn't be loaded ({error}).</p>}
       {!ed && !error && <p className="fk-muted">Loading…</p>}
       {ed && simOn && <WorldCupSim key={year} ed={ed} mode={mode} />}
-      {ed && view && !simOn && (
+      {ed && view && !sim && shown === 'bracket' && !view.ko.length && <p className="fk-wc-none" data-testid="wc-no-bracket">The {year} World Cup had no knockout bracket: a final group of four decided the title. See it under Groups.</p>}
+      {ed && view && !sim && (
         <>
-          {view.ko.length > 0 && (
+          {shown === 'bracket' && view.ko.length > 0 && (
             <section className="fk-ko" data-testid="wc-knockout">
               <div className="fk-ko-grid fk-ko-fit fk-wc-two-sided" ref={fitRef} data-testid="wc-bracket" style={{ gridTemplateColumns: `repeat(${twoSided(view.ko).length}, minmax(130px, 150px))` }}>
                 {twoSided(view.ko).map((r) => (
@@ -245,7 +232,8 @@ export default function WorldCupPage({ year, team, sim = false, onSim, onPage, o
               </div>
             </section>
           )}
-          {stages.map((st) => (
+          {shown === 'groups' && !stages.length && <p className="fk-wc-none" data-testid="wc-no-groups">The {year} World Cup had no groups: every round was a knockout. See it under Bracket.</p>}
+          {shown === 'groups' && stages.map((st) => (
             <section key={st} className="fk-cup-groups-wrap" data-testid="wc-stage" data-stage={st}>
               <h3>{st}{st === 'Final round' ? <span className="fk-muted"> (no final: the group decided the title)</span> : null}</h3>
               <div className="fk-cup-groups fk-wc-groups">
@@ -254,7 +242,7 @@ export default function WorldCupPage({ year, team, sim = false, onSim, onPage, o
               </div>
             </section>
           ))}
-          <KoOutsideBracket ed={ed} shown={new Set(view.ko.map((r) => r.stage))} onTeam={onTeam} />
+          {shown === 'bracket' && <KoOutsideBracket ed={ed} shown={new Set(view.ko.map((r) => r.stage))} onTeam={onTeam} />}
           <div className="fk-ucl-rules" data-testid="wc-rules">
             <section>
               <h3>This edition</h3>

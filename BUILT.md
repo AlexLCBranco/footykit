@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-20
+- FK-65 — Shared layout: pinned header menu, chips instead of dropdowns (v0.78.0) — A header that stays at the top of every page (back / forward, a breadcrumb whose parts jump to their neighbours, "Go anywhere" search on Ctrl+K, the copy / standings / info buttons) with five places under it (Today · Clubs · Leagues · Cups · Tools); under it the What chips (leagues, cups, World Cup editions as a strip) and the How switch (e.g. Groups / Bracket / Simulator) replace every dropdown, and old links still open the same pages.
 - World Cup bracket drawn from both sides (v0.77.0) — The World Cup bracket now runs in from the left and the right to the final in the middle (third place under it), so it is half as tall and its cells grow to fill the screen; 2026's round of 32 now fits on one screen too.
 
 ## 2026-11-19

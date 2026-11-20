@@ -1,4 +1,4 @@
-// The footykit widget: the packed bar and the view of the page. Widget API (as calendarkit's): it takes the data
+// The footykit widget: the pinned header (FK-65), the page rows and the view of the page. Widget API (as calendarkit's): it takes the data
 // (`model`), its size, optional `now` / `timeZone`, the page to show, and raises page changes; it never touches the
 // URL or history (App.tsx does).
 
@@ -12,7 +12,10 @@ import { CopyButton } from './Copy';
 import { DayList, dayMatches } from './DayList';
 import { PopoutPortal, usePopout } from './LivePopout';
 import { DayStrip } from './DayStrip';
-import { WC_LATEST, UCL_SLUG, historyPage, liveCompPage, DEFAULT_CUP, DEFAULT_LEAGUE, windowClickPage, leagueViewPage, leagueWhatIfPage, cupPage, monthStep, simLeague, stepPage, teamClickPage, uclWhatIfPage, type Page } from './page';
+import { WC_LATEST, historyPage, DEFAULT_CUP, DEFAULT_LEAGUE, windowClickPage, leagueViewPage, monthStep, simLeague, stepPage, teamClickPage, type Page } from './page';
+import { ClubsPage } from './ClubsPage';
+import { Header, type History } from './Header';
+import { PageRows } from './PageRows';
 import { StandingsPopup, useSeriesPopup } from './Popups';
 import { Slate } from './Slate';
 import { SideArrows } from './SideArrows';
@@ -22,7 +25,6 @@ import { SelectionBar, SelectionStyle } from './SelectionBar';
 import { TeamCalendar } from './TeamCalendar';
 import { TeamList } from './TeamList';
 import { saveHiddenTags, savedHiddenTags, saveTagVariant, savedTagVariant, TagMenu, TagVariantPicker, type TagVariant } from './Tags';
-import { TopBar, type History } from './TopBar';
 import { useLive } from './useLive';
 import type { Model } from '../data/model';
 import { addMonths } from '../data/model';
@@ -138,35 +140,40 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   let view: ReactNode;
   if (page.view === 'cal' && page.team) view = <TeamCalendar team={page.team} span={page.span} week={page.week} month={page.month} today={today} highlight={page.hl?.team === page.team ? page.hl.start : undefined} side={side} />;
   else if (page.view === 'list' && page.team) view = <TeamList team={page.team} today={today} from={page.listFrom} to={page.month} showRest={showRest} onEarlier={() => onPage({ ...page, listFrom: addMonths(page.listFrom, -1) })} />;
-  else if (page.view === 'ucl') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><UclPage today={today} tab={page.uclTab ?? 'table'} onTab={(t) => onPage({ ...page, uclTab: t })} onWhatIf={() => onPage(uclWhatIfPage(page))} onPick={(c) => onPage(cupPage(page, c))} onHistory={() => onPage(historyPage(page, UCL_SLUG))} /></Suspense>;
-  else if (page.view === 'whatif' && simLeague(page)) view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueWhatIfPage key={simLeague(page)} league={simLeague(page)!} today={today} onBack={() => onPage({ ...page, view: 'table' })} /></Suspense>;
-  else if (page.view === 'whatif') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WhatIfPage today={today} onBack={() => onPage({ ...page, view: 'ucl' })} /></Suspense>;
-  else if (page.view === 'table') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueTablePage league={page.league ?? DEFAULT_LEAGUE} today={today} onWhatIf={() => onPage(leagueWhatIfPage(page))} onHistory={() => onPage(historyPage(page, page.league ?? DEFAULT_LEAGUE))} /></Suspense>;
-  else if (page.view === 'cups') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><CupsPage cup={page.cup ?? DEFAULT_CUP} today={today} fit onPick={(c) => onPage(cupPage(page, c))} onHistory={(c) => onPage(historyPage(page, c))} /></Suspense>;
-  else if (page.view === 'history') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><HistoryPage comp={page.hcomp ?? DEFAULT_LEAGUE} season={page.hseason} onPage={(c, y) => onPage(historyPage(page, c, y))} onBack={() => onPage(liveCompPage(page, page.hcomp ?? DEFAULT_LEAGUE))} /></Suspense>;
-  else if (page.view === 'wc') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WorldCupPage year={page.wcYear ?? WC_LATEST} team={page.wcTeam} sim={!!page.wcSim} onSim={(on) => onPage({ ...page, view: 'wc', wcSim: on || undefined })} onPage={(year, team) => onPage({ ...page, view: 'wc', wcYear: year, wcTeam: team })} onPick={(c) => onPage(cupPage(page, c))} /></Suspense>;
+  else if (page.view === 'ucl') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><UclPage today={today} tab={page.uclTab ?? 'table'} /></Suspense>;
+  else if (page.view === 'whatif' && simLeague(page)) view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueWhatIfPage key={simLeague(page)} league={simLeague(page)!} today={today} /></Suspense>;
+  else if (page.view === 'whatif') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WhatIfPage today={today} /></Suspense>;
+  else if (page.view === 'table') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueTablePage league={page.league ?? DEFAULT_LEAGUE} today={today} /></Suspense>;
+  else if (page.view === 'cups') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><CupsPage cup={page.cup ?? DEFAULT_CUP} today={today} fit simOn={!!page.cupSim} /></Suspense>;
+  else if (page.view === 'history') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><HistoryPage comp={page.hcomp ?? DEFAULT_LEAGUE} season={page.hseason} onPage={(c, y) => onPage(historyPage(page, c, y))} /></Suspense>;
+  else if (page.view === 'wc') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WorldCupPage year={page.wcYear ?? WC_LATEST} team={page.wcTeam} sim={!!page.wcSim} how={page.wcHow} onPage={(year, team) => onPage({ ...page, view: 'wc', wcYear: year, wcTeam: team })} /></Suspense>;
   else if (page.view === 'trailing') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><TrailingPage comp={page.comp ?? DEFAULT_TRAILING} today={today} /></Suspense>;
   else if (page.view === 'league') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueView comp={page.lcomp ?? DEFAULT_LEAGUE} mode={page.lmode ?? 'list'} day={page.day} today={today} onList={(d) => onPage({ ...page, day: d, lmode: undefined })} side={side} /></Suspense>;
+  else if (page.view === 'clubs') view = <ClubsPage onClub={(id) => onPage(teamClickPage(page, id, today, today))} />;
   else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} popout={popCtl} />;
   else view = <DayList key={page.day} day={page.day} width={width} />;
 
   return (
     <Ctx.Provider value={ctx}>
       <div className="fk-root" style={{ width }} data-testid="footy" onMouseOver={streak.onOver} onFocus={streak.onOver} onMouseLeave={streak.onLeave}>
-        <TopBar page={page} today={today} history={history} onPage={onPage} onStep={(d) => onPage(stepPage(page, d, model))}
-          onStandings={() => setStandings(standings ? null : { team: page.team })}
-          info={<Info model={model} timeZone={timeZone} calendarKey={page.view === 'cal' && !!page.team} />}
+        <Header page={page} today={today} history={history} onPage={onPage}
           end={<>
             <TagVariantPicker value={tags} onChange={(v) => { setTags(v); saveTagVariant(v); }} />
             {tags !== 'off' && <TagMenu hidden={hiddenTags} onChange={(s) => { setHiddenTags(s); saveHiddenTags(s); }} />}
-            {page.view === 'list' && (
-              <label className="fk-check" title="A quiet row for each day without a match between the club's first and last match (until a reload)"><input type="checkbox" checked={showRest} onChange={(e) => setShowRest(e.target.checked)} data-testid="show-rest" /> Rest days</label>
-            )}
-            {page.view === 'slate' && (
-              <label className="fk-check" title="Note boxes under each card (PRE / LIVE / POST)"><input type="checkbox" checked={!showNotes} onChange={(e) => setShowNotes(!e.target.checked)} data-testid="hide-notes" /> Hide notes</label>
-            )}
             <CopyButton target={captureTarget} label={`Copy ${dayView ? dayLabel(page.day) : 'this view'} as an image`} />
+            <button type="button" className="fk-icon-btn" title="Quick standings" aria-label="Quick standings" onClick={() => setStandings(standings ? null : { team: page.team })} data-testid="standings-button">
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M2 2.5h12v2H2zM2 6.5h12v1.6H2zM2 10h12v1.6H2zM2 13.4h12V15H2z" /><path fill="currentColor" d="M5.2 6.5h1.2V15H5.2z" opacity=".55" /></svg>
+            </button>
+            <Info model={model} timeZone={timeZone} calendarKey={page.view === 'cal' && !!page.team} />
           </>} />
+        <PageRows page={page} today={today} onPage={onPage} onStep={(d) => onPage(stepPage(page, d, model))} extra={<>
+          {page.view === 'list' && page.team && (
+            <label className="fk-check" title="A quiet row for each day without a match between the club's first and last match (until a reload)"><input type="checkbox" checked={showRest} onChange={(e) => setShowRest(e.target.checked)} data-testid="show-rest" /> Rest days</label>
+          )}
+          {page.view === 'slate' && (
+            <label className="fk-check" title="Note boxes under each card (PRE / LIVE / POST)"><input type="checkbox" checked={!showNotes} onChange={(e) => setShowNotes(!e.target.checked)} data-testid="hide-notes" /> Hide notes</label>
+          )}
+        </>} />
         {dayView && <DayStrip day={page.day} today={today} onDay={(d) => onPage({ ...page, day: d })} />}
         <div className="fk-capture fk-select-area" key={page.view} onPointerDown={onMarquee}>{view}</div>
         <div ref={marquee} className="fk-marquee" aria-hidden="true" data-testid="marquee" />
