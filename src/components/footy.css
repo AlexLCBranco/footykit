@@ -2970,3 +2970,104 @@ a.fk-series-sq:hover {
 .fk-extra-item-on {
   color: var(--fk-accent);
 }
+
+/* FK-62: the live scores window (Document Picture-in-Picture) and its Slate button */
+.fk-lpop-btn {
+  float: right;
+  margin: -2px 0 0 8px;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: normal;
+  text-transform: none;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--fk-border);
+  background: var(--fk-surface);
+  color: var(--fk-text);
+  cursor: pointer;
+}
+.fk-lpop-btn:hover,
+.fk-lpop-btn-on {
+  border-color: var(--fk-accent);
+}
+.fk-lpop-body {
+  margin: 0;
+  background: #0f1115;
+}
+.fk-lpop-root,
+.fk-lpop-inline {
+  width: auto !important;
+  min-height: 100vh;
+  background: var(--fk-bg);
+  color: var(--fk-text);
+}
+.fk-lpop-inline {
+  position: fixed;
+  right: 8px;
+  bottom: 8px;
+  width: 340px !important;
+  min-height: 0;
+  z-index: 100;
+  border: 1px solid var(--fk-border);
+}
+.fk-lpop {
+  padding: 6px 8px;
+  font-size: 13px;
+}
+.fk-lpop-line {
+  display: grid;
+  grid-template-columns: 74px 1fr 42px 1fr;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--fk-border);
+}
+.fk-lpop-time {
+  font-size: 11px;
+  color: var(--fk-muted);
+  white-space: nowrap;
+}
+.fk-lpop-livetag {
+  color: #fff;
+  background: #d93a3a;
+  border-radius: 3px;
+  padding: 0 4px;
+  font-size: 10px;
+}
+.fk-lpop-live .fk-lpop-time {
+  color: #ff7a7a;
+}
+.fk-lpop-team {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fk-lpop-h {
+  text-align: right;
+}
+.fk-lpop-score {
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.fk-lpop-upcoming .fk-lpop-score,
+.fk-lpop-off {
+  color: var(--fk-muted);
+}
+.fk-lpop-final .fk-lpop-score {
+  color: var(--fk-text);
+}
+.fk-lpop-count {
+  text-align: center;
+  padding: 14px 8px;
+}
+.fk-lpop-label {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.fk-lpop-clock {
+  font-size: 38px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+}

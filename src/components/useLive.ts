@@ -17,8 +17,9 @@ async function fetchDay(date: string): Promise<DayData | undefined> {
   }
 }
 
-/** `enabled` false (team views, tests without a day layer) fetches nothing. */
-export function useLive(day: string, timeZone: string | undefined, enabled: boolean): LiveLayer {
+/** `enabled` false (team views, tests without a day layer) fetches nothing. `keepAlive` (FK-62: the live scores
+ * window is open) keeps polling while this tab is hidden: the window is watched over other apps. */
+export function useLive(day: string, timeZone: string | undefined, enabled: boolean, keepAlive = false): LiveLayer {
   const [live, setLive] = useState<{ day: string; layer: LiveLayer }>({ day: '', layer: EMPTY_LIVE });
   useEffect(() => {
     if (!enabled) return;
@@ -35,12 +36,12 @@ export function useLive(day: string, timeZone: string | undefined, enabled: bool
         for (const [id, o] of Object.entries(d?.odds ?? {})) odds.set(id, o);
       }
       setLive({ day, layer: { matches, odds } });
-      if (isHot([...matches.values()], Date.now()) && !document.hidden) timer = setTimeout(load, 60_000);
+      if (isHot([...matches.values()], Date.now()) && (keepAlive || !document.hidden)) timer = setTimeout(load, 60_000);
     };
     void load();
     const wake = () => { if (!document.hidden && !timer) void load(); };
     document.addEventListener('visibilitychange', wake);
     return () => { stopped = true; clearTimeout(timer); document.removeEventListener('visibilitychange', wake); };
-  }, [day, timeZone, enabled]);
+  }, [day, timeZone, enabled, keepAlive]);
   return live.day === day ? live.layer : EMPTY_LIVE;
 }

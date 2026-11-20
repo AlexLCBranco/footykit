@@ -21,6 +21,7 @@ import { dayMatches } from './DayList';
 import { GameMenu } from './GameLinks';
 import { StreakChip } from './Streak';
 import { useMatchWeather } from '../slate/weather';
+import { PopoutButton, type PopoutCtl } from './LivePopout';
 import { matchVenue, WEATHER_ATTRIBUTION, WEATHER_ATTRIBUTION_URL, weatherIcon, weatherLine, type Weather } from '../data/weather';
 
 /** FK-39: the sky's sign in the second line's empty cell; the whole forecast in its tooltip (and in the game pop-up). */
@@ -113,7 +114,7 @@ export function SlateCard({ m, day, notes, wx }: { m: Match; day: string; notes?
 
 const VARS = slateVars() as CSSProperties;
 
-export function Slate({ day, notes, showNotes }: { day: string; notes: SlateNotes; showNotes: boolean }) {
+export function Slate({ day, notes, showNotes, popout }: { day: string; notes: SlateNotes; showNotes: boolean; /** FK-62 */ popout?: PopoutCtl }) {
   const { model, live, weather, now } = useFooty();
   // while note boxes are shown, the store follows other tabs (a note typed in the gauntlet shows here at once)
   useEffect(() => (showNotes ? notes.listen?.() : undefined), [notes, showNotes]);
@@ -122,7 +123,7 @@ export function Slate({ day, notes, showNotes }: { day: string; notes: SlateNote
   if (!list.length) return <p className="fk-empty" data-testid="no-matches">No matches today for the followed clubs.</p>;
   return (
     <div className={`fk-slate${showNotes ? ' fk-slate-notes' : ''}`} data-testid="slate" style={VARS}>
-      <div className="fk-slate-header" data-testid="slate-header">{slateHeaderLabel(day)}</div>
+      <div className="fk-slate-header" data-testid="slate-header">{slateHeaderLabel(day)}<PopoutButton ctl={popout} /></div>
       {list.map((m) => <SlateCard key={m.id} m={m} day={day} notes={showNotes ? notes : undefined} wx={wx.get(m.id)} />)}
     </div>
   );

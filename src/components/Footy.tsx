@@ -9,7 +9,8 @@ import { localNotesStore } from '../slate/notes';
 import { pageWeatherStore } from '../slate/weather';
 import { Ctx, type FootyCtx } from './ctx';
 import { CopyButton } from './Copy';
-import { DayList } from './DayList';
+import { DayList, dayMatches } from './DayList';
+import { PopoutPortal, usePopout } from './LivePopout';
 import { DayStrip } from './DayStrip';
 import { WC_LATEST, DEFAULT_CUP, DEFAULT_LEAGUE, windowClickPage, leagueViewPage, leagueWhatIfPage, cupPage, monthStep, simLeague, stepPage, teamClickPage, uclWhatIfPage, type Page } from './page';
 import { StandingsPopup, useSeriesPopup } from './Popups';
@@ -89,7 +90,15 @@ function Info({ model, timeZone, calendarKey }: { model: Model; timeZone?: strin
 
 export function Footy({ model, page, today, now, timeZone, width, history, onPage, live: liveOn = true }: FootyProps) {
   const dayView = page.view === 'day' || page.view === 'slate';
-  const live = useLive(page.day, timeZone, liveOn && dayView);
+  // FK-62: the live scores window: opened from the Slate on its day, it stays open (and fed) while you browse
+  const pop = usePopout();
+  const [popDay, setPopDay] = useState<string>();
+  const popOn = !!pop.target && !!popDay;
+  const popHere = popOn && dayView && popDay === page.day;
+  const live = useLive(page.day, timeZone, liveOn && dayView, popHere);
+  const popLive = useLive(popDay ?? page.day, timeZone, liveOn && popOn && !popHere, true);
+  const popList = useMemo(() => (popOn ? dayMatches(model, popDay!, popHere ? live : popLive) : []), [popOn, model, popDay, popHere, live, popLive]);
+  const popCtl = { on: popOn, toggle: () => { if (popOn) pop.close(); else { setPopDay(page.day); void pop.open(dayMatches(model, page.day, live).length); } } };
   const series = useSeriesPopup();
   const streak = useStreakPopup();
   const [standings, setStandings] = useState<{ team?: string } | null>(null);
@@ -136,7 +145,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   else if (page.view === 'wc') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WorldCupPage year={page.wcYear ?? WC_LATEST} team={page.wcTeam} sim={!!page.wcSim} onSim={(on) => onPage({ ...page, view: 'wc', wcSim: on || undefined })} onPage={(year, team) => onPage({ ...page, view: 'wc', wcYear: year, wcTeam: team })} onPick={(c) => onPage(cupPage(page, c))} /></Suspense>;
   else if (page.view === 'trailing') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><TrailingPage comp={page.comp ?? DEFAULT_TRAILING} today={today} /></Suspense>;
   else if (page.view === 'league') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueView comp={page.lcomp ?? DEFAULT_LEAGUE} mode={page.lmode ?? 'list'} day={page.day} today={today} onList={(d) => onPage({ ...page, day: d, lmode: undefined })} side={side} /></Suspense>;
-  else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} />;
+  else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} popout={popCtl} />;
   else view = <DayList key={page.day} day={page.day} width={width} />;
 
   return (
@@ -163,6 +172,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
         <SelectionBar store={selection} target={captureTarget} />
         {series.node}
         {streak.node}
+        {popOn && pop.target && <PopoutPortal el={pop.target.el} list={popList} day={popDay!} />}
         {standings && <StandingsPopup team={standings.team} onClose={() => setStandings(null)} />}
       </div>
     </Ctx.Provider>

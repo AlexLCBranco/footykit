@@ -1369,3 +1369,55 @@ test('FK-60: World Cup simulator — change a result, the table and the bracket 
   await expect(page.locator('[data-testid="wc-sim-tie"][data-stage="Round of 32"]')).toHaveCount(16);
   expect(errors).toEqual([]);
 });
+
+test('FK-62: the live scores pop-out: one line per match from the live data, LIVE / final / upcoming; stays open off the Slate', async ({ page }) => {
+  // a real Picture-in-Picture window needs a user's click in a real browser: the test renders its content in the page
+  await page.addInitScript(() => { (window as { __FK_POPOUT_INLINE__?: boolean }).__FK_POPOUT_INLINE__ = true; });
+  await page.route(/\/api\/day\?/, (route) => route.fulfill({ json: { date: new URL(route.request().url()).searchParams.get('date'), fetchedAt: '2026-11-21T15:00:00Z', odds: {}, matches: [
+    { id: '401879233', t: '2026-11-21T12:30Z', c: 'eng.1', st: 'post', h: '382', a: '370', hs: 2, as: 1 },
+    { id: '401878754', t: '2026-11-21T15:00Z', c: 'eng.1', st: 'in', h: '367', a: '373', hs: 1, as: 0, clk: "12'" },
+  ] } }));
+  const errors = await open(page, '?view=slate');
+  await page.getByTestId('popout-button').click();
+  const pop = page.getByTestId('popout-inline');
+  await expect(pop.getByTestId('popout')).toHaveAttribute('data-mode', 'list');
+  const lines = pop.getByTestId('popout-line');
+  const slateCards = await page.getByTestId('slate-card').count();
+  await expect(lines).toHaveCount(slateCards);
+  const first = lines.first();
+  await expect(first).toHaveAttribute('data-kind', 'final');
+  await expect(first).toContainText('FT');
+  await expect(first).toContainText('2–1');
+  const live = pop.locator('[data-kind="live"]');
+  await expect(live).toHaveCount(1);
+  await expect(live).toContainText("LIVE 12'");
+  await expect(live).toContainText('1–0');
+  await expect(pop.locator('[data-kind="upcoming"]').first()).toContainText('–');
+  // the window stays open while you browse elsewhere
+  await page.getByTestId('views').getByRole('tab', { name: 'Tables' }).click();
+  await expect(pop.getByTestId('popout-line')).toHaveCount(slateCards);
+  await page.getByTestId('views').getByRole('tab', { name: 'Slate' }).click();
+  await expect(page.getByTestId('popout-button')).toHaveText('Close live scores');
+  await page.getByTestId('popout-button').click();
+  await expect(pop).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('FK-62: before the first kick-off the pop-out counts down to it, then turns into the scores at kick-off', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-11-21T12:29:50Z') });
+  await page.addInitScript(() => {
+    (window as { __FK_POPOUT_INLINE__?: boolean }).__FK_POPOUT_INLINE__ = true;
+    (window as { __FK_NOW__?: string }).__FK_NOW__ = '2026-11-21T12:29:50Z';
+  });
+  await page.route(/\/api\/day\?/, (route) => route.fulfill({ json: { date: new URL(route.request().url()).searchParams.get('date'), fetchedAt: '2026-11-21T12:29:00Z', odds: {}, matches: [] } }));
+  await stubWeather(page);
+  await page.goto('/football/?view=slate');
+  await page.getByTestId('popout-button').click();
+  const pop = page.getByTestId('popout-inline').getByTestId('popout');
+  await expect(pop).toHaveAttribute('data-mode', 'countdown');
+  await expect(pop).toContainText('First match · Man City–Fulham');
+  await expect(pop.getByTestId('popout-countdown')).toHaveText('0:10');
+  await page.clock.runFor(12_000);
+  await expect(pop).toHaveAttribute('data-mode', 'list');
+  await expect(pop.getByTestId('popout-line').first()).toContainText('Man City');
+});

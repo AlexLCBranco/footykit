@@ -14,15 +14,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 Blocked: waits for halftime-timer HT-1 (its link format and live URL); the owner unblocks it once HT-1 ships.
 **Tests:** unit: picking the first / next not-started match, link built correctly; e2e: the button's link points to halftime-timer with the right time and name.
 
-### FK-62 — Floating live scores window
-**In short:** A "Pop out live scores" button opens a small always-on-top window (like halftime-timer's pop-out) with today's matches and live scores, so you can watch them over other apps.
-**What:**
-- Same technique as halftime-timer's pop-out (Document Picture-in-Picture, works in Chrome/Edge on desktop; in other browsers the button is hidden).
-- Button in the Slate header. Window: one compact line per match of today (or of the Slate's day): time or live minute, teams, score; red LIVE label for matches in play; finished ones show the final. Updates with the same live data the Slate uses; no extra polling when nothing is live.
-- Window is small and resizable; content fits without a scrollbar for a normal day, scrolls if very many matches.
-- Before the first game starts (owner, 2026-11-19): the window opens as a countdown to the first match of the Slate's day (like halftime-timer's), and turns into the live scores list by itself at kickoff/tip-off. One click on the pop-out button, one window for the whole night.
-**Tests:** unit: the window's list (order, live/final/upcoming); e2e: the pop-out content renders from mocked live data (the real window needs a click, so check the component the window shows).
-
 ### FK-63 — Pregame odds on past World Cup matches, and random resimulation
 **In short:** Past World Cup matches show the pregame odds (decimal), and the simulator gets a "Resimulate randomly" button that plays matches using those odds.
 **What:**
