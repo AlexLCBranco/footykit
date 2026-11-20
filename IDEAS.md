@@ -16,3 +16,4 @@ Ideas the owner mentioned that are not planned (maybe later, maybe never). Never
 - I-11 — The Slate "⋯" FanDuel link opens that match's own FanDuel page instead of FanDuel's soccer section (needs FanDuel's match id, e.g. from The Odds API's links with the FK-41 key, ~180 credits/month); not now (2026-11-19, chat) [why: waiting]
 - I-12 — "Team to score" odds in a Slate popup: the odds that each team scores at least 1 goal, from The Odds API's `team_totals` (Over 0.5) market, ~200 credits/month of the free 500; coverage for these leagues unchecked, needs a free key (was FK-41, moved from the backlog 2026-11-19, chat)
 - I-14 — World Cup 2030 qualifiers and the 2030 tournament live in the World Cup section once qualifying starts (2026-11-19, chat) [why: waiting]
+- I-15 — Relegation odds: each team's odds of going down (decimal) as a column in the relegation race section (FK-72); waits for the owner's paid odds API (2026-11-20, chat) [why: waiting]
