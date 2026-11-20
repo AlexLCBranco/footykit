@@ -70,3 +70,10 @@ away goals, anything), the app explains them so a 5-year-old understands in one 
 no jargon or abbreviations left unexplained, one rule per line, and a worked example with real teams where it helps.
 The owner follows football closely and still could not find the 2026 World Cup's third-place rules explained anywhere:
 if he has to look a rule up outside the app, the feature is not done. Applies to every feature and every competition.
+
+## A 5-year-old must understand it (owner's rule, 2026-11-20; same text in every repo)
+
+Everything the app shows must be easy for a 5-year-old to understand in one read: rules, labels, statuses, buttons,
+help, empty states and errors. Short sentences, everyday words, no jargon or abbreviations left unexplained, one idea
+per line, and a worked example with real data where it helps. If the owner has to look something up outside the app,
+or ask what something on screen means, the feature is not done. Applies to every feature.
