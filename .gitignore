@@ -9,3 +9,6 @@ data-check-output
 
 .vercel
 .env*
+
+# FK-63: odds exports whose licence forbids publishing (Footiqo); never commit
+data/odds/
