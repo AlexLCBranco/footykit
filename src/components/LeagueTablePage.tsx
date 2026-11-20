@@ -8,7 +8,8 @@ import { BRA_CONTINENTAL, BRA_CUP, LEAGUES, type LeagueZone } from '../../config
 import type { LeagueSlug } from '../../config/season';
 import { braRowZones, finalOf, type Finals, type RowZone } from '../data/braPlaces';
 import { leagueTable } from '../data/leagueTable';
-import { leagueMatchdays, tableAfter } from '../data/matchdays';
+import { leagueMatchdays, movesAfter, tableAfter, type Move } from '../data/matchdays';
+import { ordinal } from '../data/tags';
 import { dayLabel, isPlayed, kickoffTime, shortDay } from '../data/model';
 import { matchUrl, type Match } from '../data/snapshot';
 import { TeamLink } from './Bits';
@@ -56,6 +57,17 @@ function BraFinals({ finals }: { finals: Finals }) {
   );
 }
 
+/** FK-57: places moved since the round before: green ▲1, red ▼2, grey – */
+function MoveCell({ mv, n }: { mv?: Move; n: number }) {
+  if (!mv) return <td className="fk-lt-move" />;
+  const cls = mv.delta > 0 ? 'up' : mv.delta < 0 ? 'down' : 'same';
+  return (
+    <td className={`fk-lt-move fk-lt-move-${cls}`} title={`Was ${ordinal(mv.was)} after round ${n - 1}`} data-testid="lt-move" data-delta={mv.delta}>
+      {mv.delta > 0 ? `▲${mv.delta}` : mv.delta < 0 ? `▼${-mv.delta}` : '–'}
+    </td>
+  );
+}
+
 const zoneAt = (zones: LeagueZone[], pos: number) => zones.find((z) => pos >= z.from && pos <= z.to);
 
 export default function LeagueTablePage({ league, today, onWhatIf }: { league: LeagueSlug; today: string; onWhatIf?: () => void }) {
@@ -68,6 +80,7 @@ export default function LeagueTablePage({ league, today, onWhatIf }: { league: L
   const n = picked?.league === league ? Math.min(picked.n, latest) : latest;
   const now = useMemo(() => leagueTable(model.snap, league), [model, league]);
   const table = useMemo(() => (n < latest ? { league, ...tableAfter(model.snap, league, n) } : now), [model, league, n, latest, now]);
+  const mvs = useMemo(() => movesAfter(model.snap, league, n, table.rows), [model, league, n, table]);
   const step = (d: 1 | -1) => { const to = n + d; if (to >= 1 && to <= latest) setPicked({ league, n: to }); };
   const stepRef = useRef(step);
   useEffect(() => { stepRef.current = step; });
@@ -113,7 +126,7 @@ export default function LeagueTablePage({ league, today, onWhatIf }: { league: L
         </span>
       </div>
       <SplitTable className="fk-table fk-ucl-table" testId="league-split" head={<tr>
-            <th>#</th><th className="fk-tl">Team</th><th title="Points">Pts</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th>
+            <th>#</th><th className="fk-lt-move" title="Places moved since the round before"></th><th className="fk-tl">Team</th><th title="Points">Pts</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th>
             <th className="fk-tl" title="The last 5 league results and the next 3 league matches">Last 5 · next 3</th>
           </tr>} rows={table.rows.map((r, i) => {
             const z = zones[i];
@@ -122,6 +135,7 @@ export default function LeagueTablePage({ league, today, onWhatIf }: { league: L
             return (
               <tr key={r.team} className={`${z ? `fk-lz-${z.kind}` : ''}${z?.open ? ' fk-lz-maybe' : ''}${end ? ' fk-zone-end' : ''}`} data-testid="league-row" data-team={model.team(r.team).abbr}>
                 <td className="fk-rank" title={tip || undefined}>{r.rank}{r.level && <span className="fk-ucl-eq">=</span>}</td>
+                <MoveCell mv={mvs?.get(r.team)} n={n} />
                 <td className="fk-tl fk-ucl-team"><TeamLink id={r.team} day={today} label="short" /></td>
                 <td className="fk-pts" data-testid="pts">{r.pts}</td><td>{r.p}</td><td>{r.w}</td><td>{r.d}</td><td>{r.l}</td><td>{r.gf}</td><td>{r.ga}</td>
                 <td>{r.gd > 0 ? `+${r.gd}` : r.gd < 0 ? `−${-r.gd}` : 0}</td>

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { leagueTable } from '../src/data/leagueTable';
-import { leagueMatchdays, matchdays, tableAfter } from '../src/data/matchdays';
+import { leagueMatchdays, matchdays, moves, movesAfter, tableAfter } from '../src/data/matchdays';
 import type { Match, Snapshot } from '../src/data/snapshot';
 
 const m = (id: string, day: string, h: string, a: string, hs?: number, as?: number): Match =>
@@ -61,5 +61,27 @@ describe('on the recorded snapshot', () => {
       const { days: dd } = leagueMatchdays(real, league);
       expect(tableAfter(real, league, dd.latest).rows.map((r) => [r.team, r.pts]), league).toEqual(leagueTable(real, league).rows.map((r) => [r.team, r.pts]));
     }
+  });
+});
+
+describe('FK-57: places moved since the round before', () => {
+  const rank = (n: number) => tableAfter(snap, 'eng.1', n).rows.map((r) => [r.team, r.rank]);
+  it('round 1 has no arrows', () => expect(movesAfter(snap, 'eng.1', 1, tableAfter(snap, 'eng.1', 1).rows)).toBeUndefined());
+  it('up, down and same, against the round before (the postponed B v D counts in round 2)', () => {
+    const rows = tableAfter(snap, 'eng.1', 2).rows;
+    const mv = movesAfter(snap, 'eng.1', 2, rows)!;
+    const r1 = Object.fromEntries(rank(1)), r2 = Object.fromEntries(rank(2));
+    for (const t of ['A', 'B', 'C', 'D']) expect(mv.get(t), t).toEqual({ delta: r1[t]! - r2[t]!, was: r1[t] });
+    // B won its postponed round-2 match, so it climbs; A lost, so it drops
+    expect(mv.get('B')!.delta).toBeGreaterThan(0);
+    expect(mv.get('A')!.delta).toBeLessThan(0);
+    expect(rank(1)).toEqual([['A', 1], ['C', 2], ['D', 2], ['B', 4]]);
+    expect(rank(2)).toEqual([['C', 1], ['B', 2], ['A', 3], ['D', 4]]);
+    expect([...mv].map(([t, x]) => [t, x.delta])).toEqual([['C', 1], ['B', 2], ['A', -2], ['D', -2]]);
+  });
+  it('a team on the same place moves 0', () => {
+    expect(moves([{ team: 'X', rank: 3 }], [{ team: 'X', rank: 3 }]).get('X')).toEqual({ delta: 0, was: 3 });
+    expect(moves([{ team: 'X', rank: 7 }], [{ team: 'X', rank: 5 }]).get('X')).toEqual({ delta: 2, was: 7 });
+    expect(moves([{ team: 'X', rank: 2 }], [{ team: 'X', rank: 4 }]).get('X')).toEqual({ delta: -2, was: 2 });
   });
 });

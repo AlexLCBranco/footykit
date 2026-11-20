@@ -538,3 +538,15 @@
 .fk-ko-grid.fk-ko-measure {
   width: max-content;
 }
+
+/* FK-57: places moved since the round before, beside the position */
+.fk-lt-move {
+  font-size: 10px;
+  font-weight: 600;
+  padding-left: 0;
+  white-space: nowrap;
+  min-width: 22px;
+}
+.fk-lt-move-up { color: #4caf6a; }
+.fk-lt-move-down { color: #e0605a; }
+.fk-lt-move-same { color: var(--fk-muted, #8a8f98); }

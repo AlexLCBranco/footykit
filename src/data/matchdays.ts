@@ -50,3 +50,27 @@ export function tableAfter(snap: Pick<Snapshot, 'matches' | 'tables' | 'teams'>,
   // the season's last round with every match played is the final table
   return { rows, complete: t.complete && n >= days.rounds.length };
 }
+
+/** FK-57: one team's move since the round before: `delta` > 0 = up that many places; `was` = its place then. */
+export type Move = { delta: number; was: number };
+
+/** Each team's move from the `prev` table to `rows` (by rank, so teams sharing a place move together). */
+export function moves(prev: readonly { team: string; rank: number }[], rows: readonly { team: string; rank: number }[]): Map<string, Move> {
+  const was = new Map(prev.map((r) => [r.team, r.rank]));
+  const out = new Map<string, Move>();
+  for (const r of rows) {
+    const w = was.get(r.team);
+    if (w !== undefined) out.set(r.team, { delta: w - r.rank, was: w });
+  }
+  return out;
+}
+
+/**
+ * FK-57: the moves shown beside the table after round `n` (`rows`): against the table after round n-1, by the same
+ * "after N rounds" rule (a postponed match counts in its own round). Round 1 has none. The final table is round n = the
+ * last, so it compares with the round before the last.
+ */
+export function movesAfter(snap: Pick<Snapshot, 'matches' | 'tables' | 'teams'>, league: LeagueSlug, n: number, rows: readonly { team: string; rank: number }[]): Map<string, Move> | undefined {
+  if (n <= 1) return undefined;
+  return moves(tableAfter(snap, league, n - 1).rows, rows);
+}

@@ -648,9 +648,9 @@ test('FK-42: league tables have Pts as the first column after Team, bold, values
     const split = page.getByTestId('league-split');
     await expect(split.locator('thead th').first()).toHaveText('#');
     const heads = await split.locator('table').first().locator('thead th').allTextContents();
-    expect(heads.slice(0, 10), league).toEqual(['#', 'Team', 'Pts', 'P', 'W', 'D', 'L', 'GF', 'GA', 'GD']);
+    expect(heads.slice(0, 11), league).toEqual(['#', '', 'Team', 'Pts', 'P', 'W', 'D', 'L', 'GF', 'GA', 'GD']);
     // the values are the points: 3 a win, 1 a draw, in table order (non-increasing)
-    const rows = await page.getByTestId('league-row').evaluateAll((trs) => trs.map((tr) => [...tr.querySelectorAll('td')].slice(2, 6).map((td) => Number(td.textContent))));
+    const rows = await page.getByTestId('league-row').evaluateAll((trs) => trs.map((tr) => [...tr.querySelectorAll('td')].slice(3, 7).map((td) => Number(td.textContent))));
     expect(rows.length).toBeGreaterThan(15);
     for (const [pts, , w, d] of rows) expect(pts, league).toBe(3 * w! + d!);
     for (let i = 1; i < rows.length; i++) expect(rows[i]![0]!).toBeLessThanOrEqual(rows[i - 1]![0]!);
@@ -669,7 +669,7 @@ test('FK-43: ◀ ▶ step a league table back through the rounds and return to t
   const label = page.getByTestId('lt-round');
   await expect(label).toHaveText('after 10 rounds');
   await expect(page.getByTestId('lt-next')).toBeDisabled();
-  const pts = async () => page.getByTestId('league-row').evaluateAll((trs) => trs.map((tr) => [tr.getAttribute('data-team'), Number(tr.querySelectorAll('td')[3]!.textContent)]));
+  const pts = async () => page.getByTestId('league-row').evaluateAll((trs) => trs.map((tr) => [tr.getAttribute('data-team'), Number(tr.querySelectorAll('td')[4]!.textContent)]));
   const now = await pts();
   expect(new Set(now.map(([, p]) => p))).toEqual(new Set([10]));
   await page.getByTestId('lt-prev').click();
@@ -1188,5 +1188,36 @@ test('FK-56: UCL simulator — start the knockouts from the current table, a ful
   await expect(page.getByTestId('ko-sim')).toHaveCount(0);
   await expect(page.getByTestId('wi-block').first()).toBeVisible();
   await expect(page.getByTestId('wi-pending')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('FK-57: position arrows show each team\'s move since the round before and follow ◀ ▶', async ({ page }) => {
+  const errors = await open(page, '?view=table&league=eng.1');
+  const label = page.getByTestId('lt-round');
+  await expect(label).toHaveText('after 10 rounds');
+  const read = () => page.getByTestId('league-row').evaluateAll((trs) => Object.fromEntries(trs.map((tr) => {
+    const mv = tr.querySelector('[data-testid="lt-move"]');
+    return [tr.getAttribute('data-team')!, { rank: parseInt(tr.querySelector('td')!.textContent!, 10), delta: mv ? Number(mv.getAttribute('data-delta')) : null, text: mv?.textContent ?? '', tip: mv?.getAttribute('title') ?? '' }];
+  })));
+  const atTen = await read();
+  expect(Object.values(atTen).every((r) => r.delta !== null)).toBe(true);
+  // two rounds back: the arrows are round 8's movement against round 7
+  await page.getByTestId('lt-prev').click();
+  await page.getByTestId('lt-prev').click();
+  await expect(label).toHaveText('after 8 rounds');
+  const at8 = await read();
+  expect(at8).not.toEqual(atTen);
+  await page.getByTestId('lt-prev').click();
+  await expect(label).toHaveText('after 7 rounds');
+  const at7 = await read();
+  for (const [team, r] of Object.entries(at8)) {
+    expect(r.delta, team).toBe(at7[team]!.rank - r.rank);
+    expect(r.text, team).toBe(r.delta! > 0 ? `▲${r.delta}` : r.delta! < 0 ? `▼${-r.delta!}` : '–');
+    expect(r.tip, team).toMatch(new RegExp(`^Was ${at7[team]!.rank}(st|nd|rd|th) after round 7$`));
+  }
+  // round 1: no arrows
+  for (let i = 0; i < 6; i++) await page.keyboard.press('ArrowLeft');
+  await expect(label).toHaveText('after 1 round');
+  await expect(page.getByTestId('lt-move')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

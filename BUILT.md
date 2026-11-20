@@ -5,6 +5,7 @@ Entries dated before 2026-11-16 were backfilled from the git commit messages (da
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
 ## 2026-11-19
+- FK-57 — Position change arrows in league tables (v0.71.0) — Every domestic league table has a small column beside the position showing places moved since the round before (green ▲1, red ▼2, grey –; hover: "Was 7th after round 11"), and it follows the round as you step with ◀ ▶ (none after round 1).
 - UCL simulator knockouts as a full-size bracket (v0.70.0) — Once started, the Champions League simulator's knockouts are a full bracket like the Libertadores page (Play-offs → Round of 16 → Quarter-finals → Semi-finals → Final, each tie beside the ones it feeds), filling the screen beside the table; the section swaps sit above it.
 - FK-56 — UCL simulator: start the knockouts from the current table + knockout play-off round (v0.69.0) — In the Champions League simulator, "Start knockouts from current standings" fills the play-offs (9th–24th) and the round of 16 from today's table beside it; click a side to send it through (again to clear) up to the final, and ⇄ buttons per section set what UEFA draws: the play-off pairings, which seed each winner meets, and which half.
 - FK-55 — Competition switcher in the cup page title (v0.68.0) — The cup's name at the top of a cup page (and the Champions League page) is now a dropdown in the bar picker's style, same size as the old title; picking a competition opens its page.

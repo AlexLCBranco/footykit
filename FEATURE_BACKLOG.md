@@ -5,15 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-57 — Position change arrows in league tables
-**In short:** Every domestic league table shows how many places each team moved since the round before (▲1, ▼2, –), and the arrows follow the table when you step through rounds with ◀ ▶.
-**What:**
-- Domestic league tables only (not Champions League league phase, not cups).
-- Movement = position after the round shown (N) minus position after round N-1, using the same "after N rounds" rule as FK-43 (a postponed match counts in its own round). Round 1: no arrows.
-- Small column right next to the position number: green "▲1", red "▼2", grey "–" for no change. Hover: "Was 7th after round 11".
-- Stepping with ◀ ▶ / ← → recomputes the arrows for that round, always against the round before it. "Final table" compares with the round before the last.
-**Tests:** unit: movement from a fixture season (up, down, same, round 1, postponed match); e2e: step back two rounds and the arrows change to that round's movement.
-
 ### FK-58 — "Extra tools" menu; Trailing moves into it
 **In short:** The Trailing tab leaves the main menu and moves into a new "Extra tools" button next to the copy / list / info icons at the top right.
 **What:**
