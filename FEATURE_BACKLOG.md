@@ -39,3 +39,14 @@ Blocked: no publishable source of bookmaker odds found (checked 2026-11-20). Foo
 - Not checked from chat: whether all 104 full matches are still on the channel (many were pulled in late June 2026 over betting ads and re-uploaded edited; no source confirms all came back).
 - If the playlist can't be listed or fewer than half the matches pair up: stop, add a `Blocked:` note with what was found, and report.
 **Tests:** unit: title + date → match pairing (accents, "x" vs "vs", both team orders); a match with no video renders no ▶; e2e: a 2026 match with a video has a ▶ whose href is a youtube.com/watch link; a pre-2026 edition shows no ▶.
+
+### FK-68 — FIFA+ full-match links on 2022 World Cup matches
+**In short:** Every 2022 World Cup match with a free full replay on FIFA's own site gets a ▶ link that opens it.
+**What:**
+- Same ▶ as FK-67, same places, on the 2022 edition. Title: "Full match on FIFA+". The Google link on the score stays.
+- Target: the match's "Full Match Replay" page on FIFA+ (seen from chat on 2026-11-20: the final is at `https://www.fifa.com/en/watch/Ar2sZ_9GHkie8SDq2Mt4gg`, 2h38). The page IDs are random, so each match needs its real URL: never a built or guessed one.
+- Fallback, only when a match has no FIFA+ replay page: FIFA's official YouTube "FULL MATCH" upload of it (the final is `https://www.youtube.com/watch?v=RgqKdplLIk4`), title "Full match on FIFA's YouTube". Neither exists: no ▶.
+- Data: `public/worldcup/2022-videos.json`, match number → full URL, built by a script. Share one file shape and one ▶ component with FK-67 (if FK-67 stored YouTube IDs only, widen it to full URLs).
+- Not known from chat: how to list the 64 replay pages (FIFA+ is script-rendered; look for a public listing, API or sitemap), whether all 64 exist, and whether playback needs a sign-in or is region-limited. The script prints which matches have no link.
+- If the pages can't be listed automatically: stop, add a `Blocked:` note with what was tried, and report.
+**Tests:** unit: a match with a FIFA+ URL uses it, one with only a YouTube URL uses that with the other title, one with neither renders no ▶; e2e: the 2022 final has a ▶ whose href is the FIFA+ replay page; data check: every URL in the file answers 200. By hand (can't be automated): open one ▶ and confirm the full match plays without paying.
