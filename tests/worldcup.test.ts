@@ -4,7 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { advancing, bracket, groupTables, rankGroup, reached, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, wcMatchUrl, type WcEdition } from '../src/data/worldcup';
+import { advancing, bracket, groupTables, rankGroup, reached, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, twoSided, wcMatchUrl, type WcEdition } from '../src/data/worldcup';
 
 const ed = (y: number) => JSON.parse(readFileSync(join(import.meta.dirname, '..', 'public', 'worldcup', `${y}.json`), 'utf8')) as WcEdition;
 type WikiTable = { order: string[]; rows: Record<string, [number, number, number, number, number]> };
@@ -113,6 +113,26 @@ describe('the bracket', () => {
     expect([e.teams[f.winner!], scoreText(f.matches[0]!)]).toEqual(['Argentina', '2–2 (a.e.t. 3–3, 4–2 pens)']);
     expect(e.teams[thirdPlace(e)!.winner!]).toBe('Croatia');
   });
+  it('drawn from both sides: 2026 is 9 columns, 8 ties at most, the final in the middle; each side feeds its finalist', () => {
+    const e = ed(2026);
+    const cols = twoSided(bracket(e));
+    expect(cols.map((c) => [c.side, c.stage, c.ties.length])).toEqual([
+      ['left', 'Round of 32', 8], ['left', 'Round of 16', 4], ['left', 'Quarter-finals', 2], ['left', 'Semi-finals', 1],
+      ['final', 'Final', 1],
+      ['right', 'Semi-finals', 1], ['right', 'Quarter-finals', 2], ['right', 'Round of 16', 4], ['right', 'Round of 32', 8],
+    ]);
+    const f = cols[4]!.ties[0]!;
+    if (f.winner) expect([cols[3]!.ties[0]!.winner, cols[5]!.ties[0]!.winner].sort()).toEqual([f.a, f.b].sort());
+    const all = (st: string) => cols.filter((c) => c.stage === st).flatMap((c) => c.ties);
+    expect(all('Round of 32')).toHaveLength(16);
+  });
+  it('2022 from both sides: the left semi-final is fed by the left quarter-finals', () => {
+    const cols = twoSided(bracket(ed(2022)));
+    expect(cols.map((c) => c.side + ' ' + c.stage)).toEqual(['left Round of 16', 'left Quarter-finals', 'left Semi-finals', 'final Final', 'right Semi-finals', 'right Quarter-finals', 'right Round of 16']);
+    expect(cols[1]!.ties.map((t) => t!.winner).sort()).toEqual([cols[2]!.ties[0]!.a, cols[2]!.ties[0]!.b].sort());
+    expect(cols[5]!.ties.map((t) => t!.winner).sort()).toEqual([cols[4]!.ties[0]!.a, cols[4]!.ties[0]!.b].sort());
+  });
+  it('1950: no bracket, no columns', () => expect(twoSided(bracket(ed(1950)))).toEqual([]));
   it('2026: round of 32, 16 ties', () => expect(bracket(ed(2026)).map((r) => r.ties.length)).toEqual([16, 8, 4, 2, 1]));
   it('1934: a replay joins its tie; the replay decides', () => {
     const qf = bracket(ed(1934)).find((r) => r.stage === 'Quarter-finals')!;

@@ -213,6 +213,25 @@ export function bracket(ed: Pick<WcEdition, 'matches'>): KoRound[] {
   return kept;
 }
 
+/** A bracket column: one round's ties on one side of the final (the final itself is the middle column). */
+export interface KoColumn { stage: string; side: 'left' | 'final' | 'right'; ties: (KoTie | null)[] }
+
+/**
+ * The bracket drawn from both sides: each round before the final is split in half (top half on the left, bottom half
+ * on the right, mirrored), the final in the middle. Half as many ties per column, so the bracket is half as tall.
+ */
+export function twoSided(ko: KoRound[]): KoColumn[] {
+  const final = ko[ko.length - 1];
+  if (!final) return [];
+  const before = ko.slice(0, -1);
+  const half = (r: KoRound) => Math.ceil(r.ties.length / 2);
+  return [
+    ...before.map((r): KoColumn => ({ stage: r.stage, side: 'left', ties: r.ties.slice(0, half(r)) })),
+    { stage: final.stage, side: 'final', ties: final.ties },
+    ...before.reverse().map((r): KoColumn => ({ stage: r.stage, side: 'right', ties: r.ties.slice(half(r)) })),
+  ];
+}
+
 export const thirdPlace = (ed: Pick<WcEdition, 'matches'>) => koTies(ed, 'Third place')[0];
 
 // ---- each team's furthest stage ----

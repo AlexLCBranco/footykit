@@ -4,6 +4,9 @@ Shipped work only, newest first. Planned work is in `FEATURE_BACKLOG.md`, never 
 Entries dated before 2026-11-16 were backfilled from the git commit messages (data, docs, test-only, merge and
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-20
+- World Cup bracket drawn from both sides (v0.77.0) — The World Cup bracket now runs in from the left and the right to the final in the middle (third place under it), so it is half as tall and its cells grow to fill the screen; 2026's round of 32 now fits on one screen too.
+
 ## 2026-11-19
 - Slate header label no longer runs into the pop-out button (fix) (v0.76.1) — Since v0.75.0 the "Pop out live scores" button sat inside the Slate's "SLATE · dd-mm · Football" label; the label is plain again with the button beside it.
 - FK-64 — History for every competition (v0.76.0) — A "History" button on every league table, cup page and the Champions League page opens its past seasons: the final table with each team's last 5 (leagues) or the groups and the bracket with two-legged ties added up (cups), plus champions by season and who usually goes far; seasons go back as far as ESPN's free data does (leagues 2002-03, Brasileirão 2006, UCL 2001-02, Libertadores 2002, Sudamericana 2006, Copa do Brasil 2013, English cups 2001-02, other cups 2006-07).

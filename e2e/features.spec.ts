@@ -1073,6 +1073,22 @@ test('FK-50: result streak chip (W / D / L) and its popup on a Slate card and a 
 });
 
 for (const [w, h] of [[1920, 1080], [1366, 768]] as const) {
+  test(`World Cup bracket from both sides: 2026's round of 32 is whole on the first screen at ${w}×${h}`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    const errors = await open(page, '?view=wc&year=2026');
+    const bracket = page.getByTestId('wc-bracket');
+    await expect(bracket).toHaveAttribute('data-zoom', /\d/);
+    const cols = bracket.getByTestId('wc-ko-col');
+    expect(await cols.evaluateAll((cs) => cs.map((c) => `${(c as HTMLElement).dataset.side} ${(c as HTMLElement).dataset.stage} ${c.querySelectorAll(':scope > .fk-ko-col-ties > [data-testid="wc-tie"]').length}`))).toEqual([
+      'left Round of 32 8', 'left Round of 16 4', 'left Quarter-finals 2', 'left Semi-finals 1', 'final Final 1',
+      'right Semi-finals 1', 'right Quarter-finals 2', 'right Round of 16 4', 'right Round of 32 8',
+    ]);
+    const geo = await bracket.evaluate((b) => ({ r: b.getBoundingClientRect().toJSON(), zoom: Number((b as HTMLElement).dataset.zoom), vh: innerHeight, vw: innerWidth }));
+    expect(geo.r.bottom).toBeLessThanOrEqual(geo.vh);
+    expect(geo.r.right).toBeLessThanOrEqual(geo.vw);
+    expect(geo.zoom).toBeGreaterThanOrEqual(0.8);
+    expect(errors).toEqual([]);
+  });
   test(`FK-54: the cup bracket fills the first screen at ${w}×${h}, no inner scroll; the groups start just below`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     const errors = await open(page, '?view=cups&cup=conmebol.libertadores');
@@ -1280,7 +1296,7 @@ test('FK-59: World Cup history: pick 2014 from the Cups picker, group tables, a 
   expect(tip).toContain('Neymar');
   expect(await sq.getAttribute('href')).toBe('https://www.google.com/search?q=Brazil%20vs%20Croatia%20Jun%2012%202014');
   // the final: 1-0 after extra time
-  const final = page.getByTestId('wc-bracket').locator('.fk-ko-col').last().getByTestId('wc-match').first();
+  const final = page.locator('[data-testid="wc-ko-col"][data-side="final"]').getByTestId('wc-match').first();
   await expect(final).toContainText('0–0 (a.e.t. 1–0)');
   expect(await final.getAttribute('title')).toContain('Mario Götze');
   // a squad link, opened

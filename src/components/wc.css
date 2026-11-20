@@ -52,6 +52,23 @@
 .fk-wc-third {
   margin-top: 14px;
 }
+/* the history bracket from both sides: the final in the middle, its titles centred */
+.fk-wc-two-sided .fk-ko-col-title {
+  text-align: center;
+}
+.fk-wc-two-sided .fk-wc-side-final .fk-ko-col-ties {
+  justify-content: center;
+}
+/* the score under the date, so the columns stay narrow and the bracket zooms bigger */
+.fk-wc-two-sided .fk-wc-leg-sep {
+  display: none;
+}
+.fk-wc-two-sided .fk-wc-leg-score {
+  display: block;
+}
+.fk-wc-two-sided .fk-wc-side-final > .fk-ko-col-ties > .fk-wc-tie {
+  border-color: var(--fk-accent, var(--fk-border));
+}
 .fk-wc-history {
   border: 1px solid var(--fk-border);
   border-radius: 8px;

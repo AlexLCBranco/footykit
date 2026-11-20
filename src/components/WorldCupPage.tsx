@@ -4,7 +4,7 @@
 // Data: public/worldcup/ (scripts/make-worldcup.ts), loaded per edition. Its own chunk.
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { advancing, bracket, groupTables, loadEdition, loadIndex, reachedRank, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, THIRDS_THROUGH, wcMatchUrl, winSide, type GroupTable, type KoTie, type Result, type WcEdition, type WcIndexEntry, type WcMatch } from '../data/worldcup';
+import { advancing, bracket, groupTables, loadEdition, loadIndex, reachedRank, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, THIRDS_THROUGH, twoSided, wcMatchUrl, winSide, type GroupTable, type KoTie, type Result, type WcEdition, type WcIndexEntry, type WcMatch } from '../data/worldcup';
 import { WC_SLUG, WC_YEARS } from './page';
 import { CupPicker } from './TopBar';
 import { useFitBracket } from './fitBracket';
@@ -69,7 +69,7 @@ function Tie({ ed, t, onTeam, res, pick }: { ed: WcEdition; t: KoTie; onTeam: (c
       <div className="fk-ko-legs">
         {t.matches.map((m) => {
           const mr = res ? res(m) : m;
-          return mr ? <a key={m.n} href={wcMatchUrl(ed, m)} target="_blank" rel="noopener noreferrer" title={matchTip(ed, m, mr)} data-testid="wc-match">{m.replay ? 'Replay ' : ''}{dateText(m.date)} · {scoreText(mr)}</a> : null;
+          return mr ? <a key={m.n} href={wcMatchUrl(ed, m)} target="_blank" rel="noopener noreferrer" title={matchTip(ed, m, mr)} data-testid="wc-match"><span>{m.replay ? 'Replay ' : ''}{dateText(m.date)}</span><span className="fk-wc-leg-sep"> · </span><span className="fk-wc-leg-score">{scoreText(mr)}</span></a> : null;
         })}
         {pick}
       </div>
@@ -200,8 +200,8 @@ export default function WorldCupPage({ year, team, sim = false, onSim, onPage, o
     const tables = groupTables(ed);
     return { tables, adv: advancing(ed, tables), ko: bracket(ed), third: thirdPlace(ed) };
   }, [ed]);
-  // fills the first screen (FK-54); 2026's 16-tie first round would shrink too far, so it keeps its natural size
-  const fitRef = useFitBracket(!!view?.ko.length && view.ko[0]!.ties.length <= 8, view);
+  // fills the first screen (FK-54); drawn from both sides, even 2026's round of 32 is only 8 ties tall
+  const fitRef = useFitBracket(!!view?.ko.length, view);
   const info = index?.find((x) => x.year === year);
   const stages = view ? [...new Set(view.tables.map((t) => t.group.stage))] : [];
   const thirdsIn = useMemo(() => (ed && view && ed.year >= 2026 ? new Set(thirdsRanking(view.tables).slice(0, THIRDS_THROUGH).map((r) => r.team)) : undefined), [ed, view]);
@@ -230,13 +230,13 @@ export default function WorldCupPage({ year, team, sim = false, onSim, onPage, o
         <>
           {view.ko.length > 0 && (
             <section className="fk-ko" data-testid="wc-knockout">
-              <div className="fk-ko-grid fk-ko-fit" ref={fitRef} data-testid="wc-bracket" style={{ gridTemplateColumns: `repeat(${view.ko.length}, minmax(170px, 220px))` }}>
-                {view.ko.map((r) => (
-                  <div key={r.stage} className="fk-ko-col">
+              <div className="fk-ko-grid fk-ko-fit fk-wc-two-sided" ref={fitRef} data-testid="wc-bracket" style={{ gridTemplateColumns: `repeat(${twoSided(view.ko).length}, minmax(130px, 150px))` }}>
+                {twoSided(view.ko).map((r) => (
+                  <div key={`${r.side}-${r.stage}`} className={`fk-ko-col fk-wc-side-${r.side}`} data-testid="wc-ko-col" data-side={r.side} data-stage={r.stage}>
                     <div className="fk-ko-col-title">{r.stage}</div>
                     <div className="fk-ko-col-ties">
                       {r.ties.map((t, i) => (t ? <Tie key={`${t.a}-${t.b}`} ed={ed} t={t} onTeam={onTeam} /> : <div key={`none${i}`} className="fk-ko-tie fk-ko-projected fk-muted" title="The data has no match here: the team went through without playing (walkover)">no match (walkover)</div>))}
-                      {r.stage === 'Final' && view.third && (
+                      {r.side === 'final' && view.third && (
                         <div className="fk-wc-third"><div className="fk-ko-col-title">Third place</div><Tie ed={ed} t={view.third} onTeam={onTeam} /></div>
                       )}
                     </div>
