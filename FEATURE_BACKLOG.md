@@ -5,15 +5,6 @@ Specs are written here from Claude chat. Item IDs are FK-1, FK-2, ... (never reu
 
 ## Ready
 
-### FK-58 — "Extra tools" menu; Trailing moves into it
-**In short:** The Trailing tab leaves the main menu and moves into a new "Extra tools" button next to the copy / list / info icons at the top right.
-**What:**
-- Remove "Trailing" from the View tabs (List, Slate, Tables, Cups, League stay).
-- New icon button "Extra tools" placed with the existing icon buttons (copy, list, info), same style; tooltip "Extra tools". Click opens a small dropdown; first entry "Trailing", which opens the Trailing page exactly as today (competition picker included).
-- While the Trailing page is open the Extra tools button looks active, so it's clear where you are. Existing links to the Trailing page keep working; the tab title stays dynamic.
-- Future small tools go in this menu, not in the main tabs.
-**Tests:** e2e: Trailing is not in the tabs; Extra tools → Trailing opens it; an old Trailing link still opens it.
-
 ### FK-59 — World Cup: every edition's groups, brackets and history
 **In short:** A World Cup section under Cups where you pick any edition (1930–2026) and see how every group ended and the full bracket, with hovers on matches and links to each team's squad.
 **What:**

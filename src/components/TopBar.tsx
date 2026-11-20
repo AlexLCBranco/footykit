@@ -2,7 +2,7 @@
 // or one club), the scope's views, its date controls — and the icon buttons at the right end (ⓘ, Quick standings).
 // Never hidden on scroll.
 
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { addDays, dayLabel, mondayOf, monthLabel, shortDay } from '../data/model';
 import { useFooty } from './ctx';
 import { ClubPicker } from './ClubPicker';
@@ -71,6 +71,39 @@ function CompPicker({ comp, onPick }: { comp: string; onPick: (c: string) => voi
   );
 }
 
+/**
+ * FK-58: the "Extra tools" icon button beside the other icon buttons: a small menu of the minor tools (Trailing first;
+ * future small tools go here, not in the main tabs). It looks pressed while one of its tools is the page shown.
+ */
+function ExtraTools({ page, onPage }: { page: Page; onPage: (p: Page) => void }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: Event) => { if (!(e instanceof KeyboardEvent ? e.key === 'Escape' : !box.current?.contains(e.target as Node))) return; setOpen(false); };
+    document.addEventListener('pointerdown', close);
+    document.addEventListener('keydown', close);
+    return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', close); };
+  }, [open]);
+  const tools: [View, string, string][] = [['trailing', 'Trailing', 'Goals scored while trailing, per competition']];
+  const on = tools.some(([v]) => v === page.view);
+  return (
+    <span className="fk-extra" ref={box}>
+      <button type="button" className={`fk-icon-btn${on ? ' fk-icon-btn-on' : ''}`} title="Extra tools" aria-label="Extra tools" aria-haspopup="menu" aria-expanded={open} aria-pressed={on} onClick={() => setOpen((o) => !o)} data-testid="extra-tools">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2z" /><path fill="currentColor" d="M10.8 9h1.4v2.3h2.3v1.4h-2.3V15h-1.4v-2.3H8.5v-1.4h2.3z" /></svg>
+      </button>
+      {open && (
+        <span className="fk-extra-menu" role="menu" data-testid="extra-tools-menu">
+          {tools.map(([v, text, tip]) => (
+            <button key={v} type="button" role="menuitem" className={`fk-extra-item${page.view === v ? ' fk-extra-item-on' : ''}`} title={tip}
+              onClick={() => { setOpen(false); onPage({ ...page, view: v, team: undefined }); }} data-testid={`extra-${v}`}>{text}</button>
+          ))}
+        </span>
+      )}
+    </span>
+  );
+}
+
 export function TopBar({ page, today, history, onPage, onStep, onStandings, info, end }: {
   page: Page; today: string; history: History; onPage: (p: Page) => void; onStep: (dir: 1 | -1) => void; onStandings: () => void; info: ReactNode; end?: ReactNode;
 }) {
@@ -99,7 +132,7 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
         )}
       </span>
       {/* the main views stay on the bar in team mode (none selected then); one leaves the club */}
-      <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (simLeague(page) ? 'table' : 'cups') : page.view === 'ucl' ? 'cups' : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['table', 'Tables'], ['cups', 'Cups'], ['trailing', 'Trailing'], ['league', 'League']]} onChange={(v) => onPage({ ...page, view: v, team: undefined, ...(v === 'league' && page.view !== 'league' ? { day: today } : {}) })} />
+      <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (simLeague(page) ? 'table' : 'cups') : page.view === 'ucl' ? 'cups' : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['table', 'Tables'], ['cups', 'Cups'], ['league', 'League']]} onChange={(v) => onPage({ ...page, view: v, team: undefined, ...(v === 'league' && page.view !== 'league' ? { day: today } : {}) })} />
       {team && page.view === 'cal' && <Tabs<Span> label="Span" testId="span" value={page.span} options={[[1, '1 week'], [2, '2 weeks'], ['month', 'Month']]} onChange={(s) => onPage({ ...page, span: s, week: page.span === 'month' && s !== 'month' ? mondayOf(today.slice(0, 7) === page.month ? today : `${page.month}-01`) : page.week, month: s === 'month' && page.span !== 'month' ? addDays(page.week, 3).slice(0, 7) : page.month })} />}
       {(page.view === 'table' || (page.view === 'whatif' && simLeague(page))) && <LeaguePicker league={page.league ?? DEFAULT_LEAGUE} onPick={(l) => onPage({ ...page, league: l })} />}
       {page.view === 'league' && (
@@ -123,6 +156,7 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
         <button type="button" className="fk-btn fk-today" disabled={isToday} onClick={goToday} data-testid="today" title={isToday ? 'Showing today' : 'Back to today'}>Today</button>
       </span>}
       <span className="fk-bar-end">
+        <ExtraTools page={page} onPage={onPage} />
         {end}
         <button type="button" className="fk-icon-btn" title="Quick standings" aria-label="Quick standings" onClick={onStandings} data-testid="standings-button">
           <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M2 2.5h12v2H2zM2 6.5h12v1.6H2zM2 10h12v1.6H2zM2 13.4h12V15H2z" /><path fill="currentColor" d="M5.2 6.5h1.2V15H5.2z" opacity=".55" /></svg>

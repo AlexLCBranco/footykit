@@ -142,7 +142,7 @@ test('FK-16: from a team page, one click on a main tab or the × lands on that m
   await expect(page).toHaveTitle(/^ARS /);
   // the main tabs stay, none selected; the club's own tabs sit in its group
   const main = page.getByTestId('views');
-  await expect(main.getByRole('tab')).toHaveText(['List', 'Slate', 'Tables', 'Cups', 'Trailing', 'League']);
+  await expect(main.getByRole('tab')).toHaveText(['List', 'Slate', 'Tables', 'Cups', 'League']);
   await expect(main.locator('[aria-selected="true"]')).toHaveCount(0);
   await expect(page.getByTestId('club-group').getByTestId('team-views')).toBeVisible();
   await main.getByRole('tab', { name: 'Slate' }).click();
@@ -227,7 +227,7 @@ test('FK-19: the tab title follows every navigation, worded like calendarkit', a
   await page.getByTestId('league-picker').selectOption('bra.1'); await title('Brasileirão table');
   await page.getByTestId('views').getByRole('tab', { name: 'Cups' }).click(); await title('Libertadores');
   await page.getByTestId('cup-picker').selectOption('eng.fa'); await title('FA Cup');
-  await page.getByTestId('views').getByRole('tab', { name: 'Trailing' }).click(); await expect(page).toHaveTitle(/goals while trailing — footykit$/);
+  await page.getByTestId('extra-tools').click(); await page.getByTestId('extra-trailing').click(); await expect(page).toHaveTitle(/goals while trailing — footykit$/);
   // back / forward and a direct load
   await page.goBack(); await title('FA Cup');
   await page.goForward(); await expect(page).toHaveTitle(/goals while trailing/);
@@ -1219,5 +1219,30 @@ test('FK-57: position arrows show each team\'s move since the round before and f
   for (let i = 0; i < 6; i++) await page.keyboard.press('ArrowLeft');
   await expect(label).toHaveText('after 1 round');
   await expect(page.getByTestId('lt-move')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('FK-58: Trailing moves from the tabs into the Extra tools menu; old links still open it', async ({ page }) => {
+  const errors = await open(page);
+  await expect(page.getByTestId('views').getByRole('tab')).toHaveText(['List', 'Slate', 'Tables', 'Cups', 'League']);
+  const btn = page.getByTestId('extra-tools');
+  await expect(btn).toHaveAttribute('title', 'Extra tools');
+  await expect(btn).toHaveAttribute('aria-pressed', 'false');
+  await btn.click();
+  await expect(page.getByTestId('extra-tools-menu').getByRole('menuitem')).toHaveText(['Trailing']);
+  await page.getByTestId('extra-trailing').click();
+  await expect(page.getByTestId('extra-tools-menu')).toHaveCount(0);
+  await expect(page.getByTestId('trailing-page')).toBeVisible();
+  await expect(page).toHaveTitle('Premier League goals while trailing — footykit');
+  await expect(page.getByTestId('comp-picker')).toBeVisible();
+  await expect(btn).toHaveAttribute('aria-pressed', 'true');
+  // Escape and an outside click close the menu
+  await btn.click(); await page.keyboard.press('Escape'); await expect(page.getByTestId('extra-tools-menu')).toHaveCount(0);
+  await btn.click(); await page.getByTestId('trailing-page').click({ position: { x: 5, y: 5 } }); await expect(page.getByTestId('extra-tools-menu')).toHaveCount(0);
+  // an old Trailing link
+  await page.goto('/football/?view=trailing&comp=uefa.champions');
+  await expect(page.getByTestId('trailing-page')).toHaveAttribute('data-comp', 'uefa.champions');
+  await expect(page).toHaveTitle('Champions League goals while trailing — footykit');
+  await expect(btn).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });

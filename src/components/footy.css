@@ -2929,3 +2929,44 @@ a.fk-series-sq:hover {
   font-weight: 700;
   max-width: none;
 }
+
+/* FK-58: the Extra tools button and its menu */
+.fk-extra {
+  position: relative;
+  display: inline-flex;
+}
+.fk-icon-btn.fk-icon-btn-on {
+  color: var(--fk-text);
+  border-color: var(--fk-accent);
+  background: color-mix(in srgb, var(--fk-accent) 18%, var(--fk-surface));
+}
+.fk-extra-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  padding: 4px;
+  background: var(--fk-surface);
+  border: 1px solid var(--fk-border);
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.4);
+}
+.fk-extra-item {
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: var(--fk-text);
+  font: inherit;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.fk-extra-item:hover {
+  background: var(--fk-hover, rgb(255 255 255 / 0.06));
+}
+.fk-extra-item-on {
+  color: var(--fk-accent);
+}

@@ -409,7 +409,8 @@ test('domestic cups: Copa do Brasil bracket to the final, earlier rounds folded;
 
 test('goals while trailing: from the bar, per competition, sorted, the missing-goals note', async ({ page }) => {
   const errors = await open(page);
-  await page.getByTestId('views').getByRole('tab', { name: 'Trailing' }).click();
+  await page.getByTestId('extra-tools').click();
+  await page.getByTestId('extra-trailing').click();
   await expect(page).toHaveTitle('Premier League goals while trailing — footykit');
   await expect(page.getByTestId('trailing-row')).toHaveCount(20);
   await page.getByTestId('comp-picker').selectOption('uefa.champions');
