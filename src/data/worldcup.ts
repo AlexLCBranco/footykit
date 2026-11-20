@@ -4,6 +4,8 @@
 // include lots, play-offs and fair play the results alone can't settle); 2026 and the simulator rank with the
 // edition's rules (config: WC_RULES, each with its source).
 
+import type { WcVenues } from './wcVenues.ts';
+
 export type Pair = [number, number];
 export type Goal = [side: 0 | 1, name: string, minute: string, kind?: 'og' | 'pen'];
 export interface WcMatch {
@@ -306,12 +308,26 @@ export function loadVideos(year: number): Promise<WcVideos> {
 }
 export const peekVideos = (year: number) => arrived.get(`${year}-videos.json`) as WcVideos | undefined;
 export const wcVideoUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
-/** An edition with videos arrives together with them, so its ▶ links are there from the first frame (no late shift). */
-export const loadEdition = (year: number): Promise<WcEdition> =>
-  (WC_VIDEO_YEARS.includes(year) ? Promise.all([load<WcEdition>(`${year}.json`), loadVideos(year)]).then(([ed]) => ed) : load<WcEdition>(`${year}.json`));
+/** FK-69: the editions with a venues file (stadium, roof, weather per match: public/worldcup/<year>-venues.json, scripts/make-wc-venues.ts). */
+export const WC_VENUE_YEARS = [2026];
+const NO_VENUES: WcVenues = { stadiums: {}, matches: {}, weatherSource: '' };
+/** The edition's venues; never fails (a missing or broken file is no venues: the cards just leave them off). */
+export function loadVenues(year: number): Promise<WcVenues> {
+  const file = `${year}-venues.json`;
+  let p = cache.get(file) as Promise<WcVenues> | undefined;
+  if (!p) {
+    p = fetch(BASE + file).then((r) => (r.ok ? r.json() : NO_VENUES)).catch(() => NO_VENUES).then((x: WcVenues) => { arrived.set(file, x); return x; });
+    cache.set(file, p);
+  }
+  return p;
+}
+export const peekVenues = (year: number) => arrived.get(`${year}-venues.json`) as WcVenues | undefined;
+/** An edition's extra files (videos, venues) arrive together with it, so its cards are whole from the first frame (no late shift). */
+const extras = (year: number): Promise<unknown>[] => [...(WC_VIDEO_YEARS.includes(year) ? [loadVideos(year)] : []), ...(WC_VENUE_YEARS.includes(year) ? [loadVenues(year)] : [])];
+export const loadEdition = (year: number): Promise<WcEdition> => Promise.all([load<WcEdition>(`${year}.json`), ...extras(year)]).then(([ed]) => ed);
 export const loadIndex = () => load<WcIndexEntry[]>('index.json');
 /** FK-66: the edition if it has already arrived, else undefined (no fetch). */
-export const peekEdition = (year: number) => (WC_VIDEO_YEARS.includes(year) && !peekVideos(year) ? undefined : arrived.get(`${year}.json`) as WcEdition | undefined);
+export const peekEdition = (year: number) => ((WC_VIDEO_YEARS.includes(year) && !peekVideos(year)) || (WC_VENUE_YEARS.includes(year) && !peekVenues(year)) ? undefined : arrived.get(`${year}.json`) as WcEdition | undefined);
 export const peekIndex = () => arrived.get('index.json') as WcIndexEntry[] | undefined;
 /** FK-66: the editions either side of `year` (two each way), fetched ahead so stepping through the strip never waits. */
 export function neighbours(years: number[], year: number, reach = 2): number[] {

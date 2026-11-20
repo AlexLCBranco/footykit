@@ -1,7 +1,7 @@
 {
   "name": "footykit",
   "private": true,
-  "version": "0.80.0",
+  "version": "0.81.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,7 +23,9 @@
     "check-weather": "tsx scripts/check-weather.ts",
     "make-worldcup": "tsx scripts/make-worldcup.ts",
     "make-wc-videos": "tsx scripts/make-wc-videos.ts",
-    "make-history": "tsx scripts/make-history.ts"
+    "make-history": "tsx scripts/make-history.ts",
+    "make-wc-venues": "tsx scripts/make-wc-venues.ts",
+    "make-wc-flags": "tsx scripts/make-wc-flags.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -42,6 +44,7 @@
     "@vitejs/plugin-react": "^5.2.0",
     "eslint": "^10.15.0",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "flag-icons": "^7.6.0",
     "globals": "^17.14.0",
     "jsdom": "^30.1.3",
     "topojson-client": "^3.1.0",
@@ -54,9 +57,9 @@
     "world-atlas": "^2.0.2"
   },
   "dependencies": {
+    "d3-geo": "^3.1.2",
     "html-to-image": "^1.11.13",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1",
-    "d3-geo": "^3.1.2"
+    "react-dom": "^19.3.1"
   }
 }

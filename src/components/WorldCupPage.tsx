@@ -4,9 +4,9 @@
 // Data: public/worldcup/ (scripts/make-worldcup.ts), loaded per edition. Its own chunk.
 
 import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
-import { advancing, bracket, groupTables, loadEdition, loadIndex, neighbours, peekEdition, peekIndex, peekVideos, reachedRank, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, THIRDS_THROUGH, twoSided, wcMatchUrl, wcVideoUrl, winSide, type GroupTable, type KoTie, type Result, type WcEdition, type WcIndexEntry, type WcMatch } from '../data/worldcup';
+import { advancing, bracket, groupTables, loadEdition, loadIndex, neighbours, peekEdition, peekIndex, peekVenues, peekVideos, reachedRank, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, THIRDS_THROUGH, twoSided, wcMatchUrl, wcVideoUrl, winSide, type GroupTable, type KoTie, type Result, type WcEdition, type WcIndexEntry, type WcMatch } from '../data/worldcup';
 import { WC_NO_BRACKET, WC_YEARS, type WcHow } from './page';
-import { useFitBracket } from './fitBracket';
+import { BracketTools, CardBracket, Poster } from './WcBracket';
 import { simulable } from '../data/wcSim';
 import WorldCupSim, { type SimMode } from './WorldCupSim';
 import './ucl.css';
@@ -39,10 +39,12 @@ export const STAGE_TIP: Record<string, string> = {
 export function matchTip(ed: WcEdition, m: WcMatch, r: Result = m, link = true): string {
   const n = (c: string) => ed.teams[c] ?? c;
   const place = [m.venue, m.city].filter(Boolean).join(', ');
+  // FK-69: an edition whose source has only the city gets the stadium from its venues file
+  const stadium = m.venue ? undefined : peekVenues(ed.year)?.stadiums[m.city ?? '']?.name;
   const lines = [
     `${n(m.h)} ${r.s[0]}–${r.s[1]} ${n(m.a)}${m.replay ? ' (replay)' : m.playoff ? ' (play-off)' : ''}`,
     `${dateText(m.date)}${m.time ? `, ${m.time} local` : ''}`,
-    place ? `${place}${ed.venues === 'city' ? ' (stadium not in the data)' : ''}` : 'Venue not in the data',
+    place ? `${[stadium, place].filter(Boolean).join(', ')}${ed.venues === 'city' && !stadium ? ' (stadium not in the data)' : ''}` : 'Venue not in the data',
     `90 minutes: ${r.s[0]}–${r.s[1]}`,
   ];
   if (r.et) lines.push(`After extra time: ${r.et[0]}–${r.et[1]}`);
@@ -253,6 +255,8 @@ export function useIndex() {
 /** FK-65: the edition is picked on the What strip and Groups / Bracket / Simulator on the How switch (page rows). */
 export default function WorldCupPage({ year, team, sim = false, how, onPage }: { year: number; team?: string; sim?: boolean; how?: WcHow; onPage: (year: number, team?: string) => void }) {
   const [mode, setMode] = useState<SimMode>('fast');
+  // FK-70: the bracket as a poster of flags; kept while stepping through editions, not in the address
+  const [poster, setPoster] = useState(false);
   const canSim = simulable(year);
   const simOn = sim && canSim;
   const shown: WcHow = how ?? (WC_NO_BRACKET.includes(year) ? 'groups' : 'bracket');
@@ -263,11 +267,10 @@ export default function WorldCupPage({ year, team, sim = false, how, onPage }: {
   const ready = !!real && (!team || !!index);
   const onTeam = (c: string) => onPage(year, c === team ? undefined : c);
   const view = ed && editionView(ed);
-  // fills the first screen (FK-54); drawn from both sides, even 2026's round of 32 is only 8 ties tall
-  const fitRef = useFitBracket(!sim && shown === 'bracket' && !!view?.ko.length, view);
   const info = index?.find((x) => x.year === year);
   const stages = view ? [...new Set(view.tables.map((t) => t.group.stage))] : [];
   const thirdsIn = view?.thirdsIn;
+  const venues = ed && Object.keys(peekVenues(ed.year)?.stadiums ?? {}).length ? peekVenues(ed.year) : undefined;
   return (
     <div className={`fk-ucl fk-lt fk-cups fk-wc${ready ? '' : ' fk-wc-waiting'}`} data-testid="wc-page" data-year={year} data-ready={ready || undefined} aria-busy={!ready}>
       <div className="fk-ucl-head">
@@ -296,19 +299,9 @@ export default function WorldCupPage({ year, team, sim = false, how, onPage }: {
         <>
           {shown === 'bracket' && view.ko.length > 0 && (
             <section className="fk-ko" data-testid="wc-knockout">
-              <div className="fk-ko-grid fk-ko-fit fk-wc-two-sided" ref={fitRef} data-testid="wc-bracket" style={{ gridTemplateColumns: `repeat(${twoSided(view.ko).length}, minmax(130px, 150px))` }}>
-                {twoSided(view.ko).map((r) => (
-                  <div key={`${r.side}-${r.stage}`} className={`fk-ko-col fk-wc-side-${r.side}`} data-testid="wc-ko-col" data-side={r.side} data-stage={r.stage}>
-                    <div className="fk-ko-col-title" title={STAGE_TIP[r.stage]}>{r.stage}</div>
-                    <div className="fk-ko-col-ties">
-                      {r.ties.map((t, i) => (t ? <Tie key={`${t.a}-${t.b}`} ed={ed} t={t} onTeam={onTeam} /> : <div key={`none${i}`} className="fk-ko-tie fk-ko-projected fk-muted" title="The data has no match here: the team went through without playing (walkover)">no match (walkover)</div>))}
-                      {r.side === 'final' && view.third && (
-                        <div className="fk-wc-third"><div className="fk-ko-col-title" title={STAGE_TIP['Third place']}>Third place</div><Tie ed={ed} t={view.third} onTeam={onTeam} /></div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <BracketTools poster={poster} onPoster={setPoster}>
+                {poster ? <Poster ed={ed} cols={twoSided(view.ko)} /> : <CardBracket ed={ed} cols={twoSided(view.ko)} third={view.third} onTeam={onTeam} />}
+              </BracketTools>
             </section>
           )}
           {shown === 'groups' && !stages.length && <p className="fk-wc-none" data-testid="wc-no-groups">The {year} World Cup had no groups: every round was a knockout. See it under Bracket.</p>}
@@ -327,13 +320,14 @@ export default function WorldCupPage({ year, team, sim = false, how, onPage }: {
               <h3>This edition</h3>
               <p>{ed.win === 2 ? 'Two points for a win, one for a draw.' : 'Three points for a win, one for a draw.'} Group tables are in the official final order{rulesFor(ed.year) && ed.year >= 2026 ? `, ranked by the ${ed.year} rules` : ''}; "=" marks teams level on every rule the data has (fair play or lots decided).</p>
               {rulesFor(ed.year) && <><p>Equal on points:</p><ol>{rulesFor(ed.year)!.text.slice(1).map((x) => <li key={x}>{x}</li>)}</ol></>}
-              {ed.venues === 'city' && <p>Venues: the source gives each match's host city, not the stadium.</p>}
+              {ed.venues === 'city' && !venues && <p>Venues: the source gives each match's host city, not the stadium.</p>}
               {ed.scorers !== 'full' && <p>Scorers: {ed.scorers === 'none' ? 'not in the data' : 'missing for some matches'}.</p>}
             </section>
             <section>
               <h3>Sources</h3>
               <ul>{ed.source.map((s) => { const url = /https?:\/\/\S+/.exec(s)?.[0]; return <li key={s}>{url ? <a href={url} target="_blank" rel="noopener noreferrer">{s.replace(url, '').trim()}</a> : s}</li>; })}</ul>
-              <p className="fk-ucl-src">Squads link to Wikipedia's "{ed.year} FIFA World Cup squads". Match links search Google.{Object.keys(peekVideos(ed.year) ?? {}).length ? ' ▶ opens the full match on CazéTV\'s YouTube channel (its "Jogos Completos" playlist); a match with no full replay there has no ▶.' : ''}</p>
+              <p className="fk-ucl-src">Squads link to Wikipedia's "{ed.year} FIFA World Cup squads". Match links search Google.{Object.keys(peekVideos(ed.year) ?? {}).length ? ' ▶ opens the full match on CazéTV\'s YouTube channel (its "Jogos Completos" playlist); a match with no full replay there has no ▶.' : ''} Flags: flag-icons (MIT); a team whose country no longer exists shows its code instead.</p>
+              {venues && <p className="fk-ucl-src" data-testid="wc-venue-src">Stadiums: coordinates from Wikidata, roof type from each stadium's Wikipedia article. {venues.weatherSource}: the temperature at kick-off and the rain in the two hours from it, shown only for matches played under the sky. Whether a retractable roof was open is not recorded per match.</p>}
             </section>
           </div>
         </>

@@ -1,0 +1,314 @@
+/* ---------- FK-69: the World Cup bracket of match cards joined by lines (WcBracket.tsx) ---------- */
+/* full page width; below the width its columns need, it scrolls sideways rather than shrink its text under 12px */
+.fk-bk-scroll {
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.fk-bk-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.fk-bk {
+  position: relative;
+  display: grid;
+  gap: 0 22px;
+  align-items: stretch;
+  font-size: 12px;
+}
+.fk-bk-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+.fk-bk-line {
+  fill: none;
+  stroke: color-mix(in srgb, var(--fk-muted) 60%, transparent);
+  stroke-width: 2;
+}
+.fk-bk-line-champ {
+  stroke: var(--fk-accent);
+  stroke-width: 3;
+}
+.fk-bk-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.fk-bk-title {
+  text-align: center;
+  margin-bottom: 6px;
+}
+.fk-bk-ties {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+/* every tie has an equal share of the column's height, its card in the middle: a card sits midway between the two that feed it */
+.fk-bk-slot {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 0;
+}
+.fk-bk-col.fk-bk-final .fk-bk-ties {
+  justify-content: center;
+}
+.fk-bk-col.fk-bk-final .fk-bk-slot {
+  flex: 0 0 auto;
+}
+.fk-bk-card {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 300px;
+  background: var(--fk-surface);
+  border: 1px solid var(--fk-border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.3;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.fk-bk-empty {
+  border-style: dashed;
+  color: var(--fk-muted);
+  text-align: center;
+  padding: 14px 8px;
+}
+.fk-bk-side {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+.fk-bk-win {
+  font-weight: 700;
+}
+/* the team that went out */
+.fk-bk-out {
+  opacity: 0.5;
+}
+.fk-bk-flag {
+  width: 24px;
+  height: 18px;
+  border-radius: 2px;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12);
+}
+/* no flag in the set: a neutral tile with the team's code */
+.fk-bk-noflag {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--fk-muted) 25%, transparent);
+  color: var(--fk-text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  overflow: hidden;
+}
+.fk-bk-card .fk-wc-name {
+  white-space: normal;
+  overflow: visible;
+}
+.fk-bk-card .fk-wc-squad {
+  font-size: 12px;
+}
+.fk-bk-score {
+  font-weight: 800;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.fk-bk-pens {
+  font-weight: 400;
+  font-size: 12px;
+}
+.fk-bk-line2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  color: var(--fk-muted);
+  font-size: 12px;
+}
+.fk-bk-line2 a,
+a.fk-bk-line2 {
+  color: var(--fk-muted);
+  text-decoration: none;
+}
+.fk-bk-line2 a:hover,
+a.fk-bk-line2:hover {
+  color: var(--fk-accent);
+  text-decoration: underline;
+}
+.fk-bk-stadium {
+  color: var(--fk-text);
+}
+.fk-bk-tag {
+  border: 1px solid var(--fk-border);
+  border-radius: 999px;
+  padding: 0 6px;
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.fk-bk-weather {
+  color: var(--fk-text);
+}
+.fk-bk-watch {
+  align-self: flex-start;
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 12px;
+  border-radius: 6px;
+  background: #d33a31;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.fk-bk-watch:hover,
+.fk-bk-watch:focus-visible {
+  background: #ff4e45;
+}
+/* the final: the biggest card, the trophy and the champion on top */
+.fk-bk-card.fk-bk-final {
+  max-width: 360px;
+  border: 2px solid var(--fk-accent);
+  padding: 10px 12px;
+  gap: 5px;
+}
+.fk-bk-card.fk-bk-final .fk-bk-side {
+  font-size: 16px;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+}
+.fk-bk-card.fk-bk-final .fk-bk-flag {
+  width: 32px;
+  height: 24px;
+}
+.fk-bk-card.fk-bk-final .fk-bk-score {
+  font-size: 18px;
+}
+.fk-bk-champion {
+  text-align: center;
+  font-size: 16px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--fk-border);
+  margin-bottom: 2px;
+}
+.fk-bk-champion .fk-muted {
+  font-size: 12px;
+}
+.fk-bk-third {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.fk-bk-third .fk-bk-card {
+  width: 84%;
+  max-width: 250px;
+}
+
+/* ---------- FK-70: the poster (flag tiles joined by lines) ---------- */
+.fk-poster {
+  padding: 10px 12px 14px;
+}
+.fk-poster-title {
+  text-align: center;
+  font-size: 24px;
+  margin: 0 0 12px;
+}
+.fk-poster-grid {
+  position: relative;
+  display: grid;
+  gap: 0 18px;
+  align-items: stretch;
+}
+.fk-poster-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.fk-poster-slot {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 3px 0;
+}
+.fk-poster-right .fk-poster-slot {
+  justify-content: flex-end;
+}
+.fk-poster-tile {
+  --f: 26px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--fk-surface);
+  border: 1px solid var(--fk-border);
+  border-radius: 6px;
+  padding: 3px 7px 3px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.fk-poster-right .fk-poster-tile {
+  flex-direction: row-reverse;
+  padding: 3px 4px 3px 7px;
+  text-align: right;
+}
+.fk-poster-tile .fk-bk-flag {
+  width: var(--f);
+  height: calc(var(--f) * 0.75);
+  flex: none;
+}
+/* tiles grow toward the middle */
+.fk-poster-d1 .fk-poster-tile { --f: 32px; font-size: 13px; }
+.fk-poster-d2 .fk-poster-tile { --f: 40px; font-size: 14px; }
+.fk-poster-d3 .fk-poster-tile { --f: 48px; font-size: 15px; }
+.fk-poster-d4 .fk-poster-tile { --f: 56px; font-size: 16px; }
+.fk-poster-out {
+  opacity: 0.45;
+}
+.fk-poster-empty {
+  border-style: dashed;
+  color: var(--fk-muted);
+  min-width: 40px;
+  justify-content: center;
+}
+.fk-poster-col.fk-poster-champion {
+  justify-content: center;
+  align-items: center;
+}
+.fk-poster-champion .fk-poster-slot {
+  flex: 0 0 auto;
+  justify-content: center;
+}
+.fk-poster-champion .fk-poster-tile {
+  --f: 84px;
+  flex-direction: column;
+  font-size: 20px;
+  font-weight: 800;
+  padding: 10px 14px;
+  border: 2px solid var(--fk-accent);
+  text-align: center;
+}
+.fk-poster-trophy {
+  font-size: 34px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
