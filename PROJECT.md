@@ -103,6 +103,14 @@ into gauntlet-home at `/football`, like calendarkit at `/calendar`. The full pla
   arrows (`SideArrows.tsx`, `monthStep` in page.ts). v0.66.0 FK-50 result streak (`src/data/streak.ts`, `Streak.tsx`; Slate card
   561 × 78 since FK-53 / FK-50). v0.67.0 FK-54 cup bracket zoomed to the first screen (`useFitBracket`). v0.68.0 FK-55 title picker.
   v0.69.0 FK-56 UCL simulator knockouts (`src/data/uclKoSim.ts`, `UclKoSim.tsx`, `Sim.ko`; draws swapped per section).
+- **Backlog FK-57 … FK-64 (2026-11-19, late night)**: v0.71.0 FK-57 position arrows (`movesAfter` in matchdays.ts). v0.72.0 FK-58
+  Extra tools menu (`ExtraTools` in TopBar.tsx; Trailing lives there). v0.73.0 FK-59 World Cup history (`?view=wc&year=…[&team=…]`, lazy
+  `WorldCupPage.tsx`, logic `src/data/worldcup.ts`, data `public/worldcup/` from `npm run make-worldcup`: Fjelstul database CC-BY-SA 1930–2022,
+  openfootball 2026, Annex C thirds table from Wikipedia; checked against Wikipedia tables in tests/worldcup.test.ts). v0.74.0 FK-60 World Cup
+  simulator (`&sim=1`, `src/data/wcSim.ts`, `WorldCupSim.tsx`; pairings read from the real bracket; picks in `fk:wcsim:v1`). v0.75.0 FK-62 live
+  scores pop-out (Document PiP, `LivePopout.tsx`, `src/data/popout.ts`; state in Footy so it survives navigation). v0.76.0 FK-64 competition history
+  (`?view=history&comp=…&season=…`, lazy `HistoryPage.tsx`, `src/data/history.ts`, data `public/history/` from `npm run make-history`, ESPN
+  `scoreboard?dates=YYYY` + `standings?season=`; leagues checked against football-data.co.uk). FK-61, FK-63 blocked.
 - **Live** at https://gauntlet-home.vercel.app/football/ (gauntlet rewrite → Vercel project `footykit`,
   footykit.vercel.app). Snapshot in Vercel Blob store `footykit-data` (gru1), rewritten to `/football/data/snapshot.json`
   in vercel.json; GitHub secret BLOB_READ_WRITE_TOKEN; repo variables SNAPSHOT_ENABLED=true and FOOTYKIT_SITE (the site

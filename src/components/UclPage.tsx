@@ -77,7 +77,7 @@ function Pots({ today }: { today: string }) {
 
 export type UclTab = 'table' | 'pots';
 
-export default function UclPage({ today, onWhatIf, tab = 'table', onTab, onPick }: { today: string; onWhatIf?: () => void; tab?: UclTab; onTab?: (t: UclTab) => void; /** FK-55: the title switches competition */ onPick?: (c: string) => void }) {
+export default function UclPage({ today, onWhatIf, tab = 'table', onTab, onPick, onHistory }: { today: string; onWhatIf?: () => void; /** FK-64 */ onHistory?: () => void; tab?: UclTab; onTab?: (t: UclTab) => void; /** FK-55: the title switches competition */ onPick?: (c: string) => void }) {
   const { model } = useFooty();
   const table = useMemo(() => uclTable(model.snap, (id) => model.team(id).name), [model]);
   const [hover, setHover] = useState<number | null>(null);
@@ -92,6 +92,7 @@ export default function UclPage({ today, onWhatIf, tab = 'table', onTab, onPick 
         <h2>{onPick ? <CupPicker cup={UCL_SLUG} onPick={onPick} title /> : 'Champions League'} <span className="fk-muted">· league phase</span></h2>
         <span className="fk-muted" data-testid="ucl-matchday">{table.complete ? 'final table' : `after matchday ${table.matchday} of 8`}</span>
         {onWhatIf && !table.complete && <button type="button" className="fk-btn" onClick={onWhatIf} title="Pick the results left to play and see the table and the knockout places change" data-testid="ucl-whatif">Simulator</button>}
+        {onHistory && <button type="button" className="fk-btn" onClick={() => onHistory()} title="Past seasons: final tables, brackets, champions" data-testid="history-button">History</button>}
         <span className="fk-tabs fk-ucl-tabs" role="tablist" aria-label="Champions League page" data-testid="ucl-tabs">
           {([['table', 'League phase'], ['pots', 'Pots']] as const).map(([t, text]) => (
             <button key={t} type="button" role="tab" aria-selected={tab === t} className={`fk-tab${tab === t ? ' fk-tab-on' : ''}`} data-text={text} onClick={() => onTab?.(t)}>{text}</button>

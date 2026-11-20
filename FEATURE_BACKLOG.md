@@ -21,14 +21,5 @@ Blocked: waits for halftime-timer HT-1 (its link format and live URL); the owner
 - Source: free only. Check what free sources really cover (e.g. FootyStats' World Cup downloads, OddsPapi's free tier, openly published odds datasets); The Odds API's history is paid, so not that. Odds likely exist only for recent editions (roughly 2002 on); editions without them show no odds, never made-up ones.
 - Resimulate randomly: in FK-60's simulator, plays every match (or only the ones not fixed by hand) with win/draw/loss chances from the pregame odds (margin removed). Knockout draws go to a 50/50 shoot-out. Button stays hidden for editions without odds (equal odds would be meaningless). "Run again" re-rolls; "Reset to real results" as in FK-60.
 - If no free source covers any edition: stop, add a `Blocked:` note with what was checked, and report.
+Blocked: no free odds source can be used without you (checked 2026-11-19). Footiqo (footiqo.com/database/leagues/world-cup/) has World Cup 1X2 odds (2018 and 2026 seen on its free page, 25 matches a page) but its terms forbid scripted extraction; manual CSV exports are allowed. OddsPapi's free tier needs an account key (and its World Cup history is unconfirmed). FootyStats' free World Cup samples need a browser sign-up; odds columns unconfirmed. GitHub / openly published datasets found: none with World Cup odds. Pick one: (a) export the World Cup odds CSV from Footiqo yourself (each edition it has) and drop it in the repo, (b) a free OddsPapi key, or (c) check FootyStats' sample files.
 **Tests:** unit: odds → probabilities (margin removed, sum 1); random resim with a fixed seed gives a fixed bracket; editions without odds hide the button; e2e: hover a 2022 match shows odds; resimulate changes the bracket.
-
-### FK-64 — History for every competition
-**In short:** Every competition in footykit (leagues, Champions League, Libertadores, domestic cups) gets a history view: pick a past season and see its final table and/or bracket, like the World Cup history.
-**What:**
-- For each competition, a season picker (newest first). Leagues: final table with the same columns and result squares as now. Cups and UCL/Libertadores: final group/league-phase tables and the knockout bracket, with two-legged ties and aggregate shown.
-- Per competition, a small summary like the NBA Cup history in calendarkit: champions by season and who usually goes far (top 4, relegated / knocked out early).
-- Clicks follow the app's rules (matches → Google search, teams → team page).
-- Free sources only (ESPN past seasons, openfootball, etc.). Go back as far as free data is reliable; check a few seasons against a second source. Report, per competition, the first season covered; never fill gaps by hand.
-- Shares the code with FK-59 where possible (World Cup history is one case of this).
-**Tests:** unit: past final tables equal the real ones for a few seasons per competition (checked against a second source); e2e: pick an old Premier League season and an old UCL season, table and bracket render.

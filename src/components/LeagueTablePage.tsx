@@ -70,7 +70,7 @@ function MoveCell({ mv, n }: { mv?: Move; n: number }) {
 
 const zoneAt = (zones: LeagueZone[], pos: number) => zones.find((z) => pos >= z.from && pos <= z.to);
 
-export default function LeagueTablePage({ league, today, onWhatIf }: { league: LeagueSlug; today: string; onWhatIf?: () => void }) {
+export default function LeagueTablePage({ league, today, onWhatIf, onHistory }: { league: LeagueSlug; today: string; onWhatIf?: () => void; /** FK-64 */ onHistory?: () => void }) {
   const { model } = useFooty();
   const rules = LEAGUES[league];
   // FK-43: the table as it stood after round N (◀ ▶ beside the label, or ← →); it opens on the latest played round
@@ -120,6 +120,7 @@ export default function LeagueTablePage({ league, today, onWhatIf }: { league: L
           <button type="button" className="fk-lt-arrow" disabled={n >= latest} aria-label="The table a round later" title="A round later (→)" onClick={() => step(1)} data-testid="lt-next">▶</button>
         </span>
         {onWhatIf && !now.complete && <button type="button" className="fk-btn" onClick={onWhatIf} title="Pick the results left to play and see the table change" data-testid="league-whatif">Simulator</button>}
+        {onHistory && <button type="button" className="fk-btn" onClick={() => onHistory()} title="Past seasons: final tables, brackets, champions" data-testid="history-button">History</button>}
         <span className="fk-ucl-key">
           {legend.map((z) => <span key={z.kind} className={`fk-ucl-zone-key fk-lz-${z.kind}`}>{z.label}</span>)}
           {rules.zones.some((z) => z.maybe) && <span className="fk-ucl-zone-key fk-lz-maybe-key">hatched: only with some outcomes</span>}

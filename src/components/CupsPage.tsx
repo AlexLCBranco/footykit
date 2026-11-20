@@ -101,7 +101,7 @@ function GroupTable({ g, cfg, today }: { g: CupGroup; cfg: CupConfig; today: str
 }
 
 /** A domestic cup: the last rounds (16 ties or fewer) as a bracket, the earlier ones folded, the rules and source. */
-function DomesticCupPage({ cfg, today, fit, onPick }: { cfg: DomesticCup; today: string; fit: boolean; onPick?: (c: string) => void }) {
+function DomesticCupPage({ cfg, today, fit, onPick, onHistory }: { cfg: DomesticCup; today: string; fit: boolean; onPick?: (c: string) => void; onHistory?: (c: string) => void }) {
   const { model } = useFooty();
   const rounds = useMemo(() => {
     const rs = cupRounds(model.snap.matches.filter((m) => m.c === cfg.slug), cfg.twoLeg, (id) => model.snap.teams[id]?.name);
@@ -128,6 +128,7 @@ function DomesticCupPage({ cfg, today, fit, onPick }: { cfg: DomesticCup; today:
         <h2>{onPick ? <CupPicker cup={cfg.slug} onPick={onPick} title /> : model.comp(cfg.slug).name}</h2>
         <span className="fk-muted">Final {shortDay(cfg.final.day)} {cfg.final.day.slice(0, 4)}{cfg.final.venue ? `, ${cfg.final.venue}` : ''}</span>
         <CupSimBar on={sim.on} onToggle={() => setOn(!sim.on)} onClear={clear} empty={empty} view={sim.view} />
+        {onHistory && <button type="button" className="fk-btn" onClick={() => onHistory(cfg.slug)} title="Past seasons: final tables, brackets, champions" data-testid="history-button">History</button>}
       </div>
       <section className="fk-ko" data-testid="cup-knockout">
         <div className="fk-ko-grid fk-ko-fit" ref={fitRef} data-testid="cup-bracket" style={{ gridTemplateColumns: `repeat(${bracket.length}, minmax(160px, 210px))` }}>
@@ -168,14 +169,14 @@ function DomesticCupPage({ cfg, today, fit, onPick }: { cfg: DomesticCup; today:
 }
 
 /** `fit`: the bracket fills the first screen (FK-54) — the Cups page itself, not where the League view shows it. */
-export default function CupsPage({ cup, today, fit = false, onPick }: { cup: string; today: string; fit?: boolean; /** FK-55: the title switches competition */ onPick?: (c: string) => void }) {
+export default function CupsPage({ cup, today, fit = false, onPick, onHistory }: { cup: string; today: string; fit?: boolean; /** FK-55: the title switches competition */ onPick?: (c: string) => void; /** FK-64 */ onHistory?: (c: string) => void }) {
   const domestic = DOMESTIC_CUPS.find((c) => c.slug === cup);
   // keyed by cup: each cup has its own simulator state and picks
-  if (domestic) return <DomesticCupPage key={cup} cfg={domestic} today={today} fit={fit} onPick={onPick} />;
-  return <ContinentalCupPage key={cup} cup={cup} today={today} fit={fit} onPick={onPick} />;
+  if (domestic) return <DomesticCupPage key={cup} cfg={domestic} today={today} fit={fit} onPick={onPick} onHistory={onHistory} />;
+  return <ContinentalCupPage key={cup} cup={cup} today={today} fit={fit} onPick={onPick} onHistory={onHistory} />;
 }
 
-function ContinentalCupPage({ cup, today, fit, onPick }: { cup: string; today: string; fit: boolean; onPick?: (c: string) => void }) {
+function ContinentalCupPage({ cup, today, fit, onPick, onHistory }: { cup: string; today: string; fit: boolean; onPick?: (c: string) => void; onHistory?: (c: string) => void }) {
   const { model } = useFooty();
   const cfg = CUPS.find((c) => c.slug === cup) ?? CUPS[0]!;
   const { groups, qualifying, knockout } = useMemo(() => {
@@ -197,6 +198,7 @@ function ContinentalCupPage({ cup, today, fit, onPick }: { cup: string; today: s
         <h2>{onPick ? <CupPicker cup={cfg.slug} onPick={onPick} title /> : model.comp(cfg.slug).name}</h2>
         <span className="fk-muted">Final {shortDay(cfg.final.day)}, {cfg.final.venue}</span>
         <CupSimBar on={sim.on} onToggle={() => setOn(!sim.on)} onClear={clear} empty={empty} view={sim.view} />
+        {onHistory && <button type="button" className="fk-btn" onClick={() => onHistory(cfg.slug)} title="Past seasons: final tables, brackets, champions" data-testid="history-button">History</button>}
       </div>
       <section className="fk-ko" data-testid="cup-knockout">
         <h3>Knockout stages</h3>

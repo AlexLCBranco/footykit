@@ -236,3 +236,20 @@
   color: var(--fk-muted);
   margin-left: 4px;
 }
+
+/* ---------- FK-64: competition history (HistoryPage.tsx) ---------- */
+.fk-histpage-sum {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 16px;
+  align-items: start;
+}
+.fk-histpage-records caption {
+  text-align: left;
+  font-weight: 700;
+  padding: 2px 0;
+}
+.fk-histpage-season {
+  font-size: 16px;
+  margin: 14px 0 6px;
+}

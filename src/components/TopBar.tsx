@@ -133,7 +133,7 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
         )}
       </span>
       {/* the main views stay on the bar in team mode (none selected then); one leaves the club */}
-      <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (simLeague(page) ? 'table' : 'cups') : page.view === 'ucl' || page.view === 'wc' ? 'cups' : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['table', 'Tables'], ['cups', 'Cups'], ['league', 'League']]} onChange={(v) => onPage({ ...page, view: v, team: undefined, ...(v === 'league' && page.view !== 'league' ? { day: today } : {}) })} />
+      <Tabs<View> label="View" testId="views" value={page.view === 'whatif' ? (simLeague(page) ? 'table' : 'cups') : page.view === 'ucl' || page.view === 'wc' ? 'cups' : page.view === 'history' ? ((LEAGUE_SLUGS as string[]).includes(page.hcomp ?? '') ? 'table' : 'cups') : page.view} options={[['day', 'List'], ['slate', 'Slate'], ['table', 'Tables'], ['cups', 'Cups'], ['league', 'League']]} onChange={(v) => onPage({ ...page, view: v, team: undefined, ...(v === 'league' && page.view !== 'league' ? { day: today } : {}) })} />
       {team && page.view === 'cal' && <Tabs<Span> label="Span" testId="span" value={page.span} options={[[1, '1 week'], [2, '2 weeks'], ['month', 'Month']]} onChange={(s) => onPage({ ...page, span: s, week: page.span === 'month' && s !== 'month' ? mondayOf(today.slice(0, 7) === page.month ? today : `${page.month}-01`) : page.week, month: s === 'month' && page.span !== 'month' ? addDays(page.week, 3).slice(0, 7) : page.month })} />}
       {(page.view === 'table' || (page.view === 'whatif' && simLeague(page))) && <LeaguePicker league={page.league ?? DEFAULT_LEAGUE} onPick={(l) => onPage({ ...page, league: l })} />}
       {page.view === 'league' && (
@@ -146,7 +146,7 @@ export function TopBar({ page, today, history, onPage, onStep, onStandings, info
       {/* FK-29: the UCL page (and its simulator) sits in the Cups section: the picker shows it and leads back to the other cups */}
       {(page.view === 'cups' || page.view === 'ucl' || page.view === 'wc' || (page.view === 'whatif' && !simLeague(page))) && <CupPicker cup={page.view === 'cups' ? page.cup ?? DEFAULT_CUP : page.view === 'wc' ? WC_SLUG : UCL_SLUG}
         onPick={(c) => onPage(cupPage(page, c))} />}
-      {page.view !== 'ucl' && page.view !== 'whatif' && page.view !== 'table' && page.view !== 'cups' && page.view !== 'trailing' && page.view !== 'wc' && <span className="fk-date-block">
+      {page.view !== 'ucl' && page.view !== 'whatif' && page.view !== 'table' && page.view !== 'cups' && page.view !== 'trailing' && page.view !== 'wc' && page.view !== 'history' && <span className="fk-date-block">
         <button type="button" className="fk-step" aria-label="Previous" title="Previous" onClick={() => onStep(-1)}>‹</button>
         <span className="fk-date-text" data-testid="date-text">{dateText}</span>
         <button type="button" className="fk-step" aria-label="Next" title="Next" onClick={() => onStep(1)}>›</button>

@@ -2,6 +2,26 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-19 (late night) — FK-57 … FK-64
+
+**Built** (each its own commit, pushed to main):
+- v0.71.0 FK-57 — Position arrows in every domestic league table (green ▲, red ▼, grey –; hover "Was 7th after round 11"), following ◀ ▶; none after round 1.
+- v0.72.0 FK-58 — Trailing left the main tabs; a new "Extra tools" icon button (beside copy / standings / info) opens a menu with Trailing; pressed while on it; old links work.
+- v0.73.0 FK-59 — World Cup section (Cups → World Cup), every edition 1930–2026: group tables with match squares, second group stages (1950, 1974, 1978, 1982), 2026's thirds table, full bracket with extra time and penalties, hovers with date / venue / 90' score / scorers, Google links, Wikipedia squad links, a team's World Cup history on a name click. Data: Fjelstul World Cup Database (CC-BY-SA 4.0, credited on the page) for 1930–2022, openfootball for 2026, Annex C third-place table from Wikipedia. Checked: group tables equal Wikipedia's for 1982, 1994, 2014, 2022, 2026; all 964 results 1930–2022 agree between the two sources. Gaps shown, not filled: 2026 venues are host cities only (no stadium names in the source); 1938's Austria–Sweden walkover has no match (an empty bracket slot); 2026 thirds E and L are level on everything but fair play, shown as a shared 3rd.
+- v0.74.0 FK-60 — World Cup simulator for 1998–2022 and 2026 (older editions say it doesn't cover them yet): groups and bracket side by side, fast (1 X 2) and detailed (scores, extra time, pens), Reset to real results, Clear all. Pairings are read from the real bracket (1A v 2B…, winners of matches), 2026's thirds through Annex C. Teams level on everything the data has keep their real order and show "=".
+- v0.75.0 FK-62 — "Pop out live scores" on the Slate header (Chrome / Edge): countdown to the first match, then one line per match by itself at kick-off; stays open while you browse; keeps polling while the tab is hidden.
+- v0.76.0 FK-64 — "History" on every league table, cup page and the Champions League page: past seasons (final table + last 5, or groups + bracket), champions by season, who goes far. First season covered (ESPN's free data): Premier League, LaLiga, Serie A, Bundesliga, Ligue 1 2002-03 (2000-02 present but without standings, marked incomplete); Brasileirão 2006; Champions League 2001-02; Libertadores 2002 (2002–03 only the final rounds); Sudamericana 2006; Copa do Brasil 2013; FA Cup and League Cup 2001-02; Copa del Rey, Coppa Italia, DFB-Pokal 2006-07; Coupe de France 2007-08. Leagues checked against football-data.co.uk for 2005-06, 2015-16, 2023-24: all equal except one wrong Empoli–Messina score on football-data.co.uk's side (ESPN agrees with Wikipedia). Seasons ESPN has only in part (e.g. Ligue 1 2019-20, stopped by COVID; one Ligue 1 2025-26 match missing) show no champion.
+
+**Blocked:**
+- FK-61 — unchanged: waits for halftime-timer HT-1.
+- FK-63 — no free odds source usable without you: Footiqo has World Cup 1X2 odds but forbids scripted extraction (manual exports allowed); OddsPapi's free tier needs an account key; FootyStats' samples need a sign-up. The Blocked note lists the three options.
+
+**Ideas added:** none.
+
+**For you to check by hand** (can't be automated):
+- FK-62: click "Pop out live scores" in Chrome or Edge once — a real Picture-in-Picture window needs your click (tests check its content inside the page).
+- Feel: the World Cup simulator's layout at your window size; the 2026 bracket (16 ties a column, natural size, scrolls).
+
 ## 2026-11-19 (late) — FK-56
 
 **Built:** v0.69.0 FK-56 — your answer: a swap per section. In the UCL simulator, "Start knockouts from current standings" fills the play-offs (9th–24th) and the round of 16 from the real table as it stands (results left ignored), shown beside the table. A click on a side sends it through, again clears; it runs on to the quarter-finals (A v D and B v C in each half), semis and final. Each section has three swap buttons for what UEFA draws: ⇄ ties (9 v 24 / 10 v 23 ↔ 9 v 23 / 10 v 24), ⇄ R16 (which seed each play-off winner meets; default the 9/24 winner v 8th), ⇅ halves (each R16 tie labelled top / bottom). A pick a swap moves out of its tie drops. Undo, reload and saved scenarios keep it; "Knockout places" goes back to the old view.

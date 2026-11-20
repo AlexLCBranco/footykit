@@ -1421,3 +1421,35 @@ test('FK-62: before the first kick-off the pop-out counts down to it, then turns
   await expect(pop).toHaveAttribute('data-mode', 'list');
   await expect(pop.getByTestId('popout-line').first()).toContainText('Man City');
 });
+
+test('FK-64: competition history — an old Premier League season\'s table and an old Champions League bracket', async ({ page }) => {
+  const errors = await open(page, '?view=table&league=eng.1');
+  await page.getByTestId('history-button').click();
+  await expect(page).toHaveURL(/view=history&comp=eng\.1/);
+  const hist = page.getByTestId('hist-page');
+  await expect(page.getByTestId('hist-summary')).toBeVisible();
+  await expect(page.getByTestId('hist-records').locator('tbody tr').first()).toBeVisible();
+  await page.getByTestId('hist-season').selectOption('2004');
+  await expect(hist).toHaveAttribute('data-year', '2004');
+  await expect(page.getByTestId('hist-season-title')).toContainText('2004-05');
+  await expect(page.getByTestId('hist-row')).toHaveCount(20);
+  await expect(page.getByTestId('hist-row').first().getByTestId('hist-team')).toContainText('Chelsea');
+  await expect(page.getByTestId('hist-row').first().locator('.fk-pts')).toHaveText('95');
+  await expect(page.getByTestId('hist-row').first().getByTestId('hist-square')).toHaveCount(5);
+  expect(await page.getByTestId('hist-row').first().getByTestId('hist-square').first().getAttribute('href')).toMatch(/^https:\/\/www\.google\.com\/search\?q=/);
+  // a champion chip opens its season
+  await page.locator('[data-testid="hist-season-chip"][data-year="2010"]').click();
+  await expect(page.getByTestId('hist-season-title')).toContainText('2010-11');
+  // the Champions League, 2004-05: the bracket and the groups
+  await page.getByTestId('hist-comp').selectOption('uefa.champions');
+  await page.getByTestId('hist-season').selectOption('2004');
+  await expect(page.getByTestId('hist-season-title')).toContainText('2004-05');
+  const bracket = page.getByTestId('hist-bracket');
+  await expect(bracket.locator('.fk-ko-col')).toHaveCount(4);
+  await expect(bracket.locator('.fk-ko-col').last().getByTestId('hist-tie')).toContainText('Liverpool');
+  await expect(page.getByTestId('hist-group')).toHaveCount(8);
+  // back to this season's page
+  await page.getByTestId('hist-back').click();
+  await expect(page.getByTestId('ucl-page').or(page.getByTestId('cups-page'))).toBeVisible();
+  expect(errors).toEqual([]);
+});

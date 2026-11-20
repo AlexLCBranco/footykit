@@ -43,7 +43,7 @@ export function resolveClubs(teamLists: RawInput['teamLists']): Club[] {
   return clubs;
 }
 
-function tablesOf(json: StandingsJson): Table[] {
+export function tablesOf(json: StandingsJson): Table[] {
   return (json.children ?? []).map((g) => ({
     name: g.name ?? '',
     rows: (g.standings?.entries ?? []).map((e) => {
