@@ -41,13 +41,17 @@ Blocked: no publishable source of bookmaker odds found (checked 2026-11-20). Foo
 Blocked: the 64 replay pages could not be listed (tried 2026-11-20). fifa.com's robots.txt names a sitemap at `https://cxm-api.fifa.com/fifaplusweb/api/sitemaps`, and each replay page loads its data from that same host (`…/api/pages/en/watch/<id>`, `…/api/sections/videoDetails/<id>`), but Claude Code's permission guard refused every read of cxm-api.fifa.com (curl and the browser), so nothing could be listed. The 2022 tournament page on fifa.com links to no replay. Seen on the way: the final's page plays in the browser with no sign-in (from Brazil). To unblock: allow Claude Code to read cxm-api.fifa.com (a permission rule), or say to use FIFA's YouTube "FULL MATCH" uploads for all 64 instead.
 **Tests:** unit: a match with a FIFA+ URL uses it, one with only a YouTube URL uses that with the other title, one with neither renders no ▶; e2e: the 2022 final has a ▶ whose href is the FIFA+ replay page; data check: every URL in the file answers 200. By hand (can't be automated): open one ▶ and confirm the full match plays without paying.
 
-### FK-75 — Calendar screen: controls move up into the tab row
-**In short:** On the calendar screen, the WHAT / HOW / 1 week–2 weeks–Month / month-arrows / Today controls sit on the same line as the Today / Clubs / Leagues / Cups / Tools tabs, in the empty space to their right, and the row under the line is gone.
+### FK-75 — Header: every control above the line, "All clubs" always on screen
+**In short:** On every page the What / How / dates controls move up into the tabs row, in the empty space to the right of Today / Clubs / Leagues / Cups / Tools, an "All clubs" button is always on screen beside the club box, and nothing is left under the header line.
+**Why:** Owner's rules (2026-11-21): nothing crosses the header line, the line never moves down, and footykit and calendarkit share one layout (CK-33).
+**Pictures:** calendarkit's `docs/design/DESIGN_LOG.md`, mock C, is the target layout.
 **What:**
-- Screen: the club calendar screen (owner's screenshot, 2026-11-21: tabs row, a thin line, then a second row with the controls).
-- Move every control of that second row into the tabs row, to the right of the last tab, in the same left-to-right order as today. Nothing is removed, renamed or restyled.
-- The tabs row must NOT get taller: same height and spacing as today. The line stays where it is, with the page content starting right under it, so the page gains the height of the removed row.
-- The owner always uses a full-size window; that is the width this must fit at. If it can't fit on one line there without shrinking text, stop and add a `Blocked:` note instead of wrapping or growing the row.
-- Other screens: unchanged in this item.
-**Sibling:** CK-33 in calendarkit (same change, keep the two looking the same).
-**Tests:** e2e at a full-size desktop viewport: the controls are inside the tabs row, no control row exists under the line, and the tabs row's height equals its height before the change.
+- The header stays exactly 92px tall with its two rows. It may never get taller. Row 1 is unchanged.
+- Row 2 on Clubs, left to right: the five tabs · "All clubs" button · club picker · Calendar / List · 1 week / 2 weeks / Month · month arrows with the month name, date picker and Today.
+- "All clubs" button: replaces the small × beside the club box. Always on screen on Clubs. One click does what the × does today (back to every club). Lit when no club is open.
+- The club picker itself is unchanged.
+- The "WHAT" and "HOW" labels are dropped (no room, and the controls explain themselves).
+- Same rule on Today, Leagues, Cups and Tools: that page's controls go in row 2 and nothing sits between the header line and the page content. If a page's controls can't fit row 2 on a 1912px-wide window without shrinking text or wrapping (Tools has a second line of choices), leave that page as it is and add a `Blocked:` note naming the page and what doesn't fit.
+- The freed height goes to the page content (bigger calendar boxes on Clubs).
+**Sibling:** CK-33 in calendarkit.
+**Tests:** e2e at 1912×913 on a club's month (Palmeiras): header is 92px tall; no control row under the header line; "All clubs" leaves the club and is lit then; the page doesn't scroll.
