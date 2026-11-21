@@ -17,7 +17,11 @@ const NOW = '2026-11-21T15:00:00Z';
 
 /** FK-65: the header's Where tabs, the page rows' What chips and How switch. */
 const where = (page: Page, w: 'today' | 'clubs' | 'leagues' | 'cups' | 'tools') => page.getByTestId(`where-${w}`).click();
-const what = (page: Page, row: string, v: string | number) => page.getByTestId(row).locator(`[data-value="${v}"]`).click();
+/** FK-74: the edition is a dropdown: open it, then pick. */
+const what = async (page: Page, row: string, v: string | number) => {
+  if (row === 'what-edition') await page.getByTestId(row).getByTestId('edition-btn').click();
+  await page.getByTestId(row).locator(`[data-value="${v}"]`).click();
+};
 const how = (page: Page, name: string) => page.getByTestId('how').getByRole('tab', { name, exact: true }).click();
 
 async function open(page: Page, search = '') {
@@ -563,17 +567,17 @@ test('FK-47: the Slate strip shows 5 window slots per team, the middle one (this
   expect([...byResult.get('W')!][0]).not.toBe([...byResult.get('L')!][0]);
   // the card keeps calendarkit's size
   const sizes = await page.getByTestId('slate-card').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
-  expect(new Set(sizes)).toEqual(new Set(['561x78']));
+  expect(new Set(sizes)).toEqual(new Set(['561x96']));
   expect(errors).toEqual([]);
 });
 
 test('FK-35: Slate cards are calendarkit\'s size, in a tight grid, under "SLATE · dd-mm · Football"', async ({ page }) => {
   const errors = await open(page, '?view=slate');
   await expect(page.getByTestId('slate-header')).toHaveText('SLATE · 21-11 · Football');
-  // calendarkit's info-only card, measured on its live Slate (src/slate/layout.ts there): 509 × 78; ours 20 px wider since FK-53
+  // calendarkit's info-only card, measured on its live Slate (src/slate/layout.ts there): 509 × 78; ours 20 px wider since FK-53, 18 px taller since FK-73 (the stadium line)
   const sizes = await page.getByTestId('slate-card').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
   expect(sizes.length).toBeGreaterThan(3);
-  expect(new Set(sizes)).toEqual(new Set(['561x78']));
+  expect(new Set(sizes)).toEqual(new Set(['561x96']));
   // nothing spills out of a row; neighbours share their 1 px border
   const spill = await page.locator('.fk-card-row').evaluateAll((els) => els.filter((r) => r.scrollWidth > r.clientWidth).length);
   expect(spill).toBe(0);
@@ -621,7 +625,7 @@ test('FK-40: the Slate game button opens a pop-up of links (injuries, odds and p
   await page.mouse.move(5, 5);
   await expect(pop).toHaveCount(0);
   // the card keeps calendarkit's size with the button in it
-  expect(await card.evaluate((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; })).toBe('561x78');
+  expect(await card.evaluate((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; })).toBe('561x96');
   expect(errors).toEqual([]);
 });
 
@@ -827,7 +831,7 @@ test('FK-48: ◀ ▶ on the Slate strip move it one window earlier / later; a cl
   // the other team's strip didn't move; the card keeps calendarkit's size
   expect(await card.locator('.fk-card-row').nth(1).getByTestId('strip-slot').nth(2).getAttribute('data-window')).toBe('2026-11-20');
   const box = (await card.boundingBox())!;
-  expect([box.width, box.height]).toEqual([561, 78]);
+  expect([box.width, box.height]).toEqual([561, 96]);
   expect(errors).toEqual([]);
 });
 
@@ -854,7 +858,7 @@ test('FK-48 fix: the strip arrows show only on hover (moved or not) and sit besi
   await expect.poll(opacity).toEqual(['0', '0']);
   // the cards keep calendarkit's size, nothing spills out of a row
   const sizes = await cards.evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return `${r.width}x${r.height}`; }));
-  expect(new Set(sizes)).toEqual(new Set(['561x78']));
+  expect(new Set(sizes)).toEqual(new Set(['561x96']));
   expect(await page.locator('.fk-card-row').evaluateAll((els) => els.filter((r) => r.scrollWidth > r.clientWidth).length)).toBe(0);
   expect(errors).toEqual([]);
 });
@@ -987,7 +991,7 @@ test('FK-53: bigger last-games squares (21 px, crest scaled), lined up across ca
   expect(rows.some((r) => r.spill)).toBe(false);
   // the card widened by the squares' growth (509 + 5 × 4) and FK-50's streak track (+32)
   const box = (await cards.first().boundingBox())!;
-  expect([box.width, box.height]).toEqual([561, 78]);
+  expect([box.width, box.height]).toEqual([561, 96]);
   expect(errors).toEqual([]);
 });
 
@@ -1249,14 +1253,15 @@ test('FK-59: World Cup history: pick 2014 from the edition strip, group tables, 
   await expect(page.getByTestId('wc-third')).toHaveCount(12);
   await expect(page.getByTestId('wc-bracket')).toHaveCount(0);
   await expect(page).toHaveTitle('World Cup 2026 groups — footykit');
-  // the edition strip: oldest to newest, the chosen one highlighted
-  const years = await page.getByTestId('what-edition').getByRole('radio').allTextContents();
-  expect(years[0]).toBe('1930');
-  expect(years[years.length - 1]).toBe('2026');
-  await what(page, 'what-edition', 2014);
+  // FK-74: the edition dropdown: newest first, the open one on the button
+  await page.getByTestId('what-edition').getByTestId('edition-btn').click();
+  const years = await page.getByTestId('what-edition').getByRole('option').allTextContents();
+  expect(years[0]).toBe('2026');
+  expect(years[years.length - 1]).toBe('1930');
+  await page.getByTestId('what-edition').locator('[data-value="2014"]').click();
   await expect(page).toHaveTitle('World Cup 2014 groups — footykit');
   await expect(page).toHaveURL(/view=wc&year=2014&how=groups/);
-  await expect(page.getByTestId('what-edition').locator('[aria-checked="true"]')).toHaveText('2014');
+  await expect(page.getByTestId('what-edition').getByTestId('edition-now')).toHaveText('2014');
   const groupA = page.locator('[data-testid="wc-group"][data-group="Group A"]');
   await expect(groupA.getByTestId('wc-row')).toHaveCount(4);
   await expect(groupA.getByTestId('wc-row').first().getByTestId('wc-team')).toHaveText('Brazil');

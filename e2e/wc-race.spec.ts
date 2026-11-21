@@ -169,7 +169,8 @@ test('from the Bracket, picking a matchday opens the Groups; an edition without 
   await point(page, 'After matchday 2').click();
   await expect(page.getByTestId('wc-race')).toBeVisible();
   await expect(page.getByTestId('wc-bracket')).toHaveCount(0);
-  await page.getByTestId('what-edition').getByRole('radio', { name: '2022', exact: true }).click();
+  await page.getByTestId('what-edition').getByTestId('edition-btn').click();
+  await page.getByTestId('what-edition').getByRole('option', { name: '2022', exact: true }).click();
   await ready(page, 2022);
   await expect(page.getByTestId('wc-point')).toHaveCount(0);
   await expect(page.getByTestId('wc-rules-btn')).toHaveCount(0);

@@ -1,11 +1,12 @@
-// FK-65: the page rows under the pinned header (NAV_PATTERN.md §2): What (the thing looked at) as chips or a strip,
-// never a <select>, and How as a small switch; then the page's own controls (dates, span, checkboxes). They scroll
+// FK-65: the page rows under the pinned header (NAV_PATTERN.md §2): What (the thing looked at) as chips (an edition:
+// FK-74's dropdown), and How as a small switch; then the page's own controls (dates, span, checkboxes). They scroll
 // away with the page. A page without a What or a How skips that row.
 
-import { useLayoutEffect, useRef, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { addDays, dayLabel, mondayOf, monthLabel, shortDay } from '../data/model';
 import { DEFAULT_TRAILING } from '../data/trailing';
 import { ClubPicker } from './ClubPicker';
+import { EditionPicker } from './EditionPicker';
 import { useFooty } from './ctx';
 import {
   CLUB_HOWS, compName, CUP_WHAT, cupHowOf, cupHowPage, cupHows, cupOf, LEAGUE_HOWS, leagueHowOf, leagueOf, leaguePage, TODAY_HOWS, TOOLS, trailingComps,
@@ -26,19 +27,10 @@ export function Switch<T extends string | number>({ value, options, onChange, la
   );
 }
 
-/** What: every option visible as a chip, the chosen one highlighted. `strip`: one scrolling line, the chosen one
- * scrolled into view. */
-function Chips<T extends string | number>({ value, options, onChange, label, testId, strip = false }: { value: T; options: [T, string, string?][]; onChange: (v: T) => void; label: string; testId: string; strip?: boolean }) {
-  const box = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    const el = box.current;
-    const on = el?.querySelector<HTMLElement>('[aria-checked="true"]');
-    if (!strip || !el || !on) return;
-    // the chosen chip in the middle of the strip, without moving the page
-    el.scrollLeft = on.offsetLeft - el.clientWidth / 2 + on.offsetWidth / 2;
-  }, [strip, value]);
+/** What: every option visible as a chip, the chosen one highlighted. */
+function Chips<T extends string | number>({ value, options, onChange, label, testId }: { value: T; options: [T, string, string?][]; onChange: (v: T) => void; label: string; testId: string }) {
   return (
-    <div ref={box} className={`fk-chips${strip ? ' fk-chips-strip' : ''}`} role="radiogroup" aria-label={label} data-testid={testId}>
+    <div className="fk-chips" role="radiogroup" aria-label={label} data-testid={testId}>
       {options.map(([v, text, tip]) => (
         <button key={String(v)} type="button" role="radio" aria-checked={value === v} className={`fk-chip-btn${value === v ? ' fk-chip-on' : ''}`} title={tip} data-value={v} data-text={text}
           onClick={() => value !== v && onChange(v)}>{text}</button>
@@ -104,7 +96,7 @@ export function PageRows({ page, today, onPage, onStep, extra }: { page: Page; t
   } else if (where === 'cups') {
     const c = cupOf(page), h = cupHowOf(page);
     what = <Chips label="Competition" testId="what-cup" value={c} options={CUP_WHAT.map((x) => [x, compName(model, x)])} onChange={(x) => onPage(cupHowPage(page, x, h, today))} />;
-    if (c === WC_SLUG) what2 = <Chips strip label="Edition" testId="what-edition" value={wcYearOf(page)} options={WC_YEARS.map((y) => [y, String(y)])} onChange={(y) => onPage(wcEditionPage(page, y))} />;
+    if (c === WC_SLUG) what2 = <EditionPicker noun="World Cup" testId="what-edition" value={wcYearOf(page)} editions={WC_EDITIONS} onChange={(y) => onPage(wcEditionPage(page, y))} />; // FK-74: a dropdown, not a strip of 23 chips
     how = <Switch label="How" testId="how" value={h} options={cupHows(c)} onChange={(x) => onPage(cupHowPage(page, c, x, today))} />;
   } else {
     what = <Chips label="Tool" testId="what-tool" value={page.view} options={TOOLS} onChange={(v) => onPage({ ...page, view: v })} />;
@@ -132,3 +124,4 @@ export function PageRows({ page, today, onPage, onStep, extra }: { page: Page; t
 }
 
 const c2label = (p: Page) => (p.view === 'trailing' ? 'Competition' : 'Edition');
+const WC_EDITIONS = WC_YEARS.map((y) => ({ value: y, label: String(y) }));

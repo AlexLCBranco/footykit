@@ -30,7 +30,7 @@ export function whereOf(p: Page): Where {
   switch (p.view) {
     case 'day': case 'slate': return 'today';
     case 'clubs': case 'cal': case 'list': return 'clubs';
-    case 'table': return 'leagues';
+    case 'table': case 'relegation': return 'leagues';
     case 'whatif': return simLeague(p) ? 'leagues' : 'cups';
     case 'history': return isLeague(p.hcomp ?? DEFAULT_LEAGUE) ? 'leagues' : 'cups';
     case 'league': return isLeague(p.lcomp ?? DEFAULT_LEAGUE) ? 'leagues' : 'cups';
@@ -40,9 +40,10 @@ export function whereOf(p: Page): Where {
 }
 
 // ---------- Leagues ----------
-export type LeagueHow = 'table' | 'cal' | 'sim' | 'history';
+export type LeagueHow = 'table' | 'race' | 'cal' | 'sim' | 'history';
 export const LEAGUE_HOWS: [LeagueHow, string, string][] = [
   ['table', 'Table', 'The table now, and round by round'],
+  ['race', 'Relegation', 'Who is in the drop zone, who is close, and the games left'],
   ['cal', 'Calendar', "Every game of the league, a day or a week at a time"],
   ['sim', 'Simulator', 'Pick the results left to play and see the table change'],
   ['history', 'History', 'Past seasons: final tables and champions'],
@@ -54,7 +55,7 @@ export function leagueOf(p: Page): LeagueSlug {
   return isLeague(c) ? c : p.league ?? DEFAULT_LEAGUE;
 }
 export function leagueHowOf(p: Page): LeagueHow {
-  return p.view === 'league' ? 'cal' : p.view === 'whatif' ? 'sim' : p.view === 'history' ? 'history' : 'table';
+  return p.view === 'league' ? 'cal' : p.view === 'whatif' ? 'sim' : p.view === 'history' ? 'history' : p.view === 'relegation' ? 'race' : 'table';
 }
 /** League `l` looked at `how` (the calendar opens on today unless it already shows a day). */
 export function leaguePage(p: Page, l: LeagueSlug, how: LeagueHow, today: string): Page {
@@ -62,7 +63,7 @@ export function leaguePage(p: Page, l: LeagueSlug, how: LeagueHow, today: string
   if (how === 'cal') return { ...base, view: 'league', lcomp: l, day: p.view === 'league' ? p.day : today, lmode: p.view === 'league' ? p.lmode : undefined };
   if (how === 'sim') return { ...base, view: 'whatif', uclSim: false };
   if (how === 'history') return historyPage(base, l, p.view === 'history' && p.hcomp === l ? p.hseason : undefined);
-  return { ...base, view: 'table' };
+  return { ...base, view: how === 'race' ? 'relegation' : 'table' };
 }
 
 // ---------- Cups ----------
@@ -191,7 +192,7 @@ export function searchEntries(p: Page, model: Model, today: string, wc: WcTeamEd
   out.push(entry('Trailing', 'Tools', 'goals while trailing', { ...p, view: 'trailing', team: undefined }, 1));
   for (const l of LEAGUE_SLUGS) {
     const c = model.comp(l);
-    for (const [h, how] of LEAGUE_HOWS) out.push(entry(h === 'table' ? c.name : `${c.name} · ${how}`, 'League', `${c.code} ${how} league`, leaguePage(p, l, h, today), h === 'table' ? 1 : 2));
+    for (const [h, how] of LEAGUE_HOWS) out.push(entry(h === 'table' ? c.name : `${c.name} · ${how}`, 'League', `${c.code} ${how} league${h === 'race' ? ' drop zone going down z4' : ''}`, leaguePage(p, l, h, today), h === 'table' ? 1 : 2));
   }
   for (const cup of CUP_WHAT) {
     const name = compName(model, cup);

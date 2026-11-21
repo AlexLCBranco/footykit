@@ -6,9 +6,9 @@ import { copyColumns } from '../src/components/Copy';
 
 describe('Slate card layout (FK-35)', () => {
   it('the team rows add up to calendarkit\'s plus FK-53\'s bigger squares', () => expect(SLATE_ROW_TOTAL).toBe(CK_ROW_TOTAL + SLATE_FK53_WIDER + SLATE_FK50_WIDER));
-  it('calendarkit\'s card plus 52 px (FK-53, FK-50): 543 px info, 561 × 78 info-only', () => {
+  it('calendarkit\'s card plus 52 px (FK-53, FK-50): 543 px info, 561 × 96 info-only (FK-73: the stadium line, 18 px)', () => {
     expect(SLATE_INFO_WIDTH).toBe(543);
-    expect([SLATE_CARD_WIDTH, SLATE_CARD_HEIGHT]).toEqual([561, 78]);
+    expect([SLATE_CARD_WIDTH, SLATE_CARD_HEIGHT]).toEqual([561, 96]);
   });
   it('header line: "SLATE · 19-11 · Football", several sports joined', () => {
     expect(slateHeaderLabel('2026-11-19')).toBe('SLATE · 19-11 · Football');

@@ -17,7 +17,11 @@ const NOW = '2026-11-21T15:00:00Z';
 
 /** FK-65: the header's Where tabs, the page rows' What chips and How switch. */
 const where = (page: Page, w: 'today' | 'clubs' | 'leagues' | 'cups' | 'tools') => page.getByTestId(`where-${w}`).click();
-const what = (page: Page, row: string, v: string | number) => page.getByTestId(row).locator(`[data-value="${v}"]`).click();
+/** FK-74: the edition is a dropdown: open it, then pick. */
+const what = async (page: Page, row: string, v: string | number) => {
+  if (row === 'what-edition') await page.getByTestId(row).getByTestId('edition-btn').click();
+  await page.getByTestId(row).locator(`[data-value="${v}"]`).click();
+};
 const how = (page: Page, name: string) => page.getByTestId('how').getByRole('tab', { name, exact: true }).click();
 
 async function open(page: Page, search = '') {

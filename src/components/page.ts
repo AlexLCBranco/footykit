@@ -8,8 +8,8 @@ import { addDays, addMonths, monthLabel, monthOf, mondayOf, shortDay, type Model
 /** day = the day's matches (list), slate = the day as cards, cal = Team Calendar, list = Team List, ucl = the Champions
  * League page, whatif = a what-if simulator (the UCL's, or with `league` a league's), table = a league table, cups = the
  * cups pages, trailing = goals while trailing per competition, league = one competition's games, teams and standings
- * (FK-45), wc = the World Cup's editions (FK-59) */
-export type View = 'day' | 'slate' | 'clubs' | 'cal' | 'list' | 'ucl' | 'whatif' | 'table' | 'cups' | 'trailing' | 'league' | 'wc' | 'history';
+ * (FK-45), wc = the World Cup's editions (FK-59), relegation = a league's relegation race (FK-72, its league is `league`) */
+export type View = 'day' | 'slate' | 'clubs' | 'cal' | 'list' | 'ucl' | 'whatif' | 'table' | 'cups' | 'trailing' | 'league' | 'wc' | 'history' | 'relegation';
 /** FK-65: the World Cup page's How (the simulator is `wcSim`); unset = Bracket, or Groups for an edition with no bracket */
 export type WcHow = 'groups' | 'bracket';
 /** FK-65: the one World Cup with no knockout bracket (a final group decided the title); tests/nav.test.ts checks the data */
@@ -119,7 +119,7 @@ export function pageSearch(p: Page): string {
   if (p.view === 'whatif' && simLeague(p)) { q.set('league', simLeague(p)!); return `?${q}`; }
   if (p.view === 'ucl' && p.uclTab === 'pots') q.set('tab', 'pots');
   if (p.view === 'ucl' || p.view === 'whatif') return `?${q}`;
-  if (p.view === 'table') { q.set('league', p.league ?? DEFAULT_LEAGUE); return `?${q}`; }
+  if (p.view === 'table' || p.view === 'relegation') { q.set('league', p.league ?? DEFAULT_LEAGUE); return `?${q}`; }
   if (p.view === 'clubs') return `?${q}`;
   if (p.view === 'cups') { q.set('cup', p.cup ?? DEFAULT_CUP); if (p.cupSim) q.set('sim', '1'); return `?${q}`; }
   if (p.view === 'trailing') { q.set('comp', p.comp ?? DEFAULT_TRAILING); return `?${q}`; }
@@ -157,13 +157,13 @@ export function pageFromSearch(search: string, today: string, model: Model): Pag
   if (view === 'cups') { const c = q.get('cup'); if (c === UCL_SLUG) return { ...p, view: 'ucl', cup: UCL_SLUG }; return { ...p, view, cup: c && CUP_SLUGS.includes(c) ? c : DEFAULT_CUP, ...(q.get('sim') === '1' ? { cupSim: true } : {}) }; }
   if (view === 'trailing') { const c = q.get('comp'); return { ...p, view, comp: c && TRAILING_COMPS.includes(c) ? c : DEFAULT_TRAILING }; }
   if (view === 'league') { const c = q.get('comp'); return { ...p, view, lcomp: isLeagueViewComp(c) ? c : DEFAULT_LEAGUE, lmode: q.get('mode') === 'cal' ? 'cal' : undefined }; }
-  if (view === 'table') { const l = q.get('league'); return { ...p, view, league: isLeague(l) ? l : DEFAULT_LEAGUE }; }
+  if (view === 'table' || view === 'relegation') { const l = q.get('league'); return { ...p, view, league: isLeague(l) ? l : DEFAULT_LEAGUE }; }
   return p;
 }
 
 export function isPage(x: unknown): x is Page {
   const p = x as Page;
-  return !!p && typeof p === 'object' && ['day', 'slate', 'clubs', 'cal', 'list', 'ucl', 'whatif', 'table', 'cups', 'trailing', 'league', 'wc', 'history'].includes(p.view) && typeof p.day === 'string' && typeof p.week === 'string' && typeof p.month === 'string' && typeof p.listFrom === 'string';
+  return !!p && typeof p === 'object' && ['day', 'slate', 'clubs', 'cal', 'list', 'ucl', 'whatif', 'table', 'cups', 'trailing', 'league', 'wc', 'history', 'relegation'].includes(p.view) && typeof p.day === 'string' && typeof p.week === 'string' && typeof p.month === 'string' && typeof p.listFrom === 'string';
 }
 
 /** "Nov 8 – 14", "Nov 29 – Dec 5" (calendarkit's pageTitle.ts) */
@@ -183,6 +183,7 @@ export function pagePart(p: Page, model: Model): string {
   if (p.view === 'ucl') return p.uclTab === 'pots' ? 'Champions League pots' : 'Champions League';
   if (p.view === 'whatif') { const l = simLeague(p); return `${l ? model.comp(l).name : 'UCL'} simulator`; }
   if (p.view === 'table') return `${model.comp(p.league ?? DEFAULT_LEAGUE).name} table`;
+  if (p.view === 'relegation') return `${model.comp(p.league ?? DEFAULT_LEAGUE).name} relegation race`;
   if (p.view === 'cups') return `${model.comp(p.cup ?? DEFAULT_CUP).name}${p.cupSim ? ' simulator' : ''}`;
   if (p.view === 'trailing') return `${model.comp(p.comp ?? DEFAULT_TRAILING).name} goals while trailing`;
   if (p.view === 'history') return `${model.comp(p.hcomp ?? DEFAULT_LEAGUE).name} history${p.hseason ? ` · ${p.hseason}` : ''}`;
@@ -195,7 +196,7 @@ export const pageTitle = (p: Page, model: Model) => `${pagePart(p, model)} — $
 
 /** One step of the bar's ‹ › in the current view. */
 export function stepPage(p: Page, dir: 1 | -1, model: Model): Page {
-  if (p.view === 'clubs' || p.view === 'ucl' || p.view === 'whatif' || p.view === 'table' || p.view === 'cups' || p.view === 'trailing' || p.view === 'wc' || p.view === 'history') return p;
+  if (p.view === 'clubs' || p.view === 'ucl' || p.view === 'whatif' || p.view === 'table' || p.view === 'relegation' || p.view === 'cups' || p.view === 'trailing' || p.view === 'wc' || p.view === 'history') return p;
   if (p.view === 'cal') return p.span === 'month' ? { ...p, month: addMonths(p.month, dir) } : { ...p, week: addDays(p.week, 7 * dir * p.span) };
   if (p.view === 'list') return { ...p, month: addMonths(p.month, dir), listFrom: addMonths(p.month, dir) };
   // FK-45: the League view steps a day (List) or a week (Calendar), "no games" days included; no season bounds (a cup's

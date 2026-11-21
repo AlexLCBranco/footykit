@@ -531,6 +531,67 @@
   cursor: default;
 }
 
+/* FK-72: the relegation race page: the rules box on top (one short sentence per line), then the table */
+.fk-rel-rules {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 4px 0 14px;
+}
+.fk-rel-rules section {
+  padding: 10px 12px;
+  border: 1px solid var(--fk-border);
+  border-radius: 8px;
+  background: var(--fk-surface);
+}
+.fk-rel-rules h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+.fk-rel-rules h3:not(:first-child) {
+  margin-top: 12px;
+}
+.fk-rel-rules p,
+.fk-rel-rules li {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.fk-rel-rules ol {
+  margin: 0;
+  padding-left: 20px;
+}
+.fk-rel-table {
+  width: auto;
+}
+.fk-rel-table td,
+.fk-rel-table th {
+  padding-right: 14px;
+}
+.fk-rel-status {
+  font-weight: 600;
+}
+.fk-rel-down {
+  color: var(--fk-lz-rel);
+}
+.fk-rel-playoff {
+  color: var(--fk-lz-relpo);
+}
+.fk-rel-between li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+}
+.fk-rel-when {
+  display: inline-block;
+  min-width: 150px;
+  color: var(--fk-muted);
+}
+.fk-rel-search {
+  margin-left: 4px;
+}
+
 /* FK-54: the cups' bracket is zoomed to fill the first screen (useFitBracket); measured at its natural width */
 .fk-ko-grid.fk-ko-fit {
   justify-content: start;

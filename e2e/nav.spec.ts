@@ -16,13 +16,17 @@ async function open(page: Page, search = '') {
   await expect(page.getByTestId('footy')).toBeVisible();
   return errors;
 }
-const what = (page: Page, row: string, v: string | number) => page.getByTestId(row).locator(`[data-value="${v}"]`).click();
+/** FK-74: the edition is a dropdown: open it, then pick. */
+const what = async (page: Page, row: string, v: string | number) => {
+  if (row === 'what-edition') await page.getByTestId(row).getByTestId('edition-btn').click();
+  await page.getByTestId(row).locator(`[data-value="${v}"]`).click();
+};
 const how = (page: Page, name: string) => page.getByTestId('how').getByRole('tab', { name, exact: true }).click();
 
 /** One page of each place and each How. */
 const MAIN: [string, string][] = [
   ['Today · List', ''], ['Today · Slate', '?view=slate'], ['Clubs', '?view=clubs'], ['Club calendar', '?view=cal&team=359&span=month'],
-  ['Club list', '?view=list&team=359'], ['League table', '?view=table&league=eng.1'], ['League calendar', '?view=league&comp=eng.1'],
+  ['Club list', '?view=list&team=359'], ['League table', '?view=table&league=eng.1'], ['League relegation', '?view=relegation&league=eng.1'], ['League calendar', '?view=league&comp=eng.1'],
   ['League simulator', '?view=whatif&league=eng.1'], ['League history', '?view=history&comp=eng.1'], ['Champions League', '?view=ucl'],
   ['UCL pots', '?view=ucl&tab=pots'], ['UCL simulator', '?view=whatif'], ['Cup', '?view=cups&cup=conmebol.libertadores'],
   ['Cup simulator', '?view=cups&cup=eng.fa&sim=1'], ['World Cup bracket', '?view=wc&year=2026'], ['World Cup groups', '?view=wc&year=2002&how=groups'],
@@ -104,17 +108,15 @@ test('every Where tab, What chip and How option navigates; the address round-tri
   expect(errors).toEqual([]);
 });
 
-test('the World Cup: the edition strip scrolls the chosen year into view; the breadcrumb jumps sideways at every part', async ({ page }) => {
+test('the World Cup: one edition dropdown showing the open year (FK-74); the breadcrumb jumps sideways at every part', async ({ page }) => {
   const errors = await open(page, '?view=wc&year=1930');
-  const strip = page.getByTestId('what-edition');
-  await expect(strip.getByRole('radio')).toHaveCount(23);
-  const inView = async (y: number) => strip.evaluate((el, y) => {
-    const on = el.querySelector(`[data-value="${y}"]`)!.getBoundingClientRect(), box = el.getBoundingClientRect();
-    return on.left >= box.left - 1 && on.right <= box.right + 1;
-  }, y);
-  expect(await inView(1930)).toBe(true);
+  const pick = page.getByTestId('what-edition');
+  await expect(pick.getByTestId('edition-now')).toHaveText('1930');
+  // closed: no list, no strip of chips
+  await expect(pick.getByRole('option')).toHaveCount(0);
+  await expect(pick.getByRole('radio')).toHaveCount(0);
   await page.goto('/football/?view=wc&year=2026');
-  expect(await inView(2026)).toBe(true);
+  await expect(pick.getByTestId('edition-now')).toHaveText('2026');
   // the breadcrumb: Cups › World Cup › 2026 › Bracket
   const parts = page.getByTestId('crumb-btn');
   await expect(parts).toHaveText(['Cups', 'World Cup', '2026', 'Bracket']);

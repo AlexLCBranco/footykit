@@ -247,11 +247,56 @@
   gap: 6px;
   min-width: 0;
 }
-.fk-chips-strip {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  padding-bottom: 2px;
+/* FK-74: the edition dropdown with ◀ ▶ (EditionPicker.tsx); its list is the breadcrumb's menu */
+.fk-edition {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.fk-edition-box {
+  position: relative;
+}
+.fk-edition-btn,
+.fk-edition-step {
+  height: 30px;
+  box-sizing: border-box;
+  border: 1px solid var(--fk-border);
+  border-radius: 6px;
+  background: var(--fk-surface);
+  color: var(--fk-text) !important;
+  cursor: pointer;
+}
+.fk-edition-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 96px;
+  justify-content: space-between;
+  padding: 0 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.fk-edition-step {
+  width: 30px;
+  font-size: 11px;
+  line-height: 1;
+}
+.fk-edition-btn:hover,
+.fk-edition-step:hover:not(:disabled) {
+  border-color: var(--fk-muted);
+}
+.fk-edition-step:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.fk-edition-caret {
+  color: var(--fk-muted);
+  font-size: 11px;
+}
+.fk-edition-menu {
+  left: 0;
+  min-width: 100%;
+  font-variant-numeric: tabular-nums;
 }
 .fk-chip-btn {
   display: inline-flex;

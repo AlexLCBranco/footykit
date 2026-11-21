@@ -17,7 +17,11 @@ async function open(page: Page, search = '') {
   await expect(page.getByTestId('footy')).toBeVisible();
   return errors;
 }
-const edition = (page: Page, y: number) => page.getByTestId('what-edition').locator(`[data-value="${y}"]`).click();
+/** FK-74: the edition dropdown: open it, then pick. */
+const edition = async (page: Page, y: number) => {
+  await page.getByTestId('what-edition').getByTestId('edition-btn').click();
+  await page.getByTestId('what-edition').locator(`[data-value="${y}"]`).click();
+};
 const how = (page: Page, name: string) => page.getByTestId('how').getByRole('tab', { name, exact: true }).click();
 const ready = (page: Page, y: number) => expect(page.locator(`[data-testid="wc-page"][data-year="${y}"][data-ready]`)).toBeVisible();
 
@@ -35,7 +39,7 @@ test('fast: on 2026, an edition switch, a view switch and a simulator change eac
   await ready(page, 2022);
   await edition(page, 2026); await ready(page, 2026);
   await edition(page, 2022); await ready(page, 2022);
-  const ed = await timed(page, '[data-testid="what-edition"] [data-value="2026"]', '[data-testid="wc-page"][data-year="2026"][data-ready] [data-testid="wc-group"]');
+  const ed = await timed(page, '[data-testid="what-edition"] [data-testid="edition-next"]', '[data-testid="wc-page"][data-year="2026"][data-ready] [data-testid="wc-group"]');
   await how(page, 'Bracket'); await expect(page.getByTestId('wc-bracket')).toBeVisible();
   const view = await timed(page, '[data-testid="how"] [data-value="groups"]', '[data-testid="wc-group"]');
   await how(page, 'Simulator'); await expect(page.getByTestId('wc-sim')).toBeVisible();

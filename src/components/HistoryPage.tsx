@@ -11,6 +11,7 @@ import { histBracket, loadHistIndex, loadHistSeason, records, type HistIndex, ty
 import type { CupTie } from '../data/cups';
 import type { Match } from '../data/snapshot';
 import { useFooty } from './ctx';
+import { EditionPicker } from './EditionPicker';
 import './ucl.css';
 import './wc.css';
 
@@ -170,7 +171,7 @@ function Summary({ comp, idx, year, onSeason }: { comp: string; idx: HistIndex; 
   );
 }
 
-/** FK-65: the competition is picked on the What row, the season from the champions list (no <select>). */
+/** FK-65: the competition is picked on the What row; FK-74: the season from the dropdown beside the title. */
 export default function HistoryPage({ comp, season, onPage }: { comp: string; season?: number; onPage: (comp: string, season?: number) => void }) {
   const idx = useLoad('index', loadHistIndex);
   const c = idx.v?.[comp];
@@ -181,7 +182,8 @@ export default function HistoryPage({ comp, season, onPage }: { comp: string; se
     <div className="fk-ucl fk-lt fk-cups fk-histpage" data-testid="hist-page" data-comp={comp} data-year={year}>
       <div className="fk-ucl-head">
         <h2>{c?.name ?? comp} <span className="fk-muted">· history</span></h2>
-        <span className="fk-muted">pick a season below</span>
+        {/* FK-74: the season from one dropdown (newest first) with ◀ ▶; the champions list below still opens a season too */}
+        {c && <EditionPicker noun="season" testId="hist-season" value={year} editions={c.seasons.map((x) => ({ value: x.year, label: x.label }))} onChange={(y) => onPage(comp, y)} />}
       </div>
       {idx.err && <p className="fk-muted">The history couldn't be loaded ({idx.err}).</p>}
       {idx.v && !c && <p className="fk-muted">No history for this competition.</p>}

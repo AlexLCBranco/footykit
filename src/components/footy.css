@@ -824,6 +824,40 @@ button.fk-chip:hover {
   gap: 2px;
   white-space: nowrap;
 }
+/* FK-73: the stadium line under the team rows: the name ends in "…" before the chip is ever cut */
+.fk-card-venue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: var(--fk-slate-info);
+  height: var(--fk-slate-venue-h);
+  margin-top: var(--fk-slate-row-gap);
+  font-size: 12px;
+  line-height: var(--fk-slate-venue-h);
+  white-space: nowrap;
+}
+.fk-card-venue-name {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--fk-muted);
+}
+.fk-ground-chip {
+  flex: none;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: help;
+}
+.fk-ground-moved {
+  background: rgb(224 166 60 / 0.18);
+  color: var(--fk-fifa);
+}
+.fk-ground-neutral {
+  background: rgb(199 155 255 / 0.16);
+  color: var(--fk-neutral);
+}
 .fk-card-rows {
   display: flex;
   flex-direction: column;

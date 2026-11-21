@@ -40,28 +40,3 @@ Blocked: no publishable source of bookmaker odds found (checked 2026-11-20). Foo
 - If the pages can't be listed automatically: stop, add a `Blocked:` note with what was tried, and report.
 Blocked: the 64 replay pages could not be listed (tried 2026-11-20). fifa.com's robots.txt names a sitemap at `https://cxm-api.fifa.com/fifaplusweb/api/sitemaps`, and each replay page loads its data from that same host (`…/api/pages/en/watch/<id>`, `…/api/sections/videoDetails/<id>`), but Claude Code's permission guard refused every read of cxm-api.fifa.com (curl and the browser), so nothing could be listed. The 2022 tournament page on fifa.com links to no replay. Seen on the way: the final's page plays in the browser with no sign-in (from Brazil). To unblock: allow Claude Code to read cxm-api.fifa.com (a permission rule), or say to use FIFA's YouTube "FULL MATCH" uploads for all 64 instead.
 **Tests:** unit: a match with a FIFA+ URL uses it, one with only a YouTube URL uses that with the other title, one with neither renders no ▶; e2e: the 2022 final has a ▶ whose href is the FIFA+ replay page; data check: every URL in the file answers 200. By hand (can't be automated): open one ▶ and confirm the full match plays without paying.
-
-### FK-72 — Relegation race section
-**In short:** A new page per league shows the fight against relegation: who is in the drop zone, who is close, the points gap and the games left.
-**What:**
-- For every followed league with relegation: the teams in the zone and near it (same closeness rule as the Z4 tag: rounds 1–8 in the zone or 1 point from it, from round 9 on up to 3 points), with points, gap to safety, matches left, last results and next matches as squares, and head-to-head matches still to play among these teams.
-- Rules in plain words at the top (how many go down, play-off places, tie-breakers), understandable by a 5-year-old.
-- No odds here for now (owner, 2026-11-20: all odds wait for the paid odds API; see IDEAS I-15). Leave an obvious spot for an odds column.
-- Reached from the league's page and the header menu.
-**Tests:** unit: zone/near-zone rule by round; gap and matches-left maths; e2e: the Brasileirão page lists the bottom teams with gaps.
-
-### FK-73 — Stadium on Slate cards, and a clear flag when a team isn't at its usual ground
-**In short:** Every Slate card shows the stadium, and when the home team is not playing at its usual stadium the card says so and how far from home it is.
-**What:**
-- Stadium name and city on every Slate card (from the match's venue data).
-- "Not at home" flag: compare the venue with the club's usual home ground (the venue of most of its home matches this season; overridable by hand). When different, show a warning chip, e.g. "⚠ Not their stadium · 380 km from home", the usual stadium named on hover. Neutral-venue finals get "Neutral ground" instead.
-- No reason shown (owner, 2026-11-20: knowing the game is at a different stadium is enough).
-- Same chip in the gauntlet football Slate (GT-14) when it exists.
-**Tests:** unit: usual-ground detection, distance and override; e2e: a known moved match shows the chip with distance; a normal home match shows only the stadium.
-
-### FK-74 — Dropdown to pick a competition's edition
-**In short:** Picking an edition of a competition (World Cup 1930–2026, past seasons) is done from one dropdown instead of a long strip of chips.
-**What:**
-- Everywhere a competition has several editions/seasons: one dropdown showing the open edition, listing all of them newest first, with ◀ ▶ beside it for the neighbours. Owner's explicit exception to FK-65's "chips instead of dropdowns".
-- Switching stays instant (FK-66 preloading kept).
-**Tests:** e2e: the World Cup page's dropdown lists every edition, choosing 1970 opens it, ◀ ▶ move one edition.

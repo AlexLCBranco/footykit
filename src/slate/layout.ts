@@ -30,10 +30,12 @@ export const SLATE_ROW_TOTAL = trackSum(SLATE_ROW_TRACKS);
 export const SLATE_INFO_WIDTH = SLATE_STRIP + SLATE_STRIP_GAP + SLATE_ROW_TOTAL;
 export const SLATE_CARD_PAD = 8;
 export const SLATE_CARD_BORDER = 1;
-/** An info-only card (notes hidden): 561 × 78 (calendarkit's 509 × 78 plus FK-53's 20 px and FK-50's 32). */
+/** An info-only card (notes hidden): 561 × 96 (calendarkit's 509 × 78 plus FK-53's 20 px and FK-50's 32 in width, and FK-73's stadium line, 18 px, in height). */
 export const SLATE_CARD_WIDTH = SLATE_INFO_WIDTH + 2 * (SLATE_CARD_PAD + SLATE_CARD_BORDER);
 export const SLATE_INFO_HEIGHT = 2 * SLATE_ROW_HEIGHT + SLATE_ROW_GAP;
-export const SLATE_CARD_HEIGHT = SLATE_INFO_HEIGHT + 2 * (SLATE_CARD_PAD + SLATE_CARD_BORDER);
+/** FK-73: the stadium line under the team rows (stadium, city, and the "not their stadium" chip): one 14 px line and its gap. */
+export const SLATE_VENUE_HEIGHT = 14;
+export const SLATE_CARD_HEIGHT = SLATE_INFO_HEIGHT + SLATE_ROW_GAP + SLATE_VENUE_HEIGHT + 2 * (SLATE_CARD_PAD + SLATE_CARD_BORDER);
 /** With notes: two columns while the room right of the info keeps this (calendarkit's SLATE_NOTE_MIN and gap). */
 export const SLATE_NOTE_GAP = 14;
 export const SLATE_NOTE_MIN = 300;
@@ -44,6 +46,7 @@ export const slateVars = () => ({
   '--fk-slate-strip-gap': `${SLATE_STRIP_GAP}px`,
   '--fk-slate-row-gap': `${SLATE_ROW_GAP}px`,
   '--fk-slate-row-h': `${SLATE_ROW_HEIGHT}px`,
+  '--fk-slate-venue-h': `${SLATE_VENUE_HEIGHT}px`,
   '--fk-slate-pad': `${SLATE_CARD_PAD}px`,
   '--fk-slate-info': `${SLATE_INFO_WIDTH}px`,
   '--fk-slate-card-w': `${SLATE_CARD_WIDTH}px`,

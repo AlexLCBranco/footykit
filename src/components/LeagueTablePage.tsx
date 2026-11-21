@@ -17,7 +17,7 @@ import { useFooty } from './ctx';
 import './ucl.css';
 import { SplitTable } from './SplitTable';
 
-function Square({ m, team, today }: { m: Match; team: string; today: string }) {
+export function Square({ m, team, today }: { m: Match; team: string; today: string }) {
   const { model, timeZone } = useFooty();
   const home = m.h === team;
   const opp = model.team(home ? m.a : m.h);
@@ -70,7 +70,7 @@ function MoveCell({ mv, n }: { mv?: Move; n: number }) {
 
 const zoneAt = (zones: LeagueZone[], pos: number) => zones.find((z) => pos >= z.from && pos <= z.to);
 
-export default function LeagueTablePage({ league, today }: { league: LeagueSlug; today: string }) {
+export default function LeagueTablePage({ league, today, onRace }: { league: LeagueSlug; today: string; /** FK-72: open this league's relegation race */ onRace?: () => void }) {
   const { model } = useFooty();
   const rules = LEAGUES[league];
   // FK-43: the table as it stood after round N (◀ ▶ beside the label, or ← →); it opens on the latest played round
@@ -119,6 +119,7 @@ export default function LeagueTablePage({ league, today }: { league: LeagueSlug;
           </span>
           <button type="button" className="fk-lt-arrow" disabled={n >= latest} aria-label="The table a round later" title="A round later (→)" onClick={() => step(1)} data-testid="lt-next">▶</button>
         </span>
+        {onRace && <button type="button" className="fk-btn" onClick={onRace} title="Who is in the drop zone, who is close, and the games left" data-testid="lt-race">Relegation race</button>}
         <span className="fk-ucl-key">
           {legend.map((z) => <span key={z.kind} className={`fk-ucl-zone-key fk-lz-${z.kind}`}>{z.label}</span>)}
           {rules.zones.some((z) => z.maybe) && <span className="fk-ucl-zone-key fk-lz-maybe-key">hatched: only with some outcomes</span>}

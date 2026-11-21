@@ -4,11 +4,13 @@
 // marks; no copy button, FK-51; no draw price, FK-44) beside the two team rows: "@" cell, logo, name with its league place and
 // the score right after it, the tags (highlights; every tag in the hover popup), the strip of 5 windows around the match (FK-47), the
 // team's price. With notes shown, the note box sits under the rows across the card (5 lines, then its own scrollbar).
+// FK-73: one more line under the rows: the stadium and city, and a chip when the home team is away from its usual ground.
 // Weather (FK-39): the sky at kick-off in the second line's empty cell, the full forecast in the game pop-up.
 // Odds: ESPN's DraftKings lines (decimal), free, Slate only.
 
 import { useEffect, useMemo, type CSSProperties } from 'react';
 import { isPlayed } from '../data/model';
+import { groundChip, groundNote, groundText, groundTip, snapshotGrounds } from '../data/homeGround';
 import { neutralVenue } from '../data/neutral';
 import type { Match } from '../data/snapshot';
 import { NoteBox } from '../slate/NoteBox';
@@ -76,6 +78,20 @@ function SideRow({ m, side, day, odds, wx }: { m: Match; side: 'a' | 'h'; day: s
   );
 }
 
+/** FK-73: the stadium and city under the team rows, and a chip when the home team isn't at its usual ground (how far
+ * from it), or "Neutral ground". */
+function VenueLine({ m }: { m: Match }) {
+  const { model } = useFooty();
+  const where = groundText(m);
+  const note = groundNote(m, snapshotGrounds(model.snap.matches));
+  return (
+    <div className="fk-card-venue" data-testid="card-venue">
+      <span className={`fk-card-venue-name${where ? '' : ' fk-muted'}`} data-testid="card-stadium" title={where ? `Where the match is played: ${where}` : 'The stadium has not been announced yet'}>{where ?? 'Stadium not known yet'}</span>
+      {note && <span className={`fk-ground-chip fk-ground-${note.kind}`} data-testid="ground-chip" data-kind={note.kind} data-km={note.kind === 'moved' ? note.km : undefined} title={groundTip(note, m, model.team(m.h).name)}>{note.kind === 'moved' && '⚠ '}{groundChip(note)}</span>}
+    </div>
+  );
+}
+
 export function SlateCard({ m, day, notes, wx }: { m: Match; day: string; notes?: SlateNotes; /** FK-39: the weather at kick-off */ wx?: Weather }) {
   const { model, live } = useFooty();
   const o = live.odds.get(m.id);
@@ -103,6 +119,7 @@ export function SlateCard({ m, day, notes, wx }: { m: Match; day: string; notes?
           <SideRow m={m} side="a" day={day} odds={o?.a} wx={wx} />
         </div>
       </div>
+      <VenueLine m={m} />
       {notes && (
         <div className="fk-card-note">
           <NoteBox store={notes} gameId={m.id} label={label} />

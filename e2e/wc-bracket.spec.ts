@@ -146,14 +146,16 @@ test('older editions: what the data lacks is left off; a team with no flag gets 
   await expect(page.getByTestId('wc-video')).toHaveCount(0);
   await expect(final.getByTestId('wc-flag')).toHaveCount(2);
   // 1962: Czechoslovakia and Yugoslavia have no flag in the set: a tile with the code, never another country's flag
-  await page.getByTestId('what-edition').getByRole('radio', { name: '1962', exact: true }).click();
+  await page.getByTestId('what-edition').getByTestId('edition-btn').click();
+  await page.getByTestId('what-edition').getByRole('option', { name: '1962', exact: true }).click();
   await ready(page, 1962);
   const csk = page.locator('[data-testid="wc-side"][data-team="CSK"]').first();
   await expect(csk.getByTestId('wc-noflag')).toBeVisible();
   await expect(csk.getByTestId('wc-flag')).toHaveCount(0);
   await expect(csk.getByTestId('wc-team')).toHaveText('Czechoslovakia');
   // 1938: a walkover slot (no match) and replays (the earlier match listed on the card)
-  await page.getByTestId('what-edition').getByRole('radio', { name: '1938', exact: true }).click();
+  await page.getByTestId('what-edition').getByTestId('edition-btn').click();
+  await page.getByTestId('what-edition').getByRole('option', { name: '1938', exact: true }).click();
   await ready(page, 1938);
   await expect(page.getByTestId('wc-empty')).toHaveCount(1);
   await expect(page.locator('.fk-bk-earlier').first()).toContainText('Earlier match');

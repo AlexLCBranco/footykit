@@ -20,7 +20,7 @@ const ICONS: Record<Where, ReactNode> = {
 };
 
 /** Closes a popover on Escape or a click outside `box`. */
-function useDismiss(open: boolean, box: React.RefObject<HTMLElement | null>, close: () => void) {
+export function useDismiss(open: boolean, box: React.RefObject<HTMLElement | null>, close: () => void) {
   useEffect(() => {
     if (!open) return;
     const f = (e: Event) => { if (e instanceof KeyboardEvent ? e.key === 'Escape' : !box.current?.contains(e.target as Node)) close(); };

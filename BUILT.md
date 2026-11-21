@@ -4,6 +4,11 @@ Shipped work only, newest first. Planned work is in `FEATURE_BACKLOG.md`, never 
 Entries dated before 2026-11-16 were backfilled from the git commit messages (data, docs, test-only, merge and
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-21
+- FK-74 — Dropdown to pick a competition's edition (v0.83.0) — The World Cup's edition (1930–2026) and a competition's past season in History are now picked from one dropdown that shows the open one and lists them all newest first, with ◀ ▶ beside it for the edition before / after; the long strip of year chips is gone.
+- FK-73 — Stadium on Slate cards, and a clear flag when a team isn't at its usual ground (v0.83.0) — Every Slate card has a new line with the stadium and city; when the home team is away from its usual stadium it says "⚠ Not their stadium · 55 km from home" (the usual stadium on hover), and a neutral-venue match says "Neutral ground". Cards are 18 px taller (561 × 96).
+- FK-72 — Relegation race section (v0.83.0) — Leagues → a league → Relegation (also a "Relegation race" button on the league table and in Go anywhere): the rules in plain words on top, then the teams in the drop zone and close to it with points, the gap, games left, last 5 and next 3, and the games those teams still play against each other.
+
 ## 2026-11-20
 - FK-71 — World Cup thirds race: rewind to any matchday, who is through, and who each team would face (v0.82.0) — On the 2026 World Cup, "After matchday 1 / After matchday 2 / Final" rewinds the Groups and the Simulator: tables as they stood with Through / Out / Open on every row, the matches still to play, the third-placed teams with the cut line, the round of 32 as it stands, a "Who next?" button per team, and a "Rules" button that explains everything in plain words with real teams.
 - FK-70 — World Cup bracket poster mode (v0.81.0) — A "Poster" switch on the World Cup bracket shows it as flag tiles with team names joined by lines (tiles grow toward the champion in the middle, teams that went out are dimmed), with a copy-as-image button beside it.

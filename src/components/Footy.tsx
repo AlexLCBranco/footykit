@@ -34,6 +34,7 @@ import './footy.css';
 const UclPage = lazy(() => import('./UclPage'));
 const WhatIfPage = lazy(() => import('./WhatIfPage'));
 const LeagueTablePage = lazy(() => import('./LeagueTablePage'));
+const RelegationPage = lazy(() => import('./RelegationPage'));
 const LeagueWhatIfPage = lazy(() => import('./LeagueWhatIfPage'));
 const CupsPage = lazy(() => import('./CupsPage'));
 const TrailingPage = lazy(() => import('./TrailingPage'));
@@ -143,7 +144,8 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   else if (page.view === 'ucl') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><UclPage today={today} tab={page.uclTab ?? 'table'} /></Suspense>;
   else if (page.view === 'whatif' && simLeague(page)) view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueWhatIfPage key={simLeague(page)} league={simLeague(page)!} today={today} /></Suspense>;
   else if (page.view === 'whatif') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WhatIfPage today={today} /></Suspense>;
-  else if (page.view === 'table') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueTablePage league={page.league ?? DEFAULT_LEAGUE} today={today} /></Suspense>;
+  else if (page.view === 'table') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><LeagueTablePage league={page.league ?? DEFAULT_LEAGUE} today={today} onRace={() => onPage({ ...page, view: 'relegation' })} /></Suspense>;
+  else if (page.view === 'relegation') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><RelegationPage league={page.league ?? DEFAULT_LEAGUE} today={today} onTable={() => onPage({ ...page, view: 'table' })} /></Suspense>;
   else if (page.view === 'cups') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><CupsPage cup={page.cup ?? DEFAULT_CUP} today={today} fit simOn={!!page.cupSim} /></Suspense>;
   else if (page.view === 'history') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><HistoryPage comp={page.hcomp ?? DEFAULT_LEAGUE} season={page.hseason} onPage={(c, y) => onPage(historyPage(page, c, y))} /></Suspense>;
   else if (page.view === 'wc') view = <Suspense fallback={<div className="fk-muted" style={{ padding: 14 }}>Loading…</div>}><WorldCupPage year={page.wcYear ?? WC_LATEST} team={page.wcTeam} sim={!!page.wcSim} how={page.wcHow} at={page.wcAt} onAt={(at, how) => onPage({ ...page, view: 'wc', wcAt: at, ...(how ? { wcSim: undefined, wcHow: how } : {}) })} onPage={(year, team) => onPage({ ...page, view: 'wc', wcYear: year, wcTeam: team })} /></Suspense>;

@@ -2,6 +2,26 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-21 — FK-72, FK-73, FK-74 (FK-61, FK-63, FK-68 still blocked)
+
+**Built:** v0.83.0.
+- FK-72 — Relegation race. Leagues → pick a league → "Relegation" (also a "Relegation race" button on the league table, the breadcrumb, and "Go anywhere": type "brasileirao relegation"). On top, the rules in plain words: how many go down and which places, the play-off place (Bundesliga, Ligue 1), what decides between teams with the same points (in order), and "Right now" with the real teams on the line (Brasileirão: "Internacional is 16th with 38 points. It is the last safe team. Corinthians is 17th with 37 points… needs 1 more point to catch Internacional."). Then a table: place, team, where it stands (In the drop zone / Play-off place / Close to the drop zone), points, the gap in words ("1 point from safety", "3 points above the drop zone"), games left, last 5 and next 3 as squares. Under it, the games these teams still play against each other, with date and time.
+- FK-73 — Stadium on Slate cards. Every card has a new line under the two teams: stadium and city. When the home team is not at its usual stadium: "⚠ Not their stadium · 55 km from home" (hover: "Santos usually play at home at Estádio Vila Belmiro, Santos. This match is at …, 55 km away."). A neutral-venue match says "Neutral ground". No reason is shown. The gauntlet's football Slate gets the same line by itself (it is the same card).
+- FK-74 — Edition dropdown. The World Cup's 23 year chips are now one dropdown showing the open edition, listing all of them newest first, with ◀ (the edition before) and ▶ (the edition after). Switching is as fast as before (measured 56 ms). A competition's History has the same dropdown for its season.
+**How I read the gaps in the specs (say if any is wrong):**
+- FK-72, who is listed: teams in a place that goes down, plus teams close above by the Z4 tag's rule (1 point in a team's first 8 games, then 3). For the Bundesliga and Ligue 1 the team in the play-off place (16th) is always listed too, with its own label; the spec did not say, and a relegation page without it would be wrong. Its gap, like a drop-zone team's, is to the last fully safe team (15th).
+- FK-72, places use the league table's tie-breakers (a team level on points with the zone is in or out by them), so the page always agrees with the table; the Z4 tag itself still counts points only.
+- FK-72, the play-off: the page says the 16th "plays 2 more games against a team from the league below" and does not say which team, because that is not in the researched config.
+- FK-72, odds: nothing on screen. The column's spot is marked in the code, between "Games left" and "Last 5 · next 3" (IDEAS I-15).
+- FK-73, usual stadium: the one with more than half of the team's home matches this season, and at least 3 of them (neutral-venue and cancelled matches not counted). With fewer (cup opponents footykit only sees once or twice) there is no flag. The same stadium under two ESPN spellings counts as one. A hand override goes in `config/homeGrounds.ts` (empty today).
+- FK-73, distance: straight line between the two stadiums; left off when footykit has no coordinates for one of them or they are under 1 km apart.
+- FK-73, the card is 18 px taller (561 × 96, was 561 × 78): the stadium line had no room inside the old card. It no longer has calendarkit's height, which matters for the combined Slate (GT-14).
+- FK-74, History: the season dropdown was added; the champions list under it stays, because it also shows who won each season, and a click on it still opens that season.
+**Blocked:** nothing new. FK-61 (waits for halftime-timer HT-1), FK-63 (no publishable bookmaker odds) and FK-68 (FIFA+ pages can't be listed) were skipped as blocked.
+**Ideas added:** none.
+**Checked automatically:** 37 new unit tests (tests/relegation.test.ts: the closeness rule by round, gaps, games left, play-off place, the recorded Brasileirão and Bundesliga, every tie-break line has a plain twin, the rules box for all six leagues, the address and Go anywhere; tests/home-ground.test.ts: usual ground, too few matches, two spellings, override, distance, neutral ground, Santos v Grêmio on Nov 23 at 55 km; tests/edition-picker.test.tsx: newest first, neighbours, pick, Escape, ◀ ▶) and 3 new browser tests (e2e/backlog-72-74.spec.ts), plus the older browser tests updated for the dropdown and the taller card. 567 unit tests and 115 browser tests pass. One older browser test (World Cup speed, limit 100 ms) read 143 ms once while every test ran at the same time, and 56 ms alone and on the next full run.
+**Test by hand:** read the relegation page's rules box once and say if any line needs a second read; look at the Slate's new stadium line and say if the taller card is fine (reading ease and looks can't be automated).
+
 ## 2026-11-20 — FK-71
 
 **Built:** v0.82.0 FK-71 — World Cup thirds race (2026; any later edition with a pairing table for thirds gets it by itself).
