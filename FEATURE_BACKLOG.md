@@ -40,3 +40,14 @@ Blocked: no publishable source of bookmaker odds found (checked 2026-11-20). Foo
 - If the pages can't be listed automatically: stop, add a `Blocked:` note with what was tried, and report.
 Blocked: the 64 replay pages could not be listed (tried 2026-11-20). fifa.com's robots.txt names a sitemap at `https://cxm-api.fifa.com/fifaplusweb/api/sitemaps`, and each replay page loads its data from that same host (`…/api/pages/en/watch/<id>`, `…/api/sections/videoDetails/<id>`), but Claude Code's permission guard refused every read of cxm-api.fifa.com (curl and the browser), so nothing could be listed. The 2022 tournament page on fifa.com links to no replay. Seen on the way: the final's page plays in the browser with no sign-in (from Brazil). To unblock: allow Claude Code to read cxm-api.fifa.com (a permission rule), or say to use FIFA's YouTube "FULL MATCH" uploads for all 64 instead.
 **Tests:** unit: a match with a FIFA+ URL uses it, one with only a YouTube URL uses that with the other title, one with neither renders no ▶; e2e: the 2022 final has a ▶ whose href is the FIFA+ replay page; data check: every URL in the file answers 200. By hand (can't be automated): open one ▶ and confirm the full match plays without paying.
+
+### FK-75 — Calendar screen: controls move up into the tab row
+**In short:** On the calendar screen, the WHAT / HOW / 1 week–2 weeks–Month / month-arrows / Today controls sit on the same line as the Today / Clubs / Leagues / Cups / Tools tabs, in the empty space to their right, and the row under the line is gone.
+**What:**
+- Screen: the club calendar screen (owner's screenshot, 2026-11-21: tabs row, a thin line, then a second row with the controls).
+- Move every control of that second row into the tabs row, to the right of the last tab, in the same left-to-right order as today. Nothing is removed, renamed or restyled.
+- The tabs row must NOT get taller: same height and spacing as today. The line stays where it is, with the page content starting right under it, so the page gains the height of the removed row.
+- The owner always uses a full-size window; that is the width this must fit at. If it can't fit on one line there without shrinking text, stop and add a `Blocked:` note instead of wrapping or growing the row.
+- Other screens: unchanged in this item.
+**Sibling:** CK-33 in calendarkit (same change, keep the two looking the same).
+**Tests:** e2e at a full-size desktop viewport: the controls are inside the tabs row, no control row exists under the line, and the tabs row's height equals its height before the change.
