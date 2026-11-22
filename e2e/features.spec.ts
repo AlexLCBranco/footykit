@@ -20,6 +20,7 @@ const where = (page: Page, w: 'today' | 'clubs' | 'leagues' | 'cups' | 'tools') 
 /** FK-74: the edition is a dropdown: open it, then pick. */
 const what = async (page: Page, row: string, v: string | number) => {
   if (row === 'what-edition') await page.getByTestId(row).getByTestId('edition-btn').click();
+  else await page.getByTestId(row).getByTestId('comp-picker').click(); // FK-75: the league / competition box
   await page.getByTestId(row).locator(`[data-value="${v}"]`).click();
 };
 const how = (page: Page, name: string) => page.getByTestId('how').getByRole('tab', { name, exact: true }).click();
@@ -381,8 +382,8 @@ test('FK-25: calendarkit\'s surfaces: card rows, table panels, the Quick standin
   await expect(pop.locator('table.fk-table').first()).toHaveCSS('border-top-left-radius', '10px');
   await expect(pop.locator('table.fk-table th').first()).toHaveCSS('font-size', '11px');
   await page.goto('/football/?view=table&league=eng.1');
-  const head = await page.locator('.fk-ucl-head h2').boundingBox(), bar = await page.getByTestId('page-rows').boundingBox();
-  expect(Math.abs(head!.x - bar!.x)).toBeLessThan(2); // the page starts at the rows' left edge
+  const head = await page.locator('.fk-ucl-head h2').boundingBox(), bar = await page.getByTestId('where-tabs').boundingBox();
+  expect(Math.abs(head!.x - bar!.x)).toBeLessThan(2); // the page starts at the header's left edge (FK-75: the controls are in its tabs row)
   await page.goto('/football/?view=list&team=359');
   await expect(page.locator('.fk-tl-month h3').first()).toHaveCSS('text-transform', 'uppercase');
   expect(errors).toEqual([]);
@@ -393,12 +394,15 @@ test('FK-29 / FK-65: the UCL is in the Cups place, the first of its competitions
   const title = (t: string) => expect(page).toHaveTitle(`${t} — footykit`);
   const current = page.getByTestId('where-tabs').locator('[aria-current="page"]');
   await expect(current).toHaveText('Cups');
+  // the Champions League is the first entry of the competition box
   const chips = page.getByTestId('what-cup');
-  await expect(chips.getByRole('radio').first()).toHaveText('Champions League');
+  await chips.getByTestId('comp-picker').click();
+  await expect(chips.getByRole('option').first()).toHaveText('Champions League');
+  await page.keyboard.press('Escape');
   await what(page, 'what-cup', 'uefa.champions');
   await title('Champions League');
   await expect(page.getByTestId('ucl-knockout')).toBeVisible();
-  await expect(chips.locator('[aria-checked="true"]')).toHaveText('Champions League');
+  await expect(chips.getByTestId('comp-picker')).toHaveValue('Champions League');
   // its simulator stays in the place; another cup keeps the How
   await how(page, 'Simulator');
   await expect(page).toHaveTitle('UCL simulator — footykit');
@@ -789,7 +793,7 @@ test('FK-46: a competition icon says the round on hover and opens the League vie
   await icon.click();
   await expect(page).toHaveURL(/view=league&comp=eng\.1/);
   await expect(page.getByTestId('league-day')).toHaveAttribute('data-day', '2026-11-21');
-  await expect(page.getByTestId('what-league').locator('[aria-checked="true"]')).toHaveAttribute('data-value', 'eng.1');
+  await expect(page.getByTestId('what-league')).toHaveAttribute('data-value', 'eng.1');
   // a List row's competition (icon and name) does the same, without pinning the row
   await page.goto('/football/');
   const row = page.getByTestId('match-row').first();
@@ -1119,7 +1123,7 @@ test('FK-55 / FK-65: a cup page switches competition from the What chips (no <se
   await expect(page).toHaveURL(/cup=eng\.fa/);
   await what(page, 'what-cup', 'uefa.champions');
   await expect(page.getByTestId('ucl-page')).toBeVisible();
-  await expect(page.getByTestId('what-cup').locator('[aria-checked="true"]')).toHaveAttribute('data-value', 'uefa.champions');
+  await expect(page.getByTestId('what-cup')).toHaveAttribute('data-value', 'uefa.champions');
   await what(page, 'what-cup', 'conmebol.libertadores');
   await expect(page.getByTestId('cups-page')).toHaveAttribute('data-cup', 'conmebol.libertadores');
   expect(errors).toEqual([]);

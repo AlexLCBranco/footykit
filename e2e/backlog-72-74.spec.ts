@@ -50,6 +50,7 @@ test('FK-72: the Brasileirão relegation race lists the bottom teams with their 
   // the games these teams still play against each other
   await expect(page.getByTestId('rel-between-match')).toHaveCount(5);
   // another league keeps the page; the Bundesliga has a play-off place and says so
+  await page.getByTestId('what-league').getByTestId('comp-picker').click();
   await page.getByTestId('what-league').locator('[data-value="ger.1"]').click();
   await expect(page).toHaveURL(/view=relegation&league=ger\.1/);
   await expect(page.locator('[data-testid="rel-row"][data-status="playoff"]').getByTestId('rel-status')).toHaveText('Play-off place');

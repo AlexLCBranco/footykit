@@ -19,6 +19,7 @@ async function open(page: Page, search = '') {
 /** FK-74: the edition is a dropdown: open it, then pick. */
 const what = async (page: Page, row: string, v: string | number) => {
   if (row === 'what-edition') await page.getByTestId(row).getByTestId('edition-btn').click();
+  else await page.getByTestId(row).getByTestId('comp-picker').click(); // FK-75: the league / competition box
   await page.getByTestId(row).locator(`[data-value="${v}"]`).click();
 };
 const how = (page: Page, name: string) => page.getByTestId('how').getByRole('tab', { name, exact: true }).click();
@@ -79,7 +80,7 @@ test('every Where tab, What chip and How option navigates; the address round-tri
   await page.getByTestId('where-leagues').click();
   for (const l of ['esp.1', 'ita.1', 'ger.1', 'fra.1', 'bra.1', 'eng.1']) {
     await what(page, 'what-league', l);
-    await expect(page.getByTestId('what-league').locator('[aria-checked="true"]')).toHaveAttribute('data-value', l);
+    await expect(page.getByTestId('what-league')).toHaveAttribute('data-value', l);
   }
   for (const h of ['Calendar', 'Simulator', 'History', 'Table']) {
     await how(page, h);
@@ -89,7 +90,7 @@ test('every Where tab, What chip and How option navigates; the address round-tri
   await page.getByTestId('where-cups').click();
   for (const c of ['conmebol.libertadores', 'conmebol.sudamericana', 'bra.copa_do_brazil', 'eng.fa', 'eng.league_cup', 'esp.copa_del_rey', 'ita.coppa_italia', 'ger.dfb_pokal', 'fra.coupe_de_france', 'uefa.champions']) {
     await what(page, 'what-cup', c);
-    await expect(page.getByTestId('what-cup').locator('[aria-checked="true"]')).toHaveAttribute('data-value', c);
+    await expect(page.getByTestId('what-cup')).toHaveAttribute('data-value', c);
   }
   for (const h of ['Pots', 'Calendar', 'Simulator', 'History', 'League phase']) {
     await how(page, h);
@@ -190,6 +191,7 @@ test('click to screen in under 100 ms on loaded data (Leagues, the World Cup 202
   await page.goto('/football/?view=table&league=eng.1');
   await what(page, 'what-league', 'bra.1'); await expect(page.getByTestId('league-page')).toHaveAttribute('data-league', 'bra.1');
   await what(page, 'what-league', 'eng.1'); await expect(page.getByTestId('league-page')).toHaveAttribute('data-league', 'eng.1');
+  await page.getByTestId('what-league').getByTestId('comp-picker').click(); // the box open: the click timed is the pick
   const league = await timed(sel('what-league', 'bra.1'), '[data-testid="league-page"][data-league="bra.1"]');
   // Today: List → Slate
   await page.goto('/football/');

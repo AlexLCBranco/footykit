@@ -20,6 +20,7 @@ const where = (page: Page, w: 'today' | 'clubs' | 'leagues' | 'cups' | 'tools') 
 /** FK-74: the edition is a dropdown: open it, then pick. */
 const what = async (page: Page, row: string, v: string | number) => {
   if (row === 'what-edition') await page.getByTestId(row).getByTestId('edition-btn').click();
+  else await page.getByTestId(row).getByTestId('comp-picker').click(); // FK-75: the league / competition box
   await page.getByTestId(row).locator(`[data-value="${v}"]`).click();
 };
 const how = (page: Page, name: string) => page.getByTestId('how').getByRole('tab', { name, exact: true }).click();

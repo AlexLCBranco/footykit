@@ -2,6 +2,26 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-21 — FK-75, the rest (answered on GitHub during the same run)
+
+**Built:** v0.86.0. FK-75 is finished and out of the backlog.
+- Leagues, Cups and Tools now have their controls in the tabs row too. The header is 92 px tall on every page and nothing sits under its line.
+- The row of league / competition buttons is one box that looks and works like the club box: same height and style, the open league or competition in it with its logo. Click it to see them all; type to filter ("bundes" leaves Bundesliga); ↑ ↓ and Enter pick; Esc closes.
+- Leagues, left to right: the five tabs · league box · Table / Relegation / Calendar / Simulator / History · Day / Week and the dates (on Calendar only).
+- Cups: the five tabs · competition box · the World Cup's year box (only when the World Cup is open) · the views.
+- Tools: the five tabs · competition box · "Trailing".
+- The controls stay in the tabs row on every view of a page. Today's strip of day boxes and a club's title row stay where they are, as you said.
+- Room left in the tabs row at 1912 px: Leagues' Calendar 44 px (the tightest), a cup's Calendar 119 px, a club's month 245 px, everything else 350 px or more.
+**How I read the gaps in the spec (say if any is wrong):**
+- Each box lists exactly what the buttons listed, in the same order: 6 leagues; 11 competitions on Cups (Champions League first, World Cup last); 15 on Tools.
+- The World Cup has no logo file, so its box shows a small 🏆.
+- A window narrower than the row needs (Leagues about 1880 px wide, Cups about 1800, Clubs about 1690) keeps that page's controls in a row under the header instead of cutting them off. One rule per page, so they never jump between views.
+- The "WHAT" / "HOW" labels are gone on every page at full size.
+**Blocked:** nothing. **The backlog is empty.**
+**Ideas added:** none.
+**Checked automatically:** 12 new unit tests (the box: list, filter, click, Enter, Esc, arrows; each box's list equals the old buttons' list; one answer per page at every width) and 3 new browser tests at 1912 × 913 (Leagues on Calendar, Cups with the World Cup open, Tools: header 92 px, no control row under the line, the box lists everything that had a button, picking one opens it), plus the every-page test now covering 20 pages of all five places. Older browser tests updated to pick from the box. 596 unit tests and 126 browser tests pass.
+**Test by hand:** look at Leagues → Calendar: the tabs row is nearly full there (44 px spare). Say if it feels crowded (looks can't be automated).
+
 ## 2026-11-21 — FK-61, FK-68 (unblocked on GitHub while FK-75 was being built)
 
 **Built:** v0.85.0.

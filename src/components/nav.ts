@@ -39,13 +39,20 @@ export function whereOf(p: Page): Where {
   }
 }
 
-/** FK-75: the places whose controls all fit in the header's tabs row, beside the five tabs, on one line at full text
- *  size. Leagues (its Calendar), Cups and Tools need more room than the row has, so theirs stay under the header. */
-const HEADER_PLACES: Where[] = ['today', 'clubs'];
-/** The narrowest widget that holds the tabs and the widest of those controls (a club's Calendar) on one line; narrower
- *  than this, the controls go back under the header rather than being cut off. */
-export const HEADER_CONTROLS_MIN = 1620;
-export const controlsInHeader = (p: Page, width: number): boolean => width >= HEADER_CONTROLS_MIN && HEADER_PLACES.includes(whereOf(p));
+/**
+ * FK-75: every place's controls sit in the header's tabs row, beside the five tabs, on one line at full text size.
+ * This is the narrowest widget that holds the tabs and the place's widest set of controls (Clubs: a club's Calendar;
+ * Leagues and Cups: the Calendar view, with Day / Week and the dates; e2e/fk75.spec.ts prints the room left at 1912).
+ * Narrower than that, the place's controls go back under the header rather than being cut off. One number per place,
+ * not per view, so the controls never jump between views.
+ */
+export const HEADER_CONTROLS_MIN: Record<Where, number> = { today: 1280, clubs: 1620, leagues: 1810, cups: 1735, tools: 900 };
+export const controlsInHeader = (p: Page, width: number): boolean => width >= HEADER_CONTROLS_MIN[whereOf(p)];
+
+/** FK-75: what the league / competition boxes list, in the order the buttons they replaced had. */
+export const leagueOptions = (model: Model) => LEAGUE_SLUGS.map((x) => ({ value: x as string, name: model.comp(x).name }));
+export const cupOptions = (model: Model) => CUP_WHAT.map((x) => ({ value: x, name: compName(model, x) }));
+export const toolCompOptions = (model: Model) => trailingComps(model).map((x) => ({ value: x as string, name: model.comp(x).name }));
 
 // ---------- Leagues ----------
 export type LeagueHow = 'table' | 'race' | 'cal' | 'sim' | 'history';

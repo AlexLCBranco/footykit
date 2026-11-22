@@ -1738,6 +1738,28 @@ button.fk-chip:hover {
   opacity: 0.25;
 }
 
+/* FK-75: the league / competition box (CompPicker.tsx): the club box's look, a little narrower, with a ▾ */
+.fk-comp-pick {
+  width: 250px;
+  flex: none;
+}
+.fk-comp-pick-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.fk-comp-pick-caret {
+  flex: none;
+  color: var(--fk-muted);
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: none;
+}
+.fk-comp-pick .fk-club-list {
+  width: 280px;
+}
+
 /* The "All clubs" button and the club box as one group (FK-75; the × that FK-16 put here is that button now) */
 .fk-club-group {
   display: inline-flex;

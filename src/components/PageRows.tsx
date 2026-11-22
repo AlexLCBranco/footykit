@@ -7,13 +7,15 @@ import type { ReactNode } from 'react';
 import { addDays, dayLabel, mondayOf, monthLabel, shortDay } from '../data/model';
 import { DEFAULT_TRAILING } from '../data/trailing';
 import { ClubPicker } from './ClubPicker';
+import { CompPicker } from './CompPicker';
 import { EditionPicker } from './EditionPicker';
 import { useFooty } from './ctx';
 import {
-  CLUB_HOWS, compName, CUP_WHAT, cupHowOf, cupHowPage, cupHows, cupOf, LEAGUE_HOWS, leagueHowOf, leagueOf, leaguePage, TODAY_HOWS, TOOLS, trailingComps,
+  CLUB_HOWS, cupHowOf, cupHowPage, cupHows, cupOf, cupOptions, LEAGUE_HOWS, leagueHowOf, leagueOf, leagueOptions, leaguePage, TODAY_HOWS, toolCompOptions, TOOLS,
   wcEditionPage, wcYearOf, whereOf,
 } from './nav';
-import { LEAGUE_SLUGS, WC_SLUG, WC_YEARS, type LeagueMode, type Page, type Span } from './page';
+import { WC_SLUG, WC_YEARS, type LeagueMode, type Page, type Span } from './page';
+import type { LeagueSlug } from '../../config/season';
 
 /** A segmented switch (How, and the smaller switches beside it). */
 export function Switch<T extends string | number>({ value, options, onChange, label, testId }: { value: T; options: [T, string, string?][]; onChange: (v: T) => void; label: string; testId?: string }) {
@@ -40,8 +42,8 @@ function Chips<T extends string | number>({ value, options, onChange, label, tes
   );
 }
 
-const Row = ({ label, children, wide = false }: { label: string; children: ReactNode; wide?: boolean }) => (
-  <div className={`fk-prow${wide ? ' fk-prow-wide' : ''}`}><span className="fk-prow-label">{label}</span>{children}</div>
+const Row = ({ label, children }: { label: string; children: ReactNode }) => (
+  <div className="fk-prow"><span className="fk-prow-label">{label}</span>{children}</div>
 );
 
 function DateBlock({ page, today, onPage, onStep }: { page: Page; today: string; onPage: (p: Page) => void; onStep: (dir: 1 | -1) => void }) {
@@ -94,16 +96,18 @@ export function PageRows({ page, today, onPage, onStep, extra, inHeader = false 
     }
   } else if (where === 'leagues') {
     const l = leagueOf(page), h = leagueHowOf(page);
-    what = <Chips label="League" testId="what-league" value={l} options={LEAGUE_SLUGS.map((x) => [x, model.comp(x).name])} onChange={(x) => onPage(leaguePage(page, x, h, today))} />;
+    // FK-75: one box (like the club box) in place of the six league buttons
+    what = <CompPicker noun="league" testId="what-league" value={l} options={leagueOptions(model)} onPick={(x) => onPage(leaguePage(page, x as LeagueSlug, h, today))} />;
     how = <Switch label="How" testId="how" value={h} options={LEAGUE_HOWS} onChange={(x) => onPage(leaguePage(page, l, x, today))} />;
   } else if (where === 'cups') {
     const c = cupOf(page), h = cupHowOf(page);
-    what = <Chips label="Competition" testId="what-cup" value={c} options={CUP_WHAT.map((x) => [x, compName(model, x)])} onChange={(x) => onPage(cupHowPage(page, x, h, today))} />;
+    what = <CompPicker noun="competition" testId="what-cup" value={c} options={cupOptions(model)} onPick={(x) => onPage(cupHowPage(page, x, h, today))} />;
     if (c === WC_SLUG) what2 = <EditionPicker noun="World Cup" testId="what-edition" value={wcYearOf(page)} editions={WC_EDITIONS} onChange={(y) => onPage(wcEditionPage(page, y))} />; // FK-74: a dropdown, not a strip of 23 chips
     how = <Switch label="How" testId="how" value={h} options={cupHows(c)} onChange={(x) => onPage(cupHowPage(page, c, x, today))} />;
   } else {
-    what = <Chips label="Tool" testId="what-tool" value={page.view} options={TOOLS} onChange={(v) => onPage({ ...page, view: v })} />;
-    what2 = <Chips label="Competition" testId="what-comp" value={page.comp ?? DEFAULT_TRAILING} options={trailingComps(model).map((x) => [x, model.comp(x).name])} onChange={(x) => onPage({ ...page, comp: x })} />;
+    // FK-75: the competition box first, then the tool (one today: Trailing)
+    what = <CompPicker noun="competition" testId="what-comp" value={page.comp ?? DEFAULT_TRAILING} options={toolCompOptions(model)} onPick={(x) => onPage({ ...page, comp: x })} />;
+    how = <Chips label="Tool" testId="what-tool" value={page.view} options={TOOLS} onChange={(v) => onPage({ ...page, view: v })} />;
   }
   if (page.view === 'league') {
     more = (
@@ -113,19 +117,20 @@ export function PageRows({ page, today, onPage, onStep, extra, inHeader = false 
       </>
     );
   }
-  if (inHeader) return <div className="fk-head-controls" data-testid="page-rows">{what}{how}{more}{extra}</div>;
+  // the World Cup's year box sits between the competition box and the views
+  if (inHeader) return <div className="fk-head-controls" data-testid="page-rows">{what}{what2}{how}{more}{extra}</div>;
+  // a window too narrow for the tabs row: the same controls in rows under the header
   return (
     <div className="fk-prows" data-testid="page-rows" data-capture-exclude="true">
       <div className="fk-prows-line">
         {what && <Row label="What">{what}</Row>}
+        {what2 && <Row label="Edition">{what2}</Row>}
         {how && <Row label="How">{how}</Row>}
         {more}
         {extra}
       </div>
-      {what2 && <div className="fk-prows-line"><Row label={c2label(page)} wide>{what2}</Row></div>}
     </div>
   );
 }
 
-const c2label = (p: Page) => (p.view === 'trailing' ? 'Competition' : 'Edition');
 const WC_EDITIONS = WC_YEARS.map((y) => ({ value: y, label: String(y) }));

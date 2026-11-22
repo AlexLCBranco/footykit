@@ -6,8 +6,8 @@ import { describe, expect, it } from 'vitest';
 import { buildModel } from '../src/data/model';
 import type { Snapshot } from '../src/data/snapshot';
 import { bracket, type WcEdition } from '../src/data/worldcup';
-import { controlsInHeader, crumbs, cupHowOf, cupHowPage, cupOf, leagueHowOf, leagueOf, leaguePage, searchEntries, searchFind, whereOf, whereTarget, type WcTeamEdition } from '../src/components/nav';
-import { pageFromSearch, pageSearch, WC_NO_BRACKET, WC_YEARS, type Page } from '../src/components/page';
+import { controlsInHeader, CUP_WHAT, cupOptions, HEADER_CONTROLS_MIN, leagueOptions, toolCompOptions, trailingComps, crumbs, cupHowOf, cupHowPage, cupOf, leagueHowOf, leagueOf, leaguePage, searchEntries, searchFind, whereOf, whereTarget, type WcTeamEdition } from '../src/components/nav';
+import { LEAGUE_SLUGS, pageFromSearch, pageSearch, WC_NO_BRACKET, WC_YEARS, type Page } from '../src/components/page';
 
 const snap = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/snapshot.json'), 'utf8')) as Snapshot;
 const model = buildModel(snap, 'America/Sao_Paulo');
@@ -143,13 +143,41 @@ describe('Go anywhere', () => {
 });
 
 describe("FK-75: whose controls sit in the header's tabs row", () => {
-  it('Today and Clubs at a full-size window; Leagues, Cups and Tools keep their rows (they do not fit)', () => {
-    const at = (search: string, width = 1840) => controlsInHeader(open(search), width);
-    for (const s of ['', '?view=slate', '?view=clubs', `?view=cal&team=${team}`, `?view=list&team=${team}`]) expect(at(s), s).toBe(true);
-    for (const s of ['?view=table&league=eng.1', '?view=league&comp=eng.1', '?view=relegation&league=eng.1', '?view=ucl', '?view=wc&year=2022', '?view=trailing']) expect(at(s), s).toBe(false);
+  const at = (search: string, width = 1840) => controlsInHeader(open(search), width);
+  const EVERY = ['', '?view=slate', '?view=clubs', `?view=cal&team=${team}`, `?view=list&team=${team}`, '?view=table&league=eng.1', '?view=league&comp=eng.1', '?view=relegation&league=eng.1',
+    '?view=whatif&league=eng.1', '?view=history&comp=eng.1', '?view=ucl', '?view=cups&cup=eng.fa', '?view=wc&year=2022', '?view=trailing'];
+  it('every place at a full-size window (the widget is 1840 px wide in a 1912 px window)', () => {
+    for (const s of EVERY) expect(at(s), s).toBe(true);
   });
   it('a window too narrow for one line keeps them under the header', () => {
-    expect(controlsInHeader(open('?view=clubs'), 1400)).toBe(false);
-    expect(controlsInHeader(open(''), 390)).toBe(false);
+    expect(at('?view=clubs', 1400)).toBe(false);
+    for (const s of EVERY) expect(at(s, 390), s).toBe(false);
+  });
+  it('one answer per place, whatever its view: the controls never jump when a view is picked', () => {
+    for (const w of [1300, 1550, 1700, 1840]) {
+      expect(new Set(['?view=table&league=eng.1', '?view=league&comp=eng.1', '?view=relegation&league=eng.1', '?view=whatif&league=eng.1', '?view=history&comp=eng.1'].map((s) => at(s, w))).size, `Leagues at ${w}`).toBe(1);
+      expect(new Set(['?view=ucl', '?view=cups&cup=eng.fa', '?view=wc&year=2022', '?view=wc&year=2022&sim=1'].map((s) => at(s, w))).size, `Cups at ${w}`).toBe(1);
+      expect(new Set(['?view=clubs', `?view=cal&team=${team}`, `?view=list&team=${team}`].map((s) => at(s, w))).size, `Clubs at ${w}`).toBe(1);
+    }
+    expect(Math.max(...Object.values(HEADER_CONTROLS_MIN))).toBeLessThanOrEqual(1840);
+  });
+});
+
+describe('FK-75: the league / competition boxes list what the buttons they replaced listed, in the same order', () => {
+  it('Leagues: the six leagues', () => {
+    expect(leagueOptions(model).map((o) => o.value)).toEqual([...LEAGUE_SLUGS]);
+    expect(leagueOptions(model).map((o) => o.name)).toEqual(LEAGUE_SLUGS.map((l) => model.comp(l).name));
+    expect(leagueOptions(model)).toHaveLength(6);
+  });
+  it('Cups: the Champions League, the nine cups, the World Cup', () => {
+    expect(cupOptions(model).map((o) => o.value)).toEqual(CUP_WHAT);
+    expect(cupOptions(model)).toHaveLength(11);
+    expect(cupOptions(model)[0]!.name).toBe('Champions League');
+    expect(cupOptions(model).at(-1)).toEqual({ value: 'fifa.world', name: 'World Cup' });
+  });
+  it("Tools: every competition Trailing covers", () => {
+    expect(toolCompOptions(model).map((o) => o.value)).toEqual(trailingComps(model));
+    expect(toolCompOptions(model)).toHaveLength(15);
+    for (const o of toolCompOptions(model)) expect(o.name).toBe(model.comp(o.value).name);
   });
 });
