@@ -2,6 +2,23 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-21 — FK-76, FK-77 (added on GitHub during the same run)
+
+**Built:** v0.87.0. Nothing changes on screen in footykit.
+- FK-76 — footykit now serves its Slate as a kit, the same way calendarkit does. The build writes three files under /football/slatekit/: one module, its stylesheet, and manifest.json (api 1, the version, and the two files' addresses), which is never cached. It answers at /slatekit/manifest.json on footykit's own address and at /football/slatekit/manifest.json through gauntlet. The kit holds the whole-day Slate (SlateDay) exactly as gauntlet uses it today, the data loader, the notes store and the card sizes. React is not inside: gauntlet hands over its own before loading the kit (as it does for calendarkit's, under the name `__footykitHost`).
+- FK-77 — The kit also gives one match's card on its own (`SlateMatchCard`) and the day's list of matches (`slateMatches`: each match's id and its start as an exact instant, in start order). The single card is the very card the Slate is made of (one card code), 561 × 96, live score included when asked for. The whole-day Slate works as before.
+**The day rule (you asked me to say):** footykit's own Slate uses another rule than the one in the spec. Today it shows the matches that start on the day in the viewer's own time zone, counted from midnight. I changed nothing there. The kit's new list uses your rule: São Paulo time, and a start before 05:00 counts for the day before (04:30 → the day before; 05:00 → that day). For football the two rules give the same matches whenever you are on São Paulo time, because no match starts between midnight and 05:00. `slateDayOf` is also in the kit so gauntlet can put NBA games on days by the same rule.
+**How I read the gaps in the specs (say if any is wrong):**
+- FK-76, everything calendarkit's kit does had a clear match here; nothing is blocked.
+- FK-77, a match with no kick-off time yet has no exact instant, so it stays on the day footykit shows it and is marked `timeUnknown`.
+- FK-77, several single cards with live scores on share one request per day instead of each sending its own.
+- Not new, but you may not know: the Slate that gauntlet gets (whole day or single card) has never shown the small tags beside the teams ("UCL▸", "3rd"); the site's own Slate does. I left that as it was.
+- The guide for gauntlet is updated: docs/slate-in-gauntlet.md (how to load the kit, the single card, the day list).
+**Blocked:** nothing. **The backlog is empty.**
+**Ideas added:** none.
+**Checked automatically:** 4 unit tests that build the kit and read what it wrote (the manifest has api, version, js and css and the files exist; one module with every name a host uses; React not inside; no-cache on both addresses), 17 unit tests for the day list and the single card (start order, exact instants, the 05:00 rule, other time zones, a single card equals its card in the Slate for all 20 matches of the test day, no request at rest, shared live requests), and 3 browser tests (e2e/slatekit.spec.ts: the manifest and its files answer; the module imports in a blank page with its own React and draws the same cards as the site's Slate; one card alone is the same size and content as on the site). The same 3 browser tests were then run against the live site (`npm run e2e:live-kit`); the result is in the session's final message.
+**Test by hand:** nothing in footykit. The whiteboard side is gauntlet's GT-14 and GT-21.
+
 ## 2026-11-21 — FK-75, the rest (answered on GitHub during the same run)
 
 **Built:** v0.86.0. FK-75 is finished and out of the backlog.

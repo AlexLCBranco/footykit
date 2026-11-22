@@ -44,6 +44,24 @@
           "value": "no-cache"
         }
       ]
+    },
+    {
+      "source": "/slatekit/manifest.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/football/slatekit/manifest.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
     }
   ]
 }

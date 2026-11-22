@@ -6,7 +6,9 @@
 export { loadFootyData, loadSnapshot } from '../data/load';
 export type { Model as FootyData } from '../data/model';
 export { SNAPSHOT_URL } from '../address';
-export { SlateDay, teamCalendarUrl, type SlateDayProps } from './SlateDay';
+export { SlateDay, SlateMatchCard, teamCalendarUrl, type SlateDayProps, type SlateHostProps, type SlateMatchCardProps } from './SlateDay';
+// FK-77: the day's list of matches (exact start instants) for a host that mixes them with another sport's games
+export { SLATE_DAY_START_HOUR, SLATE_DAY_ZONE, slateDayOf, slateMatches, type SlateMatch } from './matches';
 export { matchUrl } from '../data/snapshot';
 export {
   createNotesStore,

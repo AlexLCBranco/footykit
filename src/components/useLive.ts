@@ -8,13 +8,25 @@ import type { DayData } from '../data/day';
 import { EMPTY_LIVE, espnDatesFor, isHot, type LiveLayer } from '../data/live';
 import type { Match } from '../data/snapshot';
 
-async function fetchDay(date: string): Promise<DayData | undefined> {
+async function requestDay(date: string): Promise<DayData | undefined> {
   try {
     const r = await fetch(dayUrl(date));
     return r.ok ? ((await r.json()) as DayData) : undefined;
   } catch {
     return undefined;
   }
+}
+
+// FK-77: cards drawn one by one (SlateMatchCard) each keep their day fresh; while a request for a date is on its way
+// the others wait for that same answer instead of sending their own.
+const onTheWay = new Map<string, Promise<DayData | undefined>>();
+function fetchDay(date: string): Promise<DayData | undefined> {
+  let p = onTheWay.get(date);
+  if (!p) {
+    p = requestDay(date).finally(() => onTheWay.delete(date));
+    onTheWay.set(date, p);
+  }
+  return p;
 }
 
 /** `enabled` false (team views, tests without a day layer) fetches nothing. `keepAlive` (FK-62: the live scores

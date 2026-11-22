@@ -1739,6 +1739,18 @@ button.fk-chip:hover {
 }
 
 /* FK-75: the league / competition box (CompPicker.tsx): the club box's look, a little narrower, with a ▾ */
+/* FK-77: one Slate card drawn alone (SlateMatchCard): no grid, no shared borders with neighbours */
+.fk-slate-one {
+  display: block;
+  padding: 0;
+}
+.fk-slate-one .fk-card {
+  margin: 0;
+}
+.fk-slate-one:not(.fk-slate-notes) .fk-card {
+  width: var(--fk-slate-card-w);
+}
+
 .fk-comp-pick {
   width: 250px;
   flex: none;

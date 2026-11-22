@@ -130,7 +130,8 @@ export function SlateCard({ m, day, notes, wx }: { m: Match; day: string; notes?
   );
 }
 
-const VARS = slateVars() as CSSProperties;
+/** The card sizes as CSS variables (src/slate/layout.ts): on the Slate grid, and on one card drawn alone (FK-77). */
+export const SLATE_VARS = slateVars() as CSSProperties;
 
 /** FK-61: opens halftime-timer on a countdown to the first match of the day that has not kicked off yet. */
 function CountdownButton({ list }: { list: Match[] }) {
@@ -152,7 +153,7 @@ export function Slate({ day, notes, showNotes, popout }: { day: string; notes: S
   const wx = useMatchWeather(list, weather, now);
   if (!list.length) return <p className="fk-empty" data-testid="no-matches">No matches today for the followed clubs.</p>;
   return (
-    <div className={`fk-slate${showNotes ? ' fk-slate-notes' : ''}`} data-testid="slate" style={VARS}>
+    <div className={`fk-slate${showNotes ? ' fk-slate-notes' : ''}`} data-testid="slate" style={SLATE_VARS}>
       <div className="fk-slate-header"><span data-testid="slate-header">{slateHeaderLabel(day)}</span><PopoutButton ctl={popout} /><CountdownButton list={list} /></div>
       {list.map((m) => <SlateCard key={m.id} m={m} day={day} notes={showNotes ? notes : undefined} wx={wx.get(m.id)} />)}
     </div>

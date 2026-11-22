@@ -126,8 +126,8 @@ test('FK-75: a window too narrow for the tabs row keeps the controls under the h
   expect(errors).toEqual([]);
 });
 
-/** The entries of an open league / competition box, as [value, name]. */
-const listed = (page: Page, row: string) => page.getByTestId(row).getByRole('option').evaluateAll((els) => els.map((e) => [e.getAttribute('data-value'), e.textContent] as const));
+/** The entries of an open league / competition box, as [value, name] (the name alone: the logo beside it is a picture, or a 🏆 where there is none). */
+const listed = (page: Page, row: string) => page.getByTestId(row).getByRole('option').evaluateAll((els) => els.map((e) => [e.getAttribute('data-value'), e.lastElementChild!.textContent] as const));
 const LEAGUES = [['eng.1', 'Premier League'], ['esp.1', 'LaLiga'], ['ita.1', 'Serie A'], ['ger.1', 'Bundesliga'], ['fra.1', 'Ligue 1'], ['bra.1', 'Brasileirão']];
 const CUPS = ['uefa.champions', 'conmebol.libertadores', 'conmebol.sudamericana', 'bra.copa_do_brazil', 'eng.fa', 'eng.league_cup', 'esp.copa_del_rey', 'ita.coppa_italia', 'ger.dfb_pokal', 'fra.coupe_de_france', 'fifa.world'];
 
