@@ -3009,9 +3009,25 @@ a.fk-series-sq:hover {
   color: var(--fk-text);
   cursor: pointer;
 }
-.fk-lpop-btn:hover,
+.fk-lpop-btn:hover:not(:disabled),
 .fk-lpop-btn-on {
   border-color: var(--fk-accent);
+}
+/* FK-61: the Countdown button is a link (it opens halftime-timer), or a dimmed button once no match is left */
+a.fk-lpop-btn {
+  text-decoration: none;
+}
+/* the link and the button beside it look the same (a button and a link start from different text sizes) */
+.fk-root .fk-lpop-btn {
+  box-sizing: border-box;
+  height: 22px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+.fk-lpop-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 .fk-lpop-body {
   margin: 0;

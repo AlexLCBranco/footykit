@@ -1,4 +1,4 @@
-// FK-67: builds public/worldcup/2026-videos.json (match number → YouTube video id) from CazéTV's playlist
+// FK-67: builds public/worldcup/2026-videos.json (match number → the video's YouTube address) from CazéTV's playlist
 // "Jogos Completos | Copa do Mundo FIFA™ 2026": lists it with yt-dlp (`--flat-playlist`, no API key, nothing
 // downloaded) and pairs each video to a match by the two teams in its title and the date (src/data/wcVideos.ts).
 // Only real videos: a match with none in the playlist gets no entry, and the run prints which ones. Fewer than half
@@ -9,6 +9,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pairVideos, type PairMatch, type Video } from '../src/data/wcVideos.ts';
+import { wcVideoUrl } from '../src/data/worldcup.ts';
 
 const YEAR = 2026;
 const PLAYLIST = 'https://www.youtube.com/playlist?list=PLsFWLnYCEXEVWs5wf60vfwUU4FaOEre3D';
@@ -49,5 +50,7 @@ if (got * 2 < ed.matches.length) {
   console.error(`Fewer than half the matches paired (${got} of ${ed.matches.length}): nothing written.`);
   process.exit(1);
 }
-writeFileSync(join(DIR, `${YEAR}-videos.json`), `${JSON.stringify(paired.videos, null, 0).replace(/,/g, ',\n')}\n`);
+// full addresses (FK-68: one file shape for every edition, whatever site the video is on)
+const urls = Object.fromEntries(Object.entries(paired.videos).map(([n, id]) => [n, wcVideoUrl(id)]));
+writeFileSync(join(DIR, `${YEAR}-videos.json`), `${JSON.stringify(urls, null, 0).replace(/",/g, '",\n')}\n`);
 console.log(`Wrote public/worldcup/${YEAR}-videos.json`);

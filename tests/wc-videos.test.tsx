@@ -6,13 +6,15 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { GroupBox, Play, VIDEO_TIP } from '../src/components/WorldCupPage';
-import { groupTables, loadEdition, peekEdition, wcVideoUrl, type WcEdition } from '../src/data/worldcup';
-import { norm, pairVideos, titleTeams, type PairMatch } from '../src/data/wcVideos';
+import { GroupBox, Play } from '../src/components/WorldCupPage';
+import { groupTables, isFifaPlus, loadEdition, peekEdition, wcVideoTip, wcVideoUrl, type WcEdition } from '../src/data/worldcup';
+import { editionNames, isFullMatchOf, norm, pairVideos, preferFirst, titleTeams, type PairMatch } from '../src/data/wcVideos';
 
 const file = (f: string) => JSON.parse(readFileSync(join(import.meta.dirname, '..', 'public', 'worldcup', f), 'utf8')) as unknown;
 const ed2026 = file('2026.json') as WcEdition;
 const videos = file('2026-videos.json') as Record<string, string>;
+const ed2022 = file('2022.json') as WcEdition;
+const videos22 = file('2022-videos.json') as Record<string, string>;
 afterEach(cleanup);
 
 describe("a title's two teams", () => {
@@ -76,11 +78,11 @@ describe('pairing videos to matches', () => {
 });
 
 describe('the videos file (public/worldcup/2026-videos.json)', () => {
-  it('holds only 2026 match numbers, each with a YouTube video id, no video twice, at least half the matches', () => {
+  it("holds only 2026 match numbers, each with a YouTube video's full address, no video twice, at least half the matches", () => {
     const ns = new Set(ed2026.matches.map((m) => String(m.n)));
-    for (const [n, id] of Object.entries(videos)) {
+    for (const [n, url] of Object.entries(videos)) {
       expect(ns.has(n), `match ${n}`).toBe(true);
-      expect(id, `match ${n}`).toMatch(/^[\w-]{11}$/);
+      expect(url, `match ${n}`).toMatch(/^https:\/\/www\.youtube\.com\/watch\?v=[\w-]{11}$/);
     }
     expect(new Set(Object.values(videos)).size).toBe(Object.keys(videos).length);
     expect(Object.keys(videos).length * 2).toBeGreaterThanOrEqual(ed2026.matches.length);
@@ -90,14 +92,17 @@ describe('the videos file (public/worldcup/2026-videos.json)', () => {
 describe('the ▶ link on the page', () => {
   // the page reads the edition and its videos as fetched: here matches 1 and 2 have a video, no other match does
   const some = { 1: videos['1']!, 2: videos['2']! };
+  // FK-68, 2022: the final on FIFA+, Brazil v Croatia only on FIFA's YouTube, no other match
+  const some22 = { 64: 'https://www.fifa.com/en/watch/Ar2sZ_9GHkie8SDq2Mt4gg', 57: 'https://www.youtube.com/watch?v=HxBqMbI5kqQ' };
   const asked: string[] = [];
   beforeAll(async () => {
     vi.stubGlobal('fetch', (url: string) => {
       asked.push(url);
-      return Promise.resolve({ ok: true, json: () => Promise.resolve(url.endsWith('2026-videos.json') ? some : file(/\d{4}\.json$/.exec(url)![0])) });
+      return Promise.resolve({ ok: true, json: () => Promise.resolve(url.endsWith('2026-videos.json') ? some : url.endsWith('2022-videos.json') ? some22 : file(/\d{4}\.json$/.exec(url)![0])) });
     });
     await loadEdition(2026);
     await loadEdition(2022);
+    await loadEdition(2018);
   });
   it('a match with a video gets ▶: the YouTube watch link, in a new tab, "Full match on CazéTV (YouTube)"', () => {
     const ed = peekEdition(2026)!;
@@ -107,7 +112,7 @@ describe('the ▶ link on the page', () => {
     expect(a.getAttribute('href')).toMatch(/^https:\/\/www\.youtube\.com\/watch\?v=[\w-]{11}$/);
     expect(a.getAttribute('target')).toBe('_blank');
     expect(a.getAttribute('title')).toBe('Full match on CazéTV (YouTube)');
-    expect(VIDEO_TIP).toBe('Full match on CazéTV (YouTube)');
+    expect(wcVideoTip(2026, some[1])).toBe('Full match on CazéTV (YouTube)');
     expect(a.textContent).toBe('▶');
   });
   it('a match with no video renders no ▶', () => {
@@ -125,11 +130,92 @@ describe('the ▶ link on the page', () => {
     // matches 1 and 2 are group A's first two; each shows on both of its teams' rows
     expect(screen.getAllByTestId('wc-video').map((a) => a.getAttribute('data-n')).sort()).toEqual(['1', '1', '2', '2']);
   });
-  it('an edition before 2026 has no ▶ and asks for no videos file', () => {
+  it('FK-68: a 2022 match with a FIFA+ page uses it, titled "Full match on FIFA+"', () => {
     const ed = peekEdition(2022)!;
+    render(<Play ed={ed} m={ed.matches.find((m) => m.n === 64)!} />);
+    const a = screen.getByTestId('wc-video');
+    expect(a.getAttribute('href')).toBe('https://www.fifa.com/en/watch/Ar2sZ_9GHkie8SDq2Mt4gg');
+    expect(a.getAttribute('title')).toBe('Full match on FIFA+');
+    expect(a.getAttribute('aria-label')).toBe('Argentina v France: Full match on FIFA+');
+    expect(a.getAttribute('target')).toBe('_blank');
+    expect(a.textContent).toBe('▶');
+  });
+  it('FK-68: a 2022 match with only a YouTube address uses that, titled "Full match on FIFA\'s YouTube"', () => {
+    const ed = peekEdition(2022)!;
+    render(<Play ed={ed} m={ed.matches.find((m) => m.n === 57)!} />);
+    const a = screen.getByTestId('wc-video');
+    expect(a.getAttribute('href')).toBe('https://www.youtube.com/watch?v=HxBqMbI5kqQ');
+    expect(a.getAttribute('title')).toBe("Full match on FIFA's YouTube");
+  });
+  it('FK-68: a 2022 match with neither renders no ▶', () => {
+    const ed = peekEdition(2022)!;
+    const { container } = render(<Play ed={ed} m={ed.matches.find((m) => m.n === 60)!} />);
+    expect(container.innerHTML).toBe('');
+  });
+  it('an edition with no videos file (2018) has no ▶ and asks for none', () => {
+    const ed = peekEdition(2018)!;
     render(<GroupBox ed={ed} t={groupTables(ed)[0]!} adv={new Set()} onTeam={() => undefined} />);
     expect(screen.getAllByTestId('wc-square').length).toBeGreaterThan(0);
     expect(screen.queryAllByTestId('wc-video')).toEqual([]);
-    expect(asked.filter((u) => u.includes('videos'))).toEqual([expect.stringMatching(/2026-videos\.json$/)]);
+    expect(asked.filter((u) => u.includes('videos'))).toEqual([expect.stringMatching(/2026-videos\.json$/), expect.stringMatching(/2022-videos\.json$/)]);
+  });
+});
+
+// FK-68: FIFA's own full-match replays of the 2022 World Cup (FIFA+ pages from FIFA's video sitemap, FIFA's YouTube
+// uploads). The titles below are the real ones.
+describe("FK-68: FIFA's titles", () => {
+  const names = editionNames(ed2022.teams);
+  it('a full match of the 2022 World Cup, in FIFA+ and YouTube wording; other tournaments and clips are not', () => {
+    for (const t of ['Argentina v France | Final | FIFA World Cup Qatar 2022™ | Full Match Replay', 'FULL MATCH: Brazil v Korea Republic | 2022 FIFA World Cup', 'FULL MATCH: Brazil v Croatia | Quarter-Finals | FIFA WORLD CUP QATAR 2022', 'FULL MATCH: Argentina v France | 2022 FIFA World Cup Final'])
+      expect(isFullMatchOf(t, 2022, 'Qatar'), t).toBe(true);
+    for (const t of [
+      "Colombia v Spain | Final | FIFA U-17 Women's World Cup India 2022™ | Full Match Replay", "Spain v Japan | Final | FIFA U-20 Women's World Cup Costa Rica 2022™ | Full Match Replay",
+      'Real Madrid CF v Al Hilal SFC | Final | FIFA Club World Cup Morocco 2022™ | Full Match Replay', 'Senegal v Egypt | FIFA World Cup Qatar 2022 Qualifier | Full Match',
+      'France v Croatia | Final | 2018 FIFA World Cup Russia™ | Full Match Replay', 'All Goals | FIFA World Cup Qatar 2022™', 'Argentina v France | Final | FIFA World Cup Qatar 2022™ | Highlights',
+    ]) expect(isFullMatchOf(t, 2022, 'Qatar'), t).toBe(false);
+  });
+  it("reads the two teams with FIFA's spellings (Korea Republic, IR Iran, USA)", () => {
+    expect(titleTeams('Argentina v France | Final | FIFA World Cup Qatar 2022™ | Full Match Replay', names)).toEqual(['ARG', 'FRA']);
+    expect(titleTeams('FULL MATCH: Korea Republic v Portugal | Group Stage | FIFA WORLD CUP QATAR 2022', names)).toEqual(['KOR', 'PRT']);
+    expect(titleTeams('IR Iran v USA | Group B | FIFA World Cup Qatar 2022™ | Full Match Replay', names)).toEqual(['IRN', 'USA']);
+    expect(titleTeams('Poland v Argentina | Group C | FIFA World Cup Qatar 2022™ | Full Match Replay', names)).toEqual(['POL', 'ARG']);
+    // a team that was not at this World Cup names no match
+    expect(titleTeams('Italy v Argentina | Finalissima 2022 | Full Match Replay', names)).toBeUndefined();
+    expect(names['TURKIYE']).toBeUndefined();
+  });
+  it('pairs each replay to its match; teams that met twice (Croatia v Morocco) are never guessed', () => {
+    const fifa = pairVideos(ed2022.matches, [
+      { id: 'https://www.fifa.com/en/watch/Ar2sZ_9GHkie8SDq2Mt4gg', title: 'Argentina v France | Final | FIFA World Cup Qatar 2022™ | Full Match Replay' },
+      { id: 'https://www.fifa.com/en/watch/AIndwGv4SkWkLkIM8hTULg', title: 'Netherlands v Argentina | Quarter-finals | FIFA World Cup Qatar 2022™ | Full Match Replay' },
+      { id: 'https://www.fifa.com/en/watch/x', title: 'Croatia v Morocco | Play-off for third place | FIFA World Cup Qatar 2022™ | Full Match Replay' },
+    ], names);
+    expect(fifa.videos).toEqual({ 64: 'https://www.fifa.com/en/watch/Ar2sZ_9GHkie8SDq2Mt4gg', 58: 'https://www.fifa.com/en/watch/AIndwGv4SkWkLkIM8hTULg' });
+    expect(fifa.unpaired.map((v) => v.id)).toEqual(['https://www.fifa.com/en/watch/x']);
+  });
+  it('FIFA+ wins over YouTube for the same match; YouTube fills only the matches FIFA+ lacks', () => {
+    expect(preferFirst({ 64: 'plus-final' }, { 64: 'yt-final', 57: 'yt-qf' })).toEqual({ 64: 'plus-final', 57: 'yt-qf' });
+  });
+  it("a video's address and its hover: FIFA+, FIFA's YouTube (2022), CazéTV (2026); an old bare YouTube id still opens", () => {
+    expect(isFifaPlus('https://www.fifa.com/en/watch/Ar2sZ_9GHkie8SDq2Mt4gg')).toBe(true);
+    expect(wcVideoTip(2022, 'https://www.fifa.com/en/watch/Ar2sZ_9GHkie8SDq2Mt4gg')).toBe('Full match on FIFA+');
+    expect(wcVideoTip(2022, 'https://www.youtube.com/watch?v=RgqKdplLIk4')).toBe("Full match on FIFA's YouTube");
+    expect(wcVideoTip(2026, 'https://www.youtube.com/watch?v=YCNysrewn7k')).toBe('Full match on CazéTV (YouTube)');
+    expect(wcVideoUrl('https://www.fifa.com/en/watch/Ar2sZ_9GHkie8SDq2Mt4gg')).toBe('https://www.fifa.com/en/watch/Ar2sZ_9GHkie8SDq2Mt4gg');
+    expect(wcVideoUrl('YCNysrewn7k')).toBe('https://www.youtube.com/watch?v=YCNysrewn7k');
+  });
+});
+
+describe('FK-68: the videos file (public/worldcup/2022-videos.json)', () => {
+  it("holds only 2022 match numbers, each with a FIFA+ replay page or a YouTube video's address, none twice", () => {
+    const ns = new Set(ed2022.matches.map((m) => String(m.n)));
+    for (const [n, url] of Object.entries(videos22)) {
+      expect(ns.has(n), `match ${n}`).toBe(true);
+      expect(url, `match ${n}`).toMatch(/^https:\/\/www\.(fifa\.com\/en\/watch\/[\w-]+|youtube\.com\/watch\?v=[\w-]{11})$/);
+    }
+    expect(new Set(Object.values(videos22)).size).toBe(Object.keys(videos22).length);
+  });
+  it('the final is the FIFA+ page the owner saw; FIFA+ is used wherever it has the match', () => {
+    expect(videos22['64']).toBe('https://www.fifa.com/en/watch/Ar2sZ_9GHkie8SDq2Mt4gg');
+    expect(Object.values(videos22).filter(isFifaPlus).length).toBeGreaterThanOrEqual(7);
   });
 });

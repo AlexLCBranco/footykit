@@ -4,12 +4,12 @@
 // is drawn in the accent colour. FK-70: the same shape as a poster of flag tiles (teams, not matches), copied as an image.
 
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { peekVenues, peekVideos, scoreText, wcMatchUrl, wcVideoUrl, type KoColumn, type KoTie, type WcEdition } from '../data/worldcup';
+import { peekVenues, peekVideos, scoreText, wcMatchUrl, wcVideoTip, wcVideoUrl, type KoColumn, type KoTie, type WcEdition } from '../data/worldcup';
 import { feeds, onChampionPath, posterColumns, posterFeeds, slotId, type PosterTile, type Slot } from '../data/wcBracket';
 import { flagOf, flagUrl } from '../data/wcFlags';
 import { cardWeather, ROOF_TIP, roofTag, weatherText, weatherTip } from '../data/wcVenues';
 import { CopyButton } from './Copy';
-import { matchTip, STAGE_TIP, Team, VIDEO_TIP } from './WorldCupPage';
+import { matchTip, STAGE_TIP, Team } from './WorldCupPage';
 import './wcBracket.css';
 
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -114,7 +114,7 @@ export function MatchCard({ ed, t, onTeam, big, wiring }: { ed: WcEdition; t: Ko
         </div>
       )}
       {w && <div className="fk-bk-line2 fk-bk-weather" title={weatherTip(w)} data-testid="wc-weather">{weatherText(w)}</div>}
-      {video && <a className="fk-bk-watch" href={wcVideoUrl(video)} target="_blank" rel="noopener noreferrer" draggable={false} title={VIDEO_TIP} aria-label={`${n(m.h)} v ${n(m.a)}: ${VIDEO_TIP}`} data-testid="wc-video" data-n={m.n}><span aria-hidden="true">▶</span> Watch</a>}
+      {video && <a className="fk-bk-watch" href={wcVideoUrl(video)} target="_blank" rel="noopener noreferrer" draggable={false} title={wcVideoTip(ed.year, video)} aria-label={`${n(m.h)} v ${n(m.a)}: ${wcVideoTip(ed.year, video)}`} data-testid="wc-video" data-n={m.n}><span aria-hidden="true">▶</span> Watch</a>}
     </div>
   );
 }

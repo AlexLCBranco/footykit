@@ -165,7 +165,7 @@ describe('the lines', () => {
 });
 
 describe('the match card', () => {
-  const some = { 104: 'AAAAAAAAAAA' };
+  const some = { 104: 'https://www.youtube.com/watch?v=AAAAAAAAAAA' };
   beforeAll(async () => {
     vi.stubGlobal('fetch', (url: string) => Promise.resolve({ ok: true, json: () => Promise.resolve(url.endsWith('2026-videos.json') ? some : file(/\d{4}(-venues)?\.json$/.exec(url)![0])) }));
     await loadEdition(2026);
@@ -197,7 +197,8 @@ describe('the match card', () => {
     render(<MatchCard ed={ed} t={tieOf(ed, 'Final')} onTeam={() => undefined} />);
     const watch = screen.getByTestId('wc-video');
     expect(watch.textContent).toBe('▶ Watch');
-    expect(watch.getAttribute('href')).toBe(wcVideoUrl(some[104]));
+    expect(watch.getAttribute('href')).toBe(some[104]);
+    expect(wcVideoUrl(some[104])).toBe(some[104]);
     cleanup();
     render(<MatchCard ed={ed} t={tieOf(ed, 'Semi-finals')} onTeam={() => undefined} />);
     expect(screen.queryByTestId('wc-video')).toBeNull();

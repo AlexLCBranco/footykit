@@ -85,7 +85,7 @@ test('2026 bracket: cards joined by lines, a flag and full name on every card, t
   await expect(final.getByTestId('wc-weather')).toHaveText(`${Math.round(w.t)} °C · ${w.mm < 0.05 ? 'no rain' : `${w.mm.toFixed(1)} mm rain`}`);
   const watch = final.getByTestId('wc-video');
   await expect(watch).toHaveText('▶ Watch');
-  await expect(watch).toHaveAttribute('href', `https://www.youtube.com/watch?v=${videos['104']}`);
+  await expect(watch).toHaveAttribute('href', videos['104']!);
   await expect(watch).toHaveAttribute('target', '_blank');
   await expect(final.getByTestId('wc-score').first()).toHaveAttribute('href', /^https:\/\/www\.google\.com\/search\?q=Spain%20vs%20Argentina/);
   // the final is the biggest card; the third place is a small labelled card under it

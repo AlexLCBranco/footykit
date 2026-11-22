@@ -9,6 +9,7 @@
 // Odds: ESPN's DraftKings lines (decimal), free, Slate only.
 
 import { useEffect, useMemo, type CSSProperties } from 'react';
+import { countdownLink } from '../data/countdownLink';
 import { isPlayed } from '../data/model';
 import { groundChip, groundNote, groundText, groundTip, snapshotGrounds } from '../data/homeGround';
 import { neutralVenue } from '../data/neutral';
@@ -131,6 +132,18 @@ export function SlateCard({ m, day, notes, wx }: { m: Match; day: string; notes?
 
 const VARS = slateVars() as CSSProperties;
 
+/** FK-61: opens halftime-timer on a countdown to the first match of the day that has not kicked off yet. */
+function CountdownButton({ list }: { list: Match[] }) {
+  const { model, now, timeZone } = useFooty();
+  const c = countdownLink(list, now, (id) => model.team(id).short, timeZone);
+  if (!c) return <button type="button" className="fk-lpop-btn" disabled data-capture-exclude="true" title="No more matches today" data-testid="countdown-button">⏱ Countdown</button>;
+  const teams = c.name.split(" · ")[1];
+  return (
+    <a className="fk-lpop-btn" href={c.url} target="_blank" rel="noreferrer" data-capture-exclude="true" data-testid="countdown-button"
+      title={c.first ? `Open a timer that counts down to the first match: ${teams}` : `The first match has started. Open a timer that counts down to the next match: ${teams}`}>⏱ Countdown</a>
+  );
+}
+
 export function Slate({ day, notes, showNotes, popout }: { day: string; notes: SlateNotes; showNotes: boolean; /** FK-62 */ popout?: PopoutCtl }) {
   const { model, live, weather, now } = useFooty();
   // while note boxes are shown, the store follows other tabs (a note typed in the gauntlet shows here at once)
@@ -140,7 +153,7 @@ export function Slate({ day, notes, showNotes, popout }: { day: string; notes: S
   if (!list.length) return <p className="fk-empty" data-testid="no-matches">No matches today for the followed clubs.</p>;
   return (
     <div className={`fk-slate${showNotes ? ' fk-slate-notes' : ''}`} data-testid="slate" style={VARS}>
-      <div className="fk-slate-header"><span data-testid="slate-header">{slateHeaderLabel(day)}</span><PopoutButton ctl={popout} /></div>
+      <div className="fk-slate-header"><span data-testid="slate-header">{slateHeaderLabel(day)}</span><PopoutButton ctl={popout} /><CountdownButton list={list} /></div>
       {list.map((m) => <SlateCard key={m.id} m={m} day={day} notes={showNotes ? notes : undefined} wx={wx.get(m.id)} />)}
     </div>
   );

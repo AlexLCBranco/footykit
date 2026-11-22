@@ -1,7 +1,7 @@
 {
   "name": "footykit",
   "private": true,
-  "version": "0.84.0",
+  "version": "0.85.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,6 +23,8 @@
     "check-weather": "tsx scripts/check-weather.ts",
     "make-worldcup": "tsx scripts/make-worldcup.ts",
     "make-wc-videos": "tsx scripts/make-wc-videos.ts",
+    "make-wc-fifa-videos": "tsx scripts/make-wc-fifa-videos.ts",
+    "check-wc-videos": "tsx scripts/check-wc-videos.ts",
     "make-history": "tsx scripts/make-history.ts",
     "make-wc-venues": "tsx scripts/make-wc-venues.ts",
     "make-wc-flags": "tsx scripts/make-wc-flags.ts"

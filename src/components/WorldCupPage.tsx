@@ -4,7 +4,7 @@
 // Data: public/worldcup/ (scripts/make-worldcup.ts), loaded per edition. Its own chunk.
 
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from 'react';
-import { advancing, bracket, groupTables, loadEdition, loadIndex, neighbours, peekEdition, peekIndex, peekVenues, peekVideos, reachedRank, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, THIRDS_THROUGH, twoSided, wcMatchUrl, wcVideoUrl, winSide, type GroupTable, type KoTie, type Result, type WcEdition, type WcIndexEntry, type WcMatch } from '../data/worldcup';
+import { advancing, bracket, groupTables, loadEdition, loadIndex, neighbours, peekEdition, peekIndex, peekVenues, peekVideos, reachedRank, rulesFor, scoreText, squadUrl, thirdPlace, thirdsRanking, THIRDS_THROUGH, twoSided, wcMatchUrl, wcVideoTip, wcVideoUrl, winSide, type GroupTable, type KoTie, type Result, type WcEdition, type WcIndexEntry, type WcMatch } from '../data/worldcup';
 import { WC_NO_BRACKET, WC_YEARS, type WcHow } from './page';
 import { BracketTools, CardBracket, Poster } from './WcBracket';
 import { koSlots, simulable } from '../data/wcSim';
@@ -56,21 +56,22 @@ export function matchTip(ed: WcEdition, m: WcMatch, r: Result = m, link = true):
     else if (r.s[0] + r.s[1] + (r.et ? r.et[0] + r.et[1] : 0) > 0) lines.push('', 'Scorers not in the data');
   }
   if (link) lines.push('', 'Click: search the match on Google');
-  if (link && peekVideos(ed.year)?.[m.n]) lines.push('▶ beside it: the full match on CazéTV (YouTube)');
+  const video = link ? peekVideos(ed.year)?.[m.n] : undefined;
+  if (video) lines.push(`▶ beside it: ${wcVideoTip(ed.year, video).replace('Full', 'the full')}`);
   return lines.join('\n');
 }
 
-/** FK-67: the ▶ link's hover (the owner's words). */
-export const VIDEO_TIP = 'Full match on CazéTV (YouTube)';
 /**
- * FK-67: ▶ beside a match that has a full replay on CazéTV's YouTube channel (2026 only, from the edition's videos
- * file); nothing for a match without one. An extra link: the match's Google link stays as it is.
+ * FK-67 / FK-68: ▶ beside a match that has a full replay (from the edition's videos file: 2026 on CazéTV's YouTube
+ * channel, 2022 on FIFA+ or FIFA's YouTube); nothing for a match without one. Its hover says where the video is. An
+ * extra link: the match's Google link stays as it is.
  */
 export function Play({ ed, m, className }: { ed: WcEdition; m: WcMatch; className?: string }) {
-  const id = peekVideos(ed.year)?.[m.n];
-  if (!id) return null;
+  const video = peekVideos(ed.year)?.[m.n];
+  if (!video) return null;
   const n = (c: string) => ed.teams[c] ?? c;
-  return <a className={`fk-wc-play${className ? ` ${className}` : ''}`} href={wcVideoUrl(id)} target="_blank" rel="noopener noreferrer" draggable={false} title={VIDEO_TIP} aria-label={`${n(m.h)} v ${n(m.a)}: ${VIDEO_TIP}`} data-testid="wc-video" data-n={m.n}>▶</a>;
+  const tip = wcVideoTip(ed.year, video);
+  return <a className={`fk-wc-play${className ? ` ${className}` : ''}`} href={wcVideoUrl(video)} target="_blank" rel="noopener noreferrer" draggable={false} title={tip} aria-label={`${n(m.h)} v ${n(m.a)}: ${tip}`} data-testid="wc-video" data-n={m.n}>▶</a>;
 }
 
 /** A team's name: a click opens its World Cup history; the ↗ beside it its squad for the edition (Wikipedia). */
@@ -359,7 +360,7 @@ export default function WorldCupPage({ year, team, sim = false, how, at, onAt, o
             <section>
               <h3>Sources</h3>
               <ul>{ed.source.map((s) => { const url = /https?:\/\/\S+/.exec(s)?.[0]; return <li key={s}>{url ? <a href={url} target="_blank" rel="noopener noreferrer">{s.replace(url, '').trim()}</a> : s}</li>; })}</ul>
-              <p className="fk-ucl-src">Squads link to Wikipedia's "{ed.year} FIFA World Cup squads". Match links search Google.{Object.keys(peekVideos(ed.year) ?? {}).length ? ' ▶ opens the full match on CazéTV\'s YouTube channel (its "Jogos Completos" playlist); a match with no full replay there has no ▶.' : ''} Flags: flag-icons (MIT); a team whose country no longer exists shows its code instead.</p>
+              <p className="fk-ucl-src">Squads link to Wikipedia's "{ed.year} FIFA World Cup squads". Match links search Google.{Object.keys(peekVideos(ed.year) ?? {}).length ? (ed.year === 2022 ? " ▶ opens the full match on FIFA's own site (FIFA+), or on FIFA's YouTube channel when FIFA+ doesn't have it; a match with no full replay on either has no ▶." : ' ▶ opens the full match on CazéTV\'s YouTube channel (its "Jogos Completos" playlist); a match with no full replay there has no ▶.') : ''} Flags: flag-icons (MIT); a team whose country no longer exists shows its code instead.</p>
               {venues && <p className="fk-ucl-src" data-testid="wc-venue-src">Stadiums: coordinates from Wikidata, roof type from each stadium's Wikipedia article. {venues.weatherSource}: the temperature at kick-off and the rain in the two hours from it, shown only for matches played under the sky. Whether a retractable roof was open is not recorded per match.</p>}
             </section>
           </div>

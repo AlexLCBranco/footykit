@@ -2,6 +2,26 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-21 — FK-61, FK-68 (unblocked on GitHub while FK-75 was being built)
+
+**Built:** v0.85.0.
+- FK-61 — Countdown button. The Slate's header has "⏱ Countdown", to the left of "Pop out live scores". It opens halftime-timer in a new tab on a timer that ends at the first match's kick-off, named like "First match · Man City–Fulham 09:30" (the time is in your time zone). Once the first match has started it counts to the next match that hasn't, named "Next match · Nice–PSG 13:15". With no match left the button is greyed out and its hover says "No more matches today".
+- FK-68 — Full matches of the 2022 World Cup. 12 of the 64 matches have a ▶ (same places as 2026's: group squares, bracket cards, simulator rows). 7 open FIFA's own site, hover "Full match on FIFA+": Argentina's seven matches (v Saudi Arabia, v Mexico, v Poland, v Australia, v Netherlands, v Croatia, and the final v France). 5 open FIFA's YouTube, hover "Full match on FIFA's YouTube": Japan v Spain, South Korea v Portugal, Brazil v South Korea, Morocco v Spain, Croatia v Brazil. The other 52 matches have no ▶: FIFA shows no free full replay of them on either site.
+**What I found for FK-68:** cxm-api.fifa.com can be read now. FIFA's video sitemap lists all 32,197 of its videos with titles and lengths; only 7 are full matches of the 2022 World Cup. FIFA's YouTube channel (all 12,568 uploads, its 1,297 live videos and its "historic World Cup games" playlist were listed) has 8, of which 3 are matches FIFA+ also has. Every one of the 12 addresses answers (and all 104 of 2026's).
+**How I read the gaps in the specs (say if any is wrong):**
+- FK-61, the timer's end is sent as the kick-off in UTC ("2026-11-21T12:30:00Z"); halftime-timer's README accepts "Z" as an offset, and the same match always gives the same link, so the timer is reused, not added twice.
+- FK-61, team names are the short ones the Slate shows ("Man City", not "Manchester City"). A postponed or cancelled match, or one with no kick-off time yet, is never the target.
+- FK-61, a day with no match at all has no Slate header, so it has no button (the page already says "No matches today").
+- FK-68, 2026's videos file now holds full addresses too (one file shape for both years), as the spec asked.
+- FK-68, a "full match" must be at least 90 minutes long, so a clip with "full match" in its title is never linked.
+**Seen on the way (not built, not added to the ideas list because you didn't ask for it):** FIFA+ has free full replays of all 64 matches of 2018, 2006 and 1998, 63 of 2014 and 2010, 59 of 2002, 52 of 1994 and 1990, and fewer for older World Cups. The same script could give those editions their ▶.
+**Blocked:** nothing new. FK-75 still waits on your answer for Leagues, Cups and Tools (see the report below).
+**Ideas added:** none.
+**Checked automatically:** 6 new unit tests for the countdown (tests/countdown-link.test.ts), 10 new unit tests for the 2022 videos (titles, pairing, FIFA+ before YouTube, the file's shape, the ▶ with each title and with none), 3 new browser tests for the button (e2e/fk61.spec.ts) and 1 for the 2022 ▶ links (the final's link is the FIFA+ page). The data check `npm run check-wc-videos` asked every address: 12 of 12 (2022) and 104 of 104 (2026) answer. 585 unit tests pass; 122 of 123 browser tests pass (the same touchy World Cup speed test as below read 131 ms once, limit 100).
+**Test by hand:**
+1. On the 2022 World Cup's bracket, click the ▶ on the final. Does the full match play without paying or signing in? (A script can't watch a video.)
+2. On today's Slate, click "⏱ Countdown". Does halftime-timer open with the right match and time? (halftime-timer's own page is outside this repo's tests.)
+
 ## 2026-11-21 — FK-75, first part (FK-61, FK-63, FK-68 still blocked)
 
 **Built:** v0.84.0, FK-75 on Today and Clubs.

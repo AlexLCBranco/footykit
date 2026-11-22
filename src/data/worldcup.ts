@@ -292,9 +292,10 @@ const load = <T,>(file: string): Promise<T> => {
   }
   return p as Promise<T>;
 };
-/** FK-67: the editions with full-match videos (public/worldcup/<year>-videos.json, scripts/make-wc-videos.ts). */
-export const WC_VIDEO_YEARS = [2026];
-/** Match number → YouTube video id. */
+/** FK-67 / FK-68: the editions with full-match videos (public/worldcup/<year>-videos.json; 2026: scripts/make-wc-videos.ts,
+ *  CazéTV's YouTube; 2022: scripts/make-wc-fifa-videos.ts, FIFA+ and FIFA's YouTube). */
+export const WC_VIDEO_YEARS = [2022, 2026];
+/** Match number → the full match's address (a FIFA+ replay page or a YouTube video). */
 export type WcVideos = Record<number, string>;
 /** The edition's videos; never fails (a missing or broken file is no videos: the page works without the ▶ links). */
 export function loadVideos(year: number): Promise<WcVideos> {
@@ -307,7 +308,13 @@ export function loadVideos(year: number): Promise<WcVideos> {
   return p;
 }
 export const peekVideos = (year: number) => arrived.get(`${year}-videos.json`) as WcVideos | undefined;
-export const wcVideoUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
+/** A video's address. A bare YouTube id (the file's shape before FK-68, still in a browser's cache for a while) becomes its address. */
+export const wcVideoUrl = (v: string) => (/^https?:\/\//.test(v) ? v : `https://www.youtube.com/watch?v=${v}`);
+export const isFifaPlus = (v: string) => v.startsWith('https://www.fifa.com/');
+/** Whose YouTube channel an edition's YouTube videos are on. */
+const YOUTUBE_TIP: Record<number, string> = { 2022: "Full match on FIFA's YouTube", 2026: 'Full match on CazéTV (YouTube)' };
+/** The ▶ link's hover (the owner's words): where the full match is. */
+export const wcVideoTip = (year: number, v: string) => (isFifaPlus(v) ? 'Full match on FIFA+' : YOUTUBE_TIP[year] ?? 'Full match on YouTube');
 /** FK-69: the editions with a venues file (stadium, roof, weather per match: public/worldcup/<year>-venues.json, scripts/make-wc-venues.ts). */
 export const WC_VENUE_YEARS = [2026];
 const NO_VENUES: WcVenues = { stadiums: {}, matches: {}, weatherSource: '' };

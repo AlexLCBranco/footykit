@@ -4,6 +4,35 @@
 
 import { WC_NAMES_PT } from '../../config/wcNamesPt';
 
+// FK-68: the same pairing for FIFA's own full-match replays of the 2022 World Cup (FIFA+ pages listed by FIFA's video
+// sitemap, and FIFA's YouTube uploads; scripts/make-wc-fifa-videos.ts). Their titles are in English with FIFA's
+// spellings of the teams: "Argentina v France | Final | FIFA World Cup Qatar 2022™ | Full Match Replay",
+// "FULL MATCH: Brazil v Korea Republic | 2022 FIFA World Cup".
+
+/** FIFA's spellings that differ from the edition's team names. */
+export const FIFA_NAMES: Record<string, string> = { 'KOREA REPUBLIC': 'KOR', 'IR IRAN': 'IRN', USA: 'USA', TURKIYE: 'TUR', 'CHINA PR': 'CHN', 'COTE D IVOIRE': 'CIV' };
+/** An edition's teams by (normalised) English name, with FIFA's spellings: the `names` for `titleTeams` / `pairVideos`. */
+export const editionNames = (teams: Record<string, string>): Record<string, string> => {
+  const out: Record<string, string> = Object.fromEntries(Object.entries(teams).map(([code, name]) => [norm(name), code]));
+  for (const [name, code] of Object.entries(FIFA_NAMES)) if (teams[code]) out[name] = code;
+  return out;
+};
+
+/**
+ * Is this title a full match of the men's World Cup of `year` hosted by `host` ("Qatar")? It must say "full match" and
+ * name that tournament ("FIFA World Cup Qatar 2022" or "2022 FIFA World Cup"); other tournaments of the same year
+ * (women's, youth, club, qualifiers) are not it.
+ */
+export function isFullMatchOf(title: string, year: number, host: string): boolean {
+  const t = norm(title);
+  if (!t.includes('FULL MATCH')) return false;
+  if (/WOMEN|U-\d\d|QUALIF|CLUB|FUTSAL|BEACH|OLYMPIC|YOUTH|PLAY-OFF TOURNAMENT/.test(t)) return false;
+  return t.includes(`FIFA WORLD CUP ${norm(host)} ${year}`) || t.includes(`${year} FIFA WORLD CUP`);
+}
+
+/** FIFA+ first, then YouTube: each match's one address (FK-68: the YouTube upload only when FIFA+ has no replay page). */
+export const preferFirst = (first: Record<number, string>, second: Record<number, string>): Record<number, string> => ({ ...second, ...first });
+
 /** A playlist entry. `date` (YYYY-MM-DD) is when it was posted; a flat playlist listing only gives it roughly, never early. */
 export interface Video { id: string; title: string; date?: string }
 export interface PairMatch { n: number; h: string; a: string; date: string }
