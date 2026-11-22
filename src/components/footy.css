@@ -1738,20 +1738,12 @@ button.fk-chip:hover {
   opacity: 0.25;
 }
 
-/* FK-16: the club, its × and its Calendar / List tabs as one group; the main tabs stay on the bar beside it */
+/* The "All clubs" button and the club box as one group (FK-75; the × that FK-16 put here is that button now) */
 .fk-club-group {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   flex: none;
-}
-.fk-club-group-on {
-  padding: 0 4px 0 0;
-  margin-right: 4px;
-  border-right: 1px solid var(--fk-border);
-}
-.fk-club-group .fk-tabs {
-  margin-left: 4px;
 }
 .fk-club-clear {
   flex: none;
@@ -1800,9 +1792,6 @@ button.fk-chip:hover {
   font-weight: 700;
   letter-spacing: 0.01em;
   color: #fff;
-}
-.fk-club-group-on .fk-club-clear {
-  height: 36px;
 }
 
 /* FK-20: a Calendar cell's match on one line, calendarkit's "BOS 108 @ 97 ORL": the club first, the winner's number
@@ -1886,7 +1875,7 @@ button.fk-chip:hover {
   gap: 8px;
 }
 .fk-club-group {
-  gap: 4px; /* calendarkit's picker and its × */
+  gap: 8px;
 }
 /* switches: calendarkit's Segmented in the packed bar */
 .fk-tabs {

@@ -156,10 +156,10 @@ test('FK-16 / FK-65: from a team page, one click on a Where tab or the × leaves
   await expect(page.getByTestId('team-views')).toBeVisible();
   await where(page, 'today'); await how(page, 'Slate');
   await expect(page).toHaveTitle(/^Slate · /);
-  await expect(page.getByTestId('club-clear')).toHaveCount(0);
-  // the × goes back to every club; a club there opens its calendar
+  await expect(page.getByTestId('all-clubs')).toHaveCount(0);
+  // "All clubs" goes back to every club; a club there opens its calendar
   await page.goto('/football/?view=list&team=359');
-  await page.getByTestId('club-clear').click();
+  await page.getByTestId('all-clubs').click();
   await expect(page).toHaveTitle('Clubs — footykit');
   await expect(page.getByTestId('clubs-page')).toBeVisible();
   await page.getByTestId('club-chip').filter({ hasText: /^Arsenal$/ }).click();
@@ -181,9 +181,9 @@ test('FK-17: the picked club is highlighted like calendarkit (blue border, bold 
   const picked = await look();
   expect(picked).toMatchObject({ border: 'rgb(78, 161, 255)', width: '2px', height: 36, radius: '8px', weight: '700', color: 'rgb(255, 255, 255)', logo: true });
   await expect(page.getByTestId('scope-picker')).toHaveValue('Arsenal');
-  // the × right beside it
-  const [p, x] = await Promise.all([box.boundingBox(), page.getByTestId('club-clear').boundingBox()]);
-  expect(x!.x - (p!.x + p!.width)).toBeLessThan(8);
+  // "All clubs" right beside it (FK-75: on its left, in place of the old ×)
+  const [p, x] = await Promise.all([box.boundingBox(), page.getByTestId('all-clubs').boundingBox()]);
+  expect(p!.x - (x!.x + x!.width)).toBeLessThanOrEqual(8);
   expect(errors).toEqual([]);
 });
 
@@ -231,7 +231,7 @@ test('FK-19: the tab title follows every navigation, worded like calendarkit', a
   await page.getByLabel('Next').click(); await title('ARS schedule · Nov 30 – Dec 6');
   await page.getByTestId('team-views').getByRole('tab', { name: 'List' }).click(); await expect(page).toHaveTitle(/^ARS list · /);
   await page.getByText(/Load earlier/).click(); await expect(page).toHaveTitle(/^ARS list · \w{3} – \w{3} 2026 — footykit$/);
-  await page.getByTestId('club-clear').click(); await title('Clubs');
+  await page.getByTestId('all-clubs').click(); await title('Clubs');
   // the other places and their What chips
   await where(page, 'cups'); await title('Champions League');
   await where(page, 'leagues'); await title('Premier League table');

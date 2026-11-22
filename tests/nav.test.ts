@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { buildModel } from '../src/data/model';
 import type { Snapshot } from '../src/data/snapshot';
 import { bracket, type WcEdition } from '../src/data/worldcup';
-import { crumbs, cupHowOf, cupHowPage, cupOf, leagueHowOf, leagueOf, leaguePage, searchEntries, searchFind, whereOf, whereTarget, type WcTeamEdition } from '../src/components/nav';
+import { controlsInHeader, crumbs, cupHowOf, cupHowPage, cupOf, leagueHowOf, leagueOf, leaguePage, searchEntries, searchFind, whereOf, whereTarget, type WcTeamEdition } from '../src/components/nav';
 import { pageFromSearch, pageSearch, WC_NO_BRACKET, WC_YEARS, type Page } from '../src/components/page';
 
 const snap = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/snapshot.json'), 'utf8')) as Snapshot;
@@ -139,5 +139,17 @@ describe('Go anywhere', () => {
   });
   it('nothing typed: the places', () => {
     expect(searchFind(entries, '').map((e) => e.label)).toEqual(['Today', 'Clubs', 'Leagues', 'Cups', 'Tools']);
+  });
+});
+
+describe("FK-75: whose controls sit in the header's tabs row", () => {
+  it('Today and Clubs at a full-size window; Leagues, Cups and Tools keep their rows (they do not fit)', () => {
+    const at = (search: string, width = 1840) => controlsInHeader(open(search), width);
+    for (const s of ['', '?view=slate', '?view=clubs', `?view=cal&team=${team}`, `?view=list&team=${team}`]) expect(at(s), s).toBe(true);
+    for (const s of ['?view=table&league=eng.1', '?view=league&comp=eng.1', '?view=relegation&league=eng.1', '?view=ucl', '?view=wc&year=2022', '?view=trailing']) expect(at(s), s).toBe(false);
+  });
+  it('a window too narrow for one line keeps them under the header', () => {
+    expect(controlsInHeader(open('?view=clubs'), 1400)).toBe(false);
+    expect(controlsInHeader(open(''), 390)).toBe(false);
   });
 });

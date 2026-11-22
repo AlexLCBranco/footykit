@@ -216,9 +216,9 @@ test('no layout shift on load and after navigating (cumulative layout shift ≈ 
     out.push(`${name} ${(await cls()).toFixed(3)}`);
     expect(await cls(), `load: ${name}`).toBeLessThan(0.02);
   }
-  // after clicks: the header and rows never move
+  // after clicks: the header and its tabs never move (FK-75: a place's controls are in the tabs row or under the header)
   await page.goto('/football/');
-  const top = async () => (await page.getByTestId('page-rows').boundingBox())!.y;
+  const top = async () => { const [h, t] = await Promise.all([page.getByTestId('top-bar').boundingBox(), page.getByTestId('where-tools').boundingBox()]); return [h!.y, h!.height, t!.x, t!.y].join(); };
   const y0 = await top();
   for (const w of ['clubs', 'leagues', 'cups', 'tools', 'today']) {
     await page.getByTestId(`where-${w}`).click();

@@ -1,6 +1,7 @@
 // FK-65: the pinned header (backlogkit's NAV_PATTERN.md §1), the same on every page: back / forward and the breadcrumb
 // (each part opens its siblings), "Go anywhere" (Ctrl+K) and the icon buttons on the right, and under them the five
-// Where tabs. It never changes height and never hides on scroll; the page rows under it scroll away.
+// Where tabs. It never changes height and never hides on scroll. FK-75: the tabs row also holds the page's controls
+// (`controls`) where they fit beside the tabs; a page whose controls don't fit keeps them in rows under the header.
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { WcIndexEntry } from '../data/worldcup';
@@ -112,7 +113,7 @@ function GoAnywhere({ page, today, onPage }: { page: Page; today: string; onPage
   );
 }
 
-export function Header({ page, today, history, onPage, end }: { page: Page; today: string; history: History; onPage: (p: Page) => void; end: ReactNode }) {
+export function Header({ page, today, history, onPage, end, controls }: { page: Page; today: string; history: History; onPage: (p: Page) => void; end: ReactNode; /** the page's controls, drawn after the tabs (FK-75) */ controls?: ReactNode }) {
   const { model } = useFooty();
   const where = whereOf(page);
   const parts = crumbs(page, model, today);
@@ -131,15 +132,18 @@ export function Header({ page, today, history, onPage, end }: { page: Page; toda
           {end}
         </span>
       </div>
-      <nav className="fk-where" aria-label="Places" data-testid="where-tabs">
-        {WHERE.map(([w, label, tip]) => (
-          <button key={w} type="button" className={`fk-where-tab${w === where ? ' fk-where-on' : ''}`} aria-current={w === where ? 'page' : undefined} title={tip}
-            onClick={() => onPage(whereTarget(page, w, today))} data-testid={`where-${w}`} data-text={label}>
-            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">{ICONS[w]}</svg>
-            <span className="fk-where-label">{label}</span>
-          </button>
-        ))}
-      </nav>
+      <div className="fk-where-row">
+        <nav className="fk-where" aria-label="Places" data-testid="where-tabs">
+          {WHERE.map(([w, label, tip]) => (
+            <button key={w} type="button" className={`fk-where-tab${w === where ? ' fk-where-on' : ''}`} aria-current={w === where ? 'page' : undefined} title={tip}
+              onClick={() => onPage(whereTarget(page, w, today))} data-testid={`where-${w}`} data-text={label}>
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">{ICONS[w]}</svg>
+              <span className="fk-where-label">{label}</span>
+            </button>
+          ))}
+        </nav>
+        {controls}
+      </div>
     </header>
   );
 }

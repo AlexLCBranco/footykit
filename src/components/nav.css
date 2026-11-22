@@ -107,10 +107,30 @@
   color: var(--fk-accent) !important;
   font-weight: 600;
 }
+/* FK-75: the tabs row: the five tabs, then (where they fit) the page's controls on the same line */
+.fk-where-row {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  height: 38px;
+  min-width: 0;
+}
 .fk-where {
   display: flex;
   gap: 4px;
-  height: 38px;
+  flex: none;
+}
+.fk-head-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: none;
+  white-space: nowrap;
+}
+.fk-all-clubs {
+  height: 32px;
+  border-radius: 16px;
+  font-size: 13px;
 }
 .fk-where-tab {
   display: inline-flex;
@@ -420,14 +440,27 @@
   .fk-prows .fk-tab {
     flex: none;
   }
+  /* "All clubs" and the club box share the row: the box takes what is left */
+  .fk-prows .fk-club-group {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .fk-prows .fk-club-pick {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
   .fk-prows .fk-date-block {
     flex: 1 1 auto;
     min-width: 0;
     flex-wrap: wrap;
     row-gap: 6px;
   }
-  .fk-where {
+  .fk-where-row {
     height: 52px;
+  }
+  .fk-where {
+    flex: 1 1 auto;
     gap: 0;
   }
   .fk-where-tab {

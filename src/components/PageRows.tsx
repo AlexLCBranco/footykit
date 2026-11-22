@@ -1,6 +1,7 @@
-// FK-65: the page rows under the pinned header (NAV_PATTERN.md §2): What (the thing looked at) as chips (an edition:
-// FK-74's dropdown), and How as a small switch; then the page's own controls (dates, span, checkboxes). They scroll
-// away with the page. A page without a What or a How skips that row.
+// FK-65: a page's controls (NAV_PATTERN.md §2): What (the thing looked at) as chips (an edition: FK-74's dropdown), How
+// as a small switch, then the page's own controls (dates, span, checkboxes). FK-75: where they all fit beside the tabs
+// (`controlsInHeader`: Today and Clubs) they are drawn inside the header's tabs row, on one line and without the
+// "What" / "How" labels; elsewhere they are rows under the header that scroll away with the page.
 
 import type { ReactNode } from 'react';
 import { addDays, dayLabel, mondayOf, monthLabel, shortDay } from '../data/model';
@@ -64,7 +65,7 @@ function DateBlock({ page, today, onPage, onStep }: { page: Page; today: string;
   );
 }
 
-export function PageRows({ page, today, onPage, onStep, extra }: { page: Page; today: string; onPage: (p: Page) => void; onStep: (dir: 1 | -1) => void; /** the page's own checkboxes */ extra?: ReactNode }) {
+export function PageRows({ page, today, onPage, onStep, extra, inHeader = false }: { page: Page; today: string; onPage: (p: Page) => void; onStep: (dir: 1 | -1) => void; /** the page's own checkboxes */ extra?: ReactNode; /** drawn inside the header's tabs row (FK-75) */ inHeader?: boolean }) {
   const { model } = useFooty();
   const where = whereOf(page);
   let what: ReactNode = null, what2: ReactNode = null, how: ReactNode = null, more: ReactNode = null;
@@ -74,10 +75,12 @@ export function PageRows({ page, today, onPage, onStep, extra }: { page: Page; t
     more = <DateBlock page={page} today={today} onPage={onPage} onStep={onStep} />;
   } else if (where === 'clubs') {
     const team = page.view === 'cal' || page.view === 'list' ? page.team : undefined;
+    // FK-75: "All clubs" is always on screen beside the club box: one click goes back to every club; lit while no club is open
     what = (
-      <span className={`fk-club-group${team ? ' fk-club-group-on' : ''}`} data-testid="club-group">
+      <span className="fk-club-group" data-testid="club-group">
+        <button type="button" className={`fk-chip-btn fk-all-clubs${team ? '' : ' fk-chip-on'}`} aria-pressed={!team} data-text="All clubs" data-testid="all-clubs"
+          title={team ? 'Go back to the page with every club' : 'You are looking at every club'} onClick={() => team && onPage({ ...page, view: 'clubs', team: undefined })}>All clubs</button>
         <ClubPicker team={team} onPick={(id) => onPage(id ? { ...page, view: page.view === 'list' ? 'list' : 'cal', team: id } : { ...page, view: 'clubs', team: undefined })} />
-        {team && <button type="button" className="fk-club-clear" aria-label="Leave this club" title="Leave this club: back to every club" data-testid="club-clear" onClick={() => onPage({ ...page, view: 'clubs', team: undefined })}>×</button>}
       </span>
     );
     if (team) {
@@ -110,6 +113,7 @@ export function PageRows({ page, today, onPage, onStep, extra }: { page: Page; t
       </>
     );
   }
+  if (inHeader) return <div className="fk-head-controls" data-testid="page-rows">{what}{how}{more}{extra}</div>;
   return (
     <div className="fk-prows" data-testid="page-rows" data-capture-exclude="true">
       <div className="fk-prows-line">

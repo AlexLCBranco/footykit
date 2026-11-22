@@ -39,6 +39,14 @@ export function whereOf(p: Page): Where {
   }
 }
 
+/** FK-75: the places whose controls all fit in the header's tabs row, beside the five tabs, on one line at full text
+ *  size. Leagues (its Calendar), Cups and Tools need more room than the row has, so theirs stay under the header. */
+const HEADER_PLACES: Where[] = ['today', 'clubs'];
+/** The narrowest widget that holds the tabs and the widest of those controls (a club's Calendar) on one line; narrower
+ *  than this, the controls go back under the header rather than being cut off. */
+export const HEADER_CONTROLS_MIN = 1620;
+export const controlsInHeader = (p: Page, width: number): boolean => width >= HEADER_CONTROLS_MIN && HEADER_PLACES.includes(whereOf(p));
+
 // ---------- Leagues ----------
 export type LeagueHow = 'table' | 'race' | 'cal' | 'sim' | 'history';
 export const LEAGUE_HOWS: [LeagueHow, string, string][] = [

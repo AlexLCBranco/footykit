@@ -15,6 +15,7 @@ import { DayStrip } from './DayStrip';
 import { WC_LATEST, historyPage, DEFAULT_CUP, DEFAULT_LEAGUE, windowClickPage, leagueViewPage, monthStep, simLeague, stepPage, teamClickPage, type Page } from './page';
 import { ClubsPage } from './ClubsPage';
 import { Header, type History } from './Header';
+import { controlsInHeader } from './nav';
 import { PageRows } from './PageRows';
 import { StandingsPopup, useSeriesPopup } from './Popups';
 import { Slate } from './Slate';
@@ -155,10 +156,22 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
   else if (page.view === 'slate') view = <Slate day={page.day} notes={notes} showNotes={showNotes} popout={popCtl} />;
   else view = <DayList key={page.day} day={page.day} width={width} />;
 
+  // FK-75: Today's and Clubs' controls sit in the header's tabs row; the other places keep their rows under the header
+  const inHeader = controlsInHeader(page, width);
+  const rows = (
+    <PageRows page={page} today={today} onPage={onPage} onStep={(d) => onPage(stepPage(page, d, model))} inHeader={inHeader} extra={<>
+      {page.view === 'list' && page.team && (
+        <label className="fk-check" title="A quiet row for each day without a match between the club's first and last match (until a reload)"><input type="checkbox" checked={showRest} onChange={(e) => setShowRest(e.target.checked)} data-testid="show-rest" aria-label="Rest days" /> Rest days</label>
+      )}
+      {page.view === 'slate' && (
+        <label className="fk-check" title="Note boxes under each card (PRE / LIVE / POST)"><input type="checkbox" checked={!showNotes} onChange={(e) => setShowNotes(!e.target.checked)} data-testid="hide-notes" aria-label="Hide notes" /> Hide notes</label>
+      )}
+    </>} />
+  );
   return (
     <Ctx.Provider value={ctx}>
       <div className="fk-root" style={{ width }} data-testid="footy" onMouseOver={streak.onOver} onFocus={streak.onOver} onMouseLeave={streak.onLeave}>
-        <Header page={page} today={today} history={history} onPage={onPage}
+        <Header page={page} today={today} history={history} onPage={onPage} controls={inHeader ? rows : undefined}
           end={<>
             <TagVariantPicker value={tags} onChange={(v) => { setTags(v); saveTagVariant(v); }} />
             {tags !== 'off' && <TagMenu hidden={hiddenTags} onChange={(s) => { setHiddenTags(s); saveHiddenTags(s); }} />}
@@ -168,14 +181,7 @@ export function Footy({ model, page, today, now, timeZone, width, history, onPag
             </button>
             <Info model={model} timeZone={timeZone} calendarKey={page.view === 'cal' && !!page.team} />
           </>} />
-        <PageRows page={page} today={today} onPage={onPage} onStep={(d) => onPage(stepPage(page, d, model))} extra={<>
-          {page.view === 'list' && page.team && (
-            <label className="fk-check" title="A quiet row for each day without a match between the club's first and last match (until a reload)"><input type="checkbox" checked={showRest} onChange={(e) => setShowRest(e.target.checked)} data-testid="show-rest" /> Rest days</label>
-          )}
-          {page.view === 'slate' && (
-            <label className="fk-check" title="Note boxes under each card (PRE / LIVE / POST)"><input type="checkbox" checked={!showNotes} onChange={(e) => setShowNotes(!e.target.checked)} data-testid="hide-notes" /> Hide notes</label>
-          )}
-        </>} />
+        {!inHeader && rows}
         {dayView && <DayStrip day={page.day} today={today} onDay={(d) => onPage({ ...page, day: d })} />}
         <div className="fk-capture fk-select-area" key={page.view} onPointerDown={onMarquee}>{view}</div>
         <div ref={marquee} className="fk-marquee" aria-hidden="true" data-testid="marquee" />

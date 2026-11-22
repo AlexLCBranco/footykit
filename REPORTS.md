@@ -2,6 +2,25 @@
 
 Newest first. One report per backlog run (CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-21 — FK-75, first part (FK-61, FK-63, FK-68 still blocked)
+
+**Built:** v0.84.0, FK-75 on Today and Clubs.
+- The header is still 92 px tall with its two rows. On Today and Clubs the controls now sit in the tabs row, to the right of Today / Clubs / Leagues / Cups / Tools, and nothing is under the header line.
+- Clubs, left to right: the five tabs · "All clubs" · the club box · Calendar / List · 1 week / 2 weeks / Month · the arrows with the month name and Today. On a club's List the "Rest days" tick box comes last.
+- "All clubs" replaces the small ×. It is always on screen on Clubs. One click goes back to every club. It is lit when no club is open.
+- Today: List / Slate · the arrows with the day, the date box and Today · "Hide notes" on the Slate.
+- The "WHAT" and "HOW" labels are gone on these two pages.
+- A club's month at 1912 × 913: the calendar now starts 46 px higher (116 px from the top, was 162), and that height went to the day boxes. The page doesn't scroll.
+**How I read the gaps in the spec (say if any is wrong):**
+- "Page" = one of the five tabs. Leagues fits on four of its five views and not on Calendar, so I left all of Leagues alone rather than have its controls jump under the line when Calendar is picked.
+- A window too narrow to hold everything on one line (under about 1650 px wide) keeps the controls under the header, as before, instead of cutting them off.
+- The spec doesn't mention them, so they stay: Today's strip of day boxes under the line, and a club's title row (crest, name, month). calendarkit's mock C has no title row.
+- The header still starts 16 px below the window's top edge (calendarkit removed that gap in CK-33; the spec here doesn't ask for it).
+**Blocked:** FK-75 stays in the backlog for Leagues, Cups and Tools. The tabs row has 1348 px free; Leagues needs 1622 (Calendar view), Cups 1667, Tools about 1730. It needs your answer: what should those three pages do (for example, one dropdown box for the league / competition, like the club box), and do the day strip and the club's title row stay? FK-61, FK-63 and FK-68 were skipped as blocked.
+**Ideas added:** none.
+**Checked automatically:** 2 new unit tests (which pages have their controls in the header; a narrow window doesn't) and 4 new browser tests (e2e/fk75.spec.ts: Palmeiras's month at 1912 × 913: header 92 px, no control row under the line, nothing cut or overlapping, "All clubs" leaves the club and is lit, no page scroll; every Today and Clubs page; the controls work from the header; the narrow window). Older browser tests updated for the button that replaced the ×. 569 unit tests pass; 118 of 119 browser tests pass. The one that fails now and then is the older World Cup speed test (limit 100 ms): it read 101 to 127 ms in 3 of 9 runs alone, and 106 ms in 1 of 6 runs on the code from before this change, so it is the test being touchy on this computer, not this change (the World Cup page was not touched).
+**Test by hand:** look at Today and a club's month and say if the tabs row reads well (looks can't be automated).
+
 ## 2026-11-21 — FK-72, FK-73, FK-74 (FK-61, FK-63, FK-68 still blocked)
 
 **Built:** v0.83.0.
