@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:cxm-api.fifa.com)",
+      "Bash(curl *cxm-api.fifa.com*)"
+    ]
+  }
+}
