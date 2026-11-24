@@ -6,6 +6,7 @@ spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Featu
 
 ## 2026-11-24
 ### Internal
+- Vercel budget: new "Vercel requests are a budget" rule in CLAUDE.md; the Snapshot job's live check now looks at most 10 times (every 30 s) instead of up to 31 (every 10 s)
 - docs: new "Blocked" rule in CLAUDE.md: a Blocked line that only waits for other items unblocks itself at the next build; a question needs a "?" and still waits for the owner
 
 ## 2026-11-21

@@ -2,6 +2,21 @@
 
 Read PROJECT.md first.
 
+## Vercel requests are a budget (owner's rule, 2026-11-24)
+
+Vercel's free plan gives 1M CDN requests per rolling 30 days, shared by all the owner's projects; going over pauses
+all of them. Every page, file, API call and prefetch on a `*.vercel.app` site (including the gauntlet's `/football/`)
+counts; local runs cost nothing.
+- The full test suite (unit and Playwright) runs **locally**, against a local production build. Never run it against
+  the live site unless the owner asks.
+- After a push the live site gets only a **small smoke check**: load it, check the version, at most one throwaway
+  create + delete. Tens of requests, not thousands.
+- Check the live `/version.json` at most every 30 s, and stop as soon as it shows the new version. Don't open live
+  pages to look around when a local run shows the same thing.
+- Scheduled jobs that touch the live site (`freshness.yml` every 4 h, `snapshot.yml` every 3 h, both via
+  `scripts/check-live.ts`) stay at a handful of requests per run: freshness 2, snapshot's wait at most 10 (one look
+  every 30 s). `tests/check-live.test.ts` guards this.
+
 ## Feature backlog, built list and ideas (owner's standing workflow, updated 2026-11-15)
 
 Three lists, never mixed:
