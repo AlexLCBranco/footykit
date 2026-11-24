@@ -4,6 +4,10 @@ Shipped work only, newest first. Planned work is in `FEATURE_BACKLOG.md`, never 
 Entries dated before 2026-11-16 were backfilled from the git commit messages (data, docs, test-only, merge and
 spec commits left out). New entries name their backlog ID (see CLAUDE.md, "Feature backlog, built list and ideas").
 
+## 2026-11-24
+### Internal
+- docs: new "Blocked" rule in CLAUDE.md: a Blocked line that only waits for other items unblocks itself at the next build; a question needs a "?" and still waits for the owner
+
 ## 2026-11-21
 - FK-77 — The Slate kit gives one match card on its own (v0.87.0) — Nothing changes on screen in footykit: its Slate kit can now also hand over one match's card alone and the day's list of matches with exact start times, so the whiteboard can mix football and NBA games in time order.
 - FK-76 — footykit serves its Slate kit live, for the whiteboard (v0.87.0) — Nothing changes on screen in footykit: it now serves its Slate as a kit (at /football/slatekit/manifest.json) that gauntlet can load live, so a new card design shows on the whiteboard without anybody updating gauntlet.
